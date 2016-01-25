@@ -7,11 +7,13 @@ First the link to the library.
 
 .. raw:: html
 
-   <script src="http://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.21/p5.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.21/p5.js"></script>
 
 
 And now the sketch.
          
 .. raw:: html
 
+   <div id="get_started">
    <script language="javascript" type="text/javascript" src='get_started.js'></script>
+   </div>

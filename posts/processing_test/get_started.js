@@ -1,5 +1,6 @@
 function setup() {
-    createCanvas(640, 480);
+    canvas = createCanvas(640, 480);
+    canvas.parent("get_started")
     background(255);
     stroke(0, 0, 255);
     fill(255)
