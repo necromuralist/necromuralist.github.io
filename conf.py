@@ -21,12 +21,12 @@ BLOG_AUTHOR = "Cloistered Monkey"  # (translatable)
 BLOG_TITLE = "The Cloistered Monkey"  # (translatable)
 # This is the main URL for your site. It will be used
 # in a prominent link. Don't forget the protocol (http/https)!
-SITE_URL = "https://necromuralist.github.io/blog"
+SITE_URL = "https://necromuralist.github.io/"
 # This is the URL where Nikola's output will be deployed.
 # If not set, defaults to SITE_URL
 # BASE_URL = "https://example.com/"
 BLOG_EMAIL = "necromuralist@gmail.com"
-BLOG_DESCRIPTION = "Notes on things I've learned about computing."  # (translatable)
+BLOG_DESCRIPTION = "A notebook of things to remember."  # (translatable)
 
 # Nikola is multilingual!
 #
