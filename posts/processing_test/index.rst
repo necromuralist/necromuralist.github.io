@@ -13,6 +13,5 @@ First the link to the library.
 And now the sketch.
          
 .. raw:: html
-   <script language="javascript" type="text/javascript" src="getting_started.js"></script>
 
-   
+   <script language="javascript" type="text/javascript" src='get_started.js'></script>
