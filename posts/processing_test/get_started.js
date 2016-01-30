@@ -1,19 +1,34 @@
+var velocity = 0;
+
 function setup() {
     canvas = createCanvas(windowWidth, 200);
     canvas.parent("get_started")
     background(255);
-    strokeWeight(5);
+    strokeWeight(3);
     stroke(0, 0, 255);
-    fill(255)
+    fill(255);
+}
+
+function mousePressed() {
+    /* set background to blue */
+    background(0, 0, 255);
+}
+
+function mouseReleased() {
+    /* set background to white */
+    background(255);
 }
 
 function draw() {
-  if (mouseIsPressed) {
-      fill(0, 0, 255);
-      stroke(255);
-  } else {
-      fill(255);
-      stroke(0, 0, 255);
-  }
-  ellipse(mouseX, mouseY, 80, 80);
+    /* Draw circles that change diameter based on mouse speed */
+    /* and color based on if mouse-pressed (or not pressed)   */
+    if (mouseIsPressed) {
+        fill(0, 0, 255);
+        stroke(255);
+    } else {
+        fill(255);
+        stroke(0, 0, 255);
+    }
+    velocity = dist(pmouseX, mouseX, pmouseY, mouseY);
+    ellipse(mouseX, mouseY, velocity, velocity);
 }
