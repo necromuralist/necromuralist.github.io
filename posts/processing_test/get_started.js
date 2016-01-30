@@ -1,4 +1,4 @@
-var velocity = 0;
+var diameter;
 
 function setup() {
     canvas = createCanvas(windowWidth, 200);
@@ -29,6 +29,6 @@ function draw() {
         fill(255);
         stroke(0, 0, 255);
     }
-    velocity = dist(pmouseX, pmouseY, mouseX, mouseY);
-    ellipse(mouseX, mouseY, velocity, velocity);
+    diameter = pow(dist(pmouseX, pmouseY, mouseX, mouseY), 1.5);
+    ellipse(mouseX, mouseY, diameter, diameter);
 }
