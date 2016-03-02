@@ -1,7 +1,7 @@
 var diameter;
 
 function setup() {
-    canvas = createCanvas(windowWidth, 200);
+    canvas = createCanvas(0.5 * windowWidth, 200);
     canvas.parent("get_started")
     background(255);
     strokeWeight(3);
