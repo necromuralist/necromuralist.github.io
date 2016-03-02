@@ -41,8 +41,6 @@ This was a little harder than I thought it would be. First, regarding the javasc
 
 * In order to get it to the final HTML you need to create a folder with the same name as this post's file (`processing_test.rst`) without extension  within the `files` folder and put the javascript there (`files/posts/processing_test/get_started.js`).
 
-* The link to the file somehow magically links the github URL so you can't update it locally and check, you have to push the build to github to see it.
+* to get the sketch to stay in the post (instead of showing up on the bottom of the page), you have to use the div trick -- create a `div` where you want the sketch and give it a unique ID, then set the parent in the sketch (``canvas.parent("get_started")`` in this example). I don't really like giving the `div` an `id` in the post and then referring to it in the javascript, but it seems to work.
 
-I think that to test the sketches locally it would be better to embed the processing code directly into the post (as HTML) so that you can see it rendered, then move it to the external file when you're ready to push it to github. Maybe using `processing.js` would be easier.
-
-Second, to get the sketch to stay in the post (instead of showing up on the bottom of the page), you have to use the div trick. I don't really like giving the `div` an `id` in the post and then referring to it in the javascript, but it seems to work.
+* The `windowWidth` isn't actually constraining the width of the sketch the way I thought it would. Need to look into that.  
