@@ -54,3 +54,5 @@ Creating the Home Page
 ----------------------
 
 At this point if you build the site and navigate to it you'll find that your home-page is now a directory of your ``output`` folder. You can navigate to a page by going through the folders, but this is probably not the intended way to get around. The easiest way (that I found) to create the home-page is to create a new-page (``nikola new_page``) and when prompted for a title, call it ``index``. This will create ``stories/index.rst`` which you can edit to become your home page (make sure to change the title if you don't want the page headline to be 'index').
+
+.. note:: Some other things might need to be re-done in the ``conf.py`` as well, since the folder structure has changed. These are only the basic steps to switch. The ``NAVIGATION_LINKS`` in particular may need updating.
