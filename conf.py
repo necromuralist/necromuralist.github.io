@@ -26,7 +26,7 @@ SITE_URL = "https://necromuralist.github.io/"
 # If not set, defaults to SITE_URL
 # BASE_URL = "https://example.com/"
 BLOG_EMAIL = "necromuralist@gmail.com"
-BLOG_DESCRIPTION = "A notebook of things."  # (translatable)
+BLOG_DESCRIPTION = "A notebook of things to remember."  # (translatable)
 
 # Nikola is multilingual!
 #
@@ -128,17 +128,16 @@ TRANSLATIONS_PATTERN = "{path}.{lang}.{ext}"
 
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
-        ("/archive/archive.html", "Archive"),
+        ("/archive.html", "Archive"),
         ("/categories/", "Tags"),
         ("/rss.xml", "RSS feed"),
-        ("/blog/index.html", "Blog"),
         (
             (
                 ("/machine-learning-projects/", "Machine Learning"),
             ),
             "Projects"
         ),
-    )
+    ),
 }
 
 # Name of the theme to use.
@@ -176,11 +175,12 @@ THEME_COLOR = '#5670d4'
 POSTS = (
     ("posts/*.rst", "posts", "post.tmpl"),
     ("posts/*.txt", "posts", "post.tmpl"),
+    ("posts/*.html", "posts", "post.tmpl"),
     ("posts/*.ipynb", "posts", "post.tmpl"),
 )
 PAGES = (
-    ("stories/*.rst", "", "story.tmpl"),
-    ("stories/*.txt", "", "story.tmpl"),
+    ("stories/*.rst", "stories", "story.tmpl"),
+    ("stories/*.txt", "stories", "story.tmpl"),
     ("stories/*.ipynb", "", "post.tmpl"),
 )
 
@@ -250,17 +250,17 @@ DATE_FANCINESS = 1
 # 'html' assumes the file is HTML and just copies it
 COMPILERS = {
     "rest": ('.rst', '.txt'),
-    # "markdown": ('.md', '.mdown', '.markdown'),
-    # "textile": ('.textile',),
-    # "txt2tags": ('.t2t',),
-    # "bbcode": ('.bb',),
-    # "wiki": ('.wiki',),
+    "markdown": ('.md', '.mdown', '.markdown'),
+    "textile": ('.textile',),
+    "txt2tags": ('.t2t',),
+    "bbcode": ('.bb',),
+    "wiki": ('.wiki',),
     "ipynb": ('.ipynb',),
     "html": ('.html', '.htm'),
     # PHP files are rendered the usual way (i.e. with the full templates).
     # The resulting files have .php extensions, making it possible to run
     # them without reconfiguring your server to recognize them.
-    #"php": ('.php',),
+    "php": ('.php',),
     # Pandoc detects the input from the source filename
     # but is disabled by default as it would conflict
     # with many of the others.
@@ -467,7 +467,7 @@ HIDDEN_AUTHORS = ['Guest']
 
 # Final location for the main blog page and sibling paginated pages is
 # output / TRANSLATION[lang] / INDEX_PATH / index-*.html
-INDEX_PATH = "blog"
+# INDEX_PATH = ""
 
 # Create per-month archives instead of per-year
 # CREATE_MONTHLY_ARCHIVE = False
@@ -483,7 +483,7 @@ INDEX_PATH = "blog"
 # output / TRANSLATION[lang] / ARCHIVE_PATH / YEAR / index.html
 # output / TRANSLATION[lang] / ARCHIVE_PATH / YEAR / MONTH / index.html
 # output / TRANSLATION[lang] / ARCHIVE_PATH / YEAR / MONTH / DAY / index.html
-ARCHIVE_PATH = "archive"
+# ARCHIVE_PATH = ""
 # ARCHIVE_FILENAME = "archive.html"
 
 # If ARCHIVES_ARE_INDEXES is set to True, each archive page which contains a list
@@ -772,12 +772,15 @@ FEED_LINKS_APPEND_QUERY = False
 
 # A HTML fragment describing the license, for the sidebar.
 # (translatable)
+LICENSE = ""
 # I recommend using the Creative Commons' wizard:
 # https://creativecommons.org/choose/
+# LICENSE = """
+# <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+# <img alt="Creative Commons License BY-NC-SA"
+# style="border-width:0; margin-bottom:12px;"
+# src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png"></a>"""
 
-LICENSE = """
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
-"""
 # A small copyright notice for the page footer (in HTML).
 # (translatable)
 CONTENT_FOOTER = 'Contents &copy; {date}         <a href="mailto:{email}">{author}</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         {license}'
@@ -885,12 +888,28 @@ PRETTY_URLS = True
 
 # Do you want a add a Mathjax config file?
 # MATHJAX_CONFIG = ""
+
+# If you are using the compile-ipynb plugin, just add this one:
+# MATHJAX_CONFIG = """
+# <script type="text/x-mathjax-config">
+# MathJax.Hub.Config({
+#     tex2jax: {
+#         inlineMath: [ ['$','$'], ["\\\(","\\\)"] ],
+#         displayMath: [ ['$$','$$'], ["\\\[","\\\]"] ],
+#         processEscapes: true
+#     },
+#     displayAlign: 'left', // Change this to 'center' to center equations.
+#     "HTML-CSS": {
+#         styles: {'.MathJax_Display': {"margin": 0}}
+#     }
+# });
+# </script>
+# """
 EXTRA_HEAD_DATA = '''
 <script type="text/javascript" async
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 '''
-# If you are using the compile-ipynb plugin, just add this one:
 MATHJAX_CONFIG = """
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -906,19 +925,12 @@ MathJax.Hub.Config({
 });
 </script>
 """
-
 # Want to use KaTeX instead of MathJax? While KaTeX is less featureful,
 # it's faster and the output looks better.
 # If you set USE_KATEX to True, you also need to add an extra CSS file
 # like this:
-# EXTRA_HEAD_DATA = '''
-#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.5.1/katex.min.css">
-#    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.5.1/katex.min.js">
-#    </script>
-#    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.5.1/contrib/auto-render.min.js">
-#    </script>
-# '''
-# USE_KATEX = True
+# EXTRA_HEAD_DATA = """<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.5.1/katex.min.css">"""
+# USE_KATEX = False
 
 # Do you want to customize the nbconversion of your IPython notebook?
 # IPYNB_CONFIG = {}
@@ -1008,10 +1020,6 @@ MARKDOWN_EXTENSIONS = ['fenced_code', 'codehilite', 'extra']
 # Default is no search form.
 # (translatable)
 # SEARCH_FORM = ""
-#
-# This search form works for any site and looks good in the "site" theme where
-# it appears on the navigation bar:
-#
 SEARCH_FORM = """
 <!-- DuckDuckGo custom search -->
 <form method="get" id="search" action="https://duckduckgo.com/"
@@ -1025,7 +1033,25 @@ SEARCH_FORM = """
 <input type="submit" value="DuckDuckGo Search" style="visibility: hidden;">
 </form>
 <!-- End of custom search -->
+#
 """ % SITE_URL
+# This search form works for any site and looks good in the "site" theme where
+# it appears on the navigation bar:
+#
+# SEARCH_FORM = """
+# <!-- DuckDuckGo custom search -->
+# <form method="get" id="search" action="https://duckduckgo.com/"
+#  class="navbar-form pull-left">
+# <input type="hidden" name="sites" value="%s">
+# <input type="hidden" name="k8" value="#444444">
+# <input type="hidden" name="k9" value="#D51920">
+# <input type="hidden" name="kt" value="h">
+# <input type="text" name="q" maxlength="255"
+#  placeholder="Search&hellip;" class="span2" style="margin-top: 4px;">
+# <input type="submit" value="DuckDuckGo Search" style="visibility: hidden;">
+# </form>
+# <!-- End of custom search -->
+# """ % SITE_URL
 #
 # If you prefer a Google search form, here's an example that should just work:
 # SEARCH_FORM = """
@@ -1035,7 +1061,7 @@ SEARCH_FORM = """
 # <input type="text" name="q" class="form-control" placeholder="Search">
 # </div>
 # <button type="submit" class="btn btn-primary">
-#     <span class="glyphicon glyphicon-search"></span>
+# 	<span class="glyphicon glyphicon-search"></span>
 # </button>
 # <input type="hidden" name="sitesearch" value="%s">
 # </form>
