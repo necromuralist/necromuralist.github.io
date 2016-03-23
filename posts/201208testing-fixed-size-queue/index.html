@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<base href="https://necromuralist.github.io/posts/201208testing-fixed-size-queue/">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing the Fixed-Size Queue | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta content="#5670d4" name="theme-color">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="https://necromuralist.github.io/posts/201208testing-fixed-size-queue/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><meta name="author" content="Cloistered Monkey">
+<link rel="prev" href="../201208a-python-implementation-of-fixed-size/" title="A Python Implementation Of the Fixed-Size Queue" type="text/html">
+<link rel="next" href="../201208creating-testable-software/" title="Creating Testable Software" type="text/html">
+<meta property="og:site_name" content="The Cloistered Monkey">
+<meta property="og:title" content="Testing the Fixed-Size Queue">
+<meta property="og:url" content="https://necromuralist.github.io/posts/201208testing-fixed-size-queue/">
+<meta property="og:description" content="from unittest import TestCaseimport sysfrom random import randintfrom nose.tools import raisesfrom softwaretesting import fixedsizequeueMAXINT = sys.maxintMININT = -sys.maxint - 1class TestFixedSizeQu">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2012-08-03T02:04:00-07:00">
+<meta property="article:tag" content="Software Testing">
+<meta property="article:tag" content="Udacity">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="https://necromuralist.github.io/">
+
+                <span id="blog-title">The Cloistered Monkey</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<li>
+<a href="../../archive.html">Archive</a>
+                </li>
+<li>
+<a href="../../categories/">Tags</a>
+                </li>
+<li>
+<a href="../../rss.xml">RSS feed</a>
+            </li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects <b class="caret"></b></a>
+            <ul class="dropdown-menu"><li>
+<a href="../../machine-learning-projects/">Machine Learning</a>
+            </li></ul>
+</li>
+</ul>
+<!-- DuckDuckGo custom search --><form method="get" id="search" action="https://duckduckgo.com/" class="navbar-form pull-left">
+<input type="hidden" name="sites" value="https://necromuralist.github.io/"><input type="hidden" name="k8" value="#444444"><input type="hidden" name="k9" value="#D51920"><input type="hidden" name="kt" value="h"><input type="text" name="q" maxlength="255" placeholder="Search…" class="span2" style="margin-top: 4px;"><input type="submit" value="DuckDuckGo Search" style="visibility: hidden;">
+</form>
+<!-- End of custom search -->
+#
+
+
+            <ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.src.html" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            
+            
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Testing the Fixed-Size Queue</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                    Cloistered Monkey
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2012-08-03T02:04:00-07:00" itemprop="datePublished" title="2012-08-03 02:04">2012-08-03 02:04</time></a></p>
+            
+        <p class="sourceline"><a href="index.src.html" id="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div class="document" id="testing-the-fixed-size-queue"><pre class="code python literal-block"><span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span><br><span class="kn">import</span> <span class="nn">sys</span><br><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span><br><br><span class="kn">from</span> <span class="nn">nose.tools</span> <span class="kn">import</span> <span class="n">raises</span><br><br><span class="kn">from</span> <span class="nn">softwaretesting</span> <span class="kn">import</span> <span class="n">fixedsizequeue</span><br><br><br><span class="n">MAXINT</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxint</span><br><span class="n">MININT</span> <span class="o">=</span> <span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">maxint</span> <span class="o">-</span> <span class="mi">1</span><br><br><br><span class="k">class</span> <span class="nc">TestFixedSizeQueue</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span><br><span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><br><span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">10</span><br><span class="bp">self</span><span class="o">.</span><span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">randint</span><span class="p">(</span><span class="n">MININT</span><span class="p">,</span> <span class="n">MAXINT</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="n">fixedsizequeue</span><span class="o">.</span><span class="n">FixedsizeQueue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><br><span class="k">return</span><br><br><span class="k">def</span> <span class="nf">test_enqueue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><br><span class="sd">"""<br>        The enqueue takes a single integer and returns True if added.<br>        """</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">full</span><span class="p">())</span><br><span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">):</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">item</span><span class="p">))</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">])</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">((</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">tail</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">())</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">full</span><span class="p">())</span><br><span class="k">return</span><br><br><span class="k">def</span> <span class="nf">test_dequeue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><br><span class="sd">"""<br>        The dequeue returns the oldest item or None.<br>        """</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">dequeue</span><span class="p">())</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><br><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">:</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><br><br><span class="k">for</span> <span class="n">expected</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">:</span><br><span class="n">actual</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">dequeue</span><span class="p">()</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">())</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">head</span><span class="p">)</span><br><span class="k">return</span><br><br><span class="k">def</span> <span class="nf">test_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><br><span class="sd">"""<br>        The reset resets the pointers and count<br>        """</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">dequeue</span><span class="p">()</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">())</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">tail</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">head</span><span class="p">)</span><br><span class="k">return</span><br><br><span class="k">def</span> <span class="nf">test_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><br><span class="sd">"""<br>        If the queue is empty dequeue returns False and does nothing.<br>        """</span><br><span class="n">q</span> <span class="o">=</span> <span class="n">fixedsizequeue</span><span class="o">.</span><span class="n">FixedsizeQueue</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">())</span><br><span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">randint</span><span class="p">(</span><span class="n">MININT</span><span class="p">,</span> <span class="n">MAXINT</span><span class="p">))</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">())</span><br><span class="n">q</span><span class="o">.</span><span class="n">dequeue</span><span class="p">()</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">())</span><br><span class="k">return</span><br><br><span class="k">def</span> <span class="nf">test_overfull</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><br><span class="sd">"""<br>        The array doesn't add items once full<br>        """</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span><br><br><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">:</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">tail</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">full</span><span class="p">())</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">max</span><span class="p">)</span><br><br><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">:</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">dequeue</span><span class="p">())</span><br><span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">())</span><br><br><span class="k">return</span><br><br><span class="nd">@raises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">)</span><br><span class="k">def</span> <span class="nf">test_non_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span><br><span class="sd">"""<br>        The array has to be homogeneous.<br>        """</span><br><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><br><span class="k">return</span><br><span class="c"># end class TestFixedSizeQueue</span><br></pre></div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/software-testing/" rel="tag">Software Testing</a></li>
+            <li><a class="tag p-category" href="../../categories/udacity/" rel="tag">Udacity</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../201208a-python-implementation-of-fixed-size/" rel="prev" title="A Python Implementation Of the Fixed-Size Queue">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="../201208creating-testable-software/" rel="next" title="Creating Testable Software">Next post</a>
+            </li>
+        </ul></nav></aside></article>
+</div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2016         <a href="mailto:necromuralist@gmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(1, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates -->
+</body>
+</html>
