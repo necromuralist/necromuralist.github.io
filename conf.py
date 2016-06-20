@@ -128,6 +128,7 @@ TRANSLATIONS_PATTERN = "{path}.{lang}.{ext}"
 
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
+        ("/posts/index.html", "Blog"),
         ("/archive.html", "Archive"),
         ("/categories/", "Tags"),
         ("/rss.xml", "RSS feed"),
@@ -174,10 +175,11 @@ THEME_COLOR = '#5670d4'
 
 POSTS = (
     ("posts/*.rst", "posts", "post.tmpl"),
-    ("posts/*.txt", "posts", "post.tmpl")
+    ("posts/*.txt", "posts", "post.tmpl"),
+    ("posts/*.ipynb", "posts", "post.tmpl"),
 )
 
-#    ("posts/*.ipynb", "posts", "post.tmpl"),
+
 
 PAGES = (
     ("stories/*.rst", "", "story.tmpl"),
