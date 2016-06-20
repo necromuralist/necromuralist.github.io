@@ -1,5 +1,12 @@
-A P5 (Processing) Test
-======================
+.. title: Processing Test
+.. slug: processing-test
+.. date: 2016-03-02 12:53:31 UTC-08:00
+.. tags: processing
+.. category: processing
+.. link: 
+.. description: Experiments setting up P5 in nikola
+.. type: text
+
 
 This is a `p5 <http://p5js.org/>`_ test based on their `get started <http://p5js.org/get-started/>`_ tutorial. It's also an indirect test of using the `raw` directive to write HTML to pass to `nikola`.
 
