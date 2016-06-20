@@ -469,7 +469,7 @@ HIDDEN_AUTHORS = ['Guest']
 
 # Final location for the main blog page and sibling paginated pages is
 # output / TRANSLATION[lang] / INDEX_PATH / index-*.html
-# INDEX_PATH = ""
+INDEX_PATH = "posts"
 
 # Create per-month archives instead of per-year
 # CREATE_MONTHLY_ARCHIVE = False
