@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<base href="https://necromuralist.github.io/posts/201207the-template-method-pattern-hfdp/">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Template Method Pattern [HFDP] | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<meta content="#5670d4" name="theme-color">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="https://necromuralist.github.io/posts/201207the-template-method-pattern-hfdp/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><meta name="author" content="Cloistered Monkey">
+<link rel="prev" href="../201207optimization/" title="Optimization" type="text/html">
+<link rel="next" href="../201207the-state-pattern-hfdp/" title="The State Pattern [HFDP]" type="text/html">
+<meta property="og:site_name" content="The Cloistered Monkey">
+<meta property="og:title" content="The Template Method Pattern [HFDP]">
+<meta property="og:url" content="https://necromuralist.github.io/posts/201207the-template-method-pattern-hfdp/">
+<meta property="og:description" content="What is the Template Method Pattern?Defines the skeleton of an algorithm in a methodDefers some steps to a subclassLets subclasses change some steps in the algorithm without changing the structureThe ">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2012-07-26T05:18:00-07:00">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="https://necromuralist.github.io/">
+
+                <span id="blog-title">The Cloistered Monkey</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<li>
+<a href="../../archive.html">Archive</a>
+                </li>
+<li>
+<a href="../../categories/">Tags</a>
+                </li>
+<li>
+<a href="../../rss.xml">RSS feed</a>
+            </li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+<li>
+<a href="../../machine-learning-projects/">Machine Learning</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/p5_explorations/">P5 Explorations</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/tddmachinelearning/">TDD Machine Learning</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a>
+            </li>
+</ul>
+</li>
+</ul>
+<!-- DuckDuckGo custom search --><form method="get" id="search" action="https://duckduckgo.com/" class="navbar-form pull-left">
+<input type="hidden" name="sites" value="https://necromuralist.github.io/"><input type="hidden" name="k8" value="#444444"><input type="hidden" name="k9" value="#D51920"><input type="hidden" name="kt" value="h"><input type="text" name="q" maxlength="255" placeholder="Search…" class="span2" style="margin-top: 4px;"><input type="submit" value="DuckDuckGo Search" style="visibility: hidden;">
+</form>
+<!-- End of custom search -->
+
+
+            <ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.src.html" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            
+            
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">The Template Method Pattern [HFDP]</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                    Cloistered Monkey
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2012-07-26T05:18:00-07:00" itemprop="datePublished" title="2012-07-26 05:18">2012-07-26 05:18</time></a></p>
+            
+        <p class="sourceline"><a href="index.src.html" id="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div class="document" id="the-template-method-pattern-hfdp">
+<div class="section" id="what-is-the-template-method-pattern">
+<h4>What is the <em>Template Method Pattern</em>?</h4>
+<ul class="simple">
+<li>Defines the skeleton of an algorithm in a method</li>
+<li>Defers some steps to a subclass</li>
+<li>Lets subclasses change some steps in the algorithm without changing the structure</li>
+<li>The Template Method contains an ordered series of primitive operations -- by (re)defining the primitive operations, subclasses change the algorithm</li>
+</ul>
+</div>
+<div class="section" id="what-are-hooks">
+<h4>What Are Hooks?</h4>
+<ul class="simple">
+<li>A <em>Hook</em> is a method defined in the base class with a default or empty operation</li>
+<li>Because it's not abstract, subclasses can ignore it</li>
+<li>Because it's there, subclasses can re-define it without changing the structure of the template</li>
+<li>If the hook returns a boolean for a conditional, it allows subclasses to change the flow of the algorithm</li>
+</ul>
+</div>
+<div class="section" id="abstract-vs-hooks">
+<h4>Abstract Vs Hooks</h4>
+<ul class="simple">
+<li>
+<em>Abstract Methods</em> are requirements</li>
+<li>
+<em>Hooks</em> are optional</li>
+</ul>
+</div>
+<div class="section" id="what-is-the-hollywood-principle">
+<h4>What Is the 'Hollywood Principle'?</h4>
+<ul class="simple">
+<li>
+<em>Don't call us, we'll call you</em>.</li>
+<li>High-level components call low-level ones, not the other way around</li>
+</ul>
+</div>
+<div class="section" id="strategy-vs-template">
+<h4>Strategy Vs Template</h4>
+<ul class="simple">
+<li>
+<em>Strategy</em> composes other objects chosen at runtime</li>
+<li>
+<em>Template</em> uses sub-classes</li>
+<li>
+<em>Template</em> provides better code re-use and strictly defines the algorithm</li>
+<li>
+<em>Strategy</em> provides better decoupling but the algorithm is provided by the composed objects</li>
+</ul>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul class="pager hidden-print">
+<li class="previous">
+                <a href="../201207optimization/" rel="prev" title="Optimization">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="../201207the-state-pattern-hfdp/" rel="next" title="The State Pattern [HFDP]">Next post</a>
+            </li>
+        </ul></nav></aside></article>
+</div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2016         <a href="mailto:necromuralist@gmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates -->
+</body>
+</html>
