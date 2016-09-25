@@ -38,7 +38,7 @@ And now the sketch.
    </div>
 
          
-.. include:: files/posts/processing_test/get_started.js
+.. listing:: get_started.js
    :code: javascript
 
 Notes
@@ -46,7 +46,9 @@ Notes
 
 This was a little harder than I thought it would be. First, regarding the javascript file:
 
-* In order to get it to the final HTML you need to create a folder with the same name as this post's file (`processing_test.rst`) without extension  within the `files` folder and put the javascript there (`files/posts/processing_test/get_started.js`).
+* In order to get it to the final HTML you need to put in the ``listings`` folder at the root of the nikola folder and use the `listing <https://www.getnikola.com/handbook.html#listing>`_ `reStructuredText` directive instead of ``include`` (this is a special *nikola* directive). 
 
-* to get the sketch to stay in the post (instead of showing up on the bottom of the page), you have to use the div trick -- create a `div` where you want the sketch and give it a unique ID, then set the parent in the sketch (``canvas.parent("get_started")`` in this example). I don't really like giving the `div` an `id` in the post and then referring to it in the javascript, but it seems to work.
+And then there's the html trick:
+
+* to get the sketch to stay in the post (instead of showing up on the bottom of the page), you have to use the div trick - create a `div` where you want the sketch to be and give it a unique ID (use the ``raw`` *reStructuredText* to put the HTML tags displayed above into the post), then set the parent in the sketch (``canvas.parent("get_started")`` in this example).
 
