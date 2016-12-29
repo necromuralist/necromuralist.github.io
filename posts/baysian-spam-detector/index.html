@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Notes for a Udacity lecture.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baysian Spam Detector | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta content="#5670d4" name="theme-color">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="https://necromuralist.github.io/posts/baysian-spam-detector/">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><meta name="description" itemprop="description" content="Notes for a Udacity lecture.">
+<meta name="author" content="Cloistered Monkey">
+<link rel="prev" href="../building-a-jupyter-docker-container/" title="Building a Jupyter Docker Container" type="text/html">
+<link rel="next" href="../monitoring-events-with-chromium/" title="Monitoring Events With Chromium" type="text/html">
+<meta property="og:site_name" content="The Cloistered Monkey">
+<meta property="og:title" content="Baysian Spam Detector">
+<meta property="og:url" content="https://necromuralist.github.io/posts/baysian-spam-detector/">
+<meta property="og:description" content="Notes for a Udacity lecture.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2016-06-19T21:53:05-07:00">
+<meta property="article:tag" content="machine-learning">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-inverse navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="https://necromuralist.github.io/">
+
+                <span id="blog-title">The Cloistered Monkey</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<li>
+<a href="../../archive.html">Archive</a>
+                </li>
+<li>
+<a href="../../categories/">Tags</a>
+                </li>
+<li>
+<a href="../../rss.xml">RSS feed</a>
+            </li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+<li>
+<a href="../../machine-learning-projects/">Machine Learning</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/p5_explorations/">P5 Explorations</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/tddmachinelearning/">TDD Machine Learning</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a>
+            </li>
+</ul>
+</li>
+</ul>
+<!-- DuckDuckGo custom search --><form method="get" id="search" action="https://duckduckgo.com/" class="navbar-form pull-left">
+<input type="hidden" name="sites" value="https://necromuralist.github.io/"><input type="hidden" name="k8" value="#444444"><input type="hidden" name="k9" value="#D51920"><input type="hidden" name="kt" value="h"><input type="text" name="q" maxlength="255" placeholder="Search…" class="span2" style="margin-top: 4px;"><input type="submit" value="DuckDuckGo Search" style="visibility: hidden;">
+</form>
+<!-- End of custom search -->
+
+
+            <ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.ipynb" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            
+            
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Baysian Spam Detector</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                    Cloistered Monkey
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-06-19T21:53:05-07:00" itemprop="datePublished" title="2016-06-19 21:53">2016-06-19 21:53</time></a></p>
+            
+        <p class="sourceline"><a href="index.ipynb" id="sourcelink">Source</a></p>
+
+                <meta name="description" itemprop="description" content="Notes for a Udacity lecture.">
+</div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div tabindex="-1" id="notebook" class="border-box-sizing">
+    <div class="container" id="notebook-container">
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Spam-detection-with-Bayesian-Networks">Spam detection with Bayesian Networks<a class="anchor-link" href="#Spam-detection-with-Bayesian-Networks">¶</a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>These are my notes for the Bayesian Networks section of the udacity course on artifical intelligence.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [22]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># python standard library</span>
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="k">import</span> <span class="n">Fraction</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [23]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># it turns out 'reduce' is no longer a built-in function in python 3</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [24]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">spam</span> <span class="o">=</span> <span class="s1">'offer is secret, click secret link, secret sports link'</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spam</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>3
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ham</span> <span class="o">=</span> <span class="s1">'play sports today, went play sports, secret sports event, sports is today, sports costs money'</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ham</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>5
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The terms have to be changed to be either all plural or all singular. In this case I changed 'sport' to 'sports' where needed.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="The-SpamDetector-classes">The SpamDetector classes<a class="anchor-link" href="#The-SpamDetector-classes">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I originally implemented everything as functions, but decided it was too scattered and created these after the fact, which is why there's all the duplication below. I left the old code to validate these classes.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="The-MailBag">The MailBag<a class="anchor-link" href="#The-MailBag">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This class holds either spam or ham. It actually holds both but the idea is one of them is the real type of interest.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [26]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">MailBag</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    A place to put spam or ham</span>
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mail</span><span class="p">,</span> <span class="n">other_mail</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :param:</span>
+<span class="sd">         - `mail`: list of example mail</span>
+<span class="sd">         - `other_mail`: mail not in this class (e.g. spam if this is ham)</span>
+<span class="sd">         - `k`: Laplace smoothing constant</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mail</span> <span class="o">=</span> <span class="n">mail</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">other_mail</span> <span class="o">=</span> <span class="n">other_mail</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bag</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_probability</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vocabulary_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :return: count of unique words in all examples</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bag</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bag_boy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">other_mail</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vocabulary_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :return: list of words in `mail`</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bag_boy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bag</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sample_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :return: count of mail in both spam and not spam</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sample_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mail</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_mail</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_size</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">probability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :return: count of this mail/total sample size</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_probability</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">SPAM_AND_HAM</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_probability</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_probability</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="p">),</span>
+                                                   <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mail</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">other_mail</span><span class="p">),</span>
+                                                   <span class="n">SPAM_AND_HAM</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_probability</span>
+
+    <span class="k">def</span> <span class="nf">bag_boy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :param:</span>
+<span class="sd">         - `lines`: list of lines</span>
+
+<span class="sd">        :return: list of words taken from the lines</span>
+<span class="sd">        """</span>
+        <span class="n">tokenized</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">)</span>
+        <span class="n">bag</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tokens</span> <span class="ow">in</span> <span class="n">tokenized</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+                <span class="n">bag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bag</span>
+
+    <span class="k">def</span> <span class="nf">l_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_size</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">classes</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :param:</span>
+<span class="sd">         - `event_size`: count of events of interest</span>
+<span class="sd">         - `sample_size`: count of all events</span>
+<span class="sd">         - `classes`: count of all classes of events</span>
+
+<span class="sd">        :return: probability with Laplace Smoothing</span>
+<span class="sd">        """</span>        
+        <span class="k">return</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">event_size</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span>
+                        <span class="n">sample_size</span> <span class="o">+</span> <span class="n">classes</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">p_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :param:</span>
+<span class="sd">         - `message`: line of mail</span>
+
+<span class="sd">        :return: p(message|this class)</span>
+<span class="sd">        """</span>
+        <span class="n">probabilities</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">probability</span>
+        
+    <span class="k">def</span> <span class="nf">p_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :param:</span>
+<span class="sd">         - `word`: string to check for</span>
+<span class="sd">        :return: fraction of word occurence in bag</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_probability</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">word_count</span><span class="p">(</span><span class="n">word</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bag</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">word_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :param:</span>
+<span class="sd">         - `word`: string to check for</span>
+<span class="sd">        :return: number of times word appears in bag</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="mi">1</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bag</span> <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="n">word</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="SpamDetector">SpamDetector<a class="anchor-link" href="#SpamDetector">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [27]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">SpamDetector</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    A bayesian network spam detector</span>
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spam</span><span class="p">,</span> <span class="n">ham</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :param:</span>
+<span class="sd">         - `spam`: list of example spam lines</span>
+<span class="sd">         - `ham`: list of example ham_lines</span>
+<span class="sd">         - `k`: laplace smoothing constant</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spam</span> <span class="o">=</span> <span class="n">MailBag</span><span class="p">(</span><span class="n">mail</span><span class="o">=</span><span class="n">spam</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">other_mail</span><span class="o">=</span><span class="n">ham</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ham</span> <span class="o">=</span> <span class="n">MailBag</span><span class="p">(</span><span class="n">mail</span><span class="o">=</span><span class="n">ham</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">other_mail</span><span class="o">=</span><span class="n">spam</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">p_spam_given_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        :param:</span>
+<span class="sd">         - `message`: line to check if it's spam</span>
+<span class="sd">        :return: probability that it's spam</span>
+<span class="sd">        """</span>        
+        <span class="n">p_message_given_spam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> 
+        <span class="k">return</span> <span class="n">p_message_given_spam</span><span class="o">/</span> <span class="p">(</span><span class="n">p_message_given_spam</span> <span class="o">+</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_message</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+<span class="c1"># leave this in the same cell so updating the class updates the instance</span>
+<span class="n">detector</span> <span class="o">=</span> <span class="n">SpamDetector</span><span class="p">(</span><span class="n">spam</span><span class="o">=</span><span class="n">spam</span><span class="p">,</span> <span class="n">ham</span><span class="o">=</span><span class="n">ham</span><span class="p">)</span>
+<span class="n">l_detector</span> <span class="o">=</span> <span class="n">SpamDetector</span><span class="p">(</span><span class="n">spam</span><span class="o">=</span><span class="n">spam</span><span class="p">,</span> <span class="n">ham</span><span class="o">=</span><span class="n">ham</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="What-is-the-size-of-the-vocabulary?">What is the size of the vocabulary?<a class="anchor-link" href="#What-is-the-size-of-the-vocabulary?">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [28]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">bagger</span><span class="p">(</span><span class="n">mail</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    converts list of lines into list of tokens</span>
+<span class="sd">    </span>
+<span class="sd">    :param:</span>
+<span class="sd">     - `mail`: list of space-separated lines</span>
+<span class="sd">    :return: list of words in `mail`</span>
+<span class="sd">    """</span>
+    <span class="n">mail_tokenized</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">mail</span><span class="p">)</span>
+    <span class="n">mail_bag</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">tokens</span> <span class="ow">in</span> <span class="n">mail_tokenized</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+            <span class="n">mail_bag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mail_bag</span>
+
+<span class="n">spam_bag</span> <span class="o">=</span> <span class="n">bagger</span><span class="p">(</span><span class="n">spam</span><span class="p">)</span>
+<span class="n">ham_bag</span> <span class="o">=</span> <span class="n">bagger</span><span class="p">(</span><span class="n">ham</span><span class="p">)</span>
+            
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [29]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">assert_equal</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span><span class="p">,</span> \
+        <span class="s2">"'</span><span class="si">{2}</span><span class="s2">'</span><span class="se">\n</span><span class="s2">Expected: </span><span class="si">{0}</span><span class="s2">, Actual: </span><span class="si">{1}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span>
+                                                   <span class="n">description</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [30]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">vocabulary_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">)</span>
+<span class="n">vocabulary</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">))</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">bag</span><span class="p">,</span> <span class="s1">'check spam bags'</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">bag</span><span class="p">,</span> <span class="s1">'ham bags'</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="s1">'vocabulary size'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>12
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="what-is-the-probability-that-a-piece-of-mail-is-spam?">what is the probability that a piece of mail is spam?<a class="anchor-link" href="#what-is-the-probability-that-a-piece-of-mail-is-spam?">¶</a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [31]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mail_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ham</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">spam</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">mail_count</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span> <span class="s1">'mail count'</span><span class="p">)</span>
+<span class="n">p_spam</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spam</span><span class="p">),</span> <span class="n">mail_count</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_spam</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="s1">'p-spam known'</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_spam</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">probability</span><span class="p">,</span> <span class="s1">'p-spam detector'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_spam</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>3/8
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="what-is-p('secret'|-spam)?">what is p('secret'| spam)?<a class="anchor-link" href="#what-is-p('secret'%7C-spam)?">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [32]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">word_count</span><span class="p">(</span><span class="n">bag</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    count the number of times a word is in the bag</span>
+
+<span class="sd">    :param:</span>
+<span class="sd">     - `bag`: collection of words</span>
+<span class="sd">     - `word`: word to count</span>
+<span class="sd">    :return: number of times word appears in bag</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">((</span><span class="mi">1</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">bag</span> <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="n">word</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [33]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">p_word</span><span class="p">(</span><span class="n">bag</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    fraction of times word appears in the bag</span>
+
+<span class="sd">    :param:</span>
+<span class="sd">     - `bag`: collection of words</span>
+<span class="sd">     - `word`: word to count in bag</span>
+<span class="sd">     - `k`: laplace smoothing constant</span>
+<span class="sd">     - `sample_space`: total number of words in vocabulary</span>
+<span class="sd">    :return: Fraction of total bag that is word</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">word_count</span><span class="p">(</span><span class="n">bag</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bag</span><span class="p">)</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">sample_space</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [34]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_secret_given_spam</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="s1">'secret'</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">p_secret_given_spam</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_secret_given_spam</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'secret'</span><span class="p">),</span>
+             <span class="s1">'secret given spam'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_secret_given_spam</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1/3
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="what-is-p('secret'|-ham)?">what is p('secret'| ham)?<a class="anchor-link" href="#what-is-p('secret'%7C-ham)?">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [35]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_secret_given_ham</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">,</span> <span class="s1">'secret'</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">p_secret_given_ham</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_secret_given_ham</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'secret'</span><span class="p">),</span> <span class="s1">'p(secret|ham)'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_secret_given_ham</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1/15
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="You-get-a-message-with-one-word---'sports',-what-is-p(spam|'sports')?">You get a message with one word - 'sports', what is p(spam|'sports')?<a class="anchor-link" href="#You-get-a-message-with-one-word---'sports',-what-is-p(spam%7C'sports')?">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [36]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c">%%latex</span>
+<span class="s">$</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam|`sports'</span><span class="o">)</span><span class="nb"> </span><span class="o">=</span><span class="nb"> </span><span class="nv">\frac</span><span class="nb">{p</span><span class="o">(</span><span class="nb">`sports' | spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam</span><span class="o">)</span><span class="nb">}{p</span><span class="o">(</span><span class="nb">`sports'</span><span class="o">)</span><span class="nb">}</span><span class="s">$</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+
+<div class="output_latex output_subarea ">
+$p(spam|`sports') = \frac{p(`sports' | spam)p(spam)}{p(`sports')}$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [37]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_sports_given_spam</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="s1">'sports'</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">p_sports_given_spam</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_sports_given_spam</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'sports'</span><span class="p">),</span>
+             <span class="s1">'p(sports|spam)'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_sports_given_spam</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1/9
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [38]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_sports_given_ham</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">,</span> <span class="s1">'sports'</span><span class="p">)</span>
+<span class="n">expected</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">p_sports_given_ham</span> <span class="o">==</span> <span class="n">expected</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_sports_given_ham</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'sports'</span><span class="p">),</span>
+             <span class="s1">'p(sports|ham)'</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [39]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_ham</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ham</span><span class="p">),</span> <span class="n">mail_count</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_ham</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">probability</span><span class="p">,</span> <span class="s1">'p(ham)'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_ham</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>5/8
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [40]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_sports</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">word_count</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="s1">'sports'</span><span class="p">)</span> <span class="o">+</span> <span class="n">word_count</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">,</span> <span class="s1">'sports'</span><span class="p">),</span> <span class="n">vocabulary</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_sports</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1/2
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [41]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_spam_given_sports</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_sports_given_spam</span> <span class="o">*</span> <span class="n">p_spam</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">p_sports_given_spam</span> <span class="o">*</span> <span class="n">p_spam</span> <span class="o">+</span> <span class="n">p_sports_given_ham</span> <span class="o">*</span> <span class="n">p_ham</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">p_spam_given_sports</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_spam_given_sports</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">p_spam_given_message</span><span class="p">(</span><span class="s1">'sports'</span><span class="p">),</span>
+             <span class="s1">'p(spam|sports)'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_spam_given_sports</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1/6
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Given-the-message-'secret-is-secret',-what-is-the-probability-that-it-is-spam?">Given the message 'secret is secret', what is the probability that it is spam?<a class="anchor-link" href="#Given-the-message-'secret-is-secret',-what-is-the-probability-that-it-is-spam?">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [42]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c">%%latex</span>
+<span class="s">$</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam|message</span><span class="o">)</span><span class="nb"> </span><span class="o">=</span><span class="nb"> </span><span class="nv">\frac</span><span class="nb">{p</span><span class="o">(</span><span class="nb">message|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam}{p</span><span class="o">(</span><span class="nb">message|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam</span><span class="o">)</span><span class="nb"> </span><span class="o">+</span><span class="nb"> p</span><span class="o">(</span><span class="nb">message|ham</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">ham</span><span class="o">)</span><span class="nb">}</span><span class="s">$</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+
+<div class="output_latex output_subarea ">
+$p(spam|message) = \frac{p(message|spam)p(spam}{p(message|spam)p(spam) + p(message|ham)p(ham)}$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>So, the question here is, how do you calculate the probabilities for the entire message instead of for a single word? The answer turns out to be to multiply the probability for each of the words together - so  p('secret is secret'| spam) is the product p('secret'|spam) x p('is'|spam) x p('secret'|spam)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [43]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c">%%latex</span>
+<span class="s">$</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam|sis</span><span class="o">)</span><span class="nb"> </span><span class="o">=</span><span class="nb"> </span><span class="nv">\frac</span><span class="nb">{p</span><span class="o">(</span><span class="nb">s|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">i|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">s|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam</span><span class="o">)</span><span class="nb">}{p</span><span class="o">(</span><span class="nb">s|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">i|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">s|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam</span><span class="o">)</span><span class="nb"> </span><span class="o">+</span><span class="nb"> p</span><span class="o">(</span><span class="nb">s|ham</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">i|ham</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">s|ham</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">ham</span><span class="o">)</span><span class="nb">}</span><span class="s">$</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+
+<div class="output_latex output_subarea ">
+$p(spam|sis) = \frac{p(s|spam)p(i|spam)p(s|spam)p(spam)}{p(s|spam)p(i|spam)p(s|spam)p(spam) + p(s|ham)p(i|ham)p(s|ham)p(ham)}$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Where s = 'secret', i = 'is' and sis='secret is secret'.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [44]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p_is_given_spam</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="s1">'is'</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_is_given_spam</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'is'</span><span class="p">),</span> <span class="s1">'p(is|spam)'</span><span class="p">)</span>
+<span class="n">p_is_given_ham</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">,</span> <span class="s1">'is'</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_is_given_ham</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'is'</span><span class="p">),</span> <span class="s1">'p(is|ham)'</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [45]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">p_message_given_class</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">bag</span><span class="p">,</span> <span class="n">class_probability</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    :param:</span>
+<span class="sd">     - `message`: string of words</span>
+<span class="sd">     - `bag`: bag of words</span>
+<span class="sd">     - `class_probability`: probability for this class (e.g. p(spam))</span>
+<span class="sd">     - `k`: Laplace smoothing constant</span>
+<span class="sd">     - `sample_space`: Size of the vocabulary</span>
+<span class="sd">    :return: p(message|classification) * p(classification)</span>
+<span class="sd">    """</span>
+    <span class="n">probabilities</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_word</span><span class="p">(</span><span class="n">bag</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">sample_space</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="n">probability</span> <span class="o">=</span> <span class="n">class_probability</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">probabilities</span><span class="p">:</span>
+        <span class="n">probability</span> <span class="o">*=</span> <span class="n">p</span>
+    <span class="k">return</span> <span class="n">probability</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [46]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">p_spam_given_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    :param:</span>
+<span class="sd">     - `message`: string of words</span>
+<span class="sd">     - `k`: Laplace Smoothing constant</span>
+<span class="sd">     - `sample_space`: total count of words in spam/ham bags</span>
+<span class="sd">    :return: probability message is spam</span>
+<span class="sd">    """</span>
+    <span class="n">spam_probability</span> <span class="o">=</span> <span class="n">p_spam</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">lp_spam</span>
+    <span class="n">ham_probability</span> <span class="o">=</span> <span class="n">p_ham</span> <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">lp_ham</span>
+    <span class="n">p_m_given_spam</span> <span class="o">=</span> <span class="n">p_message_given_class</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">spam_bag</span><span class="p">,</span> <span class="n">spam_probability</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">sample_space</span><span class="p">)</span>
+    <span class="n">p_m_given_ham</span> <span class="o">=</span> <span class="n">p_message_given_class</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">ham_bag</span><span class="p">,</span> <span class="n">ham_probability</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">sample_space</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p_m_given_spam</span><span class="o">/</span><span class="p">(</span><span class="n">p_m_given_spam</span> <span class="o">+</span> <span class="n">p_m_given_ham</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [47]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">message</span> <span class="o">=</span> <span class="s1">'secret is secret'</span>
+<span class="n">expected</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">)</span>
+<span class="n">p_sis_given_spam</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_secret_given_spam</span> <span class="o">*</span> <span class="n">p_is_given_spam</span> <span class="o">*</span> <span class="n">p_secret_given_spam</span>
+                    <span class="o">*</span> <span class="n">p_spam</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">p_message_given_class</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">spam_bag</span><span class="p">,</span> <span class="n">p_spam</span><span class="p">)</span> <span class="o">==</span> <span class="n">p_sis_given_spam</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_sis_given_spam</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_message</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="s1">'p(sis|spam)'</span><span class="p">)</span>
+
+<span class="n">p_sis_given_ham</span> <span class="o">=</span> <span class="n">p_secret_given_ham</span> <span class="o">*</span> <span class="n">p_is_given_ham</span> <span class="o">*</span> <span class="n">p_secret_given_ham</span> <span class="o">*</span> <span class="n">p_ham</span>
+<span class="k">assert</span> <span class="n">p_message_given_class</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">ham_bag</span><span class="p">,</span> <span class="n">p_ham</span><span class="p">)</span> <span class="o">==</span> <span class="n">p_sis_given_ham</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_sis_given_ham</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_message</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="s1">'p(sis|ham)'</span><span class="p">)</span>
+
+<span class="n">p_spam_given_sis</span> <span class="o">=</span> <span class="n">p_sis_given_spam</span> <span class="o">/</span> <span class="p">(</span><span class="n">p_sis_given_spam</span> <span class="o">+</span> <span class="n">p_sis_given_ham</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_spam_given_sis</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">p_spam_given_message</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="s1">'p(spam|sis)'</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">p_spam_given_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="o">==</span> <span class="n">p_spam_given_sis</span>
+<span class="k">assert</span> <span class="n">p_spam_given_sis</span> <span class="o">==</span> <span class="n">expected</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_spam_given_sis</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>25/26
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id='What-is-the-probability-that-"today-is-secret"-is-spam?'>What is the probability that "today is secret" is spam?<a class="anchor-link" href="#What-is-the-probability-that-%22today-is-secret%22-is-spam?">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [48]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c">%%latex</span>
+<span class="s">$</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam|tis</span><span class="o">)</span><span class="nb"> </span><span class="o">=</span><span class="nb"> </span><span class="nv">\frac</span><span class="nb">{p</span><span class="o">(</span><span class="nb">t|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">i|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">s|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam</span><span class="o">)</span><span class="nb">}{p</span><span class="o">(</span><span class="nb">t|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">i|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">s|spam</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">spam</span><span class="o">)</span><span class="nb"> </span><span class="o">+</span><span class="nb"> p</span><span class="o">(</span><span class="nb">t|ham</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">i|ham</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">s|ham</span><span class="o">)</span><span class="nb">p</span><span class="o">(</span><span class="nb">ham</span><span class="o">)</span><span class="nb">}</span><span class="s">$</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+
+<div class="output_latex output_subarea ">
+$p(spam|tis) = \frac{p(t|spam)p(i|spam)p(s|spam)p(spam)}{p(t|spam)p(i|spam)p(s|spam)p(spam) + p(t|ham)p(i|ham)p(s|ham)p(ham)}$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [49]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tis</span> <span class="o">=</span> <span class="s1">'today is secret'</span>
+<span class="n">p_spam_given_tis</span> <span class="o">=</span> <span class="n">p_spam_given_message</span><span class="p">(</span><span class="n">tis</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">p_spam_given_tis</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">p_spam_given_tis</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">p_spam_given_tis</span><span class="p">,</span> <span class="n">detector</span><span class="o">.</span><span class="n">p_spam_given_message</span><span class="p">(</span><span class="n">tis</span><span class="p">),</span>
+             <span class="s1">'p(spam|tis)'</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>0
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [50]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="s1">'today'</span> <span class="ow">in</span> <span class="n">spam_bag</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt output_prompt">Out[50]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>False</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Since one of the words isn't in the spam bag of words, the numerator is going to be 0 (p('today'|spam) = 0) so the probability overall is 0.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Laplace-Smoothing">Laplace Smoothing<a class="anchor-link" href="#Laplace-Smoothing">¶</a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When a single missing word drops the probability to 0, this means your model is overfitting the data. To get around this Laplace Smoothing is used.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [51]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c">%%latex</span>
+<span class="s">$</span><span class="nb">p</span><span class="o">(</span><span class="nb">s</span><span class="o">)</span><span class="nb"> </span><span class="o">=</span><span class="nb"> </span><span class="nv">\frac</span><span class="nb">{s_{count} </span><span class="o">+</span><span class="nb"> k}{total_{count} </span><span class="o">+</span><span class="nb"> k </span><span class="o">*</span><span class="nb"> |classes|}</span><span class="s">$</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+
+
+<div class="output_latex output_subarea ">
+$p(s) = \frac{s_{count} + k}{total_{count} + k * |classes|}$
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>let <em>k = 1</em>.</p>
+<p><em>What is the probability that a message is spam if you have 1 example message and it's spam?</em></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [52]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">l_probability</span><span class="p">(</span><span class="n">class_count</span><span class="p">,</span> <span class="n">total_count</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    :param:</span>
+<span class="sd">     - `class_count`: size of event space</span>
+<span class="sd">     - `total_count`: size of sample space</span>
+<span class="sd">     - `k`: constant to prevent 0 probability</span>
+<span class="sd">     - `classes`: total number of events</span>
+<span class="sd">    :return: probability of class_count with Laplace Smoothing</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">class_count</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">total_count</span> <span class="o">+</span> <span class="n">classes</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [53]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">k</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># classes = spam, ham</span>
+<span class="n">number_of_classes</span> <span class="o">=</span> <span class="mi">2</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [54]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">messages</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">spam_messages</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">actual</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">spam_messages</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">messages</span> <span class="o">+</span> <span class="n">number_of_classes</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">actual</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                            
+<span class="nb">print</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>2/3
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><em>What if you have 10 messages and 6 are spam?</em></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [55]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">messages</span><span class="p">,</span> <span class="n">spam_messages</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">6</span>
+<span class="n">actual</span> <span class="o">=</span> <span class="n">l_probability</span><span class="p">(</span><span class="n">spam_messages</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">number_of_classes</span><span class="p">)</span>
+<span class="n">expected</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">spam_messages</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">messages</span> <span class="o">+</span> <span class="n">number_of_classes</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">actual</span> <span class="o">==</span> <span class="n">expected</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>7/12
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><em>What if you have 100 messages and 60 are spam?</em></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [56]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">messages</span><span class="p">,</span> <span class="n">spam_messages</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">60</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">l_probability</span><span class="p">(</span><span class="n">spam_messages</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">number_of_classes</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>61/102
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="spam/ham-with-Laplace-Smoothing">spam/ham with Laplace Smoothing<a class="anchor-link" href="#spam/ham-with-Laplace-Smoothing">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><em>What are the probabilities that a message is spam or ham with k=1?</em></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [57]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">lp_spam</span> <span class="o">=</span> <span class="n">l_probability</span><span class="p">(</span><span class="n">total_count</span><span class="o">=</span><span class="n">mail_count</span><span class="p">,</span> <span class="n">class_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">spam</span><span class="p">))</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_spam</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">probability</span><span class="p">,</span> <span class="s1">'p(spam)'</span><span class="p">)</span>
+<span class="n">lp_ham</span> <span class="o">=</span> <span class="n">l_probability</span><span class="p">(</span><span class="n">total_count</span><span class="o">=</span><span class="n">mail_count</span><span class="p">,</span> <span class="n">class_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ham</span><span class="p">))</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_ham</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">probability</span><span class="p">,</span> <span class="s1">'p(ham)'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">lp_spam</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">lp_ham</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>2/5
+3/5
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><em>What are p('today'|spam) and p('today'|ham)?</em></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this case the class-count isn't 2 (for spam or ham) but 12, for the total number of words in the vocabulary.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [58]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">p_word</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="s1">'today'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1/21
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [59]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">lp_today_given_spam</span> <span class="o">=</span> <span class="n">l_probability</span><span class="p">(</span><span class="n">total_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">),</span>
+                                    <span class="n">class_count</span><span class="o">=</span><span class="n">word_count</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="s1">'today'</span><span class="p">),</span>
+                                    <span class="n">classes</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_today_given_spam</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'today'</span><span class="p">),</span> <span class="s1">'p(today|spam)'</span><span class="p">)</span>
+<span class="n">lp_today_given_ham</span> <span class="o">=</span> <span class="n">l_probability</span><span class="p">(</span><span class="n">total_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">),</span>
+                                   <span class="n">class_count</span><span class="o">=</span><span class="n">word_count</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">,</span> <span class="s1">'today'</span><span class="p">),</span>
+                                   <span class="n">classes</span><span class="o">=</span><span class="n">vocabulary</span>
+<span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_today_given_ham</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'today'</span><span class="p">),</span>
+             <span class="s1">'p(today|ham)'</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">lp_today_given_spam</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">lp_today_given_ham</span> <span class="o">==</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'p(today|spam) = </span><span class="si">{0}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lp_today_given_spam</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'p(today|ham) = </span><span class="si">{0}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lp_today_given_ham</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>p(today|spam) = 1/21
+p(today|ham) = 1/9
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="What-is-p(spam|m)-if-m-=-'today-is-secret'-and-k=1?">What is p(spam|m) if m = 'today is secret' and k=1?<a class="anchor-link" href="#What-is-p(spam%7Cm)-if-m-=-'today-is-secret'-and-k=1?">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [60]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tis</span> <span class="o">=</span> <span class="s1">'today is secret'</span>
+<span class="n">lp_is_given_spam</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="s1">'is'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_is_given_spam</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'is'</span><span class="p">),</span> <span class="s1">'p(is|spam)'</span><span class="p">)</span>
+
+<span class="n">lp_is_given_ham</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">,</span> <span class="s1">'is'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_is_given_ham</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'is'</span><span class="p">),</span> <span class="s1">'p(is|ham)'</span><span class="p">)</span>
+
+<span class="n">lp_secret_given_spam</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">spam_bag</span><span class="p">,</span> <span class="s1">'secret'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_secret_given_spam</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'secret'</span><span class="p">),</span> <span class="s1">'p(secret|spam)'</span><span class="p">)</span>
+
+<span class="n">lp_secret_given_ham</span> <span class="o">=</span> <span class="n">p_word</span><span class="p">(</span><span class="n">ham_bag</span><span class="p">,</span> <span class="s1">'secret'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_secret_given_ham</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_word</span><span class="p">(</span><span class="s1">'secret'</span><span class="p">),</span> <span class="s1">'p(secret|ham)'</span><span class="p">)</span>
+
+<span class="n">lp_tis_given_spam</span> <span class="o">=</span> <span class="n">lp_today_given_spam</span> <span class="o">*</span> <span class="n">lp_is_given_spam</span> <span class="o">*</span> <span class="n">lp_secret_given_spam</span> <span class="o">*</span> <span class="n">lp_spam</span>
+<span class="n">lp_tis_given_ham</span> <span class="o">=</span>  <span class="n">lp_today_given_ham</span> <span class="o">*</span> <span class="n">lp_is_given_ham</span> <span class="o">*</span> <span class="n">lp_secret_given_ham</span> <span class="o">*</span> <span class="n">lp_ham</span>
+<span class="n">lp_spam_given_tis</span> <span class="o">=</span> <span class="n">Fraction</span><span class="p">(</span><span class="n">lp_tis_given_spam</span><span class="p">,</span> <span class="n">lp_tis_given_spam</span> <span class="o">+</span> <span class="n">lp_tis_given_ham</span><span class="p">)</span>
+
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_tis_given_spam</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">spam</span><span class="o">.</span><span class="n">p_message</span><span class="p">(</span><span class="n">tis</span><span class="p">),</span> <span class="s1">'p(tis|spam)'</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_tis_given_ham</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">ham</span><span class="o">.</span><span class="n">p_message</span><span class="p">(</span><span class="n">tis</span><span class="p">),</span> <span class="s1">'p(tis|ham)'</span><span class="p">)</span>
+<span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_spam_given_tis</span><span class="p">,</span> <span class="n">l_detector</span><span class="o">.</span><span class="n">p_spam_given_message</span><span class="p">(</span><span class="n">tis</span><span class="p">),</span> <span class="s1">'p(spam|tis)'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">lp_spam_given_tis</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>324/667
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is just more double-checking to make sure that the functions I originally wrote match the hand-calculated answers.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [61]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">actual</span> <span class="o">=</span> <span class="n">p_message_given_class</span><span class="p">(</span><span class="n">tis</span><span class="p">,</span> <span class="n">ham_bag</span><span class="p">,</span> <span class="n">lp_ham</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">lp_tis_given_ham</span> <span class="o">==</span> <span class="n">actual</span><span class="p">,</span> <span class="s2">"Expected: </span><span class="si">{0}</span><span class="s2"> Actual: </span><span class="si">{1}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lp_tis_given_ham</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [62]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">actual</span> <span class="o">=</span> <span class="n">p_spam_given_message</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">tis</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sample_space</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">lp_spam_given_tis</span> <span class="o">==</span> <span class="n">actual</span> <span class="p">,</span> <span class="s2">"Expected: </span><span class="si">{0}</span><span class="s2"> Actual: </span><span class="si">{1}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lp_spam_given_tis</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Re-do">Re-do<a class="anchor-link" href="#Re-do">¶</a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Since the code ended up being so messy I'm going to re-do the last example using the class-based version only.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [64]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">spam_detector</span> <span class="o">=</span> <span class="n">SpamDetector</span><span class="p">(</span><span class="n">spam</span><span class="o">=</span><span class="n">spam</span><span class="p">,</span> <span class="n">ham</span><span class="o">=</span><span class="n">ham</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">message</span> <span class="o">=</span> <span class="s1">'today is secret'</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">spam_detector</span><span class="o">.</span><span class="n">p_spam_given_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"p(spam|'today is secret') = </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">answer</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+<div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>p(spam|'today is secret') = 324/667
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [65]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">assert_equal</span><span class="p">(</span><span class="n">lp_spam_given_tis</span><span class="p">,</span> <span class="n">answer</span><span class="p">,</span> <span class="s2">"p(spam|'today is secret')"</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+    </div>
+  </div>
+
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/machine-learning/" rel="tag">machine-learning</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../building-a-jupyter-docker-container/" rel="prev" title="Building a Jupyter Docker Container">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="../monitoring-events-with-chromium/" rel="next" title="Monitoring Events With Chromium">Next post</a>
+            </li>
+        </ul></nav></aside><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script><script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true
+    },
+    displayAlign: 'left', // Change this to 'center' to center equations.
+    "HTML-CSS": {
+        styles: {'.MathJax_Display': {"margin": 0}}
+    }
+});
+</script></article>
+</div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2016         <a href="mailto:necromuralist@gmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates -->
+</body>
+</html>
