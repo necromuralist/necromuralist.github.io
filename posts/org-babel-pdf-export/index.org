@@ -1,0 +1,57 @@
+#+BEGIN_COMMENT
+.. title: Org-Babel PDF Export
+.. slug: org-babel-pdf-export
+.. date: 2017-01-07 12:29:47 UTC-08:00
+.. tags: orgBabel howTo
+.. category: org-babel
+.. link: 
+.. description: How to export PDFs from org-babel.
+.. type: text
+#+END_COMMENT
+
+These are my notes on exporting a PDF from an /org-babel/ file.
+
+* First Try
+
+The key sequence to export a PDF from an /org/ file is =C-c C-e l p= (/e/ as in /export/, /l/ as in /LaTex/, and /p/ as in /PDF/). My first try produced this error:
+
+#+BEGIN_SRC sh
+! LaTeX Error: File `ulem.sty` not found.
+#+END_SRC
+
+Past experience told me that I was likely missing a (debian) package.
+
+#+BEGIN_SRC sh :results output :exports both
+apt-cache search ulem
+#+END_SRC
+
+#+RESULTS:
+: texlive-generic-recommended - TeX Live: Generic recommended packages
+: libextutils-modulemaker-perl - Perl extension to build module from scratch
+
+Since I'm doing something with /LaTex/, not /perl/ I decided that installing the /texlive-generic-recommended/ package was probably what I should do.
+
+#+BEGIN_SRC sh :dir /sudo:: :results none
+sudo apt-fast install texlive-generic-recommended
+#+END_SRC
+
+* Second try
+I hit =C-c C-e l p= again and this time it did output a PDF, but there was no syntax-highlighting of the code. Followng [[https://joat-programmer.blogspot.com/2013/07/org-mode-version-8-and-pdf-export-with.html][this blog post]] I added this to my =init.el= file:
+
+#+BEGIN_SRC emacs-lisp
+  ;; export to latex/pdf
+  (require 'ox-latex)
+
+  ;; syntax-highlighting for pdf's
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+  (setq org-latex-listings 'minted)
+  (setq org-latex-pdf-process '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+#+END_SRC
+
+Once I re-loaded the =init.el= file, the PDF's came out with the syntax highlighting working.
+
+#+ATTR_RST: :directive note
+#+BEGIN_QUOTE
+The original post used =xelatex= instead of =pdflatex= but I don't use =xelatex=. Also =minted= can be found in the =texlive-latex-extras= package if it isn't already installed. The post also mentions needing =pygments= but I didn't need it, possibly because it's a dependency for other python libraries that I've already installed.
+#+END_QUOTE
+

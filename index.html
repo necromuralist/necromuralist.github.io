@@ -25,7 +25,7 @@ MathJax.Hub.Config({
     }
 });
 </script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><link rel="prefetch" href="posts/changing-the-nikola-bootswatch-theme/" type="text/html">
+</script><link rel="prefetch" href="posts/org-babel-pdf-export/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -105,7 +105,78 @@ MathJax.Hub.Config({
 
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/changing-the-nikola-bootswatch-theme/" class="u-url">Changing the Nikola Bootswatch Theme</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/org-babel-pdf-export/" class="u-url">Org-Babel PDF Export</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Cloistered Monkey
+            </span></p>
+            <p class="dateline"><a href="posts/org-babel-pdf-export/" rel="bookmark"><time class="published dt-published" datetime="2017-01-07T12:29:47-08:00" title="2017-01-07 12:29">2017-01-07 12:29</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <p>
+These are my notes on exporting a PDF from an <i>org-babel</i> file.
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">First Try</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The key sequence to export a PDF from an <i>org</i> file is <code>C-c C-e l p</code> (<i>e</i> as in <i>export</i>, <i>l</i> as in <i>LaTex</i>, and <i>p</i> as in <i>PDF</i>). My first try produced this error:
+</p>
+
+<div class="highlight"><pre><span></span>! LaTeX Error: File <span class="sb">`</span>ulem.sty<span class="sb">`</span> not found.
+</pre></div>
+
+<p>
+Past experience told me that I was likely missing a (debian) package.
+</p>
+
+<div class="highlight"><pre><span></span>apt-cache search ulem
+</pre></div>
+
+<pre class="example">
+texlive-generic-recommended - TeX Live: Generic recommended packages
+libextutils-modulemaker-perl - Perl extension to build module from scratch
+</pre>
+
+<p>
+Since I'm doing something with <i>LaTex</i>, not <i>perl</i> I decided that installing the <i>texlive-generic-recommended</i> package was probably what I should do.
+</p>
+
+<div class="highlight"><pre><span></span>sudo apt-fast install texlive-generic-recommended
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Second try</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+I hit <code>C-c C-e l p</code> again and this time it did output a PDF, but there was no syntax-highlighting of the code. Followng <a href="https://joat-programmer.blogspot.com/2013/07/org-mode-version-8-and-pdf-export-with.html">this blog post</a> I added this to my <code>init.el</code> file:
+</p>
+
+<div class="highlight"><pre><span></span><span class="c1">;; export to latex/pdf</span>
+<span class="p">(</span><span class="nf">require</span> <span class="ss">'ox-latex</span><span class="p">)</span>
+
+<span class="c1">;; syntax-highlighting for pdf's</span>
+<span class="p">(</span><span class="nf">add-to-list</span> <span class="ss">'org-latex-packages-alist</span> <span class="o">'</span><span class="p">(</span><span class="s">""</span> <span class="s">"minted"</span><span class="p">))</span>
+<span class="p">(</span><span class="nf">setq</span> <span class="nv">org-latex-listings</span> <span class="ss">'minted</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">setq</span> <span class="nv">org-latex-pdf-process</span> <span class="o">'</span><span class="p">(</span><span class="s">"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"</span><span class="p">))</span>
+</pre></div>
+
+<p>
+Once I re-loaded the <code>init.el</code> file, the PDF's came out with the syntax highlighting working.
+</p>
+
+<blockquote>
+<p>
+The original post used <code>xelatex</code> instead of <code>pdflatex</code> but I don't use <code>xelatex</code>. Also <code>minted</code> can be found in the <code>texlive-latex-extras</code> package if it isn't already installed. The post also mentions needing <code>pygments</code> but I didn't need it, possibly because it's a dependency for other python libraries that I've already installed.
+</p>
+</blockquote>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/changing-the-nikola-bootswatch-theme/" class="u-url">Changing the Nikola Bootswatch Theme</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Cloistered Monkey
@@ -121,9 +192,9 @@ I had my theme for this site set to use <a href="http://nickmccurdy.com/bootswat
 <h2 id="sec-1">Overview</h2>
 <div class="outline-text-2" id="text-1">
 <ol class="org-ol">
-<li>Install the <a href="https://themes.getnikola.com/#bootstrap3">bootswatch 3</a> theme (if you haven't already) (<code>nikola install_theme bootstrap3</code>).
+<li>Install the <a href="https://themes.getnikola.com/#bootstrap3">bootswatch 3</a> nikola theme (if you haven't already) (<code>nikola install_theme bootstrap3</code>).
 </li>
-<li>Install the <a href="https://bootswatch.com/journal/">journal</a> theme (<code>nikola bootswatch_theme -s journal</code>).
+<li>Install the <a href="https://bootswatch.com/journal/">journal</a> bootwatch theme (<code>nikola bootswatch_theme -s journal</code>).
 </li>
 <li>Get the base template (<code>nikola theme -c base.tmpl</code>).
 </li>
@@ -146,7 +217,7 @@ I had my theme for this site set to use <a href="http://nickmccurdy.com/bootswat
 <h3 id="sec-2-1">The Bootswatch 3 Theme</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
-I already had the bootswatch 3 theme installed, since I was using <i>Spacelab</i>, but in the case of a fresh start set the base theme:
+I already had the bootswatch 3 theme installed, since I was using <i>Spacelab</i>, but in the case of a fresh start this is how to set the base theme:
 </p>
 
 <div class="highlight"><pre><span></span>nikola install_theme bootstrap3
@@ -164,7 +235,7 @@ Since I want to change the theme to <i>Journal</i> this is the next step (you ca
 </pre></div>
 
 <p>
-This will set up the default bootstrap theme, but you need to re-build the HTML to have it show up on the web-page (something that I didn't realize initially, causing me to think something was broken).
+This will set up the default bootstrap theme, but you need to re-build the HTML to have it show up on the development-server's web-page (something that I didn't realize initially, causing me to think something was broken).
 </p>
 
 <div class="highlight"><pre><span></span>nikola build
@@ -200,7 +271,7 @@ This command creates a file (<code>themes/custom/templates/base.tmpl</code>) whi
 <h2 id="sec-5">Summary</h2>
 <div class="outline-text-2" id="text-5">
 <p>
-Changing the bootswatch theme isn't as hard as it seemed, in retrospect. You just have to know the basic commands (<code>nikola install_theme bootstrap3</code>, <code>nikola bootswatch_theme -s journal</code>), know that the inverse navbar is the default (and how to change it - <code>nikola theme -c base.tmpl</code>), know how to update the CSS to whatever you want (by editing <code>bootstrap.css</code>), and understand that you have to build the site to get it working (<code>nikola build</code>).
+Changing the bootswatch theme isn't as hard as it seemed, in retrospect. You just have to know the basic commands (<code>nikola install_theme bootstrap3</code>, <code>nikola bootswatch_theme -s journal</code>), know that the inverse navbar is the default (and how to change it - <code>nikola theme -c base.tmpl</code>), know how to update the CSS to whatever you want (by editing <code>bootstrap.css</code>), and understand that you have to build the site to see the changes on the development server (<code>nikola build</code>).
 </p>
 </div>
 </div>
@@ -649,18 +720,18 @@ LiterateClass : String ()
 <h3 id="sec-4-2">ob-ipython</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
-The main thing to remember for ob-ipython is that you need to run it as a <code>:session</code>
+The main thing to remember for ob-ipython is that you need to run it as a <code>:session</code>. I didn't do it for most of the examples, but I've found since I first wrote this that using named sessions makes it a lot easier to work. Otherwise you might have more than one buffer with an org-babel document and they will be sharing the same <i>ipython</i> process, which can cause mysterious errors.
 </p>
-<div class="highlight"><pre><span></span>#+begin_src ipython :session
+<div class="highlight"><pre><span></span>#+begin_src ipython :session session1
   # python standard library
   import os
-;#+end_src
+#+end_src
 </pre></div>
 <p>
-When using <code>pandas</code> most of the methods produce values, but the <code>info</code> method instead prints to <code>stdout</code> so you have to specify this as the <code>:results</code>.
+When using <code>pandas</code> most of the methods produce values, but the <code>info</code> method instead prints to <code>stdout</code> so you have to specify this as the <code>:results</code> or it will popup a separate buffer with the output.
 </p>
 
-<div class="highlight"><pre><span></span>#+begin_src ipython :session :results output
+<div class="highlight"><pre><span></span>#+begin_src ipython :session session1 :results output
 housing.info()
 #+end_src
 </pre></div>
@@ -669,14 +740,13 @@ housing.info()
 When you create figures, besides making sure that you use the <code>%matplotlib inline</code> magic, you also need to specify a file path where <i>matplotlib</i> can save the image.
 </p>
 
-<div class="highlight"><pre><span></span>#+BEGIN_SRC ipython :session :file "images/ocean_proximity_count.png"
+<div class="highlight"><pre><span></span>#+BEGIN_SRC ipython :session session1 :file "images/ocean_proximity_count.png"
 figure = seaborn.countplot(x="ocean_proximity", data=housing)
 #+end_src
 </pre></div>
 </div>
 </div>
 </div>
-
 
 <div id="outline-container-sec-5" class="outline-2">
 <h2 id="sec-5">Set Up</h2>
@@ -3546,36 +3616,6 @@ p(today|ham) = 1/9
 <pre class="code bash"><a name="rest_code_2414c668c2ce4c29bbea927b161df8bc-1"></a>docker run --name jupyter -v <span class="nv">$PWD</span>:/notebooks -p 8888:8888 --link mongo -d jupyter
 </pre>
 <p>At this point, opening a browser at <tt class="docutils literal"><span class="pre">http://localhost:8888</span></tt> should open up the jupyter-server's home.</p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/running-redis-in-docker/" class="u-url">Running Redis in Docker</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Cloistered Monkey
-            </span></p>
-            <p class="dateline"><a href="posts/running-redis-in-docker/" rel="bookmark"><time class="published dt-published" datetime="2016-06-19T20:25:26-07:00" title="2016-06-19 20:25">2016-06-19 20:25</time></a></p>
-        </div>
-    </header><div class="e-content entry-content">
-    <div>
-<p>These are the quick notes.</p>
-<div class="note">
-<p class="first admonition-title">Note</p>
-<p class="last">Redis uses port 6379 as the default, which is where those ports in the command come from.</p>
-</div>
-<div class="section" id="install">
-<h2>Install</h2>
-<pre class="code bash"><a name="rest_code_5d3d17b86eb3461b94eac33e734f5b58-1"></a>docker pull redis
-<a name="rest_code_5d3d17b86eb3461b94eac33e734f5b58-2"></a>docker run -d -p 6379:6379 --name redis redis
-</pre>
-</div>
-<div class="section" id="use-it-with-python-redis">
-<h2>Use it with python-redis</h2>
-<pre class="code python"><a name="rest_code_9ebde68b6b134ad789df3833c6fef7e3-1"></a><span class="kn">import</span> <span class="nn">redis</span>
-<a name="rest_code_9ebde68b6b134ad789df3833c6fef7e3-2"></a><span class="n">server</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="mi">6379</span><span class="p">)</span>
-<a name="rest_code_9ebde68b6b134ad789df3833c6fef7e3-3"></a><span class="n">server</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-</pre>
-<p>The <tt class="docutils literal">server.keys()</tt> is a double-check. The <tt class="docutils literal">server</tt> object won't actually try to connect to the server until you call it.</p>
-</div>
 </div>
     </div>
     </article>
