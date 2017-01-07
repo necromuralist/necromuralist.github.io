@@ -25,7 +25,7 @@ Use it with python-redis
 .. code:: python
 
    import redis
-   server = redis.Redis("localhost", 6379)
-   server.keys()
+   client = redis.Redis("localhost", 6379)
+   client.keys()
 
-The ``server.keys()`` is a double-check. The ``server`` object won't actually try to connect to the server until you call it.
+The ``client.keys()`` is a double-check. The ``client`` object won't actually try to connect to the server until you call it.
