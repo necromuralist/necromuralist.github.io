@@ -1,0 +1,740 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0"><channel><title>The Cloistered Monkey (Posts about pandas)</title><link>https://necromuralist.github.io/</link><description></description><atom:link rel="self" href="https://necromuralist.github.io/categories/cat_pandas.xml" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 30 Jan 2017 02:04:19 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Assignment 2 - Pandas Introduction (Olympic Medals)</title><link>https://necromuralist.github.io/posts/assignment-2-olympic-medals/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+This is the notebook for assignment 2 of the Coursera &lt;i&gt;Python Data Analysis&lt;/i&gt; course. This was converted from a &lt;i&gt;jupyter&lt;/i&gt; notebook that you can download it as part of the &lt;a href="https://www.coursera.org/learn/python-data-analysis/resources/0dhYG"&gt;course downloads&lt;/a&gt; zip file. The submissions work by uploading a &lt;i&gt;ipynb&lt;/i&gt; file so there's a bit of cutting and pasting needed to get the code from here to there. Also I didn't use their variable names so the final outcome needs some aliasing for the grader to pass it.
+&lt;/p&gt;
+
+&lt;div id="outline-container-sec-1" class="outline-2"&gt;
+&lt;h2 id="sec-1"&gt;Part 1&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-1"&gt;
+&lt;p&gt;
+The following code loads the olympics dataset (olympics.csv), which was derived from the Wikipedia entry on &lt;a href="https://en.wikipedia.org/wiki/All-time_Olympic_Games_medal_table"&gt;All Time Olympic Games Medals&lt;/a&gt;, and does some basic data cleaning. 
+&lt;/p&gt;
+
+&lt;p&gt;
+The columns are organized as 
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;# of Summer games, 
+&lt;/li&gt;
+&lt;li&gt;Summer medals
+&lt;/li&gt;
+&lt;li&gt;# of Winter games
+&lt;/li&gt;
+&lt;li&gt;Winter medals
+&lt;/li&gt;
+&lt;li&gt;total # number of games
+&lt;/li&gt;
+&lt;li&gt;total # of medals
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-1-1" class="outline-3"&gt;
+&lt;h3 id="sec-1-1"&gt;Imports&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-1-1"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# third party&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;tabulate&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;tabulate&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-1-2" class="outline-3"&gt;
+&lt;h3 id="sec-1-2"&gt;Load the Data&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-1-2"&gt;
+&lt;/div&gt;&lt;div id="outline-container-sec-1-2-1" class="outline-4"&gt;
+&lt;h4 id="sec-1-2-1"&gt;A quick look at the data-source&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-1-2-1"&gt;
+&lt;p&gt;
+The data is stored in a comma-separated file named &lt;i&gt;olympics.csv&lt;/i&gt;.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;head olympics.csv
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+,№ Summer,01 !,02 !,03 !,Total,№ Winter,01 !,02 !,03 !,Total,№ Games,01 !,02 !,03 !,Combined total
+Afghanistan (AFG),13,0,0,2,2,0,0,0,0,0,13,0,0,2,2
+Algeria (ALG),12,5,2,8,15,3,0,0,0,0,15,5,2,8,15
+Argentina (ARG),23,18,24,28,70,18,0,0,0,0,41,18,24,28,70
+Armenia (ARM),5,1,2,9,12,6,0,0,0,0,11,1,2,9,12
+Australasia (ANZ) [ANZ],2,3,4,5,12,0,0,0,0,0,2,3,4,5,12
+Australia (AUS) [AUS] [Z],25,139,152,177,468,18,5,3,4,12,43,144,155,181,480
+Austria (AUT),26,18,33,35,86,22,59,78,81,218,48,77,111,116,304
+Azerbaijan (AZE),5,6,5,15,26,5,0,0,0,0,10,6,5,15,26
+&lt;/pre&gt;
+
+&lt;p&gt;
+Looking at the output of our source data-file (&lt;i&gt;olympics.csv&lt;/i&gt;) you can see that the first row is a column-index that we'll want to get rid of. The first column is also missing a header and there are columns with unicode and mysterious numeric names with exclamation points at the end.
+&lt;/p&gt;
+
+&lt;p&gt;
+If you go to the wikipedia page and look at the &lt;a href="https://en.wikipedia.org/wiki/All-time_Olympic_Games_medal_table#NOCs_with_medals"&gt;NOC's with medals&lt;/a&gt; table (&lt;i&gt;NOC&lt;/i&gt; stands for &lt;i&gt;National Olympic Committee&lt;/i&gt; - each country that participates in the Olympics has one, unless they are part of a combined committee) you'll see that the numbers with leading zeros correspond to the medal types, the decimal numbers are the game (Summer (no trailing decimal), Winter (.1), or combined (.2)). So &lt;code&gt;01 !.2&lt;/code&gt; means the total number of gold medals for both the summer and winter games combined. The &lt;code&gt;No&lt;/code&gt; columns is the count of the number of times a country participated in a game. So, looking at the output above, Afghanistan has participated in 13 Summer games (this data was apparently pulled before the 2016 games in Rio de Janeiro, as their count is currently 14 on the source page). As for the &lt;code&gt;!&lt;/code&gt; notation, the wikipedia page has arrows that you can click on that will let you sort the rows by a particular column and I think this is how their screen-scraper translated them into ascii.   
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-1-2-2" class="outline-4"&gt;
+&lt;h4 id="sec-1-2-2"&gt;Load the data into pandas&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-1-2-2"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'olympics.csv'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;index_col&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;skiprows&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;description&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;describe&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tabulate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;headers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"keys"&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+         № Summer       01 !      02 !       03 !     Total    № Winter    01 !.1    02 !.1    03 !.1    Total.1    № Games     01 !.2    02 !.2     03 !.2    Combined total
+-----  ----------  ---------  --------  ---------  --------  ----------  --------  --------  --------  ---------  ---------  ---------  --------  ---------  ----------------
+count   147         147        147       147         147      147        147       147       147        147        147        147         147      147                 147
+mean     13.4762     65.4286    64.966    69.7959    200.19     6.70068   13.0476   13.034    12.898     38.9796    20.1769    78.4762     78       82.6939            239.17
+std       7.07236   405.55     399.31    427.187    1231.31     7.43319   80.7992   80.6344   79.5884   240.917     13.257    485.013     478.86   505.855            1469.07
+min       1           0          0         0           0        0          0         0         0          0          1          0           0        0                   1
+25%       8           0          1         1           2        0          0         0         0          0         11          0           1        1                   2.5
+50%      13           3          4         6          12        5          0         0         0          0         15          3           4        7                  12
+75%      18.5        24         28        29          86       10          1         2         1          5         27         25.5        29       32.5                89
+max      27        4809       4775      5130       14714       22        959       958       948       2865         49       5768        5733     6078               17579
+&lt;/pre&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+                         № Summer  01 !  02 !  03 !  Total  № Winter  01 !.1  \
+Afghanistan (AFG)              13     0     0     2      2         0       0   
+Algeria (ALG)                  12     5     2     8     15         3       0   
+Argentina (ARG)                23    18    24    28     70        18       0   
+Armenia (ARM)                   5     1     2     9     12         6       0   
+Australasia (ANZ) [ANZ]         2     3     4     5     12         0       0   
+
+                         02 !.1  03 !.1  Total.1  № Games  01 !.2  02 !.2  \
+Afghanistan (AFG)             0       0        0       13       0       0   
+Algeria (ALG)                 0       0        0       15       5       2   
+Argentina (ARG)               0       0        0       41      18      24   
+Armenia (ARM)                 0       0        0       11       1       2   
+Australasia (ANZ) [ANZ]       0       0        0        2       3       4   
+
+                         03 !.2  Combined total  
+Afghanistan (AFG)             2               2  
+Algeria (ALG)                 8              15  
+Argentina (ARG)              28              70  
+Armenia (ARM)                 9              12  
+Australasia (ANZ) [ANZ]       5              12
+&lt;/pre&gt;
+
+&lt;p&gt;
+It looks like the countries got read as the index for the data-frame since the first column was empty.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tail&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+                                              № Summer  01 !  02 !  03 !  \
+Independent Olympic Participants (IOP) [IOP]         1     0     1     2   
+Zambia (ZAM) [ZAM]                                  12     0     1     1   
+Zimbabwe (ZIM) [ZIM]                                12     3     4     1   
+Mixed team (ZZX) [ZZX]                               3     8     5     4   
+Totals                                              27  4809  4775  5130   
+
+                                              Total  № Winter  01 !.1  02 !.1  \
+Independent Olympic Participants (IOP) [IOP]      3         0       0       0   
+Zambia (ZAM) [ZAM]                                2         0       0       0   
+Zimbabwe (ZIM) [ZIM]                              8         1       0       0   
+Mixed team (ZZX) [ZZX]                           17         0       0       0   
+Totals                                        14714        22     959     958   
+
+                                              03 !.1  Total.1  № Games  \
+Independent Olympic Participants (IOP) [IOP]       0        0        1   
+Zambia (ZAM) [ZAM]                                 0        0       12   
+Zimbabwe (ZIM) [ZIM]                               0        0       13   
+Mixed team (ZZX) [ZZX]                             0        0        3   
+Totals                                           948     2865       49   
+
+                                              01 !.2  02 !.2  03 !.2  \
+Independent Olympic Participants (IOP) [IOP]       0       1       2   
+Zambia (ZAM) [ZAM]                                 0       1       1   
+Zimbabwe (ZIM) [ZIM]                               3       4       1   
+Mixed team (ZZX) [ZZX]                             8       5       4   
+Totals                                          5768    5733    6078   
+
+                                              Combined total  
+Independent Olympic Participants (IOP) [IOP]               3  
+Zambia (ZAM) [ZAM]                                         2  
+Zimbabwe (ZIM) [ZIM]                                       8  
+Mixed team (ZZX) [ZZX]                                    17  
+Totals                                                 17579
+&lt;/pre&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"Combined total"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loc&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"Totals"&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="s2"&gt;"Combined total"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"Combined total"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+35158
+35158
+&lt;/pre&gt;
+
+&lt;p&gt;
+It also looks like the last row is a sum of the columns, which we will need to get rid of (as you can see from the sum it doubles any math we do on a column).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-1-3" class="outline-3"&gt;
+&lt;h3 id="sec-1-3"&gt;Fixing the Column Names&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-1-3"&gt;
+&lt;p&gt;
+First the unicode is removed from the column names and the columns are given more human-readable names.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;new_columns&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"summer_participations"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"summer_gold"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"summer_silver"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"summer_bronze"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"summer_total"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"winter_participations"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"winter_gold"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"winter_silver"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"winter_bronze"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"winter_total"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"total_participations"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"total_gold"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"total_silver"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"total_bronze"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	       &lt;span class="s2"&gt;"total_combined"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new_columns&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;column_remap&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;zip&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new_columns&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="s2"&gt;"summer_participations"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;column&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+	&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rename&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;column&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;column_remap&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;column&lt;/span&gt;&lt;span class="p"&gt;]},&lt;/span&gt; &lt;span class="n"&gt;inplace&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+                   summer_participations  summer_gold  summer_silver  \
+Afghanistan (AFG)                     13            0              0   
+
+                   summer_bronze  summer_total  winter_participations  \
+Afghanistan (AFG)              2             2                      0   
+
+                   winter_gold  winter_silver  winter_bronze  winter_total  \
+Afghanistan (AFG)            0              0              0             0   
+
+                   total_participations  total_gold  total_silver  \
+Afghanistan (AFG)                    13           0             0   
+
+                   total_bronze  total_combined  
+Afghanistan (AFG)             2               2
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-1-4" class="outline-3"&gt;
+&lt;h3 id="sec-1-4"&gt;Changing the Indices&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-1-4"&gt;
+&lt;p&gt;
+Since the index has both a country name and a country code, we'll create a new column with just the ID's. The indices are split on the first left parenthesis ("(") creating a tuple with the first item being the name of the country and the second containing the country codes. To avoid the trailing parentheses and any other extra characters, the country-code gets sliced. Finally the last row ("Totals") gets dropped
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt; &lt;span class="c1"&gt;# split the index by '('&lt;/span&gt;
+&lt;span class="n"&gt;names_ids&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'\s\('&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;names_ids&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'ID'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;names_ids&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;drop&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'Totals'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+             summer_participations  summer_gold  summer_silver  summer_bronze  \
+Afghanistan                     13            0              0              2   
+
+             summer_total  winter_participations  winter_gold  winter_silver  \
+Afghanistan             2                      0            0              0   
+
+             winter_bronze  winter_total  total_participations  total_gold  \
+Afghanistan              0             0                    13           0   
+
+             total_silver  total_bronze  total_combined   ID  
+Afghanistan             0             2               2  AFG
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-2" class="outline-2"&gt;
+&lt;h2 id="sec-2"&gt;Question 0 (Example)&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-2"&gt;
+&lt;/div&gt;&lt;div id="outline-container-sec-2-1" class="outline-3"&gt;
+&lt;h3 id="sec-2-1"&gt;What is the first country in in the data-frame?&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-2-1"&gt;
+&lt;p&gt;
+The autograder will call this function and compare the return value against the correct solution value.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_zero&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;"""This function returns the row for Afghanistan&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns&lt;/span&gt;
+&lt;span class="sd"&gt;    -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Series: first row in the data&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;iloc&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;answer_zero&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+Afghanistan
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-3" class="outline-2"&gt;
+&lt;h2 id="sec-3"&gt;Questions&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-3"&gt;
+&lt;/div&gt;&lt;div id="outline-container-sec-3-1" class="outline-3"&gt;
+&lt;h3 id="sec-3-1"&gt;Question 1&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-3-1"&gt;
+&lt;p&gt;
+Which country has won the most gold medals in summer games?
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_one&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;"""&lt;/span&gt;
+&lt;span class="sd"&gt;    Returns&lt;/span&gt;
+&lt;span class="sd"&gt;    -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Str: name of the country with the most summer gold medals&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summer_gold&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;answer_one&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+United States
+&lt;/pre&gt;
+
+&lt;p&gt;
+Since we put the NOCs in the index (and most are country names), finding the index for the maximum value returns the country name that we want.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-3-2" class="outline-3"&gt;
+&lt;h3 id="sec-3-2"&gt;Question 2&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-3-2"&gt;
+&lt;p&gt;
+Which country had the biggest difference between their summer and winter gold medal counts?
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_two&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;"""&lt;/span&gt;
+&lt;span class="sd"&gt;    Returns&lt;/span&gt;
+&lt;span class="sd"&gt;    -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Str: country with most difference between summer and winter gold&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summer_gold&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;winter_gold&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;answer_two&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+United States
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id="outline-container-sec-3-3" class="outline-3"&gt;
+&lt;h3 id="sec-3-3"&gt;Question 3&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-3-3"&gt;
+&lt;p&gt;
+Which country has the biggest difference between their summer gold medal counts and winter gold medal counts relative to their total gold medal count? 
+&lt;/p&gt;
+
+&lt;p&gt;
+\(\frac{Summer~Gold - Winter~Gold}{Total~Gold}\)
+&lt;/p&gt;
+
+&lt;p&gt;
+Only include countries that have won at least 1 gold in both summer and winter.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_three&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;"""&lt;/span&gt;
+&lt;span class="sd"&gt;    find country with the biggest difference between the&lt;/span&gt;
+&lt;span class="sd"&gt;    summer and winter gold counts relative to total gold metal count&lt;/span&gt;
+&lt;span class="sd"&gt;    if they have at least one gold medal in both summer and winter&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns&lt;/span&gt;
+&lt;span class="sd"&gt;    -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;    str: country with biggest summer/winter gold differe&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="n"&gt;elegible&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summer_gold&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;winter_gold&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+    &lt;span class="n"&gt;ratios&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;elegible&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summer_gold&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;elegible&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;winter_gold&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;elegible&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;total_gold&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;ratios&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;answer_three&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+Bulgaria
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id="outline-container-sec-3-4" class="outline-3"&gt;
+&lt;h3 id="sec-3-4"&gt;Question 4&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-3-4"&gt;
+&lt;p&gt;
+Write a function that creates a Series called "Points" which is a weighted value where each gold medal (`Gold.2`) counts for 3 points, silver medals (`Silver.2`) for 2 points, and bronze medals (`Bronze.2`) for 1 point. The function should return only the column (a Series object) which you created.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_four&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+      &lt;span class="sd"&gt;"""&lt;/span&gt;
+&lt;span class="sd"&gt;      Creates weighted points based on medals&lt;/span&gt;
+&lt;span class="sd"&gt;	* Gold: 3 points&lt;/span&gt;
+&lt;span class="sd"&gt;	* Silver: 2 points&lt;/span&gt;
+&lt;span class="sd"&gt;	* Bronze: 1 point&lt;/span&gt;
+
+&lt;span class="sd"&gt;      Returns&lt;/span&gt;
+&lt;span class="sd"&gt;      -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;      Series: column of points for each NOC&lt;/span&gt;
+&lt;span class="sd"&gt;      """&lt;/span&gt;
+      &lt;span class="n"&gt;points&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;zeros&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+      &lt;span class="n"&gt;points&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;total_gold&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;
+      &lt;span class="n"&gt;points&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;total_silver&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+      &lt;span class="n"&gt;points&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;total_bronze&lt;/span&gt;
+      &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Series&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;points&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;points&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;answer_four&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;points&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loc&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"United States"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;5684&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-4" class="outline-2"&gt;
+&lt;h2 id="sec-4"&gt;Part 2&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-4"&gt;
+&lt;p&gt;
+For the next set of questions, we will be using census data from the &lt;a href="http://www.census.gov/popest/data/counties/totals/2015/CO-EST2015-alldata.html"&gt;United States Census Bureau&lt;/a&gt;. Counties are political and geographic subdivisions of states in the United States. This dataset contains population data for counties and states in the US from 2010 to 2015. &lt;a href="http://www.census.gov/popest/data/counties/totals/2015/files/CO-EST2015-alldata.pdf"&gt;See this document&lt;/a&gt; for a description of the variable names.
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-4-1" class="outline-3"&gt;
+&lt;h3 id="sec-4-1"&gt;Load the Census Data&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-4-1"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;census_data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'census.csv'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;census_data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+   SUMLEV  REGION  DIVISION  STATE  COUNTY   STNAME         CTYNAME  \
+0      40       3         6      1       0  Alabama         Alabama   
+1      50       3         6      1       1  Alabama  Autauga County   
+2      50       3         6      1       3  Alabama  Baldwin County   
+3      50       3         6      1       5  Alabama  Barbour County   
+4      50       3         6      1       7  Alabama     Bibb County   
+
+   CENSUS2010POP  ESTIMATESBASE2010  POPESTIMATE2010     ...       \
+0        4779736            4780127          4785161     ...        
+1          54571              54571            54660     ...        
+2         182265             182265           183193     ...        
+3          27457              27457            27341     ...        
+4          22915              22919            22861     ...        
+
+   RDOMESTICMIG2011  RDOMESTICMIG2012  RDOMESTICMIG2013  RDOMESTICMIG2014  \
+0          0.002295         -0.193196          0.381066          0.582002   
+1          7.242091         -2.915927         -3.012349          2.265971   
+2         14.832960         17.647293         21.845705         19.243287   
+3         -4.728132         -2.500690         -7.056824         -3.904217   
+4         -5.527043         -5.068871         -6.201001         -0.177537   
+
+   RDOMESTICMIG2015  RNETMIG2011  RNETMIG2012  RNETMIG2013  RNETMIG2014  \
+0         -0.467369     1.030015     0.826644     1.383282     1.724718   
+1         -2.530799     7.606016    -2.626146    -2.722002     2.592270   
+2         17.197872    15.844176    18.559627    22.727626    20.317142   
+3        -10.543299    -4.874741    -2.758113    -7.167664    -3.978583   
+4          0.177258    -5.088389    -4.363636    -5.403729     0.754533   
+
+   RNETMIG2015  
+0     0.712594  
+1    -2.187333  
+2    18.293499  
+3   -10.543299  
+4     1.107861  
+
+[5 rows x 100 columns]
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-4-2" class="outline-3"&gt;
+&lt;h3 id="sec-4-2"&gt;Census Variable Names&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-4-2"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;CensusVariables&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;state_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"STNAME"&lt;/span&gt;
+    &lt;span class="n"&gt;county_name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"CTYNAME"&lt;/span&gt;
+    &lt;span class="n"&gt;census_population&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"CENSUS2010POP"&lt;/span&gt;
+    &lt;span class="n"&gt;region&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"REGION"&lt;/span&gt;
+    &lt;span class="n"&gt;population_2014&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"POPESTIMATE2014"&lt;/span&gt;
+    &lt;span class="n"&gt;population_2015&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"POPESTIMATE2015"&lt;/span&gt;
+    &lt;span class="n"&gt;population_estimates&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"POPESTIMATE2010"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+			    &lt;span class="s2"&gt;"POPESTIMATE2011"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+			    &lt;span class="s2"&gt;"POPESTIMATE2012"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+			    &lt;span class="s2"&gt;"POPESTIMATE2013"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+			    &lt;span class="n"&gt;population_2014&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+			    &lt;span class="n"&gt;population_2015&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;county_level&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;
+    &lt;span class="n"&gt;summary_level&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"SUMLEV"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-4-3" class="outline-3"&gt;
+&lt;h3 id="sec-4-3"&gt;Counties Only&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-4-3"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;counties&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;census_data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;census_data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summary_level&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;county_level&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="c1"&gt;# this throws off the numeric index for the argmax method so reset it&lt;/span&gt;
+&lt;span class="n"&gt;counties&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;counties&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reset_index&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="c1"&gt;# but the last question wants the original index&lt;/span&gt;
+&lt;span class="n"&gt;counties_original_index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;census_data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;census_data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summary_level&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;county_level&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-4-4" class="outline-3"&gt;
+&lt;h3 id="sec-4-4"&gt;Question 5&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-4-4"&gt;
+&lt;p&gt;
+Which state has the most counties in it? (hint: consider the sumlevel key carefully! You'll need this for future questions too…)
+&lt;/p&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_five&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;"""finds state with the most counties&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns&lt;/span&gt;
+&lt;span class="sd"&gt;    -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;    str name of state with the most counties&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;counties&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;groupby&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+	&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;state_name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;COUNTY&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;answer_five&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+Texas
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-sec-4-5" class="outline-3"&gt;
+&lt;h3 id="sec-4-5"&gt;Question 6&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-4-5"&gt;
+&lt;p&gt;
+Only looking at the three most populous counties for each state, what are the three most populous states (in order of highest population to lowest population)? Use &lt;code&gt;CENSUS2010POP&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_six&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;"""finds three most populous states based on top three counties in each&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns&lt;/span&gt;
+&lt;span class="sd"&gt;    -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;    List: top three state-names (highest to lowest)&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="n"&gt;top_threes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;counties&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;groupby&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+	&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;state_name&lt;/span&gt;
+    &lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;census_population&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nlargest&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;states&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;top_threes&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;groupby&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;level&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;states&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;nlargest&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;answer_six&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="left"&gt;
+
+&lt;col class="left"&gt;
+
+&lt;col class="left"&gt;
+&lt;/colgroup&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="left"&gt;California&lt;/td&gt;
+&lt;td class="left"&gt;Texas&lt;/td&gt;
+&lt;td class="left"&gt;Illinois&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id="outline-container-sec-4-6" class="outline-3"&gt;
+&lt;h3 id="sec-4-6"&gt;Question 7&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-4-6"&gt;
+&lt;p&gt;
+Which county has had the largest absolute change in population within the period 2010-2015? (Hint: population values are stored in columns &lt;code&gt;POPESTIMATE2010&lt;/code&gt; through &lt;code&gt;POPESTIMATE2015&lt;/code&gt;, you need to consider all six columns.)
+&lt;/p&gt;
+
+&lt;p&gt;
+e.g. If County Population in the 5 year period is 100, 120, 80, 105, 100, 130, then its largest change in the period would be |130-80| = 50.
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;b&gt;This function should return a single string value.&lt;/b&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_seven&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;"""Find county with largest absolute population variance&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns&lt;/span&gt;
+&lt;span class="sd"&gt;    -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;    str: name of the county&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;counties&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;iloc&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+	&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counties&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+	    &lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;population_estimates&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;
+	 &lt;span class="n"&gt;counties&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+	     &lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;population_estimates&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+	&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;argmax&lt;/span&gt;&lt;span class="p"&gt;()][&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;county_name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+
+&lt;span class="n"&gt;answer_seven&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+Harris County
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id="outline-container-sec-4-7" class="outline-3"&gt;
+&lt;h3 id="sec-4-7"&gt;Question 8&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-4-7"&gt;
+&lt;p&gt;
+In this datafile, the United States is broken up into four regions using the "REGION" column. 
+&lt;/p&gt;
+
+&lt;p&gt;
+Create a query that finds the counties that belong to regions 1 or 2, whose name starts with 'Washington', and whose &lt;code&gt;POPESTIMATE2015&lt;/code&gt; was greater than their &lt;code&gt;POPESTIMATE2014&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;b&gt;This function should return a 5x2 DataFrame with the columns = ['STNAME', 'CTYNAME'] and the same index ID as the &lt;code&gt;census_data&lt;/code&gt; (sorted ascending by index).&lt;/b&gt;
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;answer_eight&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="sd"&gt;"""find region 1 or 2 counties:&lt;/span&gt;
+
+&lt;span class="sd"&gt;      * with names that start with Washington&lt;/span&gt;
+&lt;span class="sd"&gt;      * whose population grew from 2014 to 2015&lt;/span&gt;
+
+&lt;span class="sd"&gt;    .. note:: the index in the final data-frame has to match the original&lt;/span&gt;
+&lt;span class="sd"&gt;    census data&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns&lt;/span&gt;
+&lt;span class="sd"&gt;    -------&lt;/span&gt;
+
+&lt;span class="sd"&gt;    DataFrame: with the county and state-name columns&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="n"&gt;regions&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;counties_original_index&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+	&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counties_original_index&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;region&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;
+	&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counties_original_index&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;region&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+    &lt;span class="n"&gt;washingtons&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;regions&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+	&lt;span class="n"&gt;regions&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;county_name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Washington"&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+    &lt;span class="n"&gt;grew&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;washingtons&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;washingtons&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;population_2015&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+		       &lt;span class="n"&gt;washingtons&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;population_2014&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;grew&lt;/span&gt;&lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;state_name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+		 &lt;span class="n"&gt;CensusVariables&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;county_name&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+
+&lt;span class="n"&gt;outcome&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;answer_eight&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;outcome&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;shape&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outcome&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'STNAME'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'CTYNAME'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tabulate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outcome&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;headers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"index"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outcome&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+	       &lt;span class="n"&gt;tablefmt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"orgtbl"&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="right"&gt;
+
+&lt;col class="left"&gt;
+
+&lt;col class="left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="right"&gt;index&lt;/th&gt;
+&lt;th scope="col" class="left"&gt;STNAME&lt;/th&gt;
+&lt;th scope="col" class="left"&gt;CTYNAME&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="right"&gt;896&lt;/td&gt;
+&lt;td class="left"&gt;Iowa&lt;/td&gt;
+&lt;td class="left"&gt;Washington County&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="right"&gt;1419&lt;/td&gt;
+&lt;td class="left"&gt;Minnesota&lt;/td&gt;
+&lt;td class="left"&gt;Washington County&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="right"&gt;2345&lt;/td&gt;
+&lt;td class="left"&gt;Pennsylvania&lt;/td&gt;
+&lt;td class="left"&gt;Washington County&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="right"&gt;2355&lt;/td&gt;
+&lt;td class="left"&gt;Rhode Island&lt;/td&gt;
+&lt;td class="left"&gt;Washington County&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="right"&gt;3163&lt;/td&gt;
+&lt;td class="left"&gt;Wisconsin&lt;/td&gt;
+&lt;td class="left"&gt;Washington County&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>coursera pandas datascience</category><guid>https://necromuralist.github.io/posts/assignment-2-olympic-medals/</guid><pubDate>Sat, 28 Jan 2017 21:07:15 GMT</pubDate></item></channel></rss>
