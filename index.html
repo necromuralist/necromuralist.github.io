@@ -5,7 +5,12 @@
 <meta name="description" content="A common place.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Cloistered Monkey</title>
-<link href="assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="assets/css/rst.css" rel="stylesheet" type="text/css">
+<link href="assets/css/code.css" rel="stylesheet" type="text/css">
+<link href="assets/css/colorbox.css" rel="stylesheet" type="text/css">
+<link href="assets/css/theme.css" rel="stylesheet" type="text/css">
+<link href="assets/css/custom.css" rel="stylesheet" type="text/css">
 <link href="assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <meta name="theme-color" content="#5670d4">
@@ -26,7 +31,7 @@ MathJax.Hub.Config({
     }
 });
 </script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><link rel="prefetch" href="posts/assignment-2-olympic-medals/" type="text/html">
+</script><link rel="prefetch" href="posts/data-analysis-with-python-assignment-3/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -106,7 +111,1552 @@ MathJax.Hub.Config({
 
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/assignment-2-olympic-medals/" class="u-url">Assignment 2 - Pandas Introduction (Olympic Medals)</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/data-analysis-with-python-assignment-3/" class="u-url">Data Analysis with Python Assignment 3</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Cloistered Monkey
+            </span></p>
+            <p class="dateline"><a href="posts/data-analysis-with-python-assignment-3/" rel="bookmark"><time class="published dt-published" datetime="2017-02-05T22:04:39-08:00" title="2017-02-05 22:04">2017-02-05 22:04</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <p>
+This assignment requires more individual learning then the last one did - you are encouraged to check out the <a href="http://pandas.pydata.org/pandas-docs/stable/">pandas documentation</a> to find functions or methods you might not have used yet, or ask questions on <a href="http://stackoverflow.com/">Stack Overflow</a> and tag them as pandas and python related. And of course, the discussion forums are open for interaction with your peers and the course staff.
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Imports</h2>
+<div class="outline-text-2" id="text-1">
+<div class="highlight"><pre><span></span><span class="c1"># python standard library</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractproperty</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="c1"># third party</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Some Constants</h2>
+<div class="outline-text-2" id="text-2">
+<div class="highlight"><pre><span></span><span class="n">COLUMN_AXIS</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">A Base Data-Loader class</h2>
+<div class="outline-text-2" id="text-3">
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""base class for the data-loaders</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    constants: object</span>
+<span class="sd">       object with the constant values expected by the data-builder</span>
+<span class="sd">    """</span>
+    <span class="vm">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
+	<span class="bp">self</span><span class="o">.</span><span class="n">constants</span> <span class="o">=</span> <span class="n">constants</span>
+	<span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">None</span>
+	<span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="o">=</span> <span class="bp">None</span>
+	<span class="k">return</span>
+
+
+    <span class="k">def</span> <span class="nf">rename_countries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">country</span><span class="p">):</span>
+	<span class="sd">"""renames country</span>
+
+<span class="sd">	.. note:: Expects the constants to have a dict named `country_remap`</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+
+<span class="sd">	country (str):</span>
+<span class="sd">	   name of the country</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	str: country to use in the column</span>
+<span class="sd">	"""</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">country_remap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">country</span><span class="p">,</span> <span class="n">country</span><span class="p">)</span>
+
+    <span class="nd">@abstractproperty</span>
+    <span class="k">def</span> <span class="nf">frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""data-frame with no cleaning up</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	DataFrame: source for the data</span>
+<span class="sd">	"""</span>
+	<span class="k">return</span>
+
+    <span class="nd">@abstractproperty</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""the data-frame"""</span>
+	<span class="k">return</span>
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">Question 1 (20%)</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">Energy Indicatiors</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+Load the energy data from the file `Energy Indicators.xls`, which is a list of indicators of energy supply and renewable electricity production from the <a href="http://unstats.un.org/unsd/environment/excel_file_tables/2013/Energy%20Indicators.xls">United Nations</a> for the year 2013, and should be put into a DataFrame with the variable name of <b><b>energy</b></b>.
+</p>
+
+<p>
+Keep in mind that this is an Excel file, and not a comma separated values file. 
+</p>
+
+<ul class="org-ul">
+<li>
+<code>[X]</code> make sure to exclude the footer and header information from the datafile. 
+</li>
+<li>
+<code>[X]</code> the first two columns are unneccessary, so you should get rid of them
+</li>
+<li>
+<code>[X]</code> and you should change the column labels so that the columns are:  <code>['Country', 'Energy Supply', 'Energy Supply per Capita', '% Renewable']</code>
+</li>
+<li>
+<code>[X]</code> Convert `Energy Supply` to gigajoules (there are 1,000,000 gigajoules in a petajoule). 
+</li>
+<li>
+<code>[X]</code> For all countries which have missing data (e.g. data with "…") make sure this is reflected as `np.NaN` values.
+</li>
+</ul>
+<p>
+Rename the following list of countries (for use in later questions):
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="left">
+<col class="left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="left">Original</th>
+<th scope="col" class="left">Updated</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">"Republic of Korea"</td>
+<td class="left">"South Korea"</td>
+</tr>
+<tr>
+<td class="left">"United States of America"</td>
+<td class="left">"United States"</td>
+</tr>
+<tr>
+<td class="left">"United Kingdom of Great Britain and Northern Ireland19"</td>
+<td class="left">"United Kingdom"</td>
+</tr>
+<tr>
+<td class="left">"China, Hong Kong Special Administrative Region3"</td>
+<td class="left">"Hong Kong"</td>
+</tr>
+</tbody>
+</table>
+<p>
+There are also several countries with numbers and/or parenthesis in their name. Be sure to remove these, 
+</p>
+
+<p>
+e.g. 
+</p>
+
+<p>
+='Bolivia (Plurinational State of)= should be ='Bolivia'=, 
+</p>
+
+<p>
+='Switzerland17'= should be ='Switzerland'=.
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EnergyIndicatorsConstants</span><span class="p">:</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="s2">"energy_indicators.xls"</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Country'</span><span class="p">,</span> <span class="s1">'Energy Supply'</span><span class="p">,</span> <span class="s1">'Energy Supply per Capita'</span><span class="p">,</span>
+	       <span class="s1">'% Renewable'</span><span class="p">]</span>
+    <span class="n">header_rows</span> <span class="o">=</span> <span class="mi">17</span>
+    <span class="n">footer_rows</span> <span class="o">=</span> <span class="mi">38</span>
+    <span class="n">remove_columns_count</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">missing_values</span> <span class="o">=</span> <span class="s2">"..."</span>
+    <span class="n">country_remap</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Republic of Korea"</span><span class="p">:</span> <span class="s2">"South Korea"</span><span class="p">,</span>
+		     <span class="s2">"United States of America20"</span><span class="p">:</span> <span class="s2">"United States"</span><span class="p">,</span>
+		     <span class="s2">"United Kingdom of Great Britain and Northern Ireland19"</span><span class="p">:</span> <span class="s2">"United Kingdom"</span><span class="p">,</span>
+		     <span class="s2">"China, Hong Kong Special Administrative Region3"</span><span class="p">:</span> <span class="s2">"Hong Kong"</span><span class="p">,</span>
+		     <span class="s2">"China, Macao Special Administrative Region4"</span><span class="p">:</span> <span class="s2">"Macao"</span><span class="p">}</span>
+    <span class="c1"># this will wipe out Hong Kong so use the regex after the remap</span>
+    <span class="n">country_key</span> <span class="o">=</span> <span class="s2">"country"</span>
+    <span class="n">country_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+	<span class="s2">"(?P&lt;{0}&gt;[a-zA-Z\s\-]+)</span><span class="se">\b</span><span class="s2">?(\(|\d)*"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">country_key</span><span class="p">))</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EnergyIndicatorsKeys</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""Keys for the data-frame"""</span>
+    <span class="n">country_name</span> <span class="o">=</span> <span class="s2">"Country"</span>
+    <span class="n">per_capita</span> <span class="o">=</span> <span class="s2">"Energy Supply per Capita"</span>
+    <span class="n">percent_renewable</span> <span class="o">=</span> <span class="s2">"% Renewable"</span>
+    <span class="n">population</span> <span class="o">=</span> <span class="s2">"population"</span>
+    <span class="n">total_supply</span> <span class="o">=</span> <span class="s2">"Energy Supply"</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">UnitConverter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">petajoule_to_gigajoule</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EnergyIndicators</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
+    <span class="sd">"""builds the energy indicator data-frame</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    constants (objects): object with the string constants</span>
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="nb">super</span><span class="p">(</span><span class="n">EnergyIndicators</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	<span class="bp">self</span><span class="o">.</span><span class="n">_to_remove</span> <span class="o">=</span> <span class="bp">None</span>
+	<span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">to_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""leading columns to remove</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	list: names to use for columns to remove from the beginning of sheet</span>
+<span class="sd">	"""</span>
+	<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_remove</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_to_remove</span> <span class="o">=</span> <span class="p">[</span>
+		<span class="s2">"Bad_{0}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">remove_columns_count</span><span class="p">)]</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_remove</span>
+
+    <span class="k">def</span> <span class="nf">clean_countries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">country</span><span class="p">):</span>
+	<span class="sd">"""Gets rid of the extra characters put in by the excel spreadsheet</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+
+<span class="sd">	country: string</span>
+<span class="sd">	    country name to clean up</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	str: country name with extra characters removed</span>
+<span class="sd">	"""</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">country_regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">country</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">country_key</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""</span>
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	DataFrame: the original data-frame before cleaning</span>
+<span class="sd">	"""</span>
+	<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+					   <span class="n">names</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">to_remove</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+					   <span class="n">skiprows</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">header_rows</span><span class="p">,</span>
+					   <span class="n">skip_footer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">footer_rows</span><span class="p">,</span>
+					   <span class="n">na_values</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">missing_values</span><span class="p">)</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""DataFrame with energy indicators"""</span>
+	<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+	    <span class="n">expected_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
+	    <span class="c1"># get rid of the first two columns</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_remove</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">COLUMN_AXIS</span><span class="p">)</span>
+	    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected_rows</span>
+
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">"Energy Supply"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">UnitConverter</span><span class="o">.</span><span class="n">petajoule_to_gigajoule</span>
+	    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected_rows</span>
+
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">Country</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">Country</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rename_countries</span><span class="p">)</span>
+	    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected_rows</span>
+
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">Country</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">Country</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clean_countries</span><span class="p">)</span>
+	    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected_rows</span>
+
+	    <span class="c1"># Iran is ending up with trailing spaces</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">Country</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">Country</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+	    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected_rows</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+</pre></div>
+</div>
+
+<div id="outline-container-sec-4-1-1" class="outline-4">
+<h4 id="sec-4-1-1">Checking for missing values</h4>
+<div class="outline-text-4" id="text-4-1-1">
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">EnergyIndicators</span><span class="p">(</span><span class="n">EnergyIndicatorsConstants</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="n">missing</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">total_supply</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
+<span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="n">missing</span><span class="o">.</span><span class="n">Country</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">country</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">Country</span><span class="o">==</span><span class="s2">"Guinea"</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+</pre></div>
+
+<pre class="example">
+American Samoa
+Guam
+Northern Mariana Islands
+Tuvalu
+United States Virgin Islands
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">GDP Data</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+Next, load the GDP data from the file `world<sub>bank</sub>.csv`, which is a csv containing countries' GDP from 1960 to 2015 from <a href="http://data.worldbank.org/indicator/NY.GDP.MKTP.CD">the World Bank</a>. Call this DataFrame <b>GDP</b>. 
+</p>
+
+<ul class="org-ul">
+<li>Use only the last 10 years (2006-2015) of GDP data 
+</li>
+<li>Make sure to skip the header, and rename the following list of countries:
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="left">
+<col class="left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="left">Original</th>
+<th scope="col" class="left">Updated</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">"Korea, Rep."</td>
+<td class="left">"South Korea"</td>
+</tr>
+<tr>
+<td class="left">"Iran, Islamic Rep."</td>
+<td class="left">"Iran"</td>
+</tr>
+<tr>
+<td class="left">"Hong Kong SAR, China"</td>
+<td class="left">"Hong Kong"</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="highlight"><pre><span></span>head -n <span class="m">6</span> world_bank.csv
+</pre></div>
+
+<pre class="example">
+Data Source,World Development Indicators,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Last Updated Date,2016-07-22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Country Name,Country Code,Indicator Name,Indicator Code,1960,1961,1962,1963,1964,1965,1966,1967,1968,1969,1970,1971,1972,1973,1974,1975,1976,1977,1978,1979,1980,1981,1982,1983,1984,1985,1986,1987,1988,1989,1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015
+Aruba,ABW,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2467703910.61453,,,,,
+</pre>
+
+<p>
+Looking at the output - the first four rows make up the header.
+</p>
+
+<div class="highlight"><pre><span></span>tail -n <span class="m">1</span> world_bank.csv
+</pre></div>
+
+<pre class="example">
+Zimbabwe,ZWE,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,3338344012.90185,3549199070.9497,3600111298.35332,3824914650.44578,3782604520.95833,3968351985.97577,4028795146.6275,4365884796.32639,4451898619.43207,5005191078.9716,6134619995.73105,6681680049.01358,7238248945.11036,7426784679.20989,7918820573.06103,7765890469.91514,7801989350.18084,7266718017.68287,7070013593.75696,7303114444.68453,8356273493.89233,9402932251.4409,9650633427.20048,9803625445.78776,9616635004.94927,10284451429.706,10500325060.9688,10621156208.043,11423305701.9592,12017290918.61,12857125655.5919,13568353827.6226,12345089414.7936,12474892907.901,13626974060.7811,13648508189.0731,15062588732.5267,15466355608.5096,15912592743.6978,15782456234.7071,15299640970.9204,15519896908.6761,14139553643.2837,11736525963.7447,11054922722.9036,10423566818.52,10062755569.0217,9695130198.50778,7982102821.16384,8459783044.33081,9422161300,10543908035.0329,11657893456.879,12180644491.5009,12649391052.8218,12785173627.385
+</pre>
+
+<p>
+The last row is a country, so nothing needs to be popped off.
+</p>
+
+<div class="highlight"><pre><span></span>grep -P <span class="s2">"(Korea|Iran|Hong)"</span> world_bank.csv
+</pre></div>
+
+<pre class="example">
+"Hong Kong SAR, China",HKG,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,,,,,,17646914072.5316,17963587597.2928,18251600758.537,18871674770.8568,21012392496.6626,22946967034.0575,24620544326.6381,27233218366.4241,30577436438.9298,31315910641.5164,31470018825.6732,36556880968.4152,40843484682.3004,44217537723.3852,49327657046.3582,54313855535.2722,59343749332.4989,61094263256.6516,64745875473.9274,71203501724.2224,71742527987.2525,79674401051.0777,90349564237.6023,98039821040.139,100272275421.3,104113116514.092,110049570498.302,116911143429.477,124160923333.7,131655256011.867,134780527700.784,140520117876.574,147686148439.864,138998299558.026,142482530553.942,153401659211.88,154261939959.413,156817528193.178,161610386688.859,175670644204.052,188649442838.506,201916372094.71,214969758150.611,219544022644.222,214145185396.967,228637697575.04,239645861296.69,243720566257.359,251208086226.166,257775655510.28,263860579574.348
+"Iran, Islamic Rep.",IRN,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,55008199861.362,60724056997.4978,65526885363.1927,70141337925.7686,76085976411.7395,89047763860.6423,99290400337.9273,110463353581.338,126374696820.65,145983827472.444,161936358582.348,184124203150.852,210820400546.88,226508983528.938,239648884838.343,238867111255.166,282485286342.747,274650337458.608,239382881270.266,210607239021.737,165116813883.768,155710460310.332,191790513393.427,213053784552.521,197842062853.222,201537060006.584,181816848980.232,181503928205.772,170464865427.365,180917968164.33,205513632859.481,231647051483.288,239286729358.449,235766794094.242,231762799356.709,237327527424.692,252399073803.436,255807469064.417,261128294555.753,266357901072.916,281927925364.048,288672128262.342,311993456682.879,338947502385.457,353646523406.399,368530410531.603,389552313541.27,425064554419.087,428990857822.095,438920754763.986,467790215915.476,485330901134.448,453256899727.832,444592553889.771,463902735245.89,
+"Korea, Rep.",KOR,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,27576960757.4306,28938253834.6781,29649660482.4228,32475783404.6661,34931355042.4565,36744341227.4807,41410872518.0114,43936951529.238,49077491649.4138,55997453545.498,63203503772.4219,69802723539.3236,74347466779.7191,85341610691.2348,93348282252.2833,100197661848.862,113679909958.45,127114323218.173,140204031456.712,151966733489.486,149093441974.141,160132393213.379,173409461822.278,194534213829.381,213713480107.14,229679939886.331,257792299501.017,289413124776.731,323159876101.536,344979833693.394,377053749283.025,413676560143.42,437525995578.944,465218740624.555,506027230599.139,551218621130.396,590828731339.993,624900292540.467,589194128884.459,652418133306.823,710034993718.359,742166345728.082,797327366677.531,820714629232.707,860928427357.697,894708567926.711,941019882149.125,992431619676.197,1020509638539.71,1027729932849.17,1094499338702.72,1134795571930.64,1160809426196.79,1194429021591.57,1234340240503.49,1266580410309.11
+"Korea, Dem. People’s Rep.",PRK,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+</pre>
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GDPConstants</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""holds values for the GDP data"""</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="s2">"world_bank.csv"</span>
+    <span class="n">header_rows</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="c1"># the columns are based on Question one, not the data description</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">([</span><span class="s2">"Country Name"</span><span class="p">]</span> <span class="o">+</span>
+	       <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2016</span><span class="p">)])</span>
+    <span class="n">country_remap</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Hong Kong SAR, China"</span><span class="p">:</span> <span class="s2">"Hong Kong"</span><span class="p">,</span>
+		     <span class="s2">"Iran, Islamic Rep."</span><span class="p">:</span> <span class="s2">"Iran"</span><span class="p">,</span>
+		     <span class="s2">"Korea, Rep."</span><span class="p">:</span> <span class="s2">"South Korea"</span><span class="p">}</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GDPKeys</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""column names for the GDP data"""</span>
+    <span class="n">country_name</span> <span class="o">=</span> <span class="s2">"Country Name"</span>
+    <span class="n">last_ten_years</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2016</span><span class="p">)]</span>
+    <span class="n">first_year</span> <span class="o">=</span> <span class="n">last_ten_years</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">last_year</span> <span class="o">=</span> <span class="n">last_ten_years</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GDPData</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
+    <span class="sd">"""loads and cleans the gdp data</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    constants : object</span>
+<span class="sd">       object with the string constants</span>
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="nb">super</span><span class="p">(</span><span class="n">GDPData</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	<span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""</span>
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	DataFrame: Source for the data</span>
+<span class="sd">	"""</span>
+	<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+					  <span class="n">skiprows</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">header_rows</span><span class="p">,</span>
+					  <span class="n">usecols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""the GDP data</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	DataFrame: cleaned GPD data</span>
+<span class="sd">	"""</span>
+	<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rename_countries</span><span class="p">)</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">GDPData</span><span class="p">(</span><span class="n">GDPConstants</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="n">missing</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">"2015"</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"{0} Countries Missing 2015 data"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)))</span>
+</pre></div>
+
+<pre class="example">
+50 Countries Missing 2015 data
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3">Sciamgo Journal Data</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+Finally, load the <a href="http://www.scimagojr.com/countryrank.php?category=2102">Sciamgo Journal and Country Rank data for Energy Engineering and Power Technology</a> from the file `scimagojr-3.xlsx`, which ranks countries based on their journal contributions in the aforementioned area. Call this DataFrame <b>ScimEn</b>.
+</p>
+
+<ul class="org-ul">
+<li>and only the top 15 countries by Scimago 'Rank' (Rank 1 through 15). 
+</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SciamgoConstants</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""strings and such to load and clean the Sciamgo data"""</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="s2">"scimagojr-3.xlsx"</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SciamgoKeys</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""Keys for the data-frame"""</span>
+    <span class="n">country_name</span> <span class="o">=</span> <span class="s1">'Country'</span>
+    <span class="n">self_citations</span> <span class="o">=</span> <span class="s2">"Self-citations"</span>
+    <span class="n">total_citations</span> <span class="o">=</span> <span class="s2">"Citations"</span>
+    <span class="n">self_to_total_citations</span> <span class="o">=</span> <span class="s2">"self_to_total_citations"</span>
+    <span class="n">citable_documents</span> <span class="o">=</span> <span class="s2">"Citable documents"</span>
+    <span class="n">citable_documents_per_capita</span> <span class="o">=</span> <span class="s2">"citable_documents_per_capti"</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SciamgoData</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
+    <span class="sd">"""loads the Sciamgo Journal Country Rank data"""</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="nb">super</span><span class="p">(</span><span class="n">SciamgoData</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+	<span class="bp">self</span><span class="o">.</span><span class="n">_top_15</span> <span class="o">=</span> <span class="bp">None</span>
+	<span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""the Sciamgo data</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	DataFrame: the country rank data</span>
+<span class="sd">	"""</span>
+	<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">top_15</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="sd">"""Returns the top 15 entries by rank</span>
+
+<span class="sd">	This is needed because question two wants you to compare how much you </span>
+<span class="sd">	have after you merge without the slice</span>
+
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+
+<span class="sd">	DataFrame: slice of top 15 countries by rank</span>
+<span class="sd">	"""</span>
+	<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_15</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">_top_15</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Rank</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="p">]</span>
+	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_15</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">SciamgoData</span><span class="p">(</span><span class="n">SciamgoConstants</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">data</span>
+<span class="n">top_data</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">top_15</span>
+<span class="n">missing</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">Documents</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"{0} countries with missing documents"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)))</span>
+</pre></div>
+
+<pre class="example">
+0 countries with missing documents
+</pre>
+
+<p>
+Since the <i>Sciamgo</i> data has all the countries, we can use it to double check that we cleaned up all the names correctly.
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">energy</span> <span class="o">=</span> <span class="n">EnergyIndicators</span><span class="p">(</span><span class="n">EnergyIndicatorsConstants</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="n">gdp_data</span> <span class="o">=</span> <span class="n">GDPData</span><span class="p">(</span><span class="n">GDPConstants</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">"| Energy Indicators | GDP |"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">"|-+-|"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="n">top_data</span><span class="o">.</span><span class="n">Country</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">"|{0}|{1}|"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">energy</span><span class="p">[</span>
+	<span class="n">energy</span><span class="p">[</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">country</span><span class="p">)]</span>
+			     <span class="p">[</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+	  <span class="n">gdp_data</span><span class="p">[</span>
+	      <span class="n">gdp_data</span><span class="p">[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">country</span><span class="p">)]</span>
+	  <span class="p">[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="left">
+<col class="left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="left">Energy Indicators</th>
+<th scope="col" class="left">GDP</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">China</td>
+<td class="left">China</td>
+</tr>
+<tr>
+<td class="left">United States</td>
+<td class="left">United States</td>
+</tr>
+<tr>
+<td class="left">Japan</td>
+<td class="left">Japan</td>
+</tr>
+<tr>
+<td class="left">United Kingdom</td>
+<td class="left">United Kingdom</td>
+</tr>
+<tr>
+<td class="left">Russian Federation</td>
+<td class="left">Russian Federation</td>
+</tr>
+<tr>
+<td class="left">Canada</td>
+<td class="left">Canada</td>
+</tr>
+<tr>
+<td class="left">Germany</td>
+<td class="left">Germany</td>
+</tr>
+<tr>
+<td class="left">India</td>
+<td class="left">India</td>
+</tr>
+<tr>
+<td class="left">France</td>
+<td class="left">France</td>
+</tr>
+<tr>
+<td class="left">South Korea</td>
+<td class="left">South Korea</td>
+</tr>
+<tr>
+<td class="left">Italy</td>
+<td class="left">Italy</td>
+</tr>
+<tr>
+<td class="left">Spain</td>
+<td class="left">Spain</td>
+</tr>
+<tr>
+<td class="left">Iran</td>
+<td class="left">Iran</td>
+</tr>
+<tr>
+<td class="left">Australia</td>
+<td class="left">Australia</td>
+</tr>
+<tr>
+<td class="left">Brazil</td>
+<td class="left">Brazil</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-4-4" class="outline-3">
+<h3 id="sec-4-4">The DataFrames</h3>
+<div class="outline-text-3" id="text-4-4">
+<p>
+Since Question 2 assumes you have access to the data-frames before reducing them to 15, make building them a separate function.
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">DataFrames</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"DataFrames"</span><span class="p">,</span> <span class="s2">"energy gdp sciamgo"</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+
+<span class="k">def</span> <span class="nf">build_data_frames</span><span class="p">():</span>
+    <span class="sd">"""builds the three data-frames</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    DataFrames: named tuple with the three data-frame builders</span>
+
+<span class="sd">     * energy: EnergyIndicators</span>
+<span class="sd">     * gdp: GDPData</span>
+<span class="sd">     * sciamgo: SciamgoData</span>
+<span class="sd">    """</span>
+    <span class="n">energy_indicators</span> <span class="o">=</span> <span class="n">EnergyIndicators</span><span class="p">(</span><span class="n">EnergyIndicatorsConstants</span><span class="p">)</span>
+    <span class="n">gdp</span> <span class="o">=</span> <span class="n">GDPData</span><span class="p">(</span><span class="n">GDPConstants</span><span class="p">)</span>
+    <span class="n">sciamgo</span> <span class="o">=</span> <span class="n">SciamgoData</span><span class="p">(</span><span class="n">SciamgoConstants</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">DataFrames</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="n">energy_indicators</span><span class="p">,</span> <span class="n">gdp</span><span class="o">=</span><span class="n">gdp</span><span class="p">,</span> <span class="n">sciamgo</span><span class="o">=</span><span class="n">sciamgo</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-sec-4-5" class="outline-3">
+<h3 id="sec-4-5">The Combined DataFrame</h3>
+<div class="outline-text-3" id="text-4-5">
+<p>
+Join the three datasets: GDP, Energy, and ScimEn into a new dataset (using the intersection of country names). 
+</p>
+
+<p>
+The index of this DataFrame should be the name of the country, and the columns should be ['Rank', 'Documents', 'Citable documents', 'Citations', 'Self-citations', 'Citations per document', 'H index', 'Energy Supply', 'Energy Supply per Capita', '% Renewable', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015'].
+</p>
+
+<p>
+<b>This function should return a DataFrame with 20 columns and 15 entries.</b>
+</p>
+
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_one</span><span class="p">():</span>
+    <span class="sd">"""loads the data, cleans and combines them</span>
+
+<span class="sd">     - Energy Indicators</span>
+<span class="sd">     - GDP Data</span>
+<span class="sd">     - Sciamgo Journal data</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    DataFrame : compiled (20 x 15) data</span>
+<span class="sd">    """</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="n">build_data_frames</span><span class="p">()</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">frames</span><span class="o">.</span><span class="n">sciamgo</span><span class="o">.</span><span class="n">top_15</span><span class="p">,</span> <span class="n">frames</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+			  <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">,</span>
+			      <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">])</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">merged</span><span class="p">,</span> <span class="n">frames</span><span class="o">.</span><span class="n">gdp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">,</span>
+			  <span class="n">right_on</span><span class="o">=</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">)</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">merged</span><span class="p">[</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">merged</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">,</span> <span class="n">GDPKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="n">COLUMN_AXIS</span><span class="p">)</span>
+
+<span class="n">merged</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+<span class="n">expected_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Rank'</span><span class="p">,</span> <span class="s1">'Documents'</span><span class="p">,</span> <span class="s1">'Citable documents'</span><span class="p">,</span> 
+		    <span class="s1">'Citations'</span><span class="p">,</span> <span class="s1">'Self-citations'</span><span class="p">,</span>
+		    <span class="s1">'Citations per document'</span><span class="p">,</span> <span class="s1">'H index'</span><span class="p">,</span> <span class="s1">'Energy Supply'</span><span class="p">,</span>
+		    <span class="s1">'Energy Supply per Capita'</span><span class="p">,</span> <span class="s1">'% Renewable'</span><span class="p">,</span> <span class="s1">'2006'</span><span class="p">,</span>
+		    <span class="s1">'2007'</span><span class="p">,</span> <span class="s1">'2008'</span><span class="p">,</span> <span class="s1">'2009'</span><span class="p">,</span> <span class="s1">'2010'</span><span class="p">,</span> <span class="s1">'2011'</span><span class="p">,</span> <span class="s1">'2012'</span><span class="p">,</span>
+		    <span class="s1">'2013'</span><span class="p">,</span> <span class="s1">'2014'</span><span class="p">,</span> <span class="s1">'2015'</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">merged</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">column</span> <span class="o">==</span> <span class="n">expected_columns</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+<span class="k">assert</span> <span class="n">merged</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">merged</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="n">frames</span> <span class="o">=</span> <span class="n">build_data_frames</span><span class="p">()</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">data</span>
+<span class="n">gdp</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">gdp</span><span class="o">.</span><span class="n">data</span>
+<span class="n">sciamgo</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">sciamgo</span><span class="o">.</span><span class="n">data</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">'{:15.15}{:15.15}{:15.15}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="s1">'dataframe'</span><span class="p">,</span> <span class="s1">'Starts with'</span><span class="p">,</span> <span class="s1">'Ends with'</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">'{:15.15}{:15.15}{:15.15}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="s1">'----------'</span><span class="p">,</span> <span class="s1">'-----------'</span><span class="p">,</span> <span class="s1">'---------'</span><span class="p">))</span>
+
+<span class="n">column</span> <span class="o">=</span> <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">'{:15.15}{:15.15}{:15.15}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">'energy'</span><span class="p">,</span> <span class="n">energy</span>
+					<span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">energy</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">column</span> <span class="o">=</span> <span class="n">GDPKeys</span><span class="o">.</span><span class="n">country_name</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">'{:15.15}{:15.15}{:15.15}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">'GDP'</span><span class="p">,</span> <span class="n">gdp</span><span class="p">[</span>
+    <span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gdp</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+<span class="n">column</span> <span class="o">=</span> <span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">'{:15.15}{:15.15}{:15.15}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">'ScimEn'</span><span class="p">,</span> <span class="n">sciamgo</span>
+					  <span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sciamgo</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5">Question 2 (6.6%)</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+The previous question joined three datasets then reduced this to just the top 15 entries. When you joined the datasets, but before you reduced this to the top 15 items, how many entries did you lose?
+</p>
+
+
+<p>
+get<sub>python</sub>().run<sub>cell</sub><sub>magic</sub>('HTML', '', '&lt;svg width="800" height="300"&gt;\n  &lt;circle cx="150" cy="180" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="blue" /&gt;\n  &lt;circle cx="200" cy="100" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="red" /&gt;\n  &lt;circle cx="100" cy="100" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="green" /&gt;\n  &lt;line x1="150" y1="125" x2="300" y2="150" stroke="black" stroke-width="2" fill="black" stroke-dasharray="5,3"/&gt;\n  &lt;text  x="300" y="165" font-family="Verdana" font-size="35"&gt;Everything but this!&lt;/text&gt;\n&lt;/svg&gt;')
+</p>
+
+<p>
+<b>The grader marked this wrong</b>
+</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_two</span><span class="p">():</span>
+    <span class="sd">"""calculates difference between union and intersections</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    int: data lost by joining</span>
+<span class="sd">    """</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="n">build_data_frames</span><span class="p">()</span>
+    <span class="n">frames</span><span class="o">.</span><span class="n">gdp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">:</span> <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">},</span>
+			   <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">union</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">frames</span><span class="o">.</span><span class="n">sciamgo</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">frames</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
+			  <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">,</span>
+			  <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">])</span>
+    <span class="n">union</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">union</span><span class="p">,</span> <span class="n">frames</span><span class="o">.</span><span class="n">gdp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">'outer'</span><span class="p">,</span>
+			 <span class="n">left_on</span><span class="o">=</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">,</span>
+			 <span class="n">right_on</span><span class="o">=</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">)</span>
+    <span class="n">intersection</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">frames</span><span class="o">.</span><span class="n">sciamgo</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">frames</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+				<span class="n">left_on</span><span class="o">=</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">,</span>
+				<span class="n">right_on</span><span class="o">=</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">)</span>
+    <span class="n">intersection</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">intersection</span><span class="p">,</span> <span class="n">frames</span><span class="o">.</span><span class="n">gdp</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span>
+				<span class="n">left_on</span><span class="o">=</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">,</span>
+				<span class="n">right_on</span><span class="o">=</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">country_name</span><span class="p">)</span>
+
+
+    <span class="n">union_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">union</span><span class="p">)</span>
+    <span class="n">intersection_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">intersection</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">"union total: {0}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">union_count</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">'intersection count: {0}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">intersection_count</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">union_count</span> <span class="o">-</span> <span class="n">intersection_count</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">answer_two</span><span class="p">())</span>
+</pre></div>
+
+<pre class="example">
+union total: 317
+intersection count: 191
+126
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6">Top 15</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+Answer the following questions in the context of only the top 15 countries by Scimagojr Rank (aka the DataFrame returned by `answer<sub>one</sub>()`)
+</p>
+</div>
+
+<div id="outline-container-sec-6-1" class="outline-3">
+<h3 id="sec-6-1">Question 3 (6.6%) - Average GDP</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+What is the average GDP over the last 10 years for each country? (exclude missing values from this calculation.)
+</p>
+
+<p>
+<b>This function should return a Series named `avgGDP` with 15 countries and their average GDP sorted in descending order.</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_three</span><span class="p">():</span>
+    <span class="sd">"""calculates average gdp</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    Series: mean GDP for each countr</span>
+<span class="sd">    """</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Top15</span><span class="p">[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">last_ten_years</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">answer_three</span><span class="p">()),</span>
+	       <span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"Country"</span><span class="p">,</span> <span class="s2">"Average GDP (2009 to 2015)"</span><span class="p">],</span>
+	       <span class="n">tablefmt</span><span class="o">=</span><span class="s2">"orgtbl"</span><span class="p">))</span>
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="left">
+<col class="right">
+</colgroup>
+<thead><tr>
+<th scope="col" class="left">Country</th>
+<th scope="col" class="right">Average GDP (2009 to 2015)</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">China</td>
+<td class="right">6.34861e+12</td>
+</tr>
+<tr>
+<td class="left">United States</td>
+<td class="right">1.53643e+13</td>
+</tr>
+<tr>
+<td class="left">Japan</td>
+<td class="right">5.54221e+12</td>
+</tr>
+<tr>
+<td class="left">United Kingdom</td>
+<td class="right">2.48791e+12</td>
+</tr>
+<tr>
+<td class="left">Russian Federation</td>
+<td class="right">1.56546e+12</td>
+</tr>
+<tr>
+<td class="left">Canada</td>
+<td class="right">1.66065e+12</td>
+</tr>
+<tr>
+<td class="left">Germany</td>
+<td class="right">3.49303e+12</td>
+</tr>
+<tr>
+<td class="left">India</td>
+<td class="right">1.7693e+12</td>
+</tr>
+<tr>
+<td class="left">France</td>
+<td class="right">2.68172e+12</td>
+</tr>
+<tr>
+<td class="left">South Korea</td>
+<td class="right">1.10671e+12</td>
+</tr>
+<tr>
+<td class="left">Italy</td>
+<td class="right">2.12018e+12</td>
+</tr>
+<tr>
+<td class="left">Spain</td>
+<td class="right">1.41808e+12</td>
+</tr>
+<tr>
+<td class="left">Iran</td>
+<td class="right">4.44156e+11</td>
+</tr>
+<tr>
+<td class="left">Australia</td>
+<td class="right">1.16404e+12</td>
+</tr>
+<tr>
+<td class="left">Brazil</td>
+<td class="right">2.18979e+12</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-6-2" class="outline-3">
+<h3 id="sec-6-2">Question 4 (6.6%) - 10 year GDP difference</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+By how much had the GDP changed over the 10 year span for the country with the 6th largest average GDP?
+</p>
+
+<p>
+<b>This function should return a single number.</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_four</span><span class="p">():</span>
+    <span class="sd">"""Calculates GDP change over ten year span for country with 6th largest</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    float: change in GDP from 2006 to 20015 for 6th largest GDP in top 15</span>
+<span class="sd">    """</span>
+    <span class="n">top_15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+    <span class="n">means</span> <span class="o">=</span> <span class="n">top_15</span><span class="p">[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">last_ten_years</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">means</span><span class="p">[</span><span class="n">means</span><span class="o">==</span><span class="n">means</span><span class="o">.</span><span class="n">nlargest</span><span class="p">(</span><span class="mi">6</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">sixth</span> <span class="o">=</span> <span class="n">top_15</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">sixth</span><span class="p">[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">last_year</span><span class="p">]</span> <span class="o">-</span> <span class="n">sixth</span><span class="p">[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">first_year</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">answer_four</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-sec-6-3" class="outline-3">
+<h3 id="sec-6-3">Question 5 (6.6%) - Mean Energy Supply Per Capita</h3>
+<div class="outline-text-3" id="text-6-3">
+<p>
+What is the mean <i>Energy Supply per Capita</i>?
+</p>
+
+<p>
+<b>This function should return a single number.</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_five</span><span class="p">():</span>
+    <span class="sd">"""mean Energy Supply per Capita"""</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Top15</span><span class="p">[</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">per_capita</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">answer_five</span><span class="p">())</span>
+</pre></div>
+
+<pre class="example">
+157.6
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-6-4" class="outline-3">
+<h3 id="sec-6-4">Question 6 (6.6%) - Maximum Percent Renewable Energy</h3>
+<div class="outline-text-3" id="text-6-4">
+<p>
+What country has the maximum % Renewable and what is the percentage?
+</p>
+
+<p>
+<b>This function should return a tuple with the name of the country and the percentage.</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_six</span><span class="p">():</span>
+    <span class="sd">"""finds country with most renewable energy</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    tuple: (country name, percentage renewable)</span>
+<span class="sd">    """</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+    <span class="n">country</span> <span class="o">=</span> <span class="n">Top15</span><span class="p">[</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">percent_renewable</span><span class="p">]</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">country</span><span class="p">)</span>
+    <span class="n">amount</span> <span class="o">=</span> <span class="n">Top15</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">country</span><span class="p">][</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">percent_renewable</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">country</span><span class="p">,</span> <span class="n">amount</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">answer_six</span><span class="p">())</span>
+</pre></div>
+
+<pre class="example">
+Brazil
+('Brazil', 69.648030000000006)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-6-5" class="outline-3">
+<h3 id="sec-6-5">Question 7 (6.6%) - Self-Citations to Total Citations Ratio</h3>
+<div class="outline-text-3" id="text-6-5">
+<p>
+Create a new column that is the ratio of Self-Citations to Total Citations. 
+<i>What is the maximum value for this new column, and what country has the highest ratio?</i>
+</p>
+
+<p>
+<b>This function should return a tuple with the name of the country and the ratio.</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_seven</span><span class="p">():</span>
+    <span class="sd">"""adds Self-Citations/Total Citations column</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    tuple: (country with highest ratio, highest ratio)</span>
+<span class="sd">    """</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+    <span class="n">ratio_key</span> <span class="o">=</span> <span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">self_to_total_citations</span>
+    <span class="n">self_key</span> <span class="o">=</span> <span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">self_citations</span>
+    <span class="n">Top15</span><span class="p">[</span><span class="n">ratio_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">Top15</span><span class="p">[</span><span class="n">self_key</span><span class="p">]</span><span class="o">/</span><span class="n">Top15</span><span class="p">[</span><span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">total_citations</span><span class="p">]</span>
+    <span class="n">country</span> <span class="o">=</span> <span class="n">Top15</span><span class="p">[</span><span class="n">ratio_key</span><span class="p">]</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">Top15</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">country</span><span class="p">][</span><span class="n">ratio_key</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">country</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">answer_seven</span><span class="p">())</span>
+</pre></div>
+
+<pre class="example">
+('China', 0.68931261793894216)
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-6-6" class="outline-3">
+<h3 id="sec-6-6">Question 8 (6.6%) - Add Population Estimate</h3>
+<div class="outline-text-3" id="text-6-6">
+<p>
+Create a column that estimates the population using Energy Supply and Energy Supply per capita. 
+<i>What is the third most populous country according to this estimate?</i>
+<b>This function should return a single string value.</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_population</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">"""adds population estimate</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    data: DataFrame</span>
+<span class="sd">       data with energy-per-capita and total energy columns</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    DataFrame: copy of data with `population` column</span>
+<span class="sd">    """</span>
+    <span class="n">population</span> <span class="o">=</span> <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">population</span>
+    <span class="n">per_capita</span> <span class="o">=</span> <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">per_capita</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">total_supply</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">population</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">total</span><span class="p">]</span><span class="o">/</span><span class="n">data</span><span class="p">[</span><span class="n">per_capita</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_eight</span><span class="p">():</span>
+    <span class="sd">"""adds population estimate column</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str: name of third most populous country</span>
+<span class="sd">    """</span>
+    <span class="n">top_15</span> <span class="o">=</span> <span class="n">add_population</span><span class="p">(</span><span class="n">answer_one</span><span class="p">())</span>
+    <span class="n">third</span> <span class="o">=</span> <span class="n">top_15</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">nlargest</span><span class="p">(</span><span class="mi">3</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">top_15</span><span class="p">[</span><span class="n">top_15</span><span class="o">.</span><span class="n">population</span> <span class="o">==</span> <span class="n">third</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">answer_eight</span><span class="p">())</span>
+</pre></div>
+
+<pre class="example">
+United States
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-6-7" class="outline-3">
+<h3 id="sec-6-7">Question 9 (6.6%) - Citable Documents Per Person</h3>
+<div class="outline-text-3" id="text-6-7">
+<p>
+Create a column that estimates the number of citable documents per person. 
+</p>
+
+<p>
+<i>What is the correlation between the number of citable documents per capita and the energy supply per capita? Use the `.corr()` method, (Pearson's correlation).</i>
+</p>
+
+<p>
+<b>This function should return a single number.</b>
+</p>
+
+<p>
+<b>(Optional: Use the built-in function `plot9()` to visualize the relationship between Energy Supply per Capita vs. Citable docs per Capita)</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_nine</span><span class="p">():</span>
+    <span class="sd">"""adds citable documents per person column</span>
+
+<span class="sd">    Calculates the correlation between citations/capita and energy supply/capita</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    float: correlation</span>
+<span class="sd">    """</span>
+    <span class="n">ratio_key</span> <span class="o">=</span> <span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">citable_documents_per_capita</span>
+    <span class="n">citeable_documents</span> <span class="o">=</span> <span class="n">SciamgoKeys</span><span class="o">.</span><span class="n">citable_documents</span>
+
+    <span class="n">per_capita</span> <span class="o">=</span> <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">per_capita</span>
+    <span class="n">top_15</span> <span class="o">=</span> <span class="n">add_population</span><span class="p">(</span><span class="n">answer_one</span><span class="p">())</span>
+    <span class="n">top_15</span><span class="p">[</span><span class="n">ratio_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_15</span><span class="p">[</span><span class="n">citeable_documents</span><span class="p">]</span><span class="o">/</span><span class="n">top_15</span><span class="o">.</span><span class="n">population</span>
+    <span class="k">return</span> <span class="n">top_15</span><span class="p">[[</span><span class="n">ratio_key</span><span class="p">,</span> <span class="n">per_capita</span><span class="p">]]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">answer_nine</span><span class="p">())</span>
+</pre></div>
+
+<pre class="example">
+0.794001043544
+</pre>
+
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">seaborn</span>
+<span class="n">seaborn</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">"whitegrid"</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">plot9</span><span class="p">():</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">add_population</span><span class="p">(</span><span class="n">answer_one</span><span class="p">())</span>
+    <span class="n">Top15</span><span class="p">[</span><span class="s1">'Citable docs per Capita'</span><span class="p">]</span> <span class="o">=</span> <span class="n">Top15</span><span class="p">[</span><span class="s1">'Citable documents'</span><span class="p">]</span> <span class="o">/</span> <span class="n">Top15</span><span class="o">.</span><span class="n">population</span>
+    <span class="n">Top15</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">'Citable docs per Capita'</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">'Energy Supply per Capita'</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">'scatter'</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0006</span><span class="p">])</span>
+<span class="n">plot9</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="figure">
+<p><img src="posts/data-analysis-with-python-assignment-3/plot9.png" alt="plot9.png"></p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6-8" class="outline-3">
+<h3 id="sec-6-8">Question 10 (6.6%) - Percent Renewable Greater Than or Equal To Median</h3>
+<div class="outline-text-3" id="text-6-8">
+<p>
+Create a new column with a 1 if the country's % Renewable value is at or above the median for all countries in the top 15, and a 0 if the country's % Renewable value is below the median.
+</p>
+
+<p>
+<b>This function should return a series named `HighRenew` whose index is the country name sorted in ascending order of rank.</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_ten</span><span class="p">():</span>
+    <span class="sd">"""classifies by median % renewable</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    Series: 1 if at or above median, 0 otherwaise</span>
+<span class="sd">    """</span>
+    <span class="n">renewable_key</span> <span class="o">=</span> <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">percent_renewable</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+    <span class="n">median</span> <span class="o">=</span> <span class="n">Top15</span><span class="p">[</span><span class="n">renewable_key</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+	<span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="n">median</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">Top15</span><span class="p">[</span><span class="n">renewable_key</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">classify</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">answer_ten</span><span class="p">()),</span>
+				<span class="n">headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"Country"</span><span class="p">,</span> <span class="s2">"Meets Median % Renewable Energy"</span><span class="p">],</span>
+				<span class="n">tablefmt</span><span class="o">=</span><span class="s2">"orgtbl"</span><span class="p">))</span>
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="left">
+<col class="right">
+</colgroup>
+<thead><tr>
+<th scope="col" class="left">Country</th>
+<th scope="col" class="right">Meets Median % Renewable Energy</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">China</td>
+<td class="right">1</td>
+</tr>
+<tr>
+<td class="left">United States</td>
+<td class="right">0</td>
+</tr>
+<tr>
+<td class="left">Japan</td>
+<td class="right">0</td>
+</tr>
+<tr>
+<td class="left">United Kingdom</td>
+<td class="right">0</td>
+</tr>
+<tr>
+<td class="left">Russian Federation</td>
+<td class="right">1</td>
+</tr>
+<tr>
+<td class="left">Canada</td>
+<td class="right">1</td>
+</tr>
+<tr>
+<td class="left">Germany</td>
+<td class="right">1</td>
+</tr>
+<tr>
+<td class="left">India</td>
+<td class="right">0</td>
+</tr>
+<tr>
+<td class="left">France</td>
+<td class="right">1</td>
+</tr>
+<tr>
+<td class="left">South Korea</td>
+<td class="right">0</td>
+</tr>
+<tr>
+<td class="left">Italy</td>
+<td class="right">1</td>
+</tr>
+<tr>
+<td class="left">Spain</td>
+<td class="right">1</td>
+</tr>
+<tr>
+<td class="left">Iran</td>
+<td class="right">0</td>
+</tr>
+<tr>
+<td class="left">Australia</td>
+<td class="right">0</td>
+</tr>
+<tr>
+<td class="left">Brazil</td>
+<td class="right">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-6-9" class="outline-3">
+<h3 id="sec-6-9">Question 11 (6.6%) - Group by Continent</h3>
+<div class="outline-text-3" id="text-6-9">
+<p>
+Use the following dictionary to group the Countries by Continent, then create a dateframe that displays the sample size (the number of countries in each continent bin), and the sum, mean, and std deviation for the estimated population of each country.
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">ContinentDict</span>  <span class="o">=</span> <span class="p">{</span><span class="s1">'China'</span><span class="p">:</span><span class="s1">'Asia'</span><span class="p">,</span> 
+		  <span class="s1">'United States'</span><span class="p">:</span><span class="s1">'North America'</span><span class="p">,</span> 
+		  <span class="s1">'Japan'</span><span class="p">:</span><span class="s1">'Asia'</span><span class="p">,</span> 
+		  <span class="s1">'United Kingdom'</span><span class="p">:</span><span class="s1">'Europe'</span><span class="p">,</span> 
+		  <span class="s1">'Russian Federation'</span><span class="p">:</span><span class="s1">'Europe'</span><span class="p">,</span> 
+		  <span class="s1">'Canada'</span><span class="p">:</span><span class="s1">'North America'</span><span class="p">,</span> 
+		  <span class="s1">'Germany'</span><span class="p">:</span><span class="s1">'Europe'</span><span class="p">,</span> 
+		  <span class="s1">'India'</span><span class="p">:</span><span class="s1">'Asia'</span><span class="p">,</span>
+		  <span class="s1">'France'</span><span class="p">:</span><span class="s1">'Europe'</span><span class="p">,</span> 
+		  <span class="s1">'South Korea'</span><span class="p">:</span><span class="s1">'Asia'</span><span class="p">,</span> 
+		  <span class="s1">'Italy'</span><span class="p">:</span><span class="s1">'Europe'</span><span class="p">,</span> 
+		  <span class="s1">'Spain'</span><span class="p">:</span><span class="s1">'Europe'</span><span class="p">,</span> 
+		  <span class="s1">'Iran'</span><span class="p">:</span><span class="s1">'Asia'</span><span class="p">,</span>
+		  <span class="s1">'Australia'</span><span class="p">:</span><span class="s1">'Australia'</span><span class="p">,</span> 
+		  <span class="s1">'Brazil'</span><span class="p">:</span><span class="s1">'South America'</span><span class="p">}</span>
+</pre></div>
+
+<p>
+<b>This function should return a DataFrame with index named Continent `['Asia', 'Australia', 'Europe', 'North America', 'South America']` and columns `['size', 'sum', 'mean', 'std']`</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_eleven</span><span class="p">():</span>
+    <span class="sd">"""Groups countries by continent</span>
+
+<span class="sd">     * displays countries per continent</span>
+<span class="sd">     * displays sum, mean, std for estimated population of each country</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    DataFrame:</span>
+<span class="sd">       index uses contintes, columns or size, sum, mean, and std</span>
+<span class="sd">    """</span>
+    <span class="n">top_15</span> <span class="o">=</span> <span class="n">add_population</span><span class="p">(</span><span class="n">answer_one</span><span class="p">())</span>
+    <span class="n">top_15</span><span class="p">[</span><span class="s2">"Continent"</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_15</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">ContinentDict</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">top_15</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"Continent"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"size"</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">count</span><span class="p">()[</span><span class="s2">"2009"</span><span class="p">],</span>
+			     <span class="s2">"sum"</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+			     <span class="s2">"mean"</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+			     <span class="s2">"std"</span><span class="p">:</span> <span class="n">group</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">std</span><span class="p">()})</span>
+<span class="n">outcome</span> <span class="o">=</span> <span class="n">answer_eleven</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="s2">"keys"</span><span class="p">,</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s2">"orgtbl"</span><span class="p">))</span>
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="left">
+<col class="right">
+<col class="right">
+<col class="right">
+<col class="right">
+</colgroup>
+<thead><tr>
+<th scope="col" class="left">Continent</th>
+<th scope="col" class="right">mean</th>
+<th scope="col" class="right">size</th>
+<th scope="col" class="right">std</th>
+<th scope="col" class="right">sum</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">Asia</td>
+<td class="right">5.79733e+08</td>
+<td class="right">5</td>
+<td class="right">6.79098e+08</td>
+<td class="right">2.89867e+09</td>
+</tr>
+<tr>
+<td class="left">Australia</td>
+<td class="right">2.3316e+07</td>
+<td class="right">1</td>
+<td class="right">nan</td>
+<td class="right">2.3316e+07</td>
+</tr>
+<tr>
+<td class="left">Europe</td>
+<td class="right">7.63216e+07</td>
+<td class="right">6</td>
+<td class="right">3.46477e+07</td>
+<td class="right">4.5793e+08</td>
+</tr>
+<tr>
+<td class="left">North America</td>
+<td class="right">1.76428e+08</td>
+<td class="right">2</td>
+<td class="right">1.9967e+08</td>
+<td class="right">3.52855e+08</td>
+</tr>
+<tr>
+<td class="left">South America</td>
+<td class="right">2.05915e+08</td>
+<td class="right">1</td>
+<td class="right">nan</td>
+<td class="right">2.05915e+08</td>
+</tr>
+</tbody>
+</table>
+<p>
+Both <i>Australia</i> and <i>South America</i> only have one entry, so there's no standard deviation.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-6-10" class="outline-3">
+<h3 id="sec-6-10">Question 12 (6.6%) - Bin by Percent Revewable</h3>
+<div class="outline-text-3" id="text-6-10">
+<p>
+Cut % Renewable into 5 bins. Group Top15 by the Continent, as well as these new % Renewable bins. How many countries are in each of these groups?
+</p>
+
+<p>
+<b>This function should return a <span class="underline"><span class="underline">Series</span></span> with a MultiIndex of `Continent`, then the bins for `% Renewable`. Do not include groups with no countries.</b>
+</p>
+
+<p>
+<b>Function answer<sub>twelve</sub> results were not the same as the solution results. Iterating through the series we found that there were 1 differences.</b>
+</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_twelve</span><span class="p">():</span>
+    <span class="sd">"""bins percent renewable</span>
+
+<span class="sd">    groups top 15 by continent as well as 5 renewable bins</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    Series: with multiindex using bins for percent renewable and continent</span>
+<span class="sd">    """</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+    <span class="n">Top15</span><span class="p">[</span><span class="s2">"Continent"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Top15</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">ContinentDict</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Top15</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"Continent"</span><span class="p">,</span>
+			  <span class="n">pandas</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">Top15</span><span class="p">[</span>
+			  <span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">percent_renewable</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span>
+			  <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"bin{0}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">bin</span><span class="p">)</span> <span class="k">for</span> <span class="nb">bin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)])]</span>
+    <span class="p">)[</span><span class="n">GDPKeys</span><span class="o">.</span><span class="n">last_year</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+<span class="n">outcome</span> <span class="o">=</span> <span class="n">answer_twelve</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">outcome</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
+</pre></div>
+
+<pre class="example">
+&lt;class 'pandas.core.series.Series'&gt;
+Continent      % Renewable
+Asia           bin0           3
+               bin1           1
+Australia      bin0           1
+Europe         bin0           1
+               bin1           3
+               bin2           2
+North America  bin0           1
+               bin4           1
+South America  bin4           1
+Name: 2015, dtype: int64
+</pre>
+</div>
+</div>
+
+<div id="outline-container-sec-6-11" class="outline-3">
+<h3 id="sec-6-11">Question 13 (6.6%) - Convert Population To String</h3>
+<div class="outline-text-3" id="text-6-11">
+<p>
+Convert the Population Estimate series to a string with thousands separator (using commas). Do not round the results.
+</p>
+
+<p>
+e.g. 317615384.61538464 -&gt; 317,615,384.61538464
+</p>
+
+<p>
+<b>This function should return a Series `PopEst` whose index is the country name and whose values are the population estimate string.</b>
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_thirteen</span><span class="p">():</span>
+    <span class="sd">"""Converts population to a formatted string"""</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">add_population</span><span class="p">(</span><span class="n">answer_one</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">Top15</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">"{0:,}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">answer_thirteen</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">output</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="s2">"keys"</span><span class="p">,</span> <span class="n">tablefmt</span><span class="o">=</span><span class="s2">"orgtbl"</span><span class="p">))</span>
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="left">
+<col class="left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="left">Country</th>
+<th scope="col" class="left">population</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">China</td>
+<td class="left">1,367,645,161.2903225</td>
+</tr>
+<tr>
+<td class="left">United States</td>
+<td class="left">317,615,384.61538464</td>
+</tr>
+<tr>
+<td class="left">Japan</td>
+<td class="left">127,409,395.97315437</td>
+</tr>
+<tr>
+<td class="left">United Kingdom</td>
+<td class="left">63,870,967.741935484</td>
+</tr>
+<tr>
+<td class="left">Russian Federation</td>
+<td class="left">143,500,000.0</td>
+</tr>
+<tr>
+<td class="left">Canada</td>
+<td class="left">35,239,864.86486486</td>
+</tr>
+<tr>
+<td class="left">Germany</td>
+<td class="left">80,369,696.96969697</td>
+</tr>
+<tr>
+<td class="left">India</td>
+<td class="left">1,276,730,769.2307692</td>
+</tr>
+<tr>
+<td class="left">France</td>
+<td class="left">63,837,349.39759036</td>
+</tr>
+<tr>
+<td class="left">South Korea</td>
+<td class="left">49,805,429.864253394</td>
+</tr>
+<tr>
+<td class="left">Italy</td>
+<td class="left">59,908,256.880733944</td>
+</tr>
+<tr>
+<td class="left">Spain</td>
+<td class="left">46,443,396.2264151</td>
+</tr>
+<tr>
+<td class="left">Iran</td>
+<td class="left">77,075,630.25210084</td>
+</tr>
+<tr>
+<td class="left">Australia</td>
+<td class="left">23,316,017.316017315</td>
+</tr>
+<tr>
+<td class="left">Brazil</td>
+<td class="left">205,915,254.23728815</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+<div id="outline-container-sec-6-12" class="outline-3">
+<h3 id="sec-6-12">Optional</h3>
+<div class="outline-text-3" id="text-6-12">
+<p>
+Use the built in function <code>plot_optional()</code> to see an example visualization.
+</p>
+
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_optional</span><span class="p">():</span>
+    <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
+    <span class="n">bubble_size</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">Top15</span><span class="p">[</span><span class="s1">'2014'</span><span class="p">]</span><span class="o">/</span><span class="mi">10</span><span class="o">**</span><span class="mi">10</span>
+    <span class="n">ASIA</span> <span class="o">=</span> <span class="s1">'#e41a1c'</span>
+    <span class="n">NORTH_AMERICA</span> <span class="o">=</span> <span class="s1">'#377eb8'</span>
+    <span class="n">EUROPE</span> <span class="o">=</span> <span class="s1">'#4daf4a'</span>
+    <span class="n">AUSTRALIA</span> <span class="o">=</span> <span class="s1">'#dede00'</span>
+    <span class="n">SOUTH_AMERICA</span> <span class="o">=</span> <span class="s1">'#ff7f00'</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">Top15</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">'Rank'</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">'% Renewable'</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">'scatter'</span><span class="p">,</span> 
+		    <span class="n">c</span><span class="o">=</span><span class="p">[</span><span class="n">ASIA</span><span class="p">,</span> <span class="n">NORTH_AMERICA</span><span class="p">,</span> <span class="n">ASIA</span><span class="p">,</span> <span class="n">EUROPE</span><span class="p">,</span><span class="n">EUROPE</span><span class="p">,</span>
+		       <span class="n">NORTH_AMERICA</span><span class="p">,</span><span class="n">EUROPE</span><span class="p">,</span><span class="s1">'#e41a1c'</span><span class="p">,</span>
+		       <span class="n">EUROPE</span><span class="p">,</span> <span class="n">ASIA</span><span class="p">,</span><span class="n">EUROPE</span><span class="p">,</span><span class="n">EUROPE</span><span class="p">,</span> <span class="n">ASIA</span><span class="p">,</span>
+		       <span class="n">AUSTRALIA</span><span class="p">,</span> <span class="n">SOUTH_AMERICA</span><span class="p">],</span>
+		    <span class="n">xticks</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">16</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="n">bubble_size</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=.</span><span class="mi">75</span><span class="p">,</span>
+		    <span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">16</span><span class="p">,</span><span class="mi">6</span><span class="p">]);</span>
+
+    <span class="c1"># print country name centered in bubble</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">txt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Top15</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="p">[</span><span class="n">Top15</span><span class="p">[</span><span class="s1">'Rank'</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">Top15</span><span class="p">[</span><span class="s1">'% Renewable'</span><span class="p">][</span><span class="n">i</span><span class="p">]],</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'center'</span><span class="p">)</span>
+<span class="n">plot_optional</span><span class="p">()</span> <span class="c1"># Be sure to comment out plot_optional() before submitting the assignment!</span>
+</pre></div>
+<p>
+This is an example of a visualization that can be created to help understand the data. This is a bubble chart showing <i>% Renewable vs. Rank</i>. The size of the bubble corresponds to the countries' 2014 GDP, and the color corresponds to the continent.
+</p>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/assignment-2-olympic-medals/" class="u-url">Assignment 2 - Pandas Introduction (Olympic Medals)</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Cloistered Monkey
@@ -2756,55 +4306,6 @@ References
 </div>
 </div>
     </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/monitoring-events-with-chromium/" class="u-url">Monitoring Events With Chromium</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Cloistered Monkey
-            </span></p>
-            <p class="dateline"><a href="posts/monitoring-events-with-chromium/" rel="bookmark"><time class="published dt-published" datetime="2016-09-23T16:57:37-07:00" title="2016-09-23 16:57">2016-09-23 16:57</time></a></p>
-        </div>
-    </header><div class="e-content entry-content">
-    <div>
-<p>If you have a chromium-based browser you can find out what events are affecting a particular item on you web-page using the <a class="reference external" href="https://developers.google.com/web/tools/chrome-devtools/debug/command-line/events?hl=en">monitorEvents</a> function.</p>
-<div class="section" id="monitoring-events">
-<h2>Monitoring Events</h2>
-<div class="section" id="inspect-the-element">
-<h3>Inspect The Element</h3>
-<p>First right-click on the element that you are interested in and pick "Inspect element" from the context-menu.</p>
-<img alt="inspect_element.png" src="posts/monitoring-events-with-chromium/inspect_element.png">
-</div>
-<div class="section" id="enter-the-event-type">
-<h3>Enter the Event Type</h3>
-<p>There are multiple event types to chooske from (<em>mouse</em>, <em>key</em>, <em>touch</em>, and <em>control</em>). In this example I'll monitor mouse events. In the javascript console enter:</p>
-<pre class="code javascript"><a name="rest_code_86ae1790b13b40fa8f041472e3fb8e81-1"></a><span class="nx">monitorEvents</span><span class="p">(</span><span class="nx">$0</span><span class="p">,</span> <span class="s2">"mouse"</span><span class="p">)</span>
-</pre>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><tt class="docutils literal">$0</tt> is a variable that refers to the element you are inspecting and <tt class="docutils literal">"mouse"</tt> tells it to listen for mouse events</p>
-</div>
-<p>Now, as you do things with your mouse on the element, the console output will show you the the events as they happen.</p>
-<img alt="mouse_events.png" src="posts/monitoring-events-with-chromium/mouse_events.png">
-</div>
-</div>
-<div class="section" id="listing-event-listeners">
-<h2>Listing Event Listeners</h2>
-<p>To see the event-listeners associated with the element enter the following at the console.</p>
-<pre class="code javascript"><a name="rest_code_de332e85b4364088b145e0a06791db48-1"></a><span class="nx">getEventListeners</span><span class="p">(</span><span class="nx">$0</span><span class="p">)</span>
-</pre>
-<img alt="get_event_listeners.png" src="posts/monitoring-events-with-chromium/get_event_listeners.png"><div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <tt class="docutils literal">getEventListeners</tt> function doesn't work until you've run the <tt class="docutils literal">monitorEvents</tt> function.</p>
-</div>
-</div>
-<div class="section" id="picking-elements-at-the-console">
-<h2>Picking Elements At The Console</h2>
-<p>You don't have to use "Inspect this element" and <tt class="docutils literal">$0</tt>, you can grab an element at the console with javascript instead.</p>
-<pre class="code javascript"><a name="rest_code_b733abeecf2844aba4b5f306b3f696df-1"></a><span class="nx">monitorEvents</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"changing-what-you-monitor"</span><span class="p">),</span> <span class="s2">"mouse"</span><span class="p">)</span>
-</pre>
-<p>Will monitor mouse-events for the headline to this sub-section.</p>
-</div>
-</div>
-    </div>
     </article>
 </div>
 
@@ -2836,7 +4337,7 @@ MathJax.Hub.Config({
 </div>
 
 
-            <script src="assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+            <script src="assets/js/jquery.min.js"></script><script src="assets/js/bootstrap.min.js"></script><script src="assets/js/moment-with-locales.min.js"></script><script src="assets/js/fancydates.js"></script><script src="assets/js/jquery.colorbox-min.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
     </script><!-- end fancy dates -->
