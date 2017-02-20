@@ -1,0 +1,83 @@
+#+BEGIN_COMMENT
+.. title: Inserting Text Between Methods in Org-Mode
+.. slug: org-babel-noweb-ref
+.. date: 2017-02-19 11:06:06 UTC-08:00
+.. tags: orgmode literateprogramming
+.. category: emacs
+.. link: 
+.. description: An experiment with org-babel's noweb-ref.
+.. type: text
+#+END_COMMENT
+This is an attempt to get org-mode to insert text between methods in a class definition using the noweb-ref property. I think you can also do it by just tangling everything to the same file, but I like the noweb notation better.
+
+* The Tangle
+  To keep it simple I'm just going to include a section for the class definition and a =main= section to check out the results. Note that to be able to break up the class definition I had to turn off org-mode's clean-up so all the python blocks have to be indented exactly the way they will be in the final python file.
+
+#+BEGIN_SRC python :tangle noweb_ref.py
+<<first-class>>
+
+<<main>>
+#+END_SRC
+
+* The First Class
+  This first class won't do much, but if I understand the documentation I should be able to insert text between the parts of it and still have it work when the python gets tangled out. The org-mode source block starts like this - =#+BEGIN_SRC python :noweb-ref first-class=.
+
+** The Constructor
+   #+BEGIN_SRC python :noweb-ref first-class
+class FirstClass(object):
+    """a class that is first
+    Parameters
+    ----------
+
+    name: string
+      some kind of identifier
+    """
+    def __init__(self, name):
+        self.name = name
+        return
+   #+END_SRC
+
+** The Call
+   The call emits the name. To concatenate this method to the previous block I'm using the same org-mode source-block header as I did with the constructor (=#+BEGIN_SRC python :noweb-ref first-class=). You could use a different name and insert another reference in the tangle but this seems more logical to me. One problem here is that python-mode (or some other mode) will interpret the methods as stand-alone functions and move them flush left. To fix this I had to turn off the automatic indentation using =(setq org-src-preserve-indentation t)=. This means that you have to keep track of the indentation yourself, regardless of where the code sits in the org-mode document (so as you create sub-sections it will look uglier and uglier in the original document, at least to me). Putting the method in a separate block also requires that you to insert an empty line before the method to  keep it from being stuck to the bottom of the previous one, but it doesn't include it when it gets exported to HTML, so you can't see it in this post. In fact, I noticed afterwards that the HTML export also stripped out the indentation on the left so you can't really see what I'm talking about.
+
+   #+BEGIN_SRC python :noweb-ref first-class
+
+    def __call__(self):
+        """prints the name"""
+        print(self.name)
+        return
+   #+END_SRC
+
+* The Main
+  This part constructs the =FirstClass= object and calls it.
+  
+  #+NAME: main
+  #+BEGIN_SRC python
+if __name__ == "__main__":
+    thing = FirstClass("Bob")
+    thing()
+  #+END_SRC
+
+* Trying it out
+
+  #+BEGIN_SRC sh :results output :exports both
+    python noweb_ref.py
+  #+END_SRC
+
+  #+RESULTS:
+  : Bob
+
+* Summary
+  The point of trying this out is that I want to be able to break up and document class-methods better. Unfortunately it requires you to do a little more fiddling with the white-space yourself and makes the source org-mode file a little harder to read (I think) but I'm going to try it for a little while and see if the resulting documents are worth the extra headache. Maybe I'll just have to stick with docstrings for documenting the separate methods...
+
+  This bit at the end makes it so the indentation is always preserved, even if the =init.el= file isn't set up that way.
+
+  #+BEGIN_SRC sh
+ # Local Variables:
+ # org-src-preserve-indentation: t
+ # End:
+  #+END_SRC
+
+# Local Variables:
+# org-src-preserve-indentation: t
+# End:
