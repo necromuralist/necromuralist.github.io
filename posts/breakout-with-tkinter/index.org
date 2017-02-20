@@ -1,0 +1,1590 @@
+#+BEGIN_COMMENT
+.. title: Breakout With Tkinter
+.. slug: breakout-with-tkinter
+.. date: 2017-02-19 22:02:59 UTC-08:00
+.. tags: python tkinter game
+.. category: programming
+.. link: 
+.. description: A breakout game using tkinter.
+.. type: text
+#+END_COMMENT
+
+
+A /tkinter/ breakout implementation from the book =Python Game Programming by Example=.  Although /Tkinter/ is referred to primarily as a GUI builder, this example shows you how to use it to re-create the arcade game [[https://en.wikipedia.org/wiki/Breakout_(video_game)][Breakout]] using only the python standard library.
+
+* The Tangle :noexport:
+
+#+BEGIN_SRC python :tangle breakout.py
+<<imports>>
+
+<<constants>>
+
+
+<<coordinates>>
+
+
+<<base-object>>
+
+
+<<base-settings>>
+
+
+<<ball-directions>>
+
+
+<<ball-settings>>
+
+
+<<ball-class>>
+
+
+<<paddle-settings>>
+
+
+<<paddle-class>>
+
+
+<<brick-settings>>
+
+
+<<brick-class>>
+
+
+<<frame-settings>>
+
+
+<<frame-class>>
+
+
+<<game-settings>>
+
+
+<<game-class>>
+
+
+<<main>>
+#+END_SRC
+
+* Pre-Installation
+  Although the =tkinter= python library is part of the standard python installation, it relies on Tcl/Tk and a c-python binary that you have to build or install. To get it in ubuntu you can use =apt-get=.
+
+  #+BEGIN_SRC sh
+    sudo apt-get python3-tk
+  #+END_SRC
+
+* Imports 
+#+BEGIN_SRC python :noweb-ref imports
+# python standard library
+from abc import ABCMeta
+from abc import abstractproperty
+from collections import namedtuple
+from copy import copy
+import re
+import string
+import tkinter
+#+END_SRC
+
+* Constants
+
+#+BEGIN_SRC python :noweb-ref constants
+BLUE = "#0000ff"
+LAVENDER = "#aaaaff"
+WHITE = "#ffffff"
+NUMERIC = (int, float)
+
+REVERSE_DIRECTION = -1
+LEFT = -1
+RIGHT = LEFT * REVERSE_DIRECTION
+UP = -1
+EDGE_OF_SCREEN = 0
+NO_MOVEMENT = 0
+#+END_SRC
+
+* Base Classes
+** Coordinates
+   This is a named tuple to see if I can keep the coordinates returned by tkinter straight.
+#+BEGIN_SRC python :noweb-ref coordinates
+Coordinates = namedtuple("Coordinates", ["top_left_x",
+                                         "top_left_y",
+                                         "bottom_right_x",
+                                         "bottom_right_y"])
+#+END_SRC   
+** Base Widget
+  A base-class to implement the methods common to all the game objects. The python 3 syntax seems to have changed slightly so you have to use =metaclass=ABCMeta= in place of =object= instead of putting ~__metaclass__==ABCMeta~ the way I used to in python 2.7.
+
+*** The =item= property
+#+BEGIN_SRC python :noweb-ref base-object
+class BaseWidget(metaclass=ABCMeta):
+    """base class for game object's
+
+    Parameters
+    ----------
+
+    canvas: tkinter.Canvas
+      canvas to draw on
+    """
+    @abstractproperty
+    def item(self):
+        """the canvas item"""
+        return
+#+END_SRC
+
+The =item= will be an identifier pointing to a /tkinter/ widget. It gets returned by the function call to create the widget (e.g. =canvas.create_oval=).
+
+*** Position
+
+#+BEGIN_SRC python :noweb-ref base-object
+
+    @property
+    def position(self):
+        """the coordinates of the object on the canvas
+
+        Returns
+        -------
+
+        tuple: x0, y0, x1, y1
+        """
+        x0, y0, x1, y1 = self.canvas.coords(self.item)
+        return Coordinates(top_left_x=x0,
+                           top_left_y=y0,
+                           bottom_right_x=x1,
+                           bottom_right_y=y1)
+#+END_SRC
+
+The call to =canvas.coords= returns the coordinates of the bounding-box for the widget. The first two values are the x and y coordinates for the upper-left corner of the box and the last two values are the x and y coordinates of the bottom-right corner.
+
+*** Move
+
+#+BEGIN_SRC python :noweb-ref base-object
+
+    def move(self, horizontal_offset, vertical_offset):
+        """move this object to the coordinates
+
+        Parameters
+        ----------
+
+        horizontal_offset: int
+          x-axis pixels to move
+        vertical_offset: int
+          y-axis pixels to move
+        """
+        self.canvas.move(self.item, horizontal_offset, vertical_offset)
+        return
+#+END_SRC
+
+    This moves the object. Rather than giving it coordinates, the =move= method moves the object vertically and horizontally the number of pixels you pass in for each axis. You could think of the values as being added to each of the coordinates (so negative numbers will move the object in the opposite direction from positive numbers).
+
+*** Delete
+#+BEGIN_SRC python :noweb-ref base-object
+
+    def delete(self):
+        """destroy this canvas item"""
+        self.canvas.delete(self.item)
+        return
+#+END_SRC
+
+   This deletes the object from the canvas. If you attempt to use it after this tkinter will raise an exception.
+
+** Base Settings
+  A base class to hold settings. It (partly) implements the [[http://en.wikipedia.org/wiki/Fluent_interface][fluent interface]] design pattern. I'm not one-hundred percent convinced that it's a good idea in python, but I wanted to add value checking and document the values I expect a little better.
+
+#+BEGIN_SRC python :noweb-ref base-settings
+class BaseSettings(metaclass=ABCMeta):
+    """fluent interface"""
+    _hex_pattern = None
+
+    @abstractproperty
+    def attributes(self):
+        """list of attribute names
+        This is used by the call to check the attributes
+        """
+        return
+#+END_SRC
+
+The =attributes= will be a list (or tuple) of strings that match the variable-names in the settings objects that are required (e.g. to require that =self.table= has a value other than None, put "table" in the list). This gets used by the =__call__= method (defined below).
+
+#+BEGIN_SRC python :noweb-ref base-settings
+
+    @property
+    def hex_pattern(self):
+        """compiled regex to match hex-colors"""
+        if BaseSettings._hex_pattern is None:
+            hex_character = "\da-fA-f"
+            base = "(?P<{{0}}[{0}])(?P={{0}})".format(hex_character)
+            BaseSettings._hex_pattern = re.compile("#" +
+                                                   base.format("r") +
+                                                   base.format("g") +
+                                                   base.format("b"))
+        return BaseSettings._hex_pattern
+#+END_SRC
+
+The =hex_pattern= will match any string that starts with a pound sign (/#/) followed by three sets of hex-digit pairs. A /hex-digit/ is an integer from /0/ to /9/ or one of the letters from /a/ to /f/ (case insensitive). Since it requires pairs, each hex-digit has to be repeated twice. So it will match /#aabbff/ but not /#abf/ or /#0123ab/. It's used by the next method.
+
+#+BEGIN_SRC python :noweb-ref base-settings
+
+    def check_hex_color(self, value, identifier):
+        """checks the color is a valid hex-code
+        Parameters
+        ----------
+        value: string
+          color-code to check
+        identifier: string
+          error-message identifier
+
+        Raises
+        ------
+        TypeError: if string is malformed
+        """
+        if not re.match("#" + "[{0}]".format(string.hexdigits) * 6, value):
+            raise TypeError("{0} must be a 6-digit hex string, not {1}".format(
+                identifier, value))
+
+        return
+#+END_SRC
+
+The colors set in this code are based on RGB hex-strings. The =check_hex_color= method validates that they are look something like "#aabbcc".
+
+#+BEGIN_SRC python :noweb-ref base-settings
+
+    def assert_positive_number(self, value, identifier):
+        """checks the value
+
+        Parameters
+        ----------
+
+        value: int or float
+          value to check
+        identifier: string
+          something for the error message
+
+        Raises
+        ------
+        TypeError if value is not a positive number
+        """
+        self.check_numeric(value, identifier)
+        self.check_positive(value, identifier)
+        return
+#+END_SRC
+
+=assert_positive_number= checks that the =value= passed in is a number greater than 0.
+
+#+BEGIN_SRC python :noweb-ref base-settings
+
+    def check_positive(self, value, identifier):
+        """check that value is greater than zero
+
+        Parameters
+        ----------
+
+        value: numeric
+          value to check
+
+        identifier: str
+          description for error messages
+
+        Raises
+        ------
+
+        TypeError: if value is <= 0
+        """
+        if not value > 0:
+            raise TypeError("{0} must be greater than 0 not {1}".format(
+                identifier,
+                value))
+        return
+#+END_SRC
+
+The =check_positive= method raises a =TypeError= if the =value= passed in isn't greater than zero. It doesn't check that the =value= is numeric so if it isn't it will still raise a =TypeError= but the error message won't be as helpful. I did it this way because I (at least originally) assumed some values had to be integers so I wanted to leave the check for type as a separate operation.
+
+#+BEGIN_SRC python :noweb-ref base-settings
+
+    def check_type(self, thing, identifier, expected):
+        """checks that the value is the correct type
+        Parameters
+        ----------
+
+        thing:
+          object to check
+        identifier: string
+          message to identify the thing
+        expected: object
+          what the thing is expected to be
+
+        Raises
+        ------
+
+        TypeError: if thing isn't as expected
+        """
+        if not isinstance(thing, expected):
+            raise TypeError("Expected {0} to be {1} not {2}".format(identifier,
+                                                                    expected,
+                                                                    thing))
+        return
+#+END_SRC
+
+The =check_type= was the original method I created. I'm not sure it's as useful as checking ranges of values (which I'm not doing enough of yet), but it's at least useful to check if my expectations of what's being passed in to the methods is correct.
+
+#+BEGIN_SRC python :noweb-ref base-settings
+
+    def check_types(self, thing, identifier, expected):
+        """check that thing is one of multiple types
+
+        Parameters
+        ----------
+
+        thing: object
+          thing to check
+        identifier: string
+          identifier for error message
+        expected: collection
+          types that thing might be
+
+        Raises
+        ------
+
+        TypeError if type of thing not in expected
+        """
+        if not type(thing) in expected:
+            raise TypeError("{0} should be one of {1}, not {2}".format(
+                identifier,
+                expected,
+                thing))
+        return
+#+END_SRC
+
+=check_types= allows you you specify a collection of possible types for the value.
+
+#+BEGIN_SRC python :noweb-ref base-settings
+
+    def check_numeric(self, thing, identifier):
+        """check if thing is int or float
+
+        Parameters
+        ----------
+
+        thing: object
+          thing to check if is numeric
+        identifier: string
+          identifier for error message
+
+        Raises
+        ------
+        TypeError if thing is not numeric
+        """
+        self.check_types(thing, identifier, NUMERIC)
+        return
+#+END_SRC
+
+=check_numeric= will raise a =TypeError= if the value isn't an integer or float.
+
+#+BEGIN_SRC python :noweb-ref base-settings
+
+    def __call__(self):
+        """checks that everything was set
+        Raises
+        ------
+
+        TypeError:
+          if any attributes weren't set
+
+        Returns
+        -------
+
+        GameSettings: this object
+        """
+        for attribute in self.attributes:
+            if getattr(self, attribute) is None:
+                raise TypeError("{0} attribute not set".format(attribute))
+        return self
+#+END_SRC
+
+The =__call__= is meant to be the final method called when the parameters are set. It checks that all the properties in the =attributes= list have been set to something other than =None= and raises a =TypeError= if any of them hasn't been set.
+
+* The Ball Class
+** Ball Directions
+
+   This is an object to use instead of the list like they use in the book. The first value (x-direction) is set positive to make it move from left to right, and negative to move right to left. The second value is set positive to move the ball downwards and negative to move it upwards.
+
+#+BEGIN_SRC python :noweb-ref ball-directions
+class BallDirections(object):
+    """holds the current direction of the ball
+    Parameters
+    ----------
+
+    horizontal: int
+      positive to move left to right, negative otherwise
+    vertical: int
+      positive to move down, negative to move up
+    """
+    def __init__(self, horizontal, vertical):
+        self.horizontal = horizontal
+        self.vertical = vertical
+        return
+#+END_SRC
+
+** Ball Settings
+
+#+BEGIN_SRC python :noweb-ref ball-settings
+class BallSettings(BaseSettings):
+    """settings for the ball"""
+    def __init__(self):
+        self.x = None
+        self.y = None
+        self.radius = None
+        self.direction = None
+        self.speed = None
+        self.fill = None
+        self._attributes = None
+        return
+
+    @property
+    def attributes(self):
+        """required attributes"""
+        if self._attributes is None:
+            self._attributes = ("x",
+                                "y",
+                                "radius",
+                                "direction",
+                                "speed",
+                                "fill")
+        return self._attributes
+#+END_SRC
+#+BEGIN_SRC python :noweb-ref ball-settings
+
+    def x_position(self, x):
+        """initial horizontal position
+
+        Parameters
+        ----------
+        x: int or float
+          pixels from the left of the canvas to start the ball
+        """
+        self.x = x
+        self.assert_positive_number(x, "x")
+        return self
+
+    def y_position(self, y):
+        """initial vertical position
+
+        Parameters
+        ----------
+
+        y: int
+          pixels from the top of the canvas
+        """
+        self.y = y
+        self.assert_positive_number(y, "y")
+        return self
+#+END_SRC
+
+The =x= and =y= values for the ball are actually set in the code based on the initial location of the paddle, so requiring them here is a bad idea. Oh, well.
+
+#+BEGIN_SRC python :noweb-ref ball-settings
+
+    def circle_radius(self, radius):
+        """radius of the ball
+        Parameters
+        ----------
+        radius: int
+          pixel width and height for the circle
+        """
+        self.radius = radius
+        self.assert_positive_number(radius, "radius")
+        return self
+#+END_SRC
+
+Ovals in tkinter are set by specifying the corners of their bounding boxes, the same as with creating a rectangle. So the =radius= is used as an offset to calculate where the corners should be. For example, if you have the center x-value for the oval, subtracting the radius gives you the top-left x-value and adding the radius gives you the bottom-right x-value. See the =Game.ball= property to get an idea of how it's used.
+
+#+BEGIN_SRC python :noweb-ref ball-settings
+
+    def direction_vector(self, direction):
+        """2-d vector for direction"""
+        self.direction = direction
+        self.check_type(direction, "ball direction", BallDirections)
+        return self
+#+END_SRC
+
+The =direction= values determine what direction the object is moving on the vertical and horizontal axes. Positive values move to the right and down, while negative values move to the left and up.
+
+| Horizontal | Vertical | Direction  |
+|------------+----------+------------|
+| Positive   | Positive | Down-Right |
+| Positive   | Negative | Up-Right   |
+| Negative   | Positive | Down-Left  |
+| Negative   | Negative | Up-Left    |
+
+#+BEGIN_SRC python :noweb-ref ball-settings
+
+    def velocity(self, speed):
+        """speed of the ball
+        Parameters
+        ----------
+
+        speed: number
+          pixels per move
+        """
+        self.speed = speed
+        self.assert_positive_number(speed, "speed")
+        return self
+
+    def color(self, fill):
+        """fill color
+
+        Parameters
+        ----------
+        fill: str
+          hex-color to fill in the ball
+        """
+        self.fill = fill
+        self.check_hex_color(fill, "fill")
+        return self
+#+END_SRC
+
+The =speed= and =fill= are the number of pixels to move the ball each time and the =fill= is the color to put inside it.
+** The Ball
+
+   The ball-widget holds the reference to the ball that the player uses to smash bricks to try and break-out.  
+
+#+BEGIN_SRC python :noweb-ref ball-class
+class BallWidget(BaseWidget):
+    """representation of the ball
+
+    Parameters
+    ----------
+
+    canvas: tkinter.Canvas
+      what to create the ball from
+
+    settings: BallSettings
+      initial ball settings
+    """
+    def __init__(self, canvas, settings):
+        self.canvas = canvas
+        self.settings = settings
+        self._item = None
+        self.direction = self.settings.direction
+        self.speed = self.settings.speed
+        return
+
+    @property
+    def item(self):
+        """canvas item representing the ball"""
+        if self._item is None:
+            x, y = self.settings.x, self.settings.y
+            radius = self.settings.radius
+            self._item = self.canvas.create_oval(
+                x-radius, y-radius,
+                x+radius, y+radius,
+                fill=self.settings.fill,
+            )
+        return self._item
+#+END_SRC
+
+#+BEGIN_SRC python :noweb-ref ball-class
+
+    def update(self):
+        """moves the ball
+        if the ball hits something, reverses direction
+        """
+        ball = self.position
+        width = self.canvas.winfo_width()
+        if ball.top_left_x <= EDGE_OF_SCREEN or ball.bottom_right_x >= width:
+            self.direction.horizontal *= REVERSE_DIRECTION
+        if ball.top_left_y <= EDGE_OF_SCREEN:
+            self.direction.vertical *= REVERSE_DIRECTION
+        self.move(self.direction.horizontal * self.speed,
+                  self.direction.vertical * self.speed)
+#+END_SRC
+
+The =update= method gets its current position and if it is off-screen on either side it inverts the horizontal direction. If the ball is above the top of the screen it reverses its vertical direction. It doesn't check the bottom of the screen because going off the bottom is how the player loses so it's an expected behavior. Once it has the directions set it moves the ball by the amount defined by the =speed= variable.
+
+#+BEGIN_SRC python :noweb-ref ball-class
+
+    def collide(self, others):
+        """handles collisions
+
+        Parameters
+        ----------
+
+        others: list
+          collection of ther objects that the ball collided with
+        """
+        if len(others) > 1:
+            self.direction.vertical *= REVERSE_DIRECTION
+        elif len(others) == 1:
+            ball = self.position
+            x = (ball.top_left_x + ball.bottom_right_x)/2
+
+            other = others[0].position
+            if x > other.bottom_right_x:
+                self.direction.horizontal = RIGHT
+            elif x < other.top_left_x:
+                self.direction.horizontal = LEFT
+            else:
+                self.direction.vertical *= REVERSE_DIRECTION
+        for other in others:
+            if isinstance(other, BrickWidget):
+                other.hit()
+        return
+#+END_SRC
+
+The =collide= method handles when a ball collides with another object. If it collided with more than one object it always reverses directions (this would only happen with bricks, not the paddle). If it collided with a single object then if the object is to the left of it (the ball's mean x-value is greater than the rightmost x-value for the object) then it sets its horizontal direction to move to the right (it bounces off it to the right). If the other object is to the right of the ball then the ball moves to the left. Otherwise the ball hit the object on top or below it so it changes vertical direction. If any of the objects are bricks then their =hit= methods are called.
+
+* The Paddle
+  A representation of the player's paddle.
+** The Paddle Settings
+
+#+BEGIN_SRC python :noweb-ref paddle-settings
+class PaddleSettings(BaseSettings):
+    """settings for the player's paddle"""
+    def __init__(self):
+        self._attributes = None
+        self.width = None
+        self.height = None
+        self.speed = None
+        self.x = None
+        self.y = None
+        self.fill = None
+        return
+
+    @property
+    def attributes(self):
+        """list of required settings"""
+        if self._attributes is None:
+            self._attributes = ("width",
+                                "height",
+                                "speed",
+                                "x",
+                                "y",
+                                "fill")
+        return self._attributes
+#+END_SRC
+
+#+BEGIN_SRC python :noweb-ref paddle-settings
+
+    def pixel_width(self, width):
+        """width of the paddle
+        Parameters
+        ----------
+
+        width: int
+          pixel-width for the paddle
+        """
+        self.width = width
+        self.check_type(width, "width", int)
+        self.check_positive(width, "width")
+        return self
+
+    def pixel_height(self, height):
+        """height of the paddle
+
+        Parameters
+        ----------
+
+        height: int
+          pixel-height of the paddle
+        """
+        self.height = height
+        self.check_type(height, "height", int)
+        self.check_positive(height, "height")
+        return self
+#+END_SRC
+
+The height and width are offsets to add to the upper-left corner coordinates of the bounding box to locate the lower-right corner of the bounding box, thus defining the size of the paddle.
+
+#+BEGIN_SRC python :noweb-ref paddle-settings
+
+    def velocity(self, speed):
+        """rate at which to move the paddle
+        Parameters
+        ----------
+
+        speed: number
+          amount to move paddle with each key stroke
+        """
+        self.speed = speed
+        self.assert_positive_number(speed, "paddle speed")
+        return self
+#+END_SRC
+
+The =speed= of the paddle is the amount it will move every-time an arrow key is hit. I think it's in pixels, but the units aren't clear.
+
+#+BEGIN_SRC python :noweb-ref paddle-settings
+
+    def x_position(self, x):
+        """initial x-position
+        Parameters
+        ----------
+
+        x: int
+          pixels from the left of the canvas
+        """
+        self.x = x
+        self.check_numeric(x, "x")
+        self.check_positive(x, "x")
+        return self
+
+    def y_position(self, y):
+        """initial y-position
+
+        Parameters
+        ----------
+
+        y: int
+           pixels from the top of the canvas
+        """
+        self.y = y
+        self.check_numeric(y, 'y')
+        self.check_positive(y, "y")
+        return self
+#+END_SRC
+
+The =x= and =y= settings determine where the paddle will be at the start (and since it only moves horizontally the =y= value is where it will be vertically throughout the game).
+
+#+BEGIN_SRC python :noweb-ref paddle-settings
+
+    def color(self, fill):
+        """fill color for the rectangle
+
+        Parameters
+        ----------
+
+        fill: str
+          hex-code for the fill color
+        """
+        self.fill = fill
+        self.check_hex_color(fill, "fill")
+        return self
+#+END_SRC
+
+Like with the /Ball/ the =fill= value for the /Paddle/ decides what color to fill it with.
+
+** The Paddle Class
+
+#+BEGIN_SRC python :noweb-ref paddle-class
+class PaddleWidget(BaseWidget):
+    """the player's paddle
+    Parameters
+    ----------
+
+    canvas: tkinter.Canvas
+      the canvas to draw on
+    settings: PaddleSettings
+      initial settings for the paddle
+    """
+    def __init__(self, canvas, settings):
+        self.canvas = canvas
+        self.settings = settings
+        self._item = None
+        self.ball = None
+        return
+
+    @property
+    def item(self):
+        """the canvas item for the paddle"""
+        if self._item is None:
+            half_width = self.settings.width/2
+            half_height = self.settings.height/2
+            x, y = self.settings.x, self.settings.y
+            self._item = self.canvas.create_rectangle(
+                x - half_width, y - half_height,
+                x + half_width, y + half_height,
+                fill=self.settings.fill
+            )
+        return self._item
+#+END_SRC
+
+The =item= property creates a rectangle of =width x height=  dimensions centered around =(x, y)=.
+
+#+BEGIN_SRC python :noweb-ref paddle-class
+
+    def move(self, offset):
+        """moves the paddle
+        if has a ball, also moves the ball
+
+        if already flush left or flush right, does nothing
+
+        Parameters
+        ----------
+
+        offset: int
+          amount to move the paddle and ball horizontally
+        """
+        coordinates = self.position
+        width = self.canvas.winfo_width()
+        if (coordinates.top_left_x + offset >= 0 and
+            coordinates.bottom_right_x + offset <= width):  # noqa: E129
+            super(PaddleWidget, self).move(offset, 0)
+            if self.ball is not None:
+                self.ball.move(offset, 0)
+        return
+#+END_SRC
+
+The =move= method moves the paddle horizontally by some offset. If moving it would place it offscreen to the left or right then it doesn't do anything. The paddle should only have the ball before the game starts (so that if the player moves the paddle the ball will stay with it until the game starts).
+
+* The Brick
+** Brick Settings
+
+#+BEGIN_SRC python :noweb-ref brick-settings
+class BrickSettings(BaseSettings):
+    """settings for the brick widget"""
+    def __init__(self):
+        self.x = None
+        self.y = None
+        self.width = None
+        self.height = None
+        self.colors = None
+        self.tags = None
+        self._attributes = None
+        self._hits = None
+        return
+
+    @property
+    def attributes(self):
+        """list of required values"""
+        if self._attributes is None:
+            self._attributes = ("width",
+                                "height",
+                                "colors",
+                                "tags",
+                                "x",
+                                "y",
+                                "hits")
+        return self._attributes
+#+END_SRC
+
+#+BEGIN_SRC python :noweb-ref brick-settings
+
+    @property
+    def hits(self):
+        """the number of hits each brick will take
+        """
+        if self._hits is None:
+            self._hits = max(self.colors)
+        return self._hits
+
+    def maximum_hits(self, hits):
+        """number of hits brick will take
+        Parameters
+        ----------
+
+        hits: int
+          number of hits before deleting bricks
+        """
+        self._hits = hits
+        self.check_type(hits, "hits", int)
+        self.check_positive(hits, "hits")
+        return self
+#+END_SRC
+
+The =hits= value is the number of times a brick gets hit by a ball before it deletes itself. I originally make it always use the largest value but then found out different rows use different values so I added a setter method.
+
+#+BEGIN_SRC python :noweb-ref brick-settings
+
+    def x_position(self, x):
+        """horizontal position
+        Parameters
+        ----------
+        x: int or float
+          pixels from the left
+        """
+        self.x = x
+        self.check_numeric(x, "x")
+        self.check_positive(x, "x")
+        return self
+
+    def y_position(self, y):
+        """vertical position
+        Parameters
+        ----------
+
+        y: int or float
+          pixels from the top
+        """
+        self.y = y
+        self.check_numeric(y, "y")
+        self.check_positive(y, "y")
+        return self
+#+END_SRC
+
+The =x= and =y= are the center-positions for a brick. Since they don't move this is their permanent position. Like the ball, this actually gets calculated when the game is set up so making this required was probably a bad ide.
+
+#+BEGIN_SRC python :noweb-ref brick-settings
+
+    def pixel_width(self, width):
+        """width of the brick
+        Parameters
+        ----------
+
+        width: int
+          pixel-width of the brick
+        """
+        self.width = width
+        self.check_type(width, "width", int)
+        self.check_positive(width, "width")
+        return self
+
+    def pixel_height(self, height):
+        """height of the brick
+        Parameters
+        ----------
+
+        height: int
+          pixel-height of the brick
+        """
+        self.height = height
+        self.check_type(height, "height", int)
+        self.check_positive(height, "height")
+        return self
+#+END_SRC
+
+The =height= and =width= give the dimensions of the brick.
+
+#+BEGIN_SRC python :noweb-ref brick-settings
+
+    def level_colors(self, colors):
+        """map of level to colors
+
+        Parameters
+        ----------
+        colors: dict
+          map of integers to colors
+        """
+        self.colors = colors
+        for level in range(1, len(colors) + 1):
+            if level not in colors:
+                raise TypeError("colors keys must be range starting at 1")
+        for level, color in colors.items():
+            self.check_hex_color(color, "level {0} color".format(level))
+        return self
+#+END_SRC
+
+As a brick gets hit it changes colors. The =colors= dictionary is a mapping between the number of remaining times the brick can be hit before being deleted (the level of the brick) and the color for that level.
+
+#+BEGIN_SRC python :noweb-ref brick-settings
+
+    def label(self, tags):
+        """string to tag bricks
+
+        Parameters
+        ----------
+
+        tags: str
+          identifier for bricks
+        """
+        self.tags = tags
+        self.check_type(tags, "tags", str)
+        return self
+#+END_SRC
+
+The =tags= attribute is a string given to tkinter to identify a class of related widgets.
+
+** Brick Widget
+
+#+BEGIN_SRC python :noweb-ref brick-class
+class BrickWidget(BaseWidget):
+    """represents a single brick
+
+    Parameters
+    ----------
+
+    canvas: tkinter.Canvas
+      what to draw the brick on
+    settings: BrickSettings
+      initial settings for the brick
+    """
+    def __init__(self, canvas, settings):
+        self.canvas = canvas
+        self.settings = settings
+        self.hits = self.settings.hits
+        self._item = None
+        return
+
+    @property
+    def item(self):
+        """canvas rectangle"""
+        if self._item is None:
+            half_height = self.settings.height/2
+            half_width = self.settings.width/2
+            x, y = self.settings.x, self.settings.y
+            self._item = self.canvas.create_rectangle(
+                x - half_width, y - half_height,
+                x + half_width, y + half_height,
+                fill=self.settings.colors[self.hits],
+                tags=self.settings.tags
+            )
+        return self._item
+#+END_SRC
+The  =item= creation is almost the same as the one for the /Paddle/ except that the color is based on the number of remaining hits it starts with and it gets a tag
+
+#+BEGIN_SRC python :noweb-ref brick-class
+
+    def hit(self):
+        """the brick has been hit event
+        Decrements the counter and changes the color or deletes the brick
+        """
+        self.hits -= 1
+        if self.hits == 0:
+            self.delete()
+        else:
+            self.canvas.itemconfig(self.item,
+                                   fill=self.settings.colors[self.hits])
+        return
+#+END_SRC
+
+The =hit= method decrements the number of hits the brick has remaining and deletes it if it doesn't have any left. If it does have hits left it re-colors the brick to match the number of hits remaining.
+
+* The Frame
+** The Frame Settings
+
+These are settings for the Tkinter Frame.
+
+#+BEGIN_SRC python :noweb-ref frame-settings
+class FrameSettings(BaseSettings):
+    """holds the settings for the game"""
+    def __init__(self):
+        self.width = None
+        self.height = None
+        self.color = None
+        self.title = None
+        self._attributes = None
+        return
+
+    @property
+    def attributes(self):
+        """list of required attributes"""
+        if self._attributes is None:
+            self._attributes = ("width",
+                                "height",
+                                "color",
+                                "title")
+        return self._attributes
+
+    def window_width(self, width):
+        """width of window
+        Parameters
+        ----------
+        width: int
+          pixel-width for the tkinter window
+
+        Returns
+        -------
+
+        GameSettings: this object
+        """
+        self.width = width
+        self.check_type(width, "width", int)
+        self.check_positive(width, "width")
+        return self
+
+    def window_height(self, height):
+        """height of window
+        Parameters
+        ----------
+
+        height: int
+          pixel height of the window
+
+        Returns
+        -------
+
+        GameSettings: this object
+        """
+        self.height = height
+        self.check_type(height, "height", int)
+        self.check_positive(height, "height")
+        return self
+
+    def canvas_color(self, color):
+        """background color
+
+        Parameters
+        ----------
+
+        color: string
+           hex-color for canvas background
+
+        Returns
+        -------
+
+        GameSettings: this object
+        """
+        self.color = color
+        self.check_hex_color(color, 'background color')
+        return self
+
+    def window_title(self, title):
+        """title of the window
+        Parameters
+        ----------
+
+        title: str
+          name to give the title
+
+        Returns
+        -------
+
+        GameSettings: this object
+        """
+        self.title = title
+        self.check_type(title, "window title", str)
+        return self
+#+END_SRC
+
+** The Frame Class
+
+  The =Tk= class creates the main window. Within it the =Frame= class creates a container which you pass the main window on instantiation. Within the frame a =Canvas= is placed to actually draw things. The =pack= method tells the children to display their widgets on their parents.
+  
+#+BEGIN_SRC python :noweb-ref frame-class
+class BreakoutFrame(tkinter.Frame):
+    """creates the breakout game
+
+    Parameters
+    ----------
+
+    settings: GameSettings
+      object with the settings
+    parent: Tk
+      parent window for this frame
+    """
+    def __init__(self, settings, parent):
+        super(BreakoutFrame, self).__init__(parent)
+        self.parent = parent
+        self.parent.title(settings.title)
+        self.settings = settings
+        self._canvas = None
+        self.height = settings.height
+        return
+
+    @property
+    def canvas(self):
+        """canvas to render images"""
+        if self._canvas is None:
+            self._canvas = tkinter.Canvas(self,
+                                          width=self.settings.width,
+                                          height=self.settings.height,
+                                          bg=self.settings.color)
+        return self._canvas
+
+    def __call__(self):
+        """runs the main-loop"""
+        self.canvas.pack()
+        self.pack()
+        self.parent.mainloop()
+        return
+#+END_SRC
+
+* The Game
+** Game Settings
+
+#+BEGIN_SRC python :noweb-ref game-settings
+class GameSettings(BaseSettings):
+    """settings for the game"""
+    def __init__(self):
+        self.lives = None
+        self.text_x = None
+        self.text_y = None
+        self.text_size = None
+        self.padding = None
+        self._attributes = None
+        return
+
+    @property
+    def attributes(self):
+        """required attributes"""
+        if self._attributes is None:
+            self._attributes = ("lives",
+                                "text_x",
+                                "text_y",
+                                "padding")
+        return self._attributes
+
+    def font_size(self, size):
+        """text size in pixels
+        Parameters
+        ----------
+
+        size: int
+          size for fonts
+        """
+        self.text_size = size
+        self.check_type(size, "text size", int)
+        self.check_positive(size, "text size")
+        return self
+
+    def allowed_failures(self, lives):
+        """number of times player can fail
+
+        Parameters
+        ----------
+
+        lives: int
+          number of failures per game
+        """
+        self.lives = lives
+        self.check_type(lives, "lives", int)
+        self.check_positive(lives, "lives")
+        return self
+
+    def text_horizontal_position(self, text_x):
+        """pixel indent for text
+
+        Parameters
+        ----------
+
+        text_x: int
+          number of pixels from the left
+        """
+        self.text_x = text_x
+        self.check_type(text_x, "text indent", int)
+        self.check_positive(text_x, "text indent")
+        return self
+
+    def text_vertical_position(self, text_y):
+        """pixel vertical position for text
+        Parameters
+        ----------
+
+        text_y: int
+           pixels from the top
+        """
+        self.text_y = text_y
+        self.check_type(text_y, "text y", int)
+        self.check_positive(text_y, "text y")
+        return self
+
+    def outer_padding(self, padding):
+        """outer margins
+
+        Parameters
+        ----------
+
+        padding: int
+          pixels to put around the edge of the canvas
+        """
+        self.padding = padding
+        self.check_type(padding, "padding", int)
+        self.check_positive(padding, "padding")
+        return self
+#+END_SRC
+** Game Class
+
+#+BEGIN_SRC python :noweb-ref game-class
+class Game(object):
+    """builds and holds the game
+
+    Parameters
+    ----------
+
+    game_settings: GameSettings
+      settings for the game overall
+
+    frame_settings: FrameSettings
+      settings to set-up the tkinter window
+
+    paddle_settings: PaddleSettings
+       settings to set-up the paddle_settings
+
+    brick_settings: BrickSettings
+       settings to set-up the bricks
+
+    ball_settings: BallSettings
+      settings to set-up the ball
+    """
+    def __init__(self, game_settings, frame_settings, paddle_settings,
+                 brick_settings, ball_settings):
+        self.game_settings = game_settings
+        self.frame_settings = frame_settings
+        self.paddle_settings = paddle_settings
+        self.brick_settings = brick_settings
+        self.ball_settings = ball_settings
+        self.collidable = {}
+        self.hud = None
+        self._frame = None
+        self._canvas = None
+        self._paddle = None
+        self._bricks = None
+        self._ball = None
+        return
+
+    @property
+    def frame(self):
+        """the tkinter frame"""
+        if self._frame is None:
+            self._frame = BreakoutFrame(self.frame_settings, tkinter.Tk())
+        return self._frame
+
+    @property
+    def canvas(self):
+        """tkinter canvas to draw on"""
+        if self._canvas is None:
+            self._canvas = self.frame.canvas
+        return self._canvas
+
+    @property
+    def paddle(self):
+        """the paddle widget"""
+        if self._paddle is None:
+            (self.paddle_settings.x_position(self.frame_settings.width/2)
+             .y_position(self.frame_settings.height -
+                         self.game_settings.padding -
+                         self.paddle_settings.height))
+            self._paddle = PaddleWidget(self.canvas, self.paddle_settings)
+        return self._paddle
+#+END_SRC
+
+The Paddle is created centered horizontally and at the height specified in the settings.
+
+#+BEGIN_SRC python :noweb-ref game-class
+
+    @property
+    def ball(self):
+        """the ball widget"""
+        if self._ball is None:
+            paddle = self.paddle.position
+            (self.ball_settings
+             .x_position((paddle.top_left_x + paddle.bottom_right_x)/2)
+             .y_position(paddle.top_left_y - 2 * self.ball_settings.radius)
+             .direction_vector(BallDirections(RIGHT, UP)))
+            self._ball = BallWidget(self.canvas, self.ball_settings)
+        return self._ball
+#+END_SRC
+
+The ball is created sitting on top of the paddle in its horizontal center (the mean of its x-coordinates). Even though I'm forcing the user to set the x and y values they actually get overwritten here. I also had to make sure that the ball is created above the paddle, which is why I'm adding twice the radius to the y-position, otherwise it would register as a collision and end up going down instead of up.
+
+#+BEGIN_SRC python :noweb-ref game-class
+
+    def add_brick(self, x, y, settings):
+        """add a brick to items
+
+        Parameters
+        ----------
+
+        x: int
+          pixels from the left
+        y: int
+          pixels from the top
+        """
+        settings = (copy(settings)
+                    .x_position(x)
+                    .y_position(y))
+        brick = BrickWidget(self.canvas, settings)
+        self.collidable[brick.item] = brick
+        return
+
+    def add_bricks(self):
+        """adds the bricks"""
+        half_width = self.brick_settings.width/2
+        first_row = 50
+        second_row = first_row + self.brick_settings.height
+        third_row = second_row + self.brick_settings.height
+        first_settings = copy(self.brick_settings).maximum_hits(3)
+        second_settings = copy(self.brick_settings).maximum_hits(2)
+        third_settings = copy(self.brick_settings).maximum_hits(1)
+        for x in range(5, self.frame_settings.width - 5, 75):
+            this_x = x + half_width
+            self.add_brick(this_x, first_row, first_settings)
+            self.add_brick(this_x, second_row, second_settings)
+            self.add_brick(this_x, third_row, third_settings)
+        return
+#+END_SRC
+
+The =add_bricks= method creates three rows of bricks with a 5-pixel left margin and a 50 pixel top margin. The top-row of bricks takes three hits each, the second two hits each and the bricks in the bottom row will be deleted after one hit.
+
+#+BEGIN_SRC python :noweb-ref game-class
+
+    def setup_canvas(self):
+        """sets up some canvas settings"""
+        self.canvas.focus_set()
+        self.canvas.bind(
+            "<Left>",
+            lambda _: self.paddle.move(-self.paddle_settings.speed)
+        )
+        self.canvas.bind(
+            "<Right>",
+            lambda _: self.paddle.move(self.paddle_settings.speed)
+        )
+        self.canvas.bind("<space>", lambda _: self.start())
+        return
+#+END_SRC
+The =setup_canvas= causes the canvas to steal focus and then sets up the keys the user uses to control the paddle and start the game.
+
+#+BEGIN_SRC python :noweb-ref game-class
+
+    def draw_text(self, x, y, text):
+        """draws the text
+
+        Parameters
+        ----------
+
+        x: int
+          left indent
+        y: int
+          right indent
+        text: string
+          what to output
+
+        Returns
+        -------
+        text-object
+        """
+        font = ("Helvetica", self.game_settings.text_size)
+        return self.canvas.create_text(x,
+                                       y,
+                                       text=text, font=font)
+
+    def update_lives_text(self):
+        """updates the text when a player fails"""
+        text = "Lives: {0}".format(self.lives)
+        if self.hud is None:
+            self.hud = self.draw_text(self.game_settings.text_x,
+                                      self.game_settings.text_y,
+                                      text)
+        else:
+            self.canvas.itemconfig(self.hud, text=text)
+        return
+
+    def reset(self):
+        """sets up the game after it's ended"""
+        self.lives = self.game_settings.lives
+        self.add_bricks()
+        self.setup_canvas()
+        self.ball.delete()
+        self._ball = None
+        self.paddle.ball = self.ball
+        self.update_lives_text()
+        return
+        
+    def set_up(self):
+        """populates the collidable items dict"""
+        self.lives = self.game_settings.lives
+        self.collidable[self.paddle.item] = self.paddle
+        self.add_bricks()
+        self.setup_canvas()
+        self.ball.delete()
+        self._ball = None
+        self.paddle.ball = self.ball
+        self.update_lives_text()
+        self.text = self.draw_text(300, 200, "Press Space to Start")
+        return
+
+    def set_up_in_between(self):
+        """sets things up when the player still has lives"""
+        self.ball.delete()
+        self._ball = None
+        self.paddle.ball = self.ball
+        self.update_lives_text()
+        self.setup_canvas()
+        self.text = self.draw_text(300, 200, "Press Space to Start")
+        return
+
+    def start(self):
+        """starts the game"""
+        self.canvas.unbind("<space>")
+        self.canvas.delete(self.text)
+        self.paddle.ball = None
+        self.game_loop()
+        return
+#+END_SRC
+
+#+RESULTS:
+
+The =start= method un-binds the spacebar from the =start= method so the game won't restart if the player accidentally hits the spacebar. It also deletes the message to hit the spacebar to start the game, removes the ball from the paddle and starts the game-loop
+
+#+BEGIN_SRC python :noweb-ref game-class
+
+    def game_loop(self):
+        """runs the game"""
+        self.check_collisions()
+        num_bricks = len(self.canvas.find_withtag("brick"))
+        if num_bricks == 0:
+            self.ball.speed = None
+            self.text = self.draw_text(300, 200, "You Win. Whatever. (Hit the spacebar to restart)")
+            self.reset()
+        elif self.ball.position.bottom_right_y >= self.frame.height:
+            self.ball.speed = None
+            self.lives -= 1
+            if self.lives < 0:
+                self.text = self.draw_text(300, 200, "Loser (Hit the spacebar to restart)")
+                self.reset()
+            else:
+                self.frame.after(1000, self.set_up_in_between)
+        else:
+            self.ball.update()
+            self.frame.after(50, self.game_loop)
+        return
+#+END_SRC
+
+Besides checking for collisions, the =game_loop= method check's if the bricks have all been removed (in which case the player has won) or if the ball has fallen off the screen. If the ball has fallen off the screen and the player is out of lives then it ends the game, otherwise it decrements the players remaining lives. If there are still bricks and the ball is on the screen then it calls the ball's =update= method to move it.
+
+The =frame.after= method sets a timer that will call the callback function you pass in after the delay (in milliseconds) that you pass in has expired.
+
+#+BEGIN_SRC python :noweb-ref game-class
+
+    def check_collisions(self):
+        """checks if the ball has collided with anything"""
+        ball = self.ball.position
+        items = self.canvas.find_overlapping(*ball)
+        collisions = [self.collidable[item] for item in items
+                      if item in self.collidable]
+        self.ball.collide(collisions)
+        return
+#+END_SRC
+
+=check_collisions= finds all the items that we added whose coordinates overlap with those of the ball then passes those items to the =BallWidget.collide= method to process. The overlapping widgets are filtered so that they only contain items of interest (not text-widgets, for instance).
+
+#+BEGIN_SRC python :noweb-ref game-class
+
+    def __call__(self):
+        """sets up the game"""
+        self.set_up()
+        self.frame()
+        return
+#+END_SRC
+* The Main Loop
+
+#+BEGIN_SRC python :noweb-ref main
+if __name__ == '__main__':
+    frame_settings = (FrameSettings()
+                      .window_width(600)
+                      .window_height(400)
+                      .canvas_color(WHITE)
+                      .window_title("Breakout! Not Pong!")())
+    ball_settings = (BallSettings()
+                     .x_position(10)
+                     .y_position(10)
+                     .circle_radius(10)
+                     .direction_vector(BallDirections(horizontal=NO_MOVEMENT,
+                                                      vertical=UP))
+                     .velocity(10)
+                     .color(LAVENDER)())
+    paddle_settings = (PaddleSettings()
+                       .pixel_width(80)
+                       .pixel_height(5)
+                       .x_position(40)
+                       .y_position(80)
+                       .velocity(10)
+                       .color(BLUE)
+                       ())
+
+    brick_settings = (BrickSettings()
+                      .x_position(75)
+                      .y_position(20)
+                      .label("brick")
+                      .pixel_width(75)
+                      .pixel_height(20)
+                      .level_colors({1: "#999999",
+                                     2: "#555555",
+                                     3: "#222222"})())
+
+    game_settings = (GameSettings()
+                     .allowed_failures(3)
+                     .text_horizontal_position(50)
+                     .text_vertical_position(20)
+                     .font_size(15)
+                     .outer_padding(20)()
+                     )
+    game = Game(game_settings, frame_settings, paddle_settings, brick_settings,
+                ball_settings)
+    game()
+#+END_SRC
