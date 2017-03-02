@@ -1,0 +1,415 @@
+#+BEGIN_COMMENT
+.. title: Seek With Cocos2D
+.. slug: seek-with-cocos2d
+.. date: 2017-02-20 16:24:39 UTC-08:00
+.. tags: games cocos2d flocking emergence
+.. category: emergence
+.. link: 
+.. description: Seek behavior of flocking.
+.. type: text
+#+END_COMMENT
+
+
+This is an implementation of Craig Reynold's flocking behavior based on the book [[https://www.packtpub.com/game-development/python-game-programming-example][Python Game Programming By Example]]. Reynolds mentions many variations for flocking. This will implement a basic boid that flocks to the mouse pointer.
+
+* Tangle :noexport:
+
+#+BEGIN_SRC python :tangle seeker.py
+<<imports>>
+
+
+<<constants>>
+
+
+<<boid-settings>>
+
+
+<<boid-node>>
+
+
+<<main-layer>>
+
+<<main>>
+#+END_SRC
+* Imports
+#+BEGIN_SRC python :noweb-ref imports
+# third party
+from cocos.cocosnode import CocosNode
+from cocos.euclid import Vector2
+import cocos
+import cocos.particle_systems as particle_system
+#+END_SRC
+* Constants
+#+BEGIN_SRC python :noweb-ref constants
+CHASE = 1
+RUN_AWAY = -1
+CHANGE_BEHAVIOR = -1
+#+END_SRC
+* The Boid
+** Boid Settings
+#+BEGIN_SRC python :noweb-ref boid-settings
+class BoidSettings(object):
+    """a settings object"""
+    def __init__(self):
+        self.position = None
+        self.velocity = None
+        self.speed = None
+        self.max_force = None
+        self.slowing_radius = None
+        self._attributes = None
+        return
+
+    @property
+    def attributes(self):
+        """list of required attributes"""
+        if self._attributes is None:
+            self._attributes = ("position",
+                                "velocity",
+                                "speed",
+                                "slowing_radius",
+                                "max_force")
+        return self._attributes
+
+    def x_y(self, position):
+        """sets the initial x, y coordinates
+        Parameters
+        ----------
+
+        position: tuple
+          (x, y) coordinates
+        """
+        self.position = position
+        self.check_types(position, "position", (list, tuple))
+        for item in position:
+            self.check_numeric(item, "position")
+        return self
+
+    def velocity_vector(self, velocity):
+        """initial velocity
+
+        Parameters
+        ----------
+
+        velocity: Vector2
+          2-d vector representing boid's velocity
+        """
+        self.velocity = velocity
+        self.check_type(velocity, "velocity", Vector2)
+        return self
+
+    def speed_scalar(self, speed):
+        """scalar for the velocity vector
+
+        Parameters
+        ----------
+
+        speed: number
+          pixels per frame to scale velocity
+        """
+        self.speed = speed
+        self.check_numeric(speed, "speed")
+        return self
+
+    def slow_down_distance(self, slowing_radius):
+        """denominator to create ratio to slow down
+
+        Used to reduce steering-force (distance/radius)
+
+        Parameters
+        ----------
+
+        slowing_radius: numeric
+          steering-force reduction factor
+        """
+        self.slowing_radius = slowing_radius
+        self.check_numeric(slowing_radius, "slowing radius")
+        return self
+
+    def maximum_force(self, max_force):
+        """sets the max force magnitude
+
+        Parameters
+        ----------
+        max_force: numeric
+          upper-bound for the steering force
+        """
+        self.max_force = max_force
+        self.check_numeric(max_force, "max force")
+        return self
+
+    def maximum_velocity(self, max_velocity):
+        """sets the max-velocity
+
+        Parameters
+        ----------
+
+        max_velocity: numeric
+          upper-bound for magnitude of velocity
+        """
+        self.max_velocity = max_velocity
+        self.check_numeric(max_velocity, "max velocity")
+        return self
+
+    def check_numeric(self, value, identifier):
+        """checks value is numeric
+
+        Parameters
+        ----------
+
+        value: object
+          item to check
+
+        identifier: string
+          name for error message
+
+        Raises
+        ------
+
+        TypeError if value is not int or float
+        """
+        self.check_types(value, identifier, (int, float))
+        return
+
+    def check_types(self, value, identifier, expected):
+        """checks type of value
+        Parameters
+        ----------
+
+        value: object
+          the thing to check
+        identifier: string
+          id for error message
+        expected: collection
+          types to check if value is one of them
+
+        Raises
+        ------
+
+        TypeError if type of value not in expected
+        """
+        if type(value) not in expected:
+            raise TypeError("{0} must be one of {1}, not {2}".format(
+                identifier,
+                expected,
+                value))
+        return
+
+    def check_type(self, value, identifier, expected):
+        """checks type of the value
+        Parameters
+        ----------
+
+        value: object
+          thing to check
+        identifier: string
+          id for error messages
+        expected: type
+          what the value should be
+
+        Raises
+        ------
+        TypeError if type of value is not expected
+        """
+        if not isinstance(value, expected):
+            raise TypeError("{0} must be {1} not {2}".format(identifier,
+                                                             expected,
+                                                             value))
+        return
+
+    def __call__(self):
+        """checks all the attributes are set
+
+        Raises
+        ------
+
+        TypeError if an attribute is None
+        """
+        for attribute in self.attributes:
+            if getattr(self, attribute) is None:
+                raise TypeError("{0} must be set, not None".format(attribute))
+        return self
+#+END_SRC
+** Boid Node
+** the Constructor
+#+BEGIN_SRC python :noweb-ref boid-node
+class Boid(CocosNode):
+    """represents a boid
+    Parameters
+    ----------
+
+    settings: BoidSettings
+      settings for this node
+    """
+    def __init__(self, settings):
+        super(Boid, self).__init__()
+        self.settings = settings
+        self.position = settings.position
+        self.velocity = Vector2(0, 0)
+        self.speed = settings.speed
+        self.slowing_radius = settings.slowing_radius
+        self.max_force = settings.max_force
+        self.max_velocity = settings.max_velocity
+        self.target = None
+#+END_SRC
+
+I'm not a fan of method calls in the constructor, but these next two lines help set up the node.
+
+#+BEGIN_SRC python :noweb-ref boid-node
+        self.add(particle_system.Sun())
+        self.schedule(self.update)
+        return
+#+END_SRC
+
+The =add= method sets the =Sun= instance as a child of the =Boid= node and the =schedule= method sets the =Boid's= =update= method to be called once per frame.
+
+** The Current Position
+   This is just a convenience attribute. It probably takes a performance hit, but the original code was a little obscure so I thought I'd pull it out to document it.
+
+#+BEGIN_SRC python :noweb-ref boid-node
+
+    @property
+    def current_position(self):
+        """this node's position
+
+        Returns
+        -------
+
+        Vector2: the current of this node
+        """
+        return Vector2(self.x, self.y)
+#+END_SRC
+
+I had to look it up, since there's no setting of =self.x= or =self.y= here - these two attributes are built into the [[http://python.cocos2d.org/doc/api/cocos.cocosnode.html][CocosNode]] object and are always the current values.
+
+** The Update Method
+#+BEGIN_SRC python :noweb-ref boid-node
+
+    def update(self, delta):
+        """updates the current position
+
+        Parameters
+        ----------
+
+        delta: float
+          seconds since the last clock tick
+        """
+        if self.target is None:
+            return
+#+END_SRC
+
+The target is going to be set when the mouse is move. Because of this it's initially not set, so we need to short circuit if that's the case.
+
+#+BEGIN_SRC python :noweb-ref boid-node
+        distance = self.target - self.current_position
+        ramp_down = min(distance.magnitude()/self.slowing_radius, 1)
+        steering_force = distance * self.speed * ramp_down - self.velocity
+        steering_force = self.limit(steering_force, self.max_force)
+        self.velocity = self.limit(self.velocity + steering_force,
+                                   self.max_velocity)
+        self.position += self.velocity * delta
+        return
+#+END_SRC
+
+In the snippet above, =distance= is a vector with the tail on our current position and the head on the target. The steering-force is created by scaling the distance by our =speed= and then subtracting our current velocity, creating a vector that over-compensates to turn us toward the target. The new velocity is our old velocity plus the steering-force and our position is updated to be our new velocity times the elapsed time. That doesn't look like it's doing anything, but =position= is another special attribute on the =CocosNode=.
+
+This next method reduces a vector if its magnitude is above a given threshold.
+
+#+BEGIN_SRC python :noweb-ref boid-node
+
+    def limit(self, vector, upper_bound):
+        """limits magnitude of vector
+
+        Re-scales all values in the vector if the magnitude exceeds limit
+
+        Parameters
+        ----------
+
+        vector:
+          vector to check
+
+        upper_bound: number
+          upper limit for magnitude of vector
+
+        Returns
+        -------
+
+        vector whose magnitude is no greater than upper_bound
+        """
+        try:
+            magnitude = vector.magnitude()
+        except OverflowError:
+            print(vector)
+            raise
+        return (vector if magnitude <= upper_bound
+                else vector*(upper_bound/magnitude))
+#+END_SRC
+* Main Layer
+  This is the class to act as the event handler.
+  
+#+BEGIN_SRC python :noweb-ref main-layer
+class MainLayer(cocos.layer.Layer):
+    """sets up the interaction
+
+    Parameters
+    ----------
+
+    boids: collection
+      boids to maintain
+    """
+    is_event_handler = True
+#+END_SRC
+
+That value (=is_event_handler=) has to be true or the =Layer= class doesn't handle events.
+
+#+BEGIN_SRC python :noweb-ref main-layer
+    def __init__(self, boids):
+        super(MainLayer, self).__init__()
+        self.boids = boids
+        for boid in boids:
+            self.add(boid)
+        return
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        """sets the boids' targets
+
+        Parameters
+        ----------
+
+        x, y:
+          current mouse cursor position
+
+        dx, dy:
+          change in position since the last report
+        """
+        for boid in self.boids:
+            boid.target = Vector2(x, y)
+        return
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        """handles mouse-clicks"""
+        for boid in self.boids:
+            boid.speed *= CHANGE_BEHAVIOR
+        return
+#+END_SRC
+
+#+RESULTS:
+
+The =on_mouse_motion= method is a pass through to =pyglet= so the method is documented [[https://pyglet.readthedocs.io/en/pyglet-1.2-maintenance/programming_guide/mouse.html][there]] more than on the /cocos2d/ site.
+
+#+BEGIN_SRC python :noweb-ref main
+
+if __name__ == "__main__":
+    boid_settings = (BoidSettings()
+                     .x_y((300, 200))
+                     .velocity_vector(Vector2())
+                     .speed_scalar(10)
+                     .slow_down_distance(200)
+                     .maximum_force(5)
+                     .maximum_velocity(2000)())
+    cocos.director.director.init(caption="Seeker")
+    boid = Boid(boid_settings)
+    scene = cocos.scene.Scene(MainLayer([boid]))
+    cocos.director.director.run(scene)
+#+END_SRC
+
+The first thing to note is that the =cocos.director.init= function has to be called before any of the other /cocos2D/ objects are created. If you move the instantiation of the /Boid/ above that line, for instance, it will crash with a =AttributeError: 'Director' object has no attribute '_window_virtual_width'= error.

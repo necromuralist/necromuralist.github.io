@@ -1,0 +1,245 @@
+#+BEGIN_COMMENT
+.. title: Flocking With Cocos2D
+.. slug: flocking-with-cocos2d
+.. date: 2017-02-20 14:59:43 UTC-08:00
+.. tags: games cocos2d flocking emergence
+.. category: emergence
+.. link: 
+.. description: Flocking implemented with Cocos2d.
+.. type: text
+#+END_COMMENT
+
+This is an implementation of Craig Reynold's flocking behavior based on the book [[https://www.packtpub.com/game-development/python-game-programming-example][Python Game Programming By Example]].
+
+* Tangle :noexport:
+
+#+BEGIN_SRC python
+<<imports>>
+
+
+<<boid-settings>>
+
+
+<<boid-node>>
+#+END_SRC
+* Imports
+#+BEGIN_SRC python :noweb-ref imports
+# third party
+from cocos.cocosnode import CocosNode
+import cocos
+import cocos.euclid as euclid
+import cocos.particle_system as particle_system
+#+END_SRC
+* Constants
+* The Boid
+** Boid Settings
+#+BEGIN_SRC python :noweb-ref boid-settings
+class BoidSettings(object):
+    """a settings object"""
+    def __init__(self):
+        self.position = None
+        self.velocity = None
+        self.speed = None
+        self.max_force = None
+        self._attributes = None
+        return
+
+    @property
+    def attributes(self):
+        """list of required attributes"""
+        if self._attributes is None:
+            self._attributes = ("position",
+                                "velocity",
+                                "speed",
+                                "max_force")
+        return self._attributes
+
+    def x_y(self, position):
+        """sets the initial x, y coordinates
+        Parameters
+        ----------
+
+        position: tuple
+          (x, y) coordinates
+        """
+        self.position = position
+        self.check_types(position, "position", (list, tuple))
+        for item in position:
+            self.check_numeric(item, "position")
+        return
+
+    def velocity_vector(self, velocity):
+        """initial velocity
+
+        Parameters
+        ----------
+
+        velocity: Vector2
+          2-d vector representing boid's velocity
+        """
+        self.velocity = velocity
+        self.check_type(velocity, "velocity", Vector2)
+        return
+
+    def pixels_per_frame(self, speed):
+        """initial speed of the boid
+
+        Parameters
+        ----------
+
+        speed: number
+          number of pixels to move per frame
+        """
+        self.speed = speed
+        self.check_numeric(speed, "speed")
+        return
+
+    def maximum_force(self, max_force):
+        """sets the max force magnitude
+
+        Parameters
+        ----------
+        max_force: numeric
+          upper-bound for the steering force
+        """
+        self.max_force = max_force
+        self.check_numeric(max_force)
+        return
+
+    def maximum_velocity(self, max_velocity):
+        """sets the max-velocity
+
+        Parameters
+        ----------
+
+        max_velocity: numeric
+          upper-bound for magnitude of velocity
+        """
+        self.max_velocity = max_velocity
+        self.check_numeric(max_velocity)
+        return
+    
+    def check_numeric(self, value, identifier):
+        """checks value is numeric
+
+        Parameters
+        ----------
+
+        value: object
+          item to check
+
+        identifier: string
+          name for error message
+
+        Raises
+        ------
+
+        TypeError if value is not int or float
+        """
+        self.check_types(value, identifier, (int, float))
+        return
+
+    def check_types(self, value, identifier, expected):
+        """checks type of value
+        Parameters
+        ----------
+
+        value: object
+          the thing to check
+        identifier: string
+          id for error message
+        expected: collection 
+          types to check if value is one of them
+
+        Raises
+        ------
+
+        TypeError if type of value not in expected
+        """
+        if type(value) not in expected:
+            raise TypeError("{0} must be one of {1}, not {2}".format(
+                identifier,
+                expected,
+                value))
+        return
+
+    def check_type(self, value, identifier, expected):
+        """checks type of the value
+        Parameters
+        ----------
+
+        value: object
+          thing to check
+        identifier: string
+          id for error messages
+        expected: type
+          what the value should be
+
+        Raises
+        ------
+        TypeError if type of value is not expected
+        """
+        if not isinstance(value, expected):
+            raise TypeError("{0} must be {1} not {2}".format(identifier,
+                                                             expected,
+                                                             value))
+        return
+        
+#+END_SRC
+** Boid Node
+#+BEGIN_SRC python :noweb-ref boid-node
+class Boid(CocosNode):
+    """represents a boid
+    Parameters
+    ----------
+    
+    settings: BoidSettings
+      settings for this node
+    """
+    def __init__(self):
+        super(Boid, self).__init__()
+        self.settings = settings
+        self.position = settings.position
+        self.velocity = euclid.Vector2(0, 0)
+        self.speed = settings.speed
+        self.max_force = settings.max_force
+        self.max_velocity = settings.max_velocity
+        self.target = None
+#+END_SRC
+
+I'm not a fan of method calls in the constructor, but these next two lines help set up the node.
+
+#+BEGIN_SRC python :noweb-ref boid-node
+        self.add(particle_system.Sun())
+        self.schedule(self.update)
+        return
+#+END_SRC
+
+The =add= method sets the =Sun= instance as a child of the =Boid= node and the =schedule= method sets the =Boid's= =update= method to be called once per frame.
+
+#+BEGIN_SRC python :noweb-ref boid-node
+
+    def update(self, delta):
+        """updates the current position
+
+        Parameters
+        ----------
+        
+        delta: float
+          seconds since the last clock tick
+        """
+        if self.target is None:
+            return
+#+END_SRC
+
+The target
+
+#+BEGIN_SRC python :noweb-ref boid-node
+        distance = self.target - euclid.Vector2(self.x, self.y)
+        steering_force = distance * self.speed - self.velocity
+        steering_force = truncate(self.velocity + steering, self.max_velocity)
+        self.position += self.velocity * delta
+        return
+
+#+END_SRC
+* Main
