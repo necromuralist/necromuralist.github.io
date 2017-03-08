@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>The Cloistered Monkey (Posts about git howto)</title><link>https://necromuralist.github.io/</link><description></description><atom:link type="application/rss+xml" rel="self" href="https://necromuralist.github.io/categories/git-howto.xml"></atom:link><language>en</language><lastBuildDate>Wed, 08 Mar 2017 21:18:03 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Pruning Large Files From Git with BFG</title><link>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+These are my notes on removing large files from a git repository with the &lt;a href="https://rtyley.github.io/bfg-repo-cleaner/"&gt;BFG Repo-Cleaner&lt;/a&gt;. 
+&lt;/p&gt;
+
+&lt;div id="outline-container-sec-1" class="outline-2"&gt;
+&lt;h2 id="sec-1"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-1"&gt;
+&lt;p&gt;
+I accidentally committed an 89 MB file to git and pushed it upstream to github. This is within the limits, but when I looked in the file it was filled with the same error message over and over again, so it wasn't useful. I'm just committing small log-files so none of my files should be that large anyway, so I decided to clean anything over 50 MB from the repository using &lt;i&gt;BFG&lt;/i&gt;. The instructions on the home page mostly work, but didn't exactly work so I'm making some notes here for the next time.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-sec-2" class="outline-2"&gt;
+&lt;h2 id="sec-2"&gt;The Process&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-2"&gt;
+&lt;p&gt;
+Assuming you've downloaded the BFG jar file, this is what you need to do.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git clone --mirror &amp;lt;remote git address&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+The &lt;code&gt;--mirror&lt;/code&gt; flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the &lt;code&gt;.git&lt;/code&gt; folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in &lt;a href="https://github.com/rtyley/bfg-repo-cleaner/issues/65"&gt;this bug-report&lt;/a&gt; the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.
+&lt;/p&gt;
+
+&lt;p&gt;
+Next run the BFG.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &amp;lt;path to cloned mirror&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Now you have to change into the cloned repository and execute some commands to update it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git reflog expire --expire-now --all
+git gc --prune&lt;span class="o"&gt;=&lt;/span&gt;now --aggressive
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Now push it back to github.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git push
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;rm -r &amp;lt;original &lt;span class="nb"&gt;local&lt;/span&gt; repository&amp;gt;
+git clone &amp;lt;remote repository&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+One thing that tripped me up a little was that I had removed the &lt;i&gt;master&lt;/i&gt; branch but the &lt;i&gt;BFG&lt;/i&gt; re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>git howto</category><guid>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</guid><pubDate>Wed, 08 Mar 2017 20:57:59 GMT</pubDate></item></channel></rss>

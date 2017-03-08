@@ -26,7 +26,7 @@ MathJax.Hub.Config({
     }
 });
 </script><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><link rel="prefetch" href="posts/ubuntu-1604-and-the-brother-hl-2140-printer/" type="text/html">
+</script><link rel="prefetch" href="posts/pruning-large-files-from-git-with-bfg/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -106,7 +106,115 @@ MathJax.Hub.Config({
 
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/ubuntu-1604-and-the-brother-hl-2140-printer/" class="u-url">Ubuntu 16.04 and the Brother HL-2140 Printer</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/pruning-large-files-from-git-with-bfg/" class="u-url">Pruning Large Files From Git with BFG</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Cloistered Monkey
+            </span></p>
+            <p class="dateline"><a href="posts/pruning-large-files-from-git-with-bfg/" rel="bookmark"><time class="published dt-published" datetime="2017-03-08T12:57:59-08:00" title="2017-03-08 12:57">2017-03-08 12:57</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <p>
+These are my notes on removing large files from a git repository with the <a href="https://rtyley.github.io/bfg-repo-cleaner/">BFG Repo-Cleaner</a>. 
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Background</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+I accidentally committed an 89 MB file to git and pushed it upstream to github. This is within the limits, but when I looked in the file it was filled with the same error message over and over again, so it wasn't useful. I'm just committing small log-files so none of my files should be that large anyway, so I decided to clean anything over 50 MB from the repository using <i>BFG</i>. The instructions on the home page mostly work, but didn't exactly work so I'm making some notes here for the next time.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">The Process</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Assuming you've downloaded the BFG jar file, this is what you need to do.
+</p>
+
+<div class="highlight"><pre><span></span>git clone --mirror &lt;remote git address&gt;
+</pre></div>
+
+<p>
+The <code>--mirror</code> flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the <code>.git</code> folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in <a href="https://github.com/rtyley/bfg-repo-cleaner/issues/65">this bug-report</a> the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.
+</p>
+
+<p>
+Next run the BFG.
+</p>
+
+<div class="highlight"><pre><span></span>java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &lt;path to cloned mirror&gt;
+</pre></div>
+
+<p>
+Now you have to change into the cloned repository and execute some commands to update it.
+</p>
+
+<div class="highlight"><pre><span></span>git reflog expire --expire-now --all
+git gc --prune<span class="o">=</span>now --aggressive
+</pre></div>
+
+<p>
+Now push it back to github.
+</p>
+
+<div class="highlight"><pre><span></span>git push
+</pre></div>
+
+<p>
+At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.
+</p>
+
+<div class="highlight"><pre><span></span>rm -r &lt;original <span class="nb">local</span> repository&gt;
+git clone &lt;remote repository&gt;
+</pre></div>
+
+<p>
+One thing that tripped me up a little was that I had removed the <i>master</i> branch but the <i>BFG</i> re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.
+</p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/decision-tree-entropy/" class="u-url">Decision Tree Entropy</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn">
+                Cloistered Monkey
+            </span></p>
+            <p class="dateline"><a href="posts/decision-tree-entropy/" rel="bookmark"><time class="published dt-published" datetime="2017-03-06T14:14:02-08:00" title="2017-03-06 14:14">2017-03-06 14:14</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <p>
+These are some basic notes on how entropy is used when making decision trees. The examples are taken from <i>Process Mining: Data Science In Action</i>.
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Entropy</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The equation for entropy is \(E = - \sum\limits_{i=1}^n p_i \log_2 p_i\), where \(p_i\) is the probability of variable \(i\). In other words, for variable \(i\), \(p_i\) is the count of instances for that variable divided by the total number of instances for all variables. Well, I'm probably not saying this clearly enough. A concrete example might be better.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Dying Young</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+This example uses a data set that contains various attributes that might predict if someone died 'young' (less than 70) or 'not young' (70 or older). There are 860 entries with 546 dying young and 314 dying old. We can calculate the entropy for the root node using the proportions of \(young\) (died young) and \(\lnot young\) (didn't die young).
+</p>
+
+<p>
+\[
+  E = -(E_{young} + E_{\lnot young})\\
+  = -(\frac{546}{860} \log_2 \frac{546}{860} + \frac{314}{860} \log_2 \frac{314}{860})\\
+  \approx 0.9468
+\]
+</p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/ubuntu-1604-and-the-brother-hl-2140-printer/" class="u-url">Ubuntu 16.04 and the Brother HL-2140 Printer</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn">
                 Cloistered Monkey
@@ -228,6 +336,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 <div id="outline-container-sec-1" class="outline-2">
 <h2 id="sec-1">Imports</h2>
 <div class="outline-text-2" id="text-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="c1"># third party</span>
 <span class="kn">from</span> <span class="nn">cocos.cocosnode</span> <span class="kn">import</span> <span class="n">CocosNode</span>
 <span class="kn">from</span> <span class="nn">cocos.euclid</span> <span class="kn">import</span> <span class="n">Vector2</span>
@@ -239,6 +348,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 <div id="outline-container-sec-2" class="outline-2">
 <h2 id="sec-2">Constants</h2>
 <div class="outline-text-2" id="text-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">CHASE</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">RUN_AWAY</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="n">CHANGE_BEHAVIOR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
@@ -252,6 +362,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 <div id="outline-container-sec-3-1" class="outline-3">
 <h3 id="sec-3-1">Boid Settings</h3>
 <div class="outline-text-3" id="text-3-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BoidSettings</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""a settings object"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -441,6 +552,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 <div id="outline-container-sec-3-3" class="outline-3">
 <h3 id="sec-3-3">the Constructor</h3>
 <div class="outline-text-3" id="text-3-3">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Boid</span><span class="p">(</span><span class="n">CocosNode</span><span class="p">):</span>
     <span class="sd">"""represents a boid</span>
 <span class="sd">    Parameters</span>
@@ -465,6 +577,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 I'm not a fan of method calls in the constructor, but these next two lines help set up the node.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">particle_system</span><span class="o">.</span><span class="n">Sun</span><span class="p">())</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
 <span class="k">return</span>
@@ -483,6 +596,7 @@ The <code>add</code> method sets the <code>Sun</code> instance as a child of the
 This is just a convenience attribute. It probably takes a performance hit, but the original code was a little obscure so I thought I'd pull it out to document it.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="nd">@property</span>
 <span class="k">def</span> <span class="nf">current_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""this node's position</span>
@@ -504,6 +618,7 @@ I had to look it up, since there's no setting of <code>self.x</code> or <code>se
 <div id="outline-container-sec-3-5" class="outline-3">
 <h3 id="sec-3-5">The Update Method</h3>
 <div class="outline-text-3" id="text-3-5">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
     <span class="sd">"""updates the current position</span>
 
@@ -521,6 +636,7 @@ I had to look it up, since there's no setting of <code>self.x</code> or <code>se
 The target is going to be set when the mouse is move. Because of this it's initially not set, so we need to short circuit if that's the case.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span>
 <span class="n">ramp_down</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">magnitude</span><span class="p">()</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">slowing_radius</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">steering_force</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">*</span> <span class="n">ramp_down</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span>
@@ -539,6 +655,7 @@ In the snippet above, <code>distance</code> is a vector with the tail on our cur
 This next method reduces a vector if its magnitude is above a given threshold.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">):</span>
     <span class="sd">"""limits magnitude of vector</span>
 
@@ -576,6 +693,7 @@ This next method reduces a vector if its magnitude is above a given threshold.
 This is the class to act as the event handler.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MainLayer</span><span class="p">(</span><span class="n">cocos</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
     <span class="sd">"""sets up the interaction</span>
 
@@ -592,6 +710,7 @@ This is the class to act as the event handler.
 That value (<code>is_event_handler</code>) has to be true or the <code>Layer</code> class doesn't handle events.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boids</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">MainLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">boids</span> <span class="o">=</span> <span class="n">boids</span>
@@ -626,6 +745,7 @@ That value (<code>is_event_handler</code>) has to be true or the <code>Layer</co
 The <code>on_mouse_motion</code> method is a pass through to <code>pyglet</code> so the method is documented <a href="https://pyglet.readthedocs.io/en/pyglet-1.2-maintenance/programming_guide/mouse.html">there</a> more than on the <i>cocos2d</i> site.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">boid_settings</span> <span class="o">=</span> <span class="p">(</span><span class="n">BoidSettings</span><span class="p">()</span>
 		     <span class="o">.</span><span class="n">x_y</span><span class="p">((</span><span class="mi">300</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
@@ -661,6 +781,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 <div id="outline-container-sec-1" class="outline-2">
 <h2 id="sec-1">Imports</h2>
 <div class="outline-text-2" id="text-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="c1"># third party</span>
 <span class="kn">from</span> <span class="nn">cocos.cocosnode</span> <span class="kn">import</span> <span class="n">CocosNode</span>
 <span class="kn">import</span> <span class="nn">cocos</span>
@@ -679,6 +800,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 <div id="outline-container-sec-3-1" class="outline-3">
 <h3 id="sec-3-1">Boid Settings</h3>
 <div class="outline-text-3" id="text-3-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BoidSettings</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""a settings object"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -835,6 +957,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 <div id="outline-container-sec-3-2" class="outline-3">
 <h3 id="sec-3-2">Boid Node</h3>
 <div class="outline-text-3" id="text-3-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Boid</span><span class="p">(</span><span class="n">CocosNode</span><span class="p">):</span>
     <span class="sd">"""represents a boid</span>
 <span class="sd">    Parameters</span>
@@ -858,6 +981,7 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 I'm not a fan of method calls in the constructor, but these next two lines help set up the node.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">particle_system</span><span class="o">.</span><span class="n">Sun</span><span class="p">())</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
 <span class="k">return</span>
@@ -867,6 +991,7 @@ I'm not a fan of method calls in the constructor, but these next two lines help 
 The <code>add</code> method sets the <code>Sun</code> instance as a child of the <code>Boid</code> node and the <code>schedule</code> method sets the <code>Boid's</code> <code>update</code> method to be called once per frame.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
     <span class="sd">"""updates the current position</span>
 
@@ -884,6 +1009,7 @@ The <code>add</code> method sets the <code>Sun</code> instance as a child of the
 The target
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">-</span> <span class="n">euclid</span><span class="o">.</span><span class="n">Vector2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 <span class="n">steering_force</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span>
 <span class="n">steering_force</span> <span class="o">=</span> <span class="n">truncate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">+</span> <span class="n">steering</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_velocity</span><span class="p">)</span>
@@ -916,6 +1042,7 @@ A <i>tkinter</i> breakout implementation from the book <code>Python Game Program
 Although the <code>tkinter</code> python library is part of the standard python installation, it relies on Tcl/Tk and a c-python binary that you have to build or install. To get it in ubuntu you can use <code>apt-get</code>.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span>sudo apt-get python3-tk
 </pre></div>
 </div>
@@ -924,6 +1051,7 @@ Although the <code>tkinter</code> python library is part of the standard python 
 <div id="outline-container-sec-2" class="outline-2">
 <h2 id="sec-2">Imports</h2>
 <div class="outline-text-2" id="text-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="c1"># python standard library</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractproperty</span>
@@ -939,6 +1067,7 @@ Although the <code>tkinter</code> python library is part of the standard python 
 <div id="outline-container-sec-3" class="outline-2">
 <h2 id="sec-3">Constants</h2>
 <div class="outline-text-2" id="text-3">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">BLUE</span> <span class="o">=</span> <span class="s2">"#0000ff"</span>
 <span class="n">LAVENDER</span> <span class="o">=</span> <span class="s2">"#aaaaff"</span>
 <span class="n">WHITE</span> <span class="o">=</span> <span class="s2">"#ffffff"</span>
@@ -964,6 +1093,7 @@ Although the <code>tkinter</code> python library is part of the standard python 
 <p>
 This is a named tuple to see if I can keep the coordinates returned by tkinter straight.
 </p>
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">Coordinates</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"Coordinates"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"top_left_x"</span><span class="p">,</span>
 					 <span class="s2">"top_left_y"</span><span class="p">,</span>
 					 <span class="s2">"bottom_right_x"</span><span class="p">,</span>
@@ -982,6 +1112,7 @@ A base-class to implement the methods common to all the game objects. The python
 <div id="outline-container-sec-4-2-1" class="outline-4">
 <h4 id="sec-4-2-1">The <code>item</code> property</h4>
 <div class="outline-text-4" id="text-4-2-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseWidget</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">"""base class for game object's</span>
 
@@ -1006,6 +1137,7 @@ The <code>item</code> will be an identifier pointing to a <i>tkinter</i> widget.
 <div id="outline-container-sec-4-2-2" class="outline-4">
 <h4 id="sec-4-2-2">Position</h4>
 <div class="outline-text-4" id="text-4-2-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="nd">@property</span>
 <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""the coordinates of the object on the canvas</span>
@@ -1031,6 +1163,7 @@ The call to <code>canvas.coords</code> returns the coordinates of the bounding-b
 <div id="outline-container-sec-4-2-3" class="outline-4">
 <h4 id="sec-4-2-3">Move</h4>
 <div class="outline-text-4" id="text-4-2-3">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">horizontal_offset</span><span class="p">,</span> <span class="n">vertical_offset</span><span class="p">):</span>
     <span class="sd">"""move this object to the coordinates</span>
 
@@ -1055,6 +1188,7 @@ This moves the object. Rather than giving it coordinates, the <code>move</code> 
 <div id="outline-container-sec-4-2-4" class="outline-4">
 <h4 id="sec-4-2-4">Delete</h4>
 <div class="outline-text-4" id="text-4-2-4">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""destroy this canvas item"""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">)</span>
@@ -1075,6 +1209,7 @@ This deletes the object from the canvas. If you attempt to use it after this tki
 A base class to hold settings. It (partly) implements the <a href="http://en.wikipedia.org/wiki/Fluent_interface">fluent interface</a> design pattern. I'm not one-hundred percent convinced that it's a good idea in python, but I wanted to add value checking and document the values I expect a little better.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseSettings</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
     <span class="sd">"""fluent interface"""</span>
     <span class="n">_hex_pattern</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1091,6 +1226,7 @@ A base class to hold settings. It (partly) implements the <a href="http://en.wik
 The <code>attributes</code> will be a list (or tuple) of strings that match the variable-names in the settings objects that are required (e.g. to require that <code>self.table</code> has a value other than None, put "table" in the list). This gets used by the <code>__call__</code> method (defined below).
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="nd">@property</span>
 <span class="k">def</span> <span class="nf">hex_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""compiled regex to match hex-colors"""</span>
@@ -1108,6 +1244,7 @@ The <code>attributes</code> will be a list (or tuple) of strings that match the 
 The <code>hex_pattern</code> will match any string that starts with a pound sign (<i>#</i>) followed by three sets of hex-digit pairs. A <i>hex-digit</i> is an integer from <i>0</i> to <i>9</i> or one of the letters from <i>a</i> to <i>f</i> (case insensitive). Since it requires pairs, each hex-digit has to be repeated twice. So it will match <i>#aabbff</i> but not <i>#abf</i> or <i>#0123ab</i>. It's used by the next method.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_hex_color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">identifier</span><span class="p">):</span>
     <span class="sd">"""checks the color is a valid hex-code</span>
 <span class="sd">    Parameters</span>
@@ -1132,6 +1269,7 @@ The <code>hex_pattern</code> will match any string that starts with a pound sign
 The colors set in this code are based on RGB hex-strings. The <code>check_hex_color</code> method validates that they are look something like "#aabbcc".
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">assert_positive_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">identifier</span><span class="p">):</span>
     <span class="sd">"""checks the value</span>
 
@@ -1156,6 +1294,7 @@ The colors set in this code are based on RGB hex-strings. The <code>check_hex_co
 <code>assert_positive_number</code> checks that the <code>value</code> passed in is a number greater than 0.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_positive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">identifier</span><span class="p">):</span>
     <span class="sd">"""check that value is greater than zero</span>
 
@@ -1184,6 +1323,7 @@ The colors set in this code are based on RGB hex-strings. The <code>check_hex_co
 The <code>check_positive</code> method raises a <code>TypeError</code> if the <code>value</code> passed in isn't greater than zero. It doesn't check that the <code>value</code> is numeric so if it isn't it will still raise a <code>TypeError</code> but the error message won't be as helpful. I did it this way because I (at least originally) assumed some values had to be integers so I wanted to leave the check for type as a separate operation.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thing</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
     <span class="sd">"""checks that the value is the correct type</span>
 <span class="sd">    Parameters</span>
@@ -1212,6 +1352,7 @@ The <code>check_positive</code> method raises a <code>TypeError</code> if the <c
 The <code>check_type</code> was the original method I created. I'm not sure it's as useful as checking ranges of values (which I'm not doing enough of yet), but it's at least useful to check if my expectations of what's being passed in to the methods is correct.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thing</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
     <span class="sd">"""check that thing is one of multiple types</span>
 
@@ -1242,6 +1383,7 @@ The <code>check_type</code> was the original method I created. I'm not sure it's
 <code>check_types</code> allows you you specify a collection of possible types for the value.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thing</span><span class="p">,</span> <span class="n">identifier</span><span class="p">):</span>
     <span class="sd">"""check if thing is int or float</span>
 
@@ -1265,6 +1407,7 @@ The <code>check_type</code> was the original method I created. I'm not sure it's
 <code>check_numeric</code> will raise a <code>TypeError</code> if the value isn't an integer or float.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""checks that everything was set</span>
 <span class="sd">    Raises</span>
@@ -1302,6 +1445,7 @@ The <code>__call__</code> is meant to be the final method called when the parame
 This is an object to use instead of the list like they use in the book. The first value (x-direction) is set positive to make it move from left to right, and negative to move right to left. The second value is set positive to move the ball downwards and negative to move it upwards.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BallDirections</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""holds the current direction of the ball</span>
 <span class="sd">    Parameters</span>
@@ -1323,6 +1467,7 @@ This is an object to use instead of the list like they use in the book. The firs
 <div id="outline-container-sec-5-2" class="outline-3">
 <h3 id="sec-5-2">Ball Settings</h3>
 <div class="outline-text-3" id="text-5-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BallSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
     <span class="sd">"""settings for the ball"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1347,6 +1492,7 @@ This is an object to use instead of the list like they use in the book. The firs
 				<span class="s2">"fill"</span><span class="p">)</span>
 	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
 </pre></div>
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">x_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="sd">"""initial horizontal position</span>
 
@@ -1377,6 +1523,7 @@ This is an object to use instead of the list like they use in the book. The firs
 The <code>x</code> and <code>y</code> values for the ball are actually set in the code based on the initial location of the paddle, so requiring them here is a bad idea. Oh, well.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">circle_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
     <span class="sd">"""radius of the ball</span>
 <span class="sd">    Parameters</span>
@@ -1393,6 +1540,7 @@ The <code>x</code> and <code>y</code> values for the ball are actually set in th
 Ovals in tkinter are set by specifying the corners of their bounding boxes, the same as with creating a rectangle. So the <code>radius</code> is used as an offset to calculate where the corners should be. For example, if you have the center x-value for the oval, subtracting the radius gives you the top-left x-value and adding the radius gives you the bottom-right x-value. See the <code>Game.ball</code> property to get an idea of how it's used.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">direction_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
     <span class="sd">"""2-d vector for direction"""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span>
@@ -1438,6 +1586,8 @@ The <code>direction</code> values determine what direction the object is moving 
 </tr>
 </tbody>
 </table>
+
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speed</span><span class="p">):</span>
     <span class="sd">"""speed of the ball</span>
 <span class="sd">    Parameters</span>
@@ -1475,6 +1625,7 @@ The <code>speed</code> and <code>fill</code> are the number of pixels to move th
 The ball-widget holds the reference to the ball that the player uses to smash bricks to try and break-out.  
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BallWidget</span><span class="p">(</span><span class="n">BaseWidget</span><span class="p">):</span>
     <span class="sd">"""representation of the ball</span>
 
@@ -1509,6 +1660,7 @@ The ball-widget holds the reference to the ball that the player uses to smash br
 	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_item</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""moves the ball</span>
 <span class="sd">    if the ball hits something, reverses direction</span>
@@ -1527,6 +1679,7 @@ The ball-widget holds the reference to the ball that the player uses to smash br
 The <code>update</code> method gets its current position and if it is off-screen on either side it inverts the horizontal direction. If the ball is above the top of the screen it reverses its vertical direction. It doesn't check the bottom of the screen because going off the bottom is how the player loses so it's an expected behavior. Once it has the directions set it moves the ball by the amount defined by the <code>speed</code> variable.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">collide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">others</span><span class="p">):</span>
     <span class="sd">"""handles collisions</span>
 
@@ -1572,6 +1725,7 @@ A representation of the player's paddle.
 <div id="outline-container-sec-6-1" class="outline-3">
 <h3 id="sec-6-1">The Paddle Settings</h3>
 <div class="outline-text-3" id="text-6-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PaddleSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
     <span class="sd">"""settings for the player's paddle"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1597,6 +1751,7 @@ A representation of the player's paddle.
 	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pixel_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
     <span class="sd">"""width of the paddle</span>
 <span class="sd">    Parameters</span>
@@ -1629,6 +1784,7 @@ A representation of the player's paddle.
 The height and width are offsets to add to the upper-left corner coordinates of the bounding box to locate the lower-right corner of the bounding box, thus defining the size of the paddle.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speed</span><span class="p">):</span>
     <span class="sd">"""rate at which to move the paddle</span>
 <span class="sd">    Parameters</span>
@@ -1646,6 +1802,7 @@ The height and width are offsets to add to the upper-left corner coordinates of 
 The <code>speed</code> of the paddle is the amount it will move every-time an arrow key is hit. I think it's in pixels, but the units aren't clear.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">x_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="sd">"""initial x-position</span>
 <span class="sd">    Parameters</span>
@@ -1678,6 +1835,7 @@ The <code>speed</code> of the paddle is the amount it will move every-time an ar
 The <code>x</code> and <code>y</code> settings determine where the paddle will be at the start (and since it only moves horizontally the <code>y</code> value is where it will be vertically throughout the game).
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fill</span><span class="p">):</span>
     <span class="sd">"""fill color for the rectangle</span>
 
@@ -1701,6 +1859,7 @@ Like with the <i>Ball</i> the <code>fill</code> value for the <i>Paddle</i> deci
 <div id="outline-container-sec-6-2" class="outline-3">
 <h3 id="sec-6-2">The Paddle Class</h3>
 <div class="outline-text-3" id="text-6-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PaddleWidget</span><span class="p">(</span><span class="n">BaseWidget</span><span class="p">):</span>
     <span class="sd">"""the player's paddle</span>
 <span class="sd">    Parameters</span>
@@ -1737,6 +1896,7 @@ Like with the <i>Ball</i> the <code>fill</code> value for the <i>Paddle</i> deci
 The <code>item</code> property creates a rectangle of <code>width x height</code>  dimensions centered around <code>(x, y)</code>.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
     <span class="sd">"""moves the paddle</span>
 <span class="sd">    if has a ball, also moves the ball</span>
@@ -1773,6 +1933,7 @@ The <code>move</code> method moves the paddle horizontally by some offset. If mo
 <div id="outline-container-sec-7-1" class="outline-3">
 <h3 id="sec-7-1">Brick Settings</h3>
 <div class="outline-text-3" id="text-7-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BrickSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
     <span class="sd">"""settings for the brick widget"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1800,6 +1961,7 @@ The <code>move</code> method moves the paddle horizontally by some offset. If mo
 	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="nd">@property</span>
 <span class="k">def</span> <span class="nf">hits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""the number of hits each brick will take</span>
@@ -1826,6 +1988,7 @@ The <code>move</code> method moves the paddle horizontally by some offset. If mo
 The <code>hits</code> value is the number of times a brick gets hit by a ball before it deletes itself. I originally make it always use the largest value but then found out different rows use different values so I added a setter method.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">x_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
     <span class="sd">"""horizontal position</span>
 <span class="sd">    Parameters</span>
@@ -1856,6 +2019,7 @@ The <code>hits</code> value is the number of times a brick gets hit by a ball be
 The <code>x</code> and <code>y</code> are the center-positions for a brick. Since they don't move this is their permanent position. Like the ball, this actually gets calculated when the game is set up so making this required was probably a bad ide.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pixel_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
     <span class="sd">"""width of the brick</span>
 <span class="sd">    Parameters</span>
@@ -1887,6 +2051,7 @@ The <code>x</code> and <code>y</code> are the center-positions for a brick. Sinc
 The <code>height</code> and <code>width</code> give the dimensions of the brick.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">level_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
     <span class="sd">"""map of level to colors</span>
 
@@ -1908,6 +2073,7 @@ The <code>height</code> and <code>width</code> give the dimensions of the brick.
 As a brick gets hit it changes colors. The <code>colors</code> dictionary is a mapping between the number of remaining times the brick can be hit before being deleted (the level of the brick) and the color for that level.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
     <span class="sd">"""string to tag bricks</span>
 
@@ -1931,6 +2097,7 @@ The <code>tags</code> attribute is a string given to tkinter to identify a class
 <div id="outline-container-sec-7-2" class="outline-3">
 <h3 id="sec-7-2">Brick Widget</h3>
 <div class="outline-text-3" id="text-7-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BrickWidget</span><span class="p">(</span><span class="n">BaseWidget</span><span class="p">):</span>
     <span class="sd">"""represents a single brick</span>
 
@@ -1968,6 +2135,7 @@ The <code>tags</code> attribute is a string given to tkinter to identify a class
 The  <code>item</code> creation is almost the same as the one for the <i>Paddle</i> except that the color is based on the number of remaining hits it starts with and it gets a tag
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">hit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""the brick has been hit event</span>
 <span class="sd">    Decrements the counter and changes the color or deletes the brick</span>
@@ -1999,6 +2167,7 @@ The <code>hit</code> method decrements the number of hits the brick has remainin
 These are settings for the Tkinter Frame.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FrameSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
     <span class="sd">"""holds the settings for the game"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2099,6 +2268,7 @@ These are settings for the Tkinter Frame.
 The <code>Tk</code> class creates the main window. Within it the <code>Frame</code> class creates a container which you pass the main window on instantiation. Within the frame a <code>Canvas</code> is placed to actually draw things. The <code>pack</code> method tells the children to display their widgets on their parents.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BreakoutFrame</span><span class="p">(</span><span class="n">tkinter</span><span class="o">.</span><span class="n">Frame</span><span class="p">):</span>
     <span class="sd">"""creates the breakout game</span>
 
@@ -2147,6 +2317,7 @@ The <code>Tk</code> class creates the main window. Within it the <code>Frame</co
 <div id="outline-container-sec-9-1" class="outline-3">
 <h3 id="sec-9-1">Game Settings</h3>
 <div class="outline-text-3" id="text-9-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GameSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
     <span class="sd">"""settings for the game"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2241,6 +2412,7 @@ The <code>Tk</code> class creates the main window. Within it the <code>Frame</co
 <div id="outline-container-sec-9-2" class="outline-3">
 <h3 id="sec-9-2">Game Class</h3>
 <div class="outline-text-3" id="text-9-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Game</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""builds and holds the game</span>
 
@@ -2308,6 +2480,7 @@ The <code>Tk</code> class creates the main window. Within it the <code>Frame</co
 The Paddle is created centered horizontally and at the height specified in the settings.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="nd">@property</span>
 <span class="k">def</span> <span class="nf">ball</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""the ball widget"""</span>
@@ -2325,6 +2498,7 @@ The Paddle is created centered horizontally and at the height specified in the s
 The ball is created sitting on top of the paddle in its horizontal center (the mean of its x-coordinates). Even though I'm forcing the user to set the x and y values they actually get overwritten here. I also had to make sure that the ball is created above the paddle, which is why I'm adding twice the radius to the y-position, otherwise it would register as a collision and end up going down instead of up.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_brick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
     <span class="sd">"""add a brick to items</span>
 
@@ -2364,6 +2538,7 @@ The ball is created sitting on top of the paddle in its horizontal center (the m
 The <code>add_bricks</code> method creates three rows of bricks with a 5-pixel left margin and a 50 pixel top margin. The top-row of bricks takes three hits each, the second two hits each and the bricks in the bottom row will be deleted after one hit.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">setup_canvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""sets up some canvas settings"""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">focus_set</span><span class="p">()</span>
@@ -2382,6 +2557,7 @@ The <code>add_bricks</code> method creates three rows of bricks with a 5-pixel l
 The <code>setup_canvas</code> causes the canvas to steal focus and then sets up the keys the user uses to control the paddle and start the game.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">draw_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
     <span class="sd">"""draws the text</span>
 
@@ -2462,6 +2638,7 @@ The <code>setup_canvas</code> causes the canvas to steal focus and then sets up 
 The <code>start</code> method un-binds the spacebar from the <code>start</code> method so the game won't restart if the player accidentally hits the spacebar. It also deletes the message to hit the spacebar to start the game, removes the ball from the paddle and starts the game-loop
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">game_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""runs the game"""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">check_collisions</span><span class="p">()</span>
@@ -2492,6 +2669,7 @@ Besides checking for collisions, the <code>game_loop</code> method check's if th
 The <code>frame.after</code> method sets a timer that will call the callback function you pass in after the delay (in milliseconds) that you pass in has expired.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">check_collisions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""checks if the ball has collided with anything"""</span>
     <span class="n">ball</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ball</span><span class="o">.</span><span class="n">position</span>
@@ -2506,6 +2684,7 @@ The <code>frame.after</code> method sets a timer that will call the callback fun
 <code>check_collisions</code> finds all the items that we added whose coordinates overlap with those of the ball then passes those items to the <code>BallWidget.collide</code> method to process. The overlapping widgets are filtered so that they only contain items of interest (not text-widgets, for instance).
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""sets up the game"""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">set_up</span><span class="p">()</span>
@@ -2518,6 +2697,7 @@ The <code>frame.after</code> method sets a timer that will call the callback fun
 <div id="outline-container-sec-10" class="outline-2">
 <h2 id="sec-10">The Main Loop</h2>
 <div class="outline-text-2" id="text-10">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
     <span class="n">frame_settings</span> <span class="o">=</span> <span class="p">(</span><span class="n">FrameSettings</span><span class="p">()</span>
 		      <span class="o">.</span><span class="n">window_width</span><span class="p">(</span><span class="mi">600</span><span class="p">)</span>
@@ -2584,6 +2764,7 @@ This is an attempt to get org-mode to insert text between methods in a class def
 To keep it simple I'm just going to include a section for the class definition and a <code>main</code> section to check out the results. Note that to be able to break up the class definition I had to turn off org-mode's clean-up so all the python blocks have to be indented exactly the way they will be in the final python file.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="o">&lt;&lt;</span><span class="n">first</span><span class="o">-</span><span class="n">class</span><span class="o">&gt;&gt;</span>
 
 <span class="o">&lt;&lt;</span><span class="n">main</span><span class="o">&gt;&gt;</span>
@@ -2602,6 +2783,7 @@ This first class won't do much, but if I understand the documentation I should b
 <div id="outline-container-sec-2-1" class="outline-3">
 <h3 id="sec-2-1">The Constructor</h3>
 <div class="outline-text-3" id="text-2-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FirstClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""a class that is first</span>
 <span class="sd">    Parameters</span>
@@ -2624,6 +2806,7 @@ This first class won't do much, but if I understand the documentation I should b
 The call emits the name. To concatenate this method to the previous block I'm using the same org-mode source-block header as I did with the constructor (<code>#+BEGIN_SRC python :noweb-ref first-class</code>). You could use a different name and insert another reference in the tangle but this seems more logical to me. One problem here is that python-mode (or some other mode) will interpret the methods as stand-alone functions and move them flush left. To fix this I had to turn off the automatic indentation using <code>(setq org-src-preserve-indentation t)</code>. This means that you have to keep track of the indentation yourself, regardless of where the code sits in the org-mode document (so as you create sub-sections it will look uglier and uglier in the original document, at least to me). Putting the method in a separate block also requires that you to insert an empty line before the method to  keep it from being stuck to the bottom of the previous one, but it doesn't include it when it gets exported to HTML, so you can't see it in this post. In fact, I noticed afterwards that the HTML export also stripped out the indentation on the left so you can't really see what I'm talking about.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">"""prints the name"""</span>
     <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -2640,6 +2823,7 @@ The call emits the name. To concatenate this method to the previous block I'm us
 This part constructs the <code>FirstClass</code> object and calls it.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">thing</span> <span class="o">=</span> <span class="n">FirstClass</span><span class="p">(</span><span class="s2">"Bob"</span><span class="p">)</span>
     <span class="n">thing</span><span class="p">()</span>
@@ -2650,6 +2834,7 @@ This part constructs the <code>FirstClass</code> object and calls it.
 <div id="outline-container-sec-4" class="outline-2">
 <h2 id="sec-4">Trying it out</h2>
 <div class="outline-text-2" id="text-4">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span>python noweb_ref.py
 </pre></div>
 
@@ -2670,6 +2855,7 @@ The point of trying this out is that I want to be able to break up and document 
 This bit at the end makes it so the indentation is always preserved, even if the <code>init.el</code> file isn't set up that way.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="c1"># Local Variables:</span>
 <span class="c1"># org-src-preserve-indentation: t</span>
 <span class="c1"># End:</span>
@@ -2692,6 +2878,7 @@ This assignment takes three sources of data to see if housing prices in universi
 <div id="outline-container-sec-1" class="outline-2">
 <h2 id="sec-1">Imports</h2>
 <div class="outline-text-2" id="text-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="c1"># python standard library</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractproperty</span>
@@ -2712,6 +2899,7 @@ This assignment takes three sources of data to see if housing prices in universi
 <div id="outline-container-sec-2" class="outline-2">
 <h2 id="sec-2">Constants</h2>
 <div class="outline-text-2" id="text-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">COLUMN_AXIS</span> <span class="o">=</span> <span class="mi">1</span> 
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
 </pre></div>
@@ -2721,6 +2909,7 @@ This assignment takes three sources of data to see if housing prices in universi
 <div id="outline-container-sec-3" class="outline-2">
 <h2 id="sec-3">Plotting Setup</h2>
 <div class="outline-text-2" id="text-3">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">seaborn</span>
     <span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
@@ -2760,6 +2949,7 @@ The following data files are available for this assignment:
 </li>
 <li>From the Wikipedia page on college towns is a list of <a href="https://en.wikipedia.org/wiki/List_of_college_towns#College_towns_in_the_United_States">university towns in the United States</a> which has been copy and pasted into the file <i>university<sub>towns</sub>.txt</i>.
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">UNIVERSITY_TOWNS_DATA</span> <span class="o">=</span> <span class="s2">"university_towns.txt"</span>
 <span class="n">GDP_DATA</span> <span class="o">=</span> <span class="s2">"gdplev.xls"</span>
 <span class="n">HOUSING_DATA</span> <span class="o">=</span> <span class="s2">"City_Zhvi_AllHomes.csv"</span>
@@ -2778,6 +2968,7 @@ Each function in this assignment below is worth 10%, with the exception of <i>ru
 This is a base-class to establish what the data-loaders need to implement.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""Base class for the data-loaders</span>
 
@@ -2808,12 +2999,14 @@ This is a base-class to establish what the data-loaders need to implement.
 Use this dictionary to map state names to two letter acronyms.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">states</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'OH'</span><span class="p">:</span> <span class="s1">'Ohio'</span><span class="p">,</span> <span class="s1">'KY'</span><span class="p">:</span> <span class="s1">'Kentucky'</span><span class="p">,</span> <span class="s1">'AS'</span><span class="p">:</span> <span class="s1">'American Samoa'</span><span class="p">,</span> <span class="s1">'NV'</span><span class="p">:</span> <span class="s1">'Nevada'</span><span class="p">,</span> <span class="s1">'WY'</span><span class="p">:</span> <span class="s1">'Wyoming'</span><span class="p">,</span> <span class="s1">'NA'</span><span class="p">:</span> <span class="s1">'National'</span><span class="p">,</span> <span class="s1">'AL'</span><span class="p">:</span> <span class="s1">'Alabama'</span><span class="p">,</span> <span class="s1">'MD'</span><span class="p">:</span> <span class="s1">'Maryland'</span><span class="p">,</span> <span class="s1">'AK'</span><span class="p">:</span> <span class="s1">'Alaska'</span><span class="p">,</span> <span class="s1">'UT'</span><span class="p">:</span> <span class="s1">'Utah'</span><span class="p">,</span> <span class="s1">'OR'</span><span class="p">:</span> <span class="s1">'Oregon'</span><span class="p">,</span> <span class="s1">'MT'</span><span class="p">:</span> <span class="s1">'Montana'</span><span class="p">,</span> <span class="s1">'IL'</span><span class="p">:</span> <span class="s1">'Illinois'</span><span class="p">,</span> <span class="s1">'TN'</span><span class="p">:</span> <span class="s1">'Tennessee'</span><span class="p">,</span> <span class="s1">'DC'</span><span class="p">:</span> <span class="s1">'District of Columbia'</span><span class="p">,</span> <span class="s1">'VT'</span><span class="p">:</span> <span class="s1">'Vermont'</span><span class="p">,</span> <span class="s1">'ID'</span><span class="p">:</span> <span class="s1">'Idaho'</span><span class="p">,</span> <span class="s1">'AR'</span><span class="p">:</span> <span class="s1">'Arkansas'</span><span class="p">,</span> <span class="s1">'ME'</span><span class="p">:</span> <span class="s1">'Maine'</span><span class="p">,</span> <span class="s1">'WA'</span><span class="p">:</span> <span class="s1">'Washington'</span><span class="p">,</span> <span class="s1">'HI'</span><span class="p">:</span> <span class="s1">'Hawaii'</span><span class="p">,</span> <span class="s1">'WI'</span><span class="p">:</span> <span class="s1">'Wisconsin'</span><span class="p">,</span> <span class="s1">'MI'</span><span class="p">:</span> <span class="s1">'Michigan'</span><span class="p">,</span> <span class="s1">'IN'</span><span class="p">:</span> <span class="s1">'Indiana'</span><span class="p">,</span> <span class="s1">'NJ'</span><span class="p">:</span> <span class="s1">'New Jersey'</span><span class="p">,</span> <span class="s1">'AZ'</span><span class="p">:</span> <span class="s1">'Arizona'</span><span class="p">,</span> <span class="s1">'GU'</span><span class="p">:</span> <span class="s1">'Guam'</span><span class="p">,</span> <span class="s1">'MS'</span><span class="p">:</span> <span class="s1">'Mississippi'</span><span class="p">,</span> <span class="s1">'PR'</span><span class="p">:</span> <span class="s1">'Puerto Rico'</span><span class="p">,</span> <span class="s1">'NC'</span><span class="p">:</span> <span class="s1">'North Carolina'</span><span class="p">,</span> <span class="s1">'TX'</span><span class="p">:</span> <span class="s1">'Texas'</span><span class="p">,</span> <span class="s1">'SD'</span><span class="p">:</span> <span class="s1">'South Dakota'</span><span class="p">,</span> <span class="s1">'MP'</span><span class="p">:</span> <span class="s1">'Northern Mariana Islands'</span><span class="p">,</span> <span class="s1">'IA'</span><span class="p">:</span> <span class="s1">'Iowa'</span><span class="p">,</span> <span class="s1">'MO'</span><span class="p">:</span> <span class="s1">'Missouri'</span><span class="p">,</span> <span class="s1">'CT'</span><span class="p">:</span> <span class="s1">'Connecticut'</span><span class="p">,</span> <span class="s1">'WV'</span><span class="p">:</span> <span class="s1">'West Virginia'</span><span class="p">,</span> <span class="s1">'SC'</span><span class="p">:</span> <span class="s1">'South Carolina'</span><span class="p">,</span> <span class="s1">'LA'</span><span class="p">:</span> <span class="s1">'Louisiana'</span><span class="p">,</span> <span class="s1">'KS'</span><span class="p">:</span> <span class="s1">'Kansas'</span><span class="p">,</span> <span class="s1">'NY'</span><span class="p">:</span> <span class="s1">'New York'</span><span class="p">,</span> <span class="s1">'NE'</span><span class="p">:</span> <span class="s1">'Nebraska'</span><span class="p">,</span> <span class="s1">'OK'</span><span class="p">:</span> <span class="s1">'Oklahoma'</span><span class="p">,</span> <span class="s1">'FL'</span><span class="p">:</span> <span class="s1">'Florida'</span><span class="p">,</span> <span class="s1">'CA'</span><span class="p">:</span> <span class="s1">'California'</span><span class="p">,</span> <span class="s1">'CO'</span><span class="p">:</span> <span class="s1">'Colorado'</span><span class="p">,</span> <span class="s1">'PA'</span><span class="p">:</span> <span class="s1">'Pennsylvania'</span><span class="p">,</span> <span class="s1">'DE'</span><span class="p">:</span> <span class="s1">'Delaware'</span><span class="p">,</span> <span class="s1">'NM'</span><span class="p">:</span> <span class="s1">'New Mexico'</span><span class="p">,</span> <span class="s1">'RI'</span><span class="p">:</span> <span class="s1">'Rhode Island'</span><span class="p">,</span> <span class="s1">'MN'</span><span class="p">:</span> <span class="s1">'Minnesota'</span><span class="p">,</span> <span class="s1">'VI'</span><span class="p">:</span> <span class="s1">'Virgin Islands'</span><span class="p">,</span> <span class="s1">'NH'</span><span class="p">:</span> <span class="s1">'New Hampshire'</span><span class="p">,</span> <span class="s1">'MA'</span><span class="p">:</span> <span class="s1">'Massachusetts'</span><span class="p">,</span> <span class="s1">'GA'</span><span class="p">:</span> <span class="s1">'Georgia'</span><span class="p">,</span> <span class="s1">'ND'</span><span class="p">:</span> <span class="s1">'North Dakota'</span><span class="p">,</span> <span class="s1">'VA'</span><span class="p">:</span> <span class="s1">'Virginia'</span><span class="p">}</span>
 </pre></div>
 
 <p>
 First, a quick look at the top of the file.
 </p>
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span>head university_towns.txt
 </pre></div>
 
@@ -2838,6 +3031,7 @@ Alaska[edit]
 Now the classes to load the university-town data.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">UniversitySettings</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""settings for the UniversityData"""</span>
     <span class="n">source</span> <span class="o">=</span> <span class="n">UNIVERSITY_TOWNS_DATA</span>
@@ -2847,6 +3041,7 @@ Now the classes to load the university-town data.
     <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"State"</span><span class="p">,</span> <span class="s2">"RegionName"</span><span class="p">]</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">UniversityData</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
     <span class="sd">"""builder of the data"""</span>
 
@@ -2874,6 +3069,7 @@ In retrospect I would have done this with regular expressions, but it seemed sim
 <code>get_list_of_university_towns</code> is the first assignment question.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_list_of_university_towns</span><span class="p">():</span>
     <span class="sd">'''Returns a DataFrame of towns and the states they are in from the </span>
 <span class="sd">    university_towns.txt list. The format of the DataFrame should be:</span>
@@ -2918,6 +3114,7 @@ It looks reasonable, but someone on the Coursera site provided a little more cod
 From the Bureau of Economic Analysis, US Department of Commerce, the <a href="http://www.bea.gov/national/index.htm#gdp">GDP over time</a> of the United States in current dollars (use the chained value in 2009 dollars), in quarterly intervals, is in the file <i>gdplev.xls</i>. For this assignment, only look at GDP data from the first quarter of 2000 onward.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GDPSettings</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""holder of settings to load and clean the data"""</span>
     <span class="n">source</span> <span class="o">=</span> <span class="n">GDP_DATA</span>
@@ -2931,6 +3128,7 @@ From the Bureau of Economic Analysis, US Department of Commerce, the <a href="ht
     <span class="n">delete_columns</span> <span class="o">=</span> <span class="s2">"to_delete"</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GDPData</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
     <span class="sd">"""GDP Data Loader and cleaner"""</span>
     <span class="nd">@property</span>
@@ -2949,6 +3147,7 @@ From the Bureau of Economic Analysis, US Department of Commerce, the <a href="ht
 <div id="outline-container-sec-5-4" class="outline-3">
 <h3 id="sec-5-4">Get Recession Start</h3>
 <div class="outline-text-3" id="text-5-4">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">GDPData</span><span class="p">(</span><span class="n">GDPSettings</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">YearQuarter</span><span class="o">==</span><span class="n">GDPSettings</span><span class="o">.</span><span class="n">first_quarter</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]:]</span>
@@ -2965,6 +3164,7 @@ From the Bureau of Economic Analysis, US Department of Commerce, the <a href="ht
 The plot seems to show that there was a recession starting around 2008, with the low-point coming in 2009.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_later_data</span><span class="p">():</span>
     <span class="sd">"""</span>
 <span class="sd">    Returns</span>
@@ -2981,6 +3181,7 @@ The plot seems to show that there was a recession starting around 2008, with the
 This next function is not easy to read. I first wrote a function to find the start of the recession and decided to try and re-use it by passing in the comparison operator (<code>operator.gt</code> is <code>&gt;</code> and <code>operator.lt</code> is <code>&lt;</code>). Greater than finds the start of the recession and less than finds the end of the recession, but it's short by one - it actually finds the last quarter of the recession, while the end of the recession is the next quarter (the one where the GDP actually goes up) so you have to add 1 to the returned result.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">recession_index</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">):</span>
     <span class="sd">"""returns the index of the start/end of the recession</span>
 
@@ -3009,6 +3210,7 @@ This next function is not easy to read. I first wrote a function to find the sta
 	    <span class="k">return</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_recession_start</span><span class="p">():</span>
     <span class="sd">'''Returns the year and quarter of the recession start time as a </span>
 <span class="sd">    string value in a format such as 2005q3'''</span>
@@ -3028,6 +3230,7 @@ This next function is not easy to read. I first wrote a function to find the sta
 <div id="outline-container-sec-5-5" class="outline-3">
 <h3 id="sec-5-5">Get the Recession End</h3>
 <div class="outline-text-3" id="text-5-5">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_recession_end</span><span class="p">():</span>
     <span class="sd">'''Returns the year and quarter of the recession end time as a </span>
 <span class="sd">    string value in a format such as 2005q3'''</span>
@@ -3053,6 +3256,7 @@ This next function is not easy to read. I first wrote a function to find the sta
 <div id="outline-container-sec-5-6" class="outline-3">
 <h3 id="sec-5-6">The Recession Bottom</h3>
 <div class="outline-text-3" id="text-5-6">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_recession_bottom</span><span class="p">():</span>
     <span class="sd">'''Returns the year and quarter of the recession bottom time as a </span>
 <span class="sd">    string value in a format such as 2005q3'''</span>
@@ -3071,6 +3275,7 @@ This next function is not easy to read. I first wrote a function to find the sta
 2009q2
 </pre>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">get_recession_start</span><span class="p">()</span>
 <span class="n">bottom</span> <span class="o">=</span> <span class="n">get_recession_bottom</span><span class="p">()</span>
 <span class="n">end</span> <span class="o">=</span> <span class="n">get_recession_end</span><span class="p">()</span>
@@ -3128,6 +3333,7 @@ Then there are columns for each month from April 1996 through August 2016. The c
 Now the housing-data classes.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HousingSettings</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""holds the settings for the housing data"""</span>
     <span class="n">source</span> <span class="o">=</span> <span class="s2">"City_Zhvi_AllHomes.csv"</span>
@@ -3138,6 +3344,7 @@ Now the housing-data classes.
 		<span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HousingData</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
     <span class="sd">"""loads the housing data"""</span>
     <span class="nd">@property</span>
@@ -3194,6 +3401,7 @@ Now the housing-data classes.
 Since our GDP data is per-quarter but our housing data is per-month we have to re-calculate the housing data into quarters.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">convert_housing_data_to_quarters</span><span class="p">():</span>
     <span class="sd">'''Converts the housing data to quarters and returns it as mean </span>
 <span class="sd">    values in a dataframe. This dataframe should be a dataframe with</span>
@@ -3224,6 +3432,7 @@ This where we test our hypothesis that university towns saw less of a drop in ho
 </p>
 
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TTest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""settings for the t-test"""</span>
     <span class="n">price_ratio</span> <span class="o">=</span> <span class="s2">"PriceRatio"</span>
@@ -3234,6 +3443,7 @@ This where we test our hypothesis that university towns saw less of a drop in ho
     <span class="n">non_university_town</span> <span class="o">=</span> <span class="s2">"non-university town"</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HypothesisTester</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""t-tester comparing university and non-university towns</span>
 <span class="sd">    """</span>
@@ -3402,6 +3612,7 @@ This where we test our hypothesis that university towns saw less of a drop in ho
 The plot appears to show that the university towns did a little better (more of their price-ratio values were lower than the non-university towns - and as the denominator (recession value) decreases, the ratio increases).
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run_ttest</span><span class="p">():</span>
     <span class="sd">'''First creates new data showing the decline or growth of housing prices</span>
 <span class="sd">    between the recession start and the recession bottom. Then runs a ttest</span>
@@ -3440,6 +3651,7 @@ The plot appears to show that the university towns did a little better (more of 
 <div id="outline-container-sec-7" class="outline-2">
 <h2 id="sec-7">Confidence Interval</h2>
 <div class="outline-text-2" id="text-7">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">tester</span> <span class="o">=</span> <span class="n">HypothesisTester</span><span class="p">()</span>
 <span class="n">university</span> <span class="o">=</span> <span class="n">tester</span><span class="o">.</span><span class="n">university_price_ratios</span><span class="o">.</span><span class="n">PriceRatio</span>
 <span class="n">not_university</span> <span class="o">=</span> <span class="n">tester</span><span class="o">.</span><span class="n">non_university_price_ratios</span><span class="o">.</span><span class="n">PriceRatio</span>
@@ -3462,6 +3674,7 @@ The plot appears to show that the university towns did a little better (more of 
 Since the confidence interval values are negative, the mean university town price ratio is less than the mean non-university town price ratio, suggesting that the drop in value (the reduction of the denominator of the price ratio) was higher for the non-university towns than it was for the university towns, and we are 95% confident that future samples would find the same outcome.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">seaborn</span><span class="o">.</span><span class="n">distplot</span><span class="p">(</span><span class="n">tester</span><span class="o">.</span><span class="n">university_price_ratios</span><span class="o">.</span><span class="n">PriceRatio</span><span class="p">,</span>
 		 <span class="n">kde</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>                      
 		 <span class="n">hist_kws</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">cumulative</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
@@ -3502,6 +3715,7 @@ This assignment requires more individual learning then the last one did - you ar
 <div id="outline-container-sec-1" class="outline-2">
 <h2 id="sec-1">Imports</h2>
 <div class="outline-text-2" id="text-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="c1"># python standard library</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
@@ -3518,6 +3732,7 @@ This assignment requires more individual learning then the last one did - you ar
 <div id="outline-container-sec-2" class="outline-2">
 <h2 id="sec-2">Some Constants</h2>
 <div class="outline-text-2" id="text-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">COLUMN_AXIS</span> <span class="o">=</span> <span class="mi">1</span>
 </pre></div>
 </div>
@@ -3526,6 +3741,7 @@ This assignment requires more individual learning then the last one did - you ar
 <div id="outline-container-sec-3" class="outline-2">
 <h2 id="sec-3">A Base Data-Loader class</h2>
 <div class="outline-text-2" id="text-3">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""base class for the data-loaders</span>
 
@@ -3661,6 +3877,7 @@ e.g.
 <code>Switzerland17</code> should be <code>Switzerland</code>.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EnergyIndicatorsConstants</span><span class="p">:</span>
     <span class="n">source</span> <span class="o">=</span> <span class="s2">"energy_indicators.xls"</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Country'</span><span class="p">,</span> <span class="s1">'Energy Supply'</span><span class="p">,</span> <span class="s1">'Energy Supply per Capita'</span><span class="p">,</span>
@@ -3680,6 +3897,7 @@ e.g.
 	<span class="s2">"(?P&lt;{0}&gt;[a-zA-Z\s\-]+)</span><span class="se">\b</span><span class="s2">?(\(|\d)*"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">country_key</span><span class="p">))</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EnergyIndicatorsKeys</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""Keys for the data-frame"""</span>
     <span class="n">country_name</span> <span class="o">=</span> <span class="s2">"Country"</span>
@@ -3689,11 +3907,13 @@ e.g.
     <span class="n">total_supply</span> <span class="o">=</span> <span class="s2">"Energy Supply"</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">UnitConverter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="n">petajoule_to_gigajoule</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span>
 </pre></div>
 
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">EnergyIndicators</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
     <span class="sd">"""builds the energy indicator data-frame</span>
 
@@ -3783,6 +4003,7 @@ e.g.
 <div id="outline-container-sec-4-1-1" class="outline-4">
 <h4 id="sec-4-1-1">Checking for missing values</h4>
 <div class="outline-text-4" id="text-4-1-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">EnergyIndicators</span><span class="p">(</span><span class="n">EnergyIndicatorsConstants</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
 <span class="n">missing</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">EnergyIndicatorsKeys</span><span class="o">.</span><span class="n">total_supply</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
 <span class="k">for</span> <span class="n">country</span> <span class="ow">in</span> <span class="n">missing</span><span class="o">.</span><span class="n">Country</span><span class="p">:</span>
@@ -3839,6 +4060,8 @@ Next, load the GDP data from the file `world<sub>bank</sub>.csv`, which is a csv
 </table>
 </li>
 </ul>
+
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span>head -n <span class="m">6</span> world_bank.csv
 </pre></div>
 
@@ -3855,6 +4078,7 @@ Aruba,ABW,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,,,,,,,,,,,,,,,
 Looking at the output - the first four rows make up the header.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span>tail -n <span class="m">1</span> world_bank.csv
 </pre></div>
 
@@ -3866,6 +4090,7 @@ Zimbabwe,ZWE,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,3338344012.
 The last row is a country, so nothing needs to be popped off.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span>grep -P <span class="s2">"(Korea|Iran|Hong)"</span> world_bank.csv
 </pre></div>
 
@@ -3876,6 +4101,7 @@ The last row is a country, so nothing needs to be popped off.
 "Korea, Dem. People’s Rep.",PRK,GDP at market prices (constant 2010 US$),NY.GDP.MKTP.KD,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 </pre>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GDPConstants</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""holds values for the GDP data"""</span>
     <span class="n">source</span> <span class="o">=</span> <span class="s2">"world_bank.csv"</span>
@@ -3888,6 +4114,7 @@ The last row is a country, so nothing needs to be popped off.
 		     <span class="s2">"Korea, Rep."</span><span class="p">:</span> <span class="s2">"South Korea"</span><span class="p">}</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GDPKeys</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""column names for the GDP data"""</span>
     <span class="n">country_name</span> <span class="o">=</span> <span class="s2">"Country Name"</span>
@@ -3896,6 +4123,7 @@ The last row is a country, so nothing needs to be popped off.
     <span class="n">last_year</span> <span class="o">=</span> <span class="n">last_ten_years</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GDPData</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
     <span class="sd">"""loads and cleans the gdp data</span>
 
@@ -3939,6 +4167,7 @@ The last row is a country, so nothing needs to be popped off.
 	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">GDPData</span><span class="p">(</span><span class="n">GDPConstants</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
 <span class="n">missing</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">"2015"</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
 <span class="k">print</span><span class="p">(</span><span class="s2">"{0} Countries Missing 2015 data"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)))</span>
@@ -3961,11 +4190,15 @@ Finally, load the <a href="http://www.scimagojr.com/countryrank.php?category=210
 <li>and only the top 15 countries by Scimago 'Rank' (Rank 1 through 15). 
 </li>
 </ul>
+
+
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SciamgoConstants</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""strings and such to load and clean the Sciamgo data"""</span>
     <span class="n">source</span> <span class="o">=</span> <span class="s2">"scimagojr-3.xlsx"</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SciamgoKeys</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""Keys for the data-frame"""</span>
     <span class="n">country_name</span> <span class="o">=</span> <span class="s1">'Country'</span>
@@ -3976,6 +4209,7 @@ Finally, load the <a href="http://www.scimagojr.com/countryrank.php?category=210
     <span class="n">citable_documents_per_capita</span> <span class="o">=</span> <span class="s2">"citable_documents_per_capti"</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SciamgoData</span><span class="p">(</span><span class="n">BaseData</span><span class="p">):</span>
     <span class="sd">"""loads the Sciamgo Journal Country Rank data"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -4016,6 +4250,7 @@ Finally, load the <a href="http://www.scimagojr.com/countryrank.php?category=210
 	<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_15</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">SciamgoData</span><span class="p">(</span><span class="n">SciamgoConstants</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">data</span>
 <span class="n">top_data</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">top_15</span>
@@ -4031,6 +4266,7 @@ Finally, load the <a href="http://www.scimagojr.com/countryrank.php?category=210
 Since the <i>Sciamgo</i> data has all the countries, we can use it to double check that we cleaned up all the names correctly.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">energy</span> <span class="o">=</span> <span class="n">EnergyIndicators</span><span class="p">(</span><span class="n">EnergyIndicatorsConstants</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
 <span class="n">gdp_data</span> <span class="o">=</span> <span class="n">GDPData</span><span class="p">(</span><span class="n">GDPConstants</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
 
@@ -4127,6 +4363,7 @@ Since the <i>Sciamgo</i> data has all the countries, we can use it to double che
 Since Question 2 assumes you have access to the data-frames before reducing them to 15, make building them a separate function.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">DataFrames</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"DataFrames"</span><span class="p">,</span> <span class="s2">"energy gdp sciamgo"</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 
 <span class="k">def</span> <span class="nf">build_data_frames</span><span class="p">():</span>
@@ -4165,6 +4402,7 @@ The index of this DataFrame should be the name of the country, and the columns s
 </p>
 
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_one</span><span class="p">():</span>
     <span class="sd">"""loads the data, cleans and combines them</span>
 
@@ -4198,6 +4436,7 @@ The index of this DataFrame should be the name of the country, and the columns s
 <span class="k">assert</span> <span class="n">merged</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">merged</span><span class="o">.</span><span class="n">shape</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">frames</span> <span class="o">=</span> <span class="n">build_data_frames</span><span class="p">()</span>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">data</span>
 <span class="n">gdp</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">gdp</span><span class="o">.</span><span class="n">data</span>
@@ -4237,6 +4476,7 @@ The previous question joined three datasets then reduced this to just the top 15
 <p>
 <b>The grader marked this wrong</b>
 </p>
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_two</span><span class="p">():</span>
     <span class="sd">"""calculates difference between union and intersections</span>
 
@@ -4298,6 +4538,7 @@ What is the average GDP over the last 10 years for each country? (exclude missin
 <b>This function should return a Series named `avgGDP` with 15 countries and their average GDP sorted in descending order.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_three</span><span class="p">():</span>
     <span class="sd">"""calculates average gdp</span>
 
@@ -4400,6 +4641,7 @@ By how much had the GDP changed over the 10 year span for the country with the 6
 <b>This function should return a single number.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_four</span><span class="p">():</span>
     <span class="sd">"""Calculates GDP change over ten year span for country with 6th largest</span>
 <span class="sd">    Returns</span>
@@ -4429,6 +4671,7 @@ What is the mean <i>Energy Supply per Capita</i>?
 <b>This function should return a single number.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_five</span><span class="p">():</span>
     <span class="sd">"""mean Energy Supply per Capita"""</span>
     <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
@@ -4454,6 +4697,7 @@ What country has the maximum % Renewable and what is the percentage?
 <b>This function should return a tuple with the name of the country and the percentage.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_six</span><span class="p">():</span>
     <span class="sd">"""finds country with most renewable energy</span>
 
@@ -4490,6 +4734,7 @@ Create a new column that is the ratio of Self-Citations to Total Citations.
 <b>This function should return a tuple with the name of the country and the ratio.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_seven</span><span class="p">():</span>
     <span class="sd">"""adds Self-Citations/Total Citations column</span>
 
@@ -4524,6 +4769,7 @@ Create a column that estimates the population using Energy Supply and Energy Sup
 <b>This function should return a single string value.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_population</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
     <span class="sd">"""adds population estimate</span>
 
@@ -4545,6 +4791,7 @@ Create a column that estimates the population using Energy Supply and Energy Sup
     <span class="k">return</span> <span class="n">data</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_eight</span><span class="p">():</span>
     <span class="sd">"""adds population estimate column</span>
 
@@ -4583,6 +4830,7 @@ Create a column that estimates the number of citable documents per person.
 <b>(Optional: Use the built-in function `plot9()` to visualize the relationship between Energy Supply per Capita vs. Citable docs per Capita)</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_nine</span><span class="p">():</span>
     <span class="sd">"""adds citable documents per person column</span>
 
@@ -4607,6 +4855,7 @@ Create a column that estimates the number of citable documents per person.
 0.794001043544
 </pre>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
 <span class="kn">import</span> <span class="nn">seaborn</span>
@@ -4637,6 +4886,7 @@ Create a new column with a 1 if the country's % Renewable value is at or above t
 <b>This function should return a series named <code>HighRenew</code> whose index is the country name sorted in ascending order of rank.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_ten</span><span class="p">():</span>
     <span class="sd">"""classifies by median % renewable</span>
 
@@ -4740,6 +4990,7 @@ Create a new column with a 1 if the country's % Renewable value is at or above t
 Use the following dictionary to group the Countries by Continent, then create a dateframe that displays the sample size (the number of countries in each continent bin), and the sum, mean, and std deviation for the estimated population of each country.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">ContinentDict</span>  <span class="o">=</span> <span class="p">{</span><span class="s1">'China'</span><span class="p">:</span><span class="s1">'Asia'</span><span class="p">,</span> 
 		  <span class="s1">'United States'</span><span class="p">:</span><span class="s1">'North America'</span><span class="p">,</span> 
 		  <span class="s1">'Japan'</span><span class="p">:</span><span class="s1">'Asia'</span><span class="p">,</span> 
@@ -4761,6 +5012,7 @@ Use the following dictionary to group the Countries by Continent, then create a 
 <b>This function should return a DataFrame with index named Continent <code>['Asia', 'Australia', 'Europe', 'North America', 'South America']` and columns `['size', 'sum', 'mean', 'std']</code></b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_eleven</span><span class="p">():</span>
     <span class="sd">"""Groups countries by continent</span>
 
@@ -4857,6 +5109,7 @@ Cut % Renewable into 5 bins. Group Top15 by the Continent, as well as these new 
 <p>
 <b>Function <code>answer_twelve</code> results were not the same as the solution results. Iterating through the series we found that there was 1 difference.</b>
 </p>
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_twelve</span><span class="p">():</span>
     <span class="sd">"""bins percent renewable</span>
 
@@ -4912,6 +5165,7 @@ e.g. 317615384.61538464 -&gt; 317,615,384.61538464
 <b>This function should return a Series `PopEst` whose index is the country name and whose values are the population estimate string.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_thirteen</span><span class="p">():</span>
     <span class="sd">"""Converts population to a formatted string"""</span>
     <span class="n">Top15</span> <span class="o">=</span> <span class="n">add_population</span><span class="p">(</span><span class="n">answer_one</span><span class="p">())</span>
@@ -5004,6 +5258,7 @@ e.g. 317615384.61538464 -&gt; 317,615,384.61538464
 Use the built in function <code>plot_optional()</code> to see an example visualization.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_optional</span><span class="p">():</span>
     <span class="n">Top15</span> <span class="o">=</span> <span class="n">answer_one</span><span class="p">()</span>
     <span class="n">bubble_size</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">Top15</span><span class="p">[</span><span class="s1">'2014'</span><span class="p">]</span><span class="o">/</span><span class="mi">10</span><span class="o">**</span><span class="mi">10</span>
@@ -5075,6 +5330,7 @@ The columns are organized as
 <div id="outline-container-sec-1-1" class="outline-3">
 <h3 id="sec-1-1">Imports</h3>
 <div class="outline-text-3" id="text-1-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="c1"># third party</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
@@ -5094,6 +5350,7 @@ The columns are organized as
 The data is stored in a comma-separated file named <i>olympics.csv</i>.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span>head olympics.csv
 </pre></div>
 
@@ -5123,6 +5380,7 @@ If you go to the wikipedia page and look at the <a href="https://en.wikipedia.or
 <div id="outline-container-sec-1-2-2" class="outline-4">
 <h4 id="sec-1-2-2">Load the data into pandas</h4>
 <div class="outline-text-4" id="text-1-2-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'olympics.csv'</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">description</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
 <span class="k">print</span><span class="p">(</span><span class="n">tabulate</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="s2">"keys"</span><span class="p">))</span>
@@ -5142,6 +5400,7 @@ max      27        4809       4775      5130       14714       22        959    
 </pre>
 
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 
@@ -5172,6 +5431,7 @@ Australasia (ANZ) [ANZ]       5              12
 It looks like the countries got read as the index for the data-frame since the first column was empty.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
 </pre></div>
 
@@ -5212,6 +5472,7 @@ Mixed team (ZZX) [ZZX]                                    17
 Totals                                                 17579
 </pre>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">print</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="s2">"Combined total"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"Totals"</span><span class="p">][</span><span class="s2">"Combined total"</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"Combined total"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
 </pre></div>
@@ -5235,6 +5496,7 @@ It also looks like the last row is a sum of the columns, which we will need to g
 First the unicode is removed from the column names and the columns are given more human-readable names.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">new_columns</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"summer_participations"</span><span class="p">,</span>
 	       <span class="s2">"summer_gold"</span><span class="p">,</span>
 	       <span class="s2">"summer_silver"</span><span class="p">,</span>
@@ -5255,6 +5517,7 @@ First the unicode is removed from the column names and the columns are given mor
 <span class="n">column_remap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">new_columns</span><span class="p">))</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"summer_participations"</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
 	<span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">column</span><span class="p">:</span><span class="n">column_remap</span><span class="p">[</span><span class="n">column</span><span class="p">]},</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
@@ -5288,6 +5551,7 @@ Afghanistan (AFG)             2               2
 Since the index has both a country name and a country code, we'll create a new column with just the ID's. The indices are split on the first left parenthesis ("(") creating a tuple with the first item being the name of the country and the second containing the country codes. To avoid the trailing parentheses and any other extra characters, the country-code gets sliced. Finally the last row ("Totals") gets dropped
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span> <span class="c1"># split the index by '('</span>
 <span class="n">names_ids</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'\s\('</span><span class="p">)</span>
 
@@ -5327,6 +5591,7 @@ Afghanistan             0             2               2  AFG
 The autograder will call this function and compare the return value against the correct solution value.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_zero</span><span class="p">():</span>
     <span class="sd">"""This function returns the row for Afghanistan</span>
 
@@ -5338,6 +5603,7 @@ The autograder will call this function and compare the return value against the 
     <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">answer_zero</span><span class="p">()</span><span class="o">.</span><span class="n">name</span>
 </pre></div>
 
@@ -5359,6 +5625,7 @@ Afghanistan
 Which country has won the most gold medals in summer games?
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_one</span><span class="p">():</span>
     <span class="sd">"""</span>
 <span class="sd">    Returns</span>
@@ -5388,6 +5655,7 @@ Since we put the NOCs in the index (and most are country names), finding the ind
 Which country had the biggest difference between their summer and winter gold medal counts?
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_two</span><span class="p">():</span>
     <span class="sd">"""</span>
 <span class="sd">    Returns</span>
@@ -5422,6 +5690,7 @@ Which country has the biggest difference between their summer gold medal counts 
 Only include countries that have won at least 1 gold in both summer and winter.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_three</span><span class="p">():</span>
     <span class="sd">"""</span>
 <span class="sd">    find country with the biggest difference between the</span>
@@ -5454,6 +5723,7 @@ Bulgaria
 Write a function that creates a Series called "Points" which is a weighted value where each gold medal (`Gold.2`) counts for 3 points, silver medals (`Silver.2`) for 2 points, and bronze medals (`Bronze.2`) for 1 point. The function should return only the column (a Series object) which you created.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span>  <span class="k">def</span> <span class="nf">answer_four</span><span class="p">():</span>
       <span class="sd">"""</span>
 <span class="sd">      Creates weighted points based on medals</span>
@@ -5489,6 +5759,7 @@ For the next set of questions, we will be using census data from the <a href="ht
 <div id="outline-container-sec-4-1" class="outline-3">
 <h3 id="sec-4-1">Load the Census Data</h3>
 <div class="outline-text-3" id="text-4-1">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">census_data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'census.csv'</span><span class="p">)</span>
 <span class="n">census_data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
@@ -5537,6 +5808,7 @@ For the next set of questions, we will be using census data from the <a href="ht
 <div id="outline-container-sec-4-2" class="outline-3">
 <h3 id="sec-4-2">Census Variable Names</h3>
 <div class="outline-text-3" id="text-4-2">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CensusVariables</span><span class="p">:</span>
     <span class="n">state_name</span> <span class="o">=</span> <span class="s2">"STNAME"</span>
     <span class="n">county_name</span> <span class="o">=</span> <span class="s2">"CTYNAME"</span>
@@ -5559,6 +5831,7 @@ For the next set of questions, we will be using census data from the <a href="ht
 <div id="outline-container-sec-4-3" class="outline-3">
 <h3 id="sec-4-3">Counties Only</h3>
 <div class="outline-text-3" id="text-4-3">
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="n">counties</span> <span class="o">=</span> <span class="n">census_data</span><span class="p">[</span><span class="n">census_data</span><span class="p">[</span>
     <span class="n">CensusVariables</span><span class="o">.</span><span class="n">summary_level</span><span class="p">]</span><span class="o">==</span><span class="n">CensusVariables</span><span class="o">.</span><span class="n">county_level</span><span class="p">]</span>
 <span class="c1"># this throws off the numeric index for the argmax method so reset it</span>
@@ -5579,6 +5852,7 @@ Which state has the most counties in it? (hint: consider the sumlevel key carefu
 </p>
 
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_five</span><span class="p">():</span>
     <span class="sd">"""finds state with the most counties</span>
 
@@ -5606,6 +5880,7 @@ Texas
 Only looking at the three most populous counties for each state, what are the three most populous states (in order of highest population to lowest population)? Use <code>CENSUS2010POP</code>.
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_six</span><span class="p">():</span>
     <span class="sd">"""finds three most populous states based on top three counties in each</span>
 
@@ -5654,6 +5929,7 @@ e.g. If County Population in the 5 year period is 100, 120, 80, 105, 100, 130, t
 <b>This function should return a single string value.</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_seven</span><span class="p">():</span>
     <span class="sd">"""Find county with largest absolute population variance</span>
 
@@ -5694,6 +5970,7 @@ Create a query that finds the counties that belong to regions 1 or 2, whose name
 <b>This function should return a 5x2 DataFrame with the columns = ['STNAME', 'CTYNAME'] and the same index ID as the <code>census_data</code> (sorted ascending by index).</b>
 </p>
 
+/home/brunhilde/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">answer_eight</span><span class="p">():</span>
     <span class="sd">"""find region 1 or 2 counties:</span>
 
@@ -5765,92 +6042,6 @@ Create a query that finds the counties that belong to regions 1 or 2, whose name
 </tbody>
 </table>
 </div>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/org-babel-stderr-results/" class="u-url">Org-Babel Stderr Results</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Cloistered Monkey
-            </span></p>
-            <p class="dateline"><a href="posts/org-babel-stderr-results/" rel="bookmark"><time class="published dt-published" datetime="2017-01-11T22:53:13-08:00" title="2017-01-11 22:53">2017-01-11 22:53</time></a></p>
-        </div>
-    </header><div class="e-content entry-content">
-    <p>
-If you execute a code-block in org-mode the default behavior when the executed code sends output to <code>stderr</code> is to open a pop-up buffer rather than including it in the org-babel file. Sometimes, though, you might want to document actual output from <code>stderr</code> but, as it turns out, this is how <i>org-mode</i> is designed so you are mostly stuck with it. There is a simple work-around though, just put an entry in the source-block that outputs to <code>stdout</code> at the end of the block and everyhing will show up in the results.
-</p>
-
-<p>
-This is how you could include the output when there are failing tests run by <a href="http://docs.pytest.org/en/latest/">py.test</a>:
-</p>
-
-<div class="highlight"><pre><span></span>#+BEGIN_SRC sh :results verbatim
-  py.test tests/
-  echo
-#+END_SRC
-</pre></div>
-
-<p>
-This will run all the tests in the <code>tests</code> folder and include the output in the <i>org-mode</i> file even if there are failures, thanks to the <code>echo</code> at the end.
-</p>
-
-<p>
-I got this from <a href="https://stackoverflow.com/questions/27304469/capturing-the-output-of-diff-with-org-babel">Stack Overflow</a>, of course.
-</p>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/install-chrome-extensions-in-vivaldi/" class="u-url">Install Chrome Extensions in Vivaldi</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                Cloistered Monkey
-            </span></p>
-            <p class="dateline"><a href="posts/install-chrome-extensions-in-vivaldi/" rel="bookmark"><time class="published dt-published" datetime="2017-01-11T22:00:14-08:00" title="2017-01-11 22:00">2017-01-11 22:00</time></a></p>
-        </div>
-    </header><div class="e-content entry-content">
-    <p>
-This was taken from the <a href="http://forum.vivaldi.net/topic/1896/how-to-install-lastpass-for-vivaldi">vivaldi forums</a>. It explains how to install the <i>LastPass</i> extension into the <a href="https://vivaldi.com">vivaldi browser</a> and should work for other plugins as well (although I haven't tried yet).
-</p>
-
-<div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1">The Procedure</h2>
-<div class="outline-text-2" id="text-1">
-<ol class="org-ol">
-<li>Install the <a href="https://github.com/Rob--W/crxviewer">Chrome extension source viewer (CRX Viewer)</a> in Chrome
-</li>
-<li>Go to the Chrome Web Store and search for the <i>LastPass</i> extension
-</li>
-<li>Right click on the <i>LastPass</i> search result to bring up the context menu
-</li>
-<li>In the context menu selecte <i>View extension source</i>
-</li>
-<li>In the page that opens, click on the <i>Download</i> link in the upper corner
-</li>
-<li>Go to the <i>Downloads</i> folder and make a new folder (e.g. <code>mkdir lastpass</code>)
-</li>
-<li>Move the zip-file that you downloaded into the folder (mine was called <code>hdokiejnpimakedhajhdlcegeplioahd.zip</code> so I assume the names are random)
-</li>
-<li>Unzip the download
-</li>
-<li>Re-name <code>_metadata</code> to <code>metadata</code> (the post suggests deleting it, so that might work too)
-</li>
-<li>In <i>Vivaldi</i>, open the link <i>vivaldi://chrome/extensions</i>
-</li>
-<li>Click the <i>Developer mode</i> checkbox
-</li>
-<li>Click on <i>Load unpacked extension</i>
-</li>
-<li>Select the folder you unpacked the zip file into (<code>lastpass</code> in this case)
-</li>
-<li>Configure Last Pass
-</li>
-</ol>
-</div>
-</div>
-<div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2">Conclusion</h2>
-<div class="outline-text-2" id="text-2">
-<p>
-This gives the procedure for installing extensions like <i>LastPass</i> into the <i>Vivaldi</i> browser. In the course of writing this up I found out that you don't need to do this for all the extensions (just the ones with leading underscores in some of their folder names, I think). For other extensions just install them from the store - they seem to work out of the box.
-</p>
 </div>
 </div>
     </div>
