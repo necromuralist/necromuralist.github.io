@@ -143,7 +143,9 @@ NAVIGATION_LINKS = {
                 ("https://necromuralist.github.io/student_intervention/",
                  "Student Intervention Project"),
                 ("https://necromuralist.github.io/boston_housing/",
-                 "Boston Housing Project")
+                 "Boston Housing Project"),
+                ("https://necromuralist.github.io/data_science/",
+                 "Data Science With Python"),
             ),
             "Projects"
         ),
