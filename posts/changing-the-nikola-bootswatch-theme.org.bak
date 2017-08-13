@@ -1,7 +1,7 @@
 #+BEGIN_COMMENT
 .. title: Changing the Nikola Bootswatch Theme
 .. slug: changing-the-nikola-bootswatch-theme
-.. date: 2016-12-30 15:03:38 UTC-08:00
+.. date: 2017-08-13 15:03:38
 .. tags: HowTo Nikola
 .. category: HowTo
 .. link: 
@@ -23,28 +23,29 @@ I had my theme for this site set to use [[http://nickmccurdy.com/bootswatch/spac
 ** The Bootswatch 3 Theme
    I already had the bootswatch 3 theme installed, since I was using /Spacelab/, but if you don't have it installed this is how to set the base theme:
 
-  #+BEGIN_SRC sh
-    nikola install_theme bootstrap3
-  #+END_SRC
+#+BEGIN_EXAMPLE
+nikola install_theme bootstrap3
+#+END_EXAMPLE
 
 ** The Journal Theme
    Since I want to change the theme to /Journal/ this is the next step (you can also specify a parent theme, but the default is =bootstrap3=, which is what I wanted:
-   #+BEGIN_SRC sh
-     nikola bootswatch_theme -s journal
-   #+END_SRC
+
+#+BEGIN_EXAMPLE
+nikola bootswatch_theme -s journal
+#+END_EXAMPLE
 
    This will set up the default bootstrap theme, but you need to re-build the HTML to have it show up on the development-server's web-page (something that I didn't realize initially, causing me to think something was broken).
 
-   #+BEGIN_SRC sh
-     nikola build    
-   #+END_SRC
+#+BEGIN_EXAMPLE
+nikola build
+#+END_EXAMPLE
 
 * Updating the Template
   On re-loading the page I found that it mostly worked, but for some reason it looked more orange than I expected. It turns out that the /nikola/ developer decided that =navbar-inverse= should be the default style for the navbar (instead of =navbar-default=) and the section headers are hyperlinks, which in the /Journal/ theme are orange (by orange I really mean something closer to a creamsicle). Following the instructions in this [[https://github.com/getnikola/nikola/issues/2552][bug report]] (which says that it isn't a bug, it's a feature) I copied the base template from the /nikola/ installation (in =site-packages=) into the site using a built-in /nikola/ command.
 
-  #+BEGIN_SRC sh
-    nikola theme -c base.tmpl
-  #+END_SRC
+#+BEGIN_EXAMPLE
+nikola theme -c base.tmpl
+#+END_EXAMPLE
 
   This command creates a file (=themes/custom/templates/base.tmpl=) which you can edit to override the built-in base template. I opened it up and changed the =navbar-inverse= CSS class to =navbar-default=, re-built the /nikola/ posts, and reloaded the page and there it was, the white navbar I wanted.
 * Updating the CSS
@@ -76,5 +77,15 @@ For some reason the the title of the site has a CSS rule (=.navbar-brand #blog-t
       padding-top: 19.5px;
   }
 #+END_SRC
+** Minifying
+   When I wrote this originally, editing the =bootstrap.css= file worked, but on one of [[https://necromuralist.github.io/data_science/][my other sites]] the CSS file that is being created uses the =bootstrap.mini.css= file instead. While this seems like it would be preferable, anyway, the change came about unexpectedly - I still don't know why Nikola is doing it on that site and not this one (I guess maybe I'll have to read the manual one of these days). So for that case, after editing the =bootstrap.css= file you have to minify it (or just make a copy called =bootstrap.min.css=). To minify it I use [[https://github.com/jakubpawlowicz/clean-css-cli][Clean CSS CLI]].
+
+#+BEGIN_EXAMPLE
+npm install clean-css-cli -g
+cd themes/custom_theme/assets/css/
+cleancss -o bootstrap.min.css bootstrap.css
+#+END_EXAMPLE
+
+Where the =themes= folder is in the root of my nikola repository, next to the =conf.py= file.
 * Summary
-  Changing the bootswatch theme isn't as hard as it seemed, in retrospect. You just have to know the basic commands (=nikola install_theme bootstrap3=, =nikola bootswatch_theme -s journal=), know that the inverse navbar is the default (and how to change it - =nikola theme -c base.tmpl=), know how to update the CSS to whatever you want (by editing =bootstrap.css=), and understand that you have to build the site to see the changes on the development server (=nikola build=).
+  Changing the bootswatch theme isn't as hard as it seemed, in retrospect. You just have to know the basic commands (=nikola install_theme bootstrap3=, =nikola bootswatch_theme -s journal=), know that the inverse navbar is the default (and how to change it - =nikola theme -c base.tmpl=), know how to update the CSS to whatever you want (by editing =bootstrap.css= and minifying it if necessary), and understand that you have to build the site to see the changes on the development server (=nikola build=).
