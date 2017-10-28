@@ -12,21 +12,8 @@
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
 <link rel="canonical" href="https://necromuralist.github.io/posts/linking-two-docker-containers/">
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-    tex2jax: {
-        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-        processEscapes: true
-    },
-    displayAlign: 'left', // Change this to 'center' to center equations.
-    "HTML-CSS": {
-        styles: {'.MathJax_Display': {"margin": 0}}
-    }
-});
-</script><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><meta name="description" itemprop="description" content="How to link two docker containers.">
-<meta name="author" content="Cloistered Monkey">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><meta name="author" content="Cloistered Monkey">
 <link rel="prev" href="../running-redis-in-docker/" title="Running Redis in Docker" type="text/html">
 <link rel="next" href="../building-a-jupyter-docker-container/" title="Building a Jupyter Docker Container" type="text/html">
 <meta property="og:site_name" content="The Cloistered Monkey">
@@ -124,15 +111,14 @@ MathJax.Hub.Config({
 <article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Linking Two Docker Containers</a></h1>
 
         <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn">
-                    Cloistered Monkey
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    <a href="../../authors/cloistered-monkey/">Cloistered Monkey</a>
             </span></p>
             <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2016-06-19T20:31:20-07:00" itemprop="datePublished" title="2016-06-19 20:31">2016-06-19 20:31</time></a></p>
             
-        <p class="sourceline"><a href="index.rst" id="sourcelink">Source</a></p>
+        <p class="sourceline"><a href="index.rst" class="sourcelink">Source</a></p>
 
-                <meta name="description" itemprop="description" content="How to link two docker containers.">
-</div>
+        </div>
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
@@ -140,10 +126,10 @@ MathJax.Hub.Config({
 <p>I think this is the deprecated to do it, now that they have <cite>docker connect</cite>, but it works, so I'll keep the notes.</p>
 <p>My goal was to link a container that I'd set up to run a <cite>Jupyter Notebook</cite> server to a <cite>Mongo DB</cite> server. I'll leave out the installation notes and just assume that there's a docker image named <tt class="docutils literal">mongo</tt> for <cite>MongoDB</cite> and one named <tt class="docutils literal">jupyter</tt> for my <cite>Jupyter</cite> server.</p>
 <p>First I'll run MongoDB. <cite>MongoDB</cite> is going to use <tt class="docutils literal">/data/db</tt> to store its data-files so I'm going to mount my <cite>data</cite> directory there.</p>
-<pre class="code bash"><a name="rest_code_7085fd20085a4df0bd7062ffb18c099e-1"></a>docker run --name mongo -v <span class="nv">$PWD</span>/data:/data/db -d mongo
+<pre class="code bash"><a name="rest_code_be2600f2dac84de195afa064f457c463-1"></a>docker run --name mongo -v <span class="nv">$PWD</span>/data:/data/db -d mongo
 </pre>
 <p>Next I'll run the <cite>Jupyter</cite> container, using the <tt class="docutils literal"><span class="pre">--link</span></tt> option to point it to the <tt class="docutils literal">mongo</tt> container. The jupyter notebook is running on port 8888 and looking for notebooks in the <tt class="docutils literal">/notebooks</tt> directory so I'll mount my current working director there.</p>
-<pre class="code bash"><a name="rest_code_9c4610a005494ba19b71cd4da5aed4a1-1"></a>docker run --name jupyter -v <span class="nv">$PWD</span>:/notebooks -p <span class="m">8888</span>:8888 --link mongo -d jupyter
+<pre class="code bash"><a name="rest_code_b9cd5b3e589d4438b90a04c907f06016-1"></a>docker run --name jupyter -v <span class="nv">$PWD</span>:/notebooks -p <span class="m">8888</span>:8888 --link mongo -d jupyter
 </pre>
 <p>At this point, opening a browser at <tt class="docutils literal"><span class="pre">http://localhost:8888</span></tt> should open up the jupyter-server's home.</p>
 </div>

@@ -1,0 +1,52 @@
+#+BEGIN_COMMENT
+.. title: The Experience of Updating Ubuntu 17.04 To 17.10
+.. slug: the-experience-of-updating-ubuntu-1704-to-1710
+.. date: 2017-10-28 13:35:05 UTC-07:00
+.. tags: ubuntu
+.. category: whine
+.. link: 
+.. description: What I've found updating to Ubuntu Aardvark.
+.. type: text
+#+END_COMMENT
+
+I recently switched to Ubuntu 17.10 (from 17.04) and found it to be surprisingly difficult. This is meant to document what I noticed so that if I decide to upgrade another machine I'll have something to jog my memory about what it was like.
+
+* Complete Re-Install Required
+  I upgraded four machines (I don't have all their details at hand - maybe I'll update this later). In each case they were running Ubuntu 17.04 so I used =do-release-upgrade= initially. I didn't upgrade them all on the same day, but did upgrade all of them within the past week.
+
+   - HP Z600
+   - eMachine
+   - Zareason
+   - Toshiba portege (laptop)
+
+The first sign that something bad was happening was that the lock-screen appeared to break after the update so I couldn't log back in. The field where you would normally enter the password was gone so there was no way to authenticate myself. In retrospect, maybe since I did this four times I should have tried a headless install with GNU screen to at least see what was going on, but hindsight's always fifty-fifty, isn't it? My tendency to repeat my mistakes is why I'm writing this down, after all. 
+
+On trying to reboot I found that none of the machines would fully start. All of them got stuck on a black screen with a single white underscore in the top left corner. Unlike the other machines, the Toshiba let me enter the disk-decryption password, but then it ended up at the same black screen as the rest. Once it reached this state there was no way to get to the consoles either (e.g. using ctrl-alt-F1). So, in every case I had to boot from a thumb drive and do a fresh install.
+* Backwards Steps
+** Alternate Keyboard Layouts
+  It used to be that the installer would ask you to set up a disk-encryption password before asking you for your keyboard layout, making it harder for people like me that use alternate layouts ([[https://www.kaufmann.no/roland/dvorak/][Programmer Dvorak]] in my case). They eventually fixed that, but now it's back again, forcing you to enter the password to decrypt your drive using =qwerty=. The initial login to decrypt the drive after you boot the computer also has no way to switch the keyboard layout, so once again you have to use =qwerty=. On top of that, the visual keyboard is missing keys (well, it's missing the underscore, any way) which I used to use when I found myself struggling too much with =qwerty=, so instead I have to use the physical keyboard, hunting and pecking and trying to forget where I think the keys should be. Then, once you get past that first screen, it switches back to dvorak (although the visual keyboard doesn't, for some reason) so you have to know that the user login is using a different keyboard layout from the disk decryption prompt - even though there's no way to actually check what the layout is without just trying the variations until you find the one that works.
+** Video Drivers
+  On top of the keyboard problem, the default Nouveau video drivers seem to have re-introduced an old bug that causes the GUI to freeze up periodically (on my ZaReason and HP computers, at least. I haven't seen it on the other two, but I don't use them as much, anyway). Switching to the Nvidia driver fixes the freezing problem, but it then makes the initial disk-decryption login non-functional - it seems to freeze everything so you can't do anything but restart the computer and use the Grub menu to drop into recovery mode and enter the password at the command line before resuming the startup. As a 'fix' I followed the advice from [[https://askubuntu.com/questions/16371/how-do-i-disable-x-at-boot-time-so-that-the-system-boots-in-text-mode][this Stack Overflow answer]] and disabled the initial splash screen altogether by editing the =/etc/default/grub= file to have this line:
+
+#+BEGIN_EXAMPLE
+GRUB_CMDLINE_LINUX_DEFAULT="text"
+#+END_EXAMPLE
+
+This makes the initial boot-screen text-only, like an old-school terminal. Not fancy, but at least I don't have to remember to drop into recovery-mode every time I start the computer.
+
+* Apt-Fast Bug
+  This is a [[https://github.com/ilikenwf/apt-fast/issues/132][bug]] in apt-fast, not an ubuntu bug, but since apt-fast is one of the first things I usually install, I figure I should document the fix. Open up =/var/lib/dpkg/info/apt-fast.config= (as root), jump to line 212 and change this line:
+
+#+BEGIN_EXAMPLE
+if ($downloadcmd =~ /\${_MAXNUM}/){
+#+END_EXAMPLE
+
+to this:
+
+#+BEGIN_EXAMPLE
+if ($downloadcmd =~ /\$\{_MAXNUM}/){
+#+END_EXAMPLE
+
+In case you can't see it I added a backslash (=\=) between the =$= and ={_MAXNUM=.
+* A Little Less Whining
+  Although the disk-decryption login is a major negative, I must note that I kind of like the new aesthetic, I was just really, /really/, surprised at how defective this process seemed to be, given how far along Ubuntu has come. There's still some unexpected behaviors (switching workspaces seems to drag applications with them, even though I didn't explicitly ask to, for instance, and byobu seems to ignore my alternate escape key sometimes), but I like it overall. Maybe tomorrow I'll feel different.
