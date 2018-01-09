@@ -20,7 +20,7 @@ conf.py
 
 The main things to do are to edit the `conf.py` file so that the pages you create get copied over as the root of the `output` folder (instead of in a sub-folder called `stories`) and moving the blog-index down into a sub-folder.
 
-Making 'stories' the Site
+Making 'pages' the Site
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To make the pages you create the root of the site you need to change the ``PAGES`` variable to not have a sub-folder as the target (this is the second-entry in the tuple). So if it originally was:
@@ -28,7 +28,7 @@ To make the pages you create the root of the site you need to change the ``PAGES
 .. code:: python
           
    PAGES = (
-       ("stories/*.rst", "stories", "story.tmpl"),
+       ("pages/*.rst", "pagse", "story.tmpl"),
    )
 
 You would change the second value in the tuple to an empty string:
@@ -36,10 +36,10 @@ You would change the second value in the tuple to an empty string:
 .. code:: python
           
    PAGES = (
-       ("stories/*.rst", "", "story.tmpl"),
+       ("pages/*.rst", "", "story.tmpl"),
    )
 
-Now when you build the site (``nikola build``) the ``output`` folder will have your 'stories' at the top-level. This means that when you refer to pages (e.g. in the navigation configuration) you don't add 'stories/' as a prefix anymore.
+Now when you build the site (``nikola build``) the ``output`` folder will have your 'stories' at the top-level. This means that when you refer to pages (e.g. in the navigation configuration) you don't add 'pages/' as a prefix anymore.
 
 Moving the Blog-index
 ~~~~~~~~~~~~~~~~~~~~~
@@ -50,9 +50,11 @@ Since Nikola assumes that the blog is your main-page you need to tell it to crea
 
    INDEX_PATH = "posts"
 
+.. note:: This was commented out by default so uncomment it and make the change.
+
 Creating the Home Page
 ----------------------
 
-At this point if you build the site and navigate to it you'll find that your home-page is now a directory of your ``output`` folder. You can navigate to a page by going through the folders, but this is probably not the intended way to get around. The easiest way (that I found) to create the home-page is to create a new-page (``nikola new_page``) and when prompted for a title, call it ``index``. This will create ``stories/index.rst`` which you can edit to become your home page (make sure to change the title if you don't want the page headline to be 'index').
+At this point if you build the site and navigate to it you'll find that your home-page is now a directory of your ``output`` folder. You can navigate to a page by going through the folders, but this is probably not the intended way to get around. The easiest way (that I found) to create the home-page is to create a new-page (``nikola new_page``) and when prompted for a title, call it ``index``. This will create ``pages/index.rst`` which you can edit to become your home page (make sure to change the title if you don't want the page headline to be 'index').
 
 .. note:: Some other things might need to be re-done in the ``conf.py`` as well, since the folder structure has changed. These are only the basic steps to switch. The ``NAVIGATION_LINKS`` in particular may need updating.
