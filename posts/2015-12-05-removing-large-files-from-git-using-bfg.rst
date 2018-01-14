@@ -1,5 +1,5 @@
 .. title: Removing Large Files From git Using BFG and a Local Repository
-.. slug: 2015-12-05-removing-large-files-from-git-using-bfg-and-a-local-repository
+.. slug: removing-large-files-from-git-using-bfg-and-a-local-repository
 .. date: 2018-01-14 13:55:37 UTC-08:00
 .. tags: git bfg
 .. link: 

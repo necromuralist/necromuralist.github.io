@@ -8,7 +8,7 @@
 .. type: text
 .. author: hades
 
-These are my notes on removing large files from a git repository with the `BFG Repo-Cleaner <https://rtyley.github.io/bfg-repo-cleaner/>`_. It assumes that you have already pushed it to a remote repository. If you've committed the changes but haven't pushed them, see `this post <link://post_path/posts/2015-12-05-removing-large-files-from-git-using-bfg-and-a-local-repository/>`__.
+These are my notes on removing large files from a git repository with the `BFG Repo-Cleaner <https://rtyley.github.io/bfg-repo-cleaner/>`_. It assumes that you have already pushed it to a remote repository. If you've committed the changes but haven't pushed them, see `this post <link://post_path/posts/removing-large-files-from-git-using-bfg-and-a-local-repository/>`__.
 
 1 Background
 ------------
