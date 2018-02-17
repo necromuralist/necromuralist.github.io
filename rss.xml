@@ -1,11 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 13 Feb 2018 20:52:55 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Flask-Bibliography</title><link>https://necromuralist.github.io/posts/flask-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org681651b" class="outline-2"&gt;
-&lt;h2 id="org681651b"&gt;Web Sockets&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org681651b"&gt;
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 17 Feb 2018 01:25:57 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Org-Babel Ipython and Elpy Conflict</title><link>https://necromuralist.github.io/posts/org-babel-ipython-and-elpy-conflict/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgc6f2c20" class="outline-2"&gt;
+&lt;h2 id="orgc6f2c20"&gt;Short-take&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc6f2c20"&gt;
+&lt;p&gt;
+If you use &lt;a href="https://elpy.readthedocs.io/en/latest/"&gt;elpy&lt;/a&gt; and &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; together and use the &lt;code&gt;jupyter&lt;/code&gt; option when configuring the &lt;code&gt;elpy&lt;/code&gt; interpreter settings it will break the execution of &lt;code&gt;ob-ipython&lt;/code&gt; code blocks, so use the &lt;code&gt;ipython&lt;/code&gt; version instead. In other words use this in your &lt;code&gt;init.el&lt;/code&gt; file:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;setq&lt;/span&gt; &lt;span class="nv"&gt;python-shell-interpreter&lt;/span&gt; &lt;span class="s"&gt;"ipython"&lt;/span&gt;
+      &lt;span class="nv"&gt;python-shell-interpreter-args&lt;/span&gt; &lt;span class="s"&gt;"-i --simple-prompt"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7be0575" class="outline-3"&gt;
-&lt;h3 id="org7be0575"&gt;Flask-SocketIO&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org7be0575"&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org6d607a9" class="outline-2"&gt;
+&lt;h2 id="org6d607a9"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6d607a9"&gt;
+&lt;p&gt;
+I've become quite reliant on &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; for emacs (it lets you use ipython with org-babel to create literate programming documents). I used to use &lt;a href="http://mpastell.com/pweave/"&gt;pweave&lt;/a&gt;, and if I weren't an emacs user I probably would still use it, and of course there's &lt;a href="http://jupyter.org"&gt;jupyter notebooks&lt;/a&gt;, and the attendant &lt;a href="https://github.com/millejoh/emacs-ipython-notebook"&gt;emacs-ipython-notebook&lt;/a&gt; that I've used as well (and sometimes still use - as when I need to hand in a Coursera assignment, for instance), but org-mode and ipython seems to hit the sweet spot for me (at least this week).
+&lt;/p&gt;
+
+&lt;p&gt;
+So I was more than a little disturbed when I tried to execute a code block on my new laptop and found that nothing would run. This is a description of what happened and the fix, in case I forget the next time.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgd4ac1b8" class="outline-2"&gt;
+&lt;h2 id="orgd4ac1b8"&gt;The Problem&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd4ac1b8"&gt;
+&lt;p&gt;
+I tried executing some python code in an ipython code block but I kept getting an error. This is a toy example of what an ob-ipython block looks like:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC ipython :session test :results output
+print("tester")
+#+END_SRC
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+To execute it you'd put your cursor somewhere in the block and enter &lt;code&gt;Control-c Control-c&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;p&gt;
+This is the error I was getting:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+There was a fatal error trying to process the request. See *ob-ipython-debug*
+&lt;/pre&gt;
+
+&lt;p&gt;
+And in the &lt;code&gt;*ob-ipython-debug*&lt;/code&gt; buffer would be this:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Error executing Jupyter command '/home/dogen/.emacs.d/elpa/ob-ipython-20180113.929/client.py': [Errno 2] No such file or directory
+&lt;/pre&gt;
+
+&lt;p&gt;
+I tried googling for the error, which brought up some Jupyter questions on Stack Overflow that didn't seem relevant. There were also some &lt;i&gt;issues&lt;/i&gt; on the &lt;code&gt;ob-ipython&lt;/code&gt; github site, but none of them looked exactly the same. They seemed to suggest that the wrong python interpreter was being used, but when I brought up the interpreter in emacs (&lt;code&gt;C-c C-v C-z&lt;/code&gt;) it showed the correct interpreter version and I could import the &lt;code&gt;jupyter&lt;/code&gt; module… but since that was what people said was the problem and I was using a virtualenv I decided to try setting up &lt;a href="https://github.com/pyenv/pyenv"&gt;pyenv&lt;/a&gt;, which apparently lets you switch between python versions fairly easily.
+&lt;/p&gt;
+
+&lt;p&gt;
+So, I jumped on my desktop to test it out (I ran into the org-mode problem on my laptop, but I was home so I figured I'd switch), but first I brought up emacs and tried executing the same code-block that failed on my laptop, and of course it ran perfectly. So then I went into a long death-spiral of trying to download the ob-ipython git repository and going back in the git-history to see if I could find the place where it might work (my desktop version of ob-ipython was from October of 2017, my laptop's version is from January 2018), and of course none of them worked. Then I tried copying my &lt;code&gt;init.el&lt;/code&gt; file from my desktop to my laptop, and suddenly things worked - so it was a configuration problem, but what was it?
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org9ff130b" class="outline-2"&gt;
+&lt;h2 id="org9ff130b"&gt;The Fix&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9ff130b"&gt;
+&lt;p&gt;
+If you go to the &lt;a href="https://github.com/jorgenschaefer/elpy"&gt;elpy&lt;/a&gt; documentation  (elpy is a mode for emacs that makes editing python much easier), there is a &lt;a href="https://elpy.readthedocs.io/en/latest/ide.html#interactive-python"&gt;section on setting up which interpreter to use&lt;/a&gt; - and if you're wondering why I'm suddenly talking about &lt;code&gt;elpy&lt;/code&gt; instead of &lt;code&gt;ob-ipython&lt;/code&gt;, well, it's because it was the problem (or at least using them together was the problem).
+&lt;/p&gt;
+
+&lt;p&gt;
+The documentation gives you three options for setting the interpreter - python, ipython, or jupyter. This is what my laptop had:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;setq&lt;/span&gt; &lt;span class="nv"&gt;python-shell-interpreter&lt;/span&gt; &lt;span class="s"&gt;"jupyter"&lt;/span&gt;
+      &lt;span class="nv"&gt;python-shell-interpreter-args&lt;/span&gt; &lt;span class="s"&gt;"console --simple-prompt"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This is what my desktop had:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;setq&lt;/span&gt; &lt;span class="nv"&gt;python-shell-interpreter&lt;/span&gt; &lt;span class="s"&gt;"ipython"&lt;/span&gt;
+      &lt;span class="nv"&gt;python-shell-interpreter-args&lt;/span&gt; &lt;span class="s"&gt;"-i --simple-prompt"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+I don't know why I configured them differently, but I tried using the &lt;code&gt;ipython&lt;/code&gt; setting instead of the &lt;code&gt;jupyter&lt;/code&gt; setting and all of a sudden - it worked. Maybe I've now broken something else, but it's fixed for now.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC ipython :session test :results output
+print("tester")
+#+END_SRC
+
+#+RESULTS:
+: tester
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgc57de04" class="outline-2"&gt;
+&lt;h2 id="orgc57de04"&gt;Summary&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc57de04"&gt;
+&lt;p&gt;
+This documents a problem that I ran into wherein the &lt;code&gt;elpy&lt;/code&gt; settings I used broke the execution of code blocks by &lt;code&gt;ob-ipython&lt;/code&gt; . Just remember to use &lt;code&gt;ipython&lt;/code&gt; instead of &lt;code&gt;jupyter&lt;/code&gt; and it should be okay. Another day of my life lost to troubleshooting (well, not a &lt;i&gt;whole&lt;/i&gt; day, but too much).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>emacs orgmode elpy python</category><guid>https://necromuralist.github.io/posts/org-babel-ipython-and-elpy-conflict/</guid><pubDate>Fri, 16 Feb 2018 23:50:23 GMT</pubDate></item><item><title>Flask-Bibliography</title><link>https://necromuralist.github.io/posts/flask-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orge21e1a0" class="outline-2"&gt;
+&lt;h2 id="orge21e1a0"&gt;Web Sockets&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge21e1a0"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org3b329f0" class="outline-3"&gt;
+&lt;h3 id="org3b329f0"&gt;Flask-SocketIO&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3b329f0"&gt;
 &lt;p&gt;
 This combines flask with &lt;a href="https://socket.io"&gt;socket.io&lt;/a&gt; (so there's an extra thing to learn, maybe). The author made a &lt;a href="https://blog.miguelgrinberg.com/post/easy-websockets-with-flask-and-gevent"&gt;blog post&lt;/a&gt; about it that gives a little more background around it and what advantages he thinks it has over flask-sockets. He also gave a talk at PyCon Ireland 2017 that is on &lt;a href="https://www.youtube.com/watch?v=Jwux1TPZUwg&amp;amp;index=1&amp;amp;list=PLNeBS51Q0m98FAWRHwQLjV1vja2ZdWpCb"&gt;YouTube&lt;/a&gt;.
 &lt;/p&gt;
@@ -22,9 +134,9 @@ This combines flask with &lt;a href="https://socket.io"&gt;socket.io&lt;/a&gt; (
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org215c317" class="outline-3"&gt;
-&lt;h3 id="org215c317"&gt;Flask Sockets&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org215c317"&gt;
+&lt;div id="outline-container-orgfb40ad1" class="outline-3"&gt;
+&lt;h3 id="orgfb40ad1"&gt;Flask Sockets&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfb40ad1"&gt;
 &lt;p&gt;
 This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reitz&lt;/a&gt;, the guy who made &lt;a href="http://docs.python-requests.org/en/master/"&gt;requests&lt;/a&gt;. On the one hand, it looks much simpler, on the other it doesn't look like it has as many options. Maybe a good starter that would later need to be swapped out for Socket IO if it got complex enough.
 &lt;/p&gt;
@@ -37,9 +149,9 @@ This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reit
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org1c9c281" class="outline-3"&gt;
-&lt;h3 id="org1c9c281"&gt;Flask-uWSGI-Websocket&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1c9c281"&gt;
+&lt;div id="outline-container-orgf1092e7" class="outline-3"&gt;
+&lt;h3 id="orgf1092e7"&gt;Flask-uWSGI-Websocket&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf1092e7"&gt;
 &lt;p&gt;
 &lt;a href="https://github.com/zeekay/flask-uwsgi-websocket"&gt;This&lt;/a&gt; looks like it's halfway between flask-sockets and flask-socketIO.
 &lt;/p&gt;
@@ -56,7 +168,7 @@ This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reit
 &lt;div class="section" id="post-paths"&gt;
 &lt;h2&gt;Post-Paths&lt;/h2&gt;
 &lt;p&gt;In this case I'm trying to link to another post so the link &lt;cite&gt;kind&lt;/cite&gt; is &lt;tt class="docutils literal"&gt;post_path&lt;/tt&gt;, which will resolve to either posts or pages. Because it can be either one, you need to extend the path to this form:&lt;/p&gt;
-&lt;pre class="code text"&gt;&lt;a name="rest_code_9ae2e918e21846ab8c1ee8ca4b97236c-1"&gt;&lt;/a&gt;link://post_path/posts/&amp;lt;post-slug&amp;gt;/
+&lt;pre class="code text"&gt;&lt;a name="rest_code_00d9ef4cf05c46739180cd0d750ecc08-1"&gt;&lt;/a&gt;link://post_path/posts/&amp;lt;post-slug&amp;gt;/
 &lt;/pre&gt;&lt;div class="admonition note"&gt;
 &lt;p class="first admonition-title"&gt;Note&lt;/p&gt;
 &lt;p class="last"&gt;You can get the slug in the meta-data in the post itself.&lt;/p&gt;
@@ -68,7 +180,7 @@ This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reit
 &lt;div class="section" id="example"&gt;
 &lt;h3&gt;Example&lt;/h3&gt;
 &lt;p&gt;Here's how to link to another post that I titled &lt;strong&gt;Pruning Large Files From Git with BFG&lt;/strong&gt;, with a slug of &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;pruning-large-files-from-git-with-bfg&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
-&lt;pre class="code rst"&gt;&lt;a name="rest_code_e896e8c2248145dcb5113d1bb57641e4-1"&gt;&lt;/a&gt;&lt;span class="s"&gt;`link &lt;/span&gt;&lt;span class="si"&gt;&amp;lt;link://post_path/posts/pruning-large-files-from-git-with-bfg/&amp;gt;&lt;/span&gt;&lt;span class="s"&gt;`__&lt;/span&gt;
+&lt;pre class="code rst"&gt;&lt;a name="rest_code_379fa05a7213433796d3a278fbc12408-1"&gt;&lt;/a&gt;&lt;span class="s"&gt;`link &lt;/span&gt;&lt;span class="si"&gt;&amp;lt;link://post_path/posts/pruning-large-files-from-git-with-bfg/&amp;gt;&lt;/span&gt;&lt;span class="s"&gt;`__&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;This creates this &lt;a class="reference external" href="https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/"&gt;link&lt;/a&gt;.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -97,13 +209,13 @@ This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reit
 &lt;div class="section" id="the-commands"&gt;
 &lt;h2&gt;2 The Commands&lt;/h2&gt;
 &lt;p&gt;For reference, these are all the commands. I'll go over them in the sections that follow. The &lt;tt class="docutils literal"&gt;java &lt;span class="pre"&gt;-jar&lt;/span&gt;&lt;/tt&gt; line pointing to the BFG jar file will have to match your download file name and location.&lt;/p&gt;
-&lt;pre class="code python"&gt;&lt;a name="rest_code_d0cbd0c37e0248679afe23bc47b23c66-1"&gt;&lt;/a&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="n"&gt;big_files&lt;/span&gt;
-&lt;a name="rest_code_d0cbd0c37e0248679afe23bc47b23c66-2"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt;
-&lt;a name="rest_code_d0cbd0c37e0248679afe23bc47b23c66-3"&gt;&lt;/a&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="o"&gt;../&lt;/span&gt;
-&lt;a name="rest_code_d0cbd0c37e0248679afe23bc47b23c66-4"&gt;&lt;/a&gt;&lt;span class="n"&gt;java&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;jar&lt;/span&gt; &lt;span class="n"&gt;bfg&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.12&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mf"&gt;7.j&lt;/span&gt;&lt;span class="n"&gt;ar&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;strip&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;blobs&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;bigger&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;than&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="n"&gt;M&lt;/span&gt; &lt;span class="n"&gt;big_files&lt;/span&gt;
-&lt;a name="rest_code_d0cbd0c37e0248679afe23bc47b23c66-5"&gt;&lt;/a&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="n"&gt;big_files&lt;/span&gt;
-&lt;a name="rest_code_d0cbd0c37e0248679afe23bc47b23c66-6"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;reflog&lt;/span&gt; &lt;span class="n"&gt;expire&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;expire&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nb"&gt;all&lt;/span&gt;
-&lt;a name="rest_code_d0cbd0c37e0248679afe23bc47b23c66-7"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;prune&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;aggressive&lt;/span&gt;
+&lt;pre class="code python"&gt;&lt;a name="rest_code_894348167979442b867f8dc21c669795-1"&gt;&lt;/a&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="n"&gt;big_files&lt;/span&gt;
+&lt;a name="rest_code_894348167979442b867f8dc21c669795-2"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt;
+&lt;a name="rest_code_894348167979442b867f8dc21c669795-3"&gt;&lt;/a&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="o"&gt;../&lt;/span&gt;
+&lt;a name="rest_code_894348167979442b867f8dc21c669795-4"&gt;&lt;/a&gt;&lt;span class="n"&gt;java&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;jar&lt;/span&gt; &lt;span class="n"&gt;bfg&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1.12&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mf"&gt;7.j&lt;/span&gt;&lt;span class="n"&gt;ar&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;strip&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;blobs&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;bigger&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;than&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="n"&gt;M&lt;/span&gt; &lt;span class="n"&gt;big_files&lt;/span&gt;
+&lt;a name="rest_code_894348167979442b867f8dc21c669795-5"&gt;&lt;/a&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="n"&gt;big_files&lt;/span&gt;
+&lt;a name="rest_code_894348167979442b867f8dc21c669795-6"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;reflog&lt;/span&gt; &lt;span class="n"&gt;expire&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;expire&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nb"&gt;all&lt;/span&gt;
+&lt;a name="rest_code_894348167979442b867f8dc21c669795-7"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;prune&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;aggressive&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;I'll break this down into three parts:&lt;/p&gt;
 &lt;ol class="arabic simple"&gt;
 &lt;li&gt;Clean the repository&lt;/li&gt;
@@ -113,13 +225,13 @@ This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reit
 &lt;div class="section" id="clean-the-repository"&gt;
 &lt;h3&gt;2.1 Clean The repository&lt;/h3&gt;
 &lt;p&gt;The &lt;a class="reference external" href="https://git-scm.com/docs/git-gc"&gt;git gc&lt;/a&gt; (garbage collection) command will clean up unnecessary files and perform some optimizations that will let us run BFG on it.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_b40e5ad750404b80865c20af779c0d07-1"&gt;&lt;/a&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; big_files
-&lt;a name="rest_code_b40e5ad750404b80865c20af779c0d07-2"&gt;&lt;/a&gt;git gc
-&lt;a name="rest_code_b40e5ad750404b80865c20af779c0d07-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; ../
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_2a90c90b7cc14cb9bd3836acd55565c6-1"&gt;&lt;/a&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; big_files
+&lt;a name="rest_code_2a90c90b7cc14cb9bd3836acd55565c6-2"&gt;&lt;/a&gt;git gc
+&lt;a name="rest_code_2a90c90b7cc14cb9bd3836acd55565c6-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; ../
 &lt;/pre&gt;&lt;/div&gt;
 &lt;div class="section" id="run-bfg"&gt;
 &lt;h3&gt;2.2 Run BFG&lt;/h3&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_6f9eb81766854f138733827380630928-1"&gt;&lt;/a&gt;java -jar bfg-1.12.7.jar --strip-blobs-bigger-than 50M big_files
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_85ad851fa9764f82b3234db68f6e8e92-1"&gt;&lt;/a&gt;java -jar bfg-1.12.7.jar --strip-blobs-bigger-than 50M big_files
 &lt;/pre&gt;&lt;ul class="simple"&gt;
 &lt;li&gt;You have to run in the folder just above the git repository&lt;/li&gt;
 &lt;li&gt;Change it to have the correct path to the jar (e.g. &lt;tt class="docutils literal"&gt;java &lt;span class="pre"&gt;-jar&lt;/span&gt; &lt;span class="pre"&gt;/home/username/bin/bfg-1.12.7.jar&lt;/span&gt;&lt;/tt&gt;).&lt;/li&gt;
@@ -130,9 +242,9 @@ This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reit
 &lt;div class="section" id="clean-up-the-git-repository-again"&gt;
 &lt;h3&gt;2.3 Clean Up the Git Repository Again&lt;/h3&gt;
 &lt;p&gt;&lt;tt class="docutils literal"&gt;BFG&lt;/tt&gt; will tell you this part in it's output, although I'm not using bash so it worked better when I ran the commands separately, instead of all on one line using &lt;tt class="docutils literal"&gt;&amp;amp;&amp;amp;&lt;/tt&gt; between the commands (fish doesn't support it). These are git commands so you have to change back into the repository folder.&lt;/p&gt;
-&lt;pre class="code python"&gt;&lt;a name="rest_code_ae0608f64376432d81b6ef5fd856c66f-1"&gt;&lt;/a&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="n"&gt;big_files&lt;/span&gt;
-&lt;a name="rest_code_ae0608f64376432d81b6ef5fd856c66f-2"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;reflog&lt;/span&gt; &lt;span class="n"&gt;expire&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;expire&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nb"&gt;all&lt;/span&gt;
-&lt;a name="rest_code_ae0608f64376432d81b6ef5fd856c66f-3"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;prune&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;aggressive&lt;/span&gt;
+&lt;pre class="code python"&gt;&lt;a name="rest_code_d5e27a0003894d36991c2dfa94c4d71f-1"&gt;&lt;/a&gt;&lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="n"&gt;big_files&lt;/span&gt;
+&lt;a name="rest_code_d5e27a0003894d36991c2dfa94c4d71f-2"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;reflog&lt;/span&gt; &lt;span class="n"&gt;expire&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;expire&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nb"&gt;all&lt;/span&gt;
+&lt;a name="rest_code_d5e27a0003894d36991c2dfa94c4d71f-3"&gt;&lt;/a&gt;&lt;span class="n"&gt;git&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;prune&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;now&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;aggressive&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;&lt;/div&gt;</description><category>git bfg</category><guid>https://necromuralist.github.io/posts/removing-large-files-from-git-using-bfg-and-a-local-repository/</guid><pubDate>Sun, 14 Jan 2018 21:55:37 GMT</pubDate></item><item><title>Pruning Large Files From Git with BFG</title><link>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</link><dc:creator>hades</dc:creator><description>&lt;div&gt;&lt;p&gt;These are my notes on removing large files from a git repository with the &lt;a class="reference external" href="https://rtyley.github.io/bfg-repo-cleaner/"&gt;BFG Repo-Cleaner&lt;/a&gt;. It assumes that you have already pushed it to a remote repository. If you've committed the changes but haven't pushed them, see &lt;a class="reference external" href="https://necromuralist.github.io/posts/removing-large-files-from-git-using-bfg-and-a-local-repository/"&gt;this post&lt;/a&gt;.&lt;/p&gt;
 &lt;div class="section" id="background"&gt;
@@ -142,18 +254,18 @@ This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reit
 &lt;div class="section" id="the-process"&gt;
 &lt;h2&gt;2 The Process&lt;/h2&gt;
 &lt;p&gt;Assuming you've downloaded the BFG jar file, this is what you need to do.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_e01f8b495815463b9cad0d43e0c47b4e-1"&gt;&lt;/a&gt;git clone --mirror &amp;lt;remote git address&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_c02dfea4364e4de19cfb6e5eecb926bd-1"&gt;&lt;/a&gt;git clone --mirror &amp;lt;remote git address&amp;gt;
 &lt;/pre&gt;&lt;p&gt;The &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;--mirror&lt;/span&gt;&lt;/tt&gt; flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the &lt;tt class="docutils literal"&gt;.git&lt;/tt&gt; folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in &lt;a class="reference external" href="https://github.com/rtyley/bfg-repo-cleaner/issues/65"&gt;this bug-report&lt;/a&gt; the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.&lt;/p&gt;
 &lt;p&gt;Next run the BFG.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_894e59f322344a71b4e31c00952fbbb0-1"&gt;&lt;/a&gt;java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &amp;lt;path to cloned mirror&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_5f7e41822c5e47249e8b863390ed9548-1"&gt;&lt;/a&gt;java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &amp;lt;path to cloned mirror&amp;gt;
 &lt;/pre&gt;&lt;p&gt;Now you have to change into the cloned repository and execute some commands to update it.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_8c55dad812074e6d942b7d1f0d4a6b94-1"&gt;&lt;/a&gt;git reflog expire --expire-now --all
-&lt;a name="rest_code_8c55dad812074e6d942b7d1f0d4a6b94-2"&gt;&lt;/a&gt;git gc --prune&lt;span class="o"&gt;=&lt;/span&gt;now --aggressive
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_7a888467dbbd4d7ea000470fcc0e3c11-1"&gt;&lt;/a&gt;git reflog expire --expire-now --all
+&lt;a name="rest_code_7a888467dbbd4d7ea000470fcc0e3c11-2"&gt;&lt;/a&gt;git gc --prune&lt;span class="o"&gt;=&lt;/span&gt;now --aggressive
 &lt;/pre&gt;&lt;p&gt;Now push it back to github.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_7e2b08888c4a4e2cb328e6cd077373c2-1"&gt;&lt;/a&gt;git push
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_1a72ce4317b34f8087d3b8a0ebbdaf3d-1"&gt;&lt;/a&gt;git push
 &lt;/pre&gt;&lt;p&gt;At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_37e39ff0ea5645a0982d3da03885d3d8-1"&gt;&lt;/a&gt;rm -r &amp;lt;original &lt;span class="nb"&gt;local&lt;/span&gt; repository&amp;gt;
-&lt;a name="rest_code_37e39ff0ea5645a0982d3da03885d3d8-2"&gt;&lt;/a&gt;git clone &amp;lt;remote repository&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_70f6ab11ae7d49a9913980ab43f21ff9-1"&gt;&lt;/a&gt;rm -r &amp;lt;original &lt;span class="nb"&gt;local&lt;/span&gt; repository&amp;gt;
+&lt;a name="rest_code_70f6ab11ae7d49a9913980ab43f21ff9-2"&gt;&lt;/a&gt;git clone &amp;lt;remote repository&amp;gt;
 &lt;/pre&gt;&lt;p&gt;One thing that tripped me up a little was that I had removed the &lt;em&gt;master&lt;/em&gt; branch but the &lt;em&gt;BFG&lt;/em&gt; re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.&lt;/p&gt;
 &lt;/div&gt;&lt;/div&gt;</description><category>git bfg howto</category><guid>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</guid><pubDate>Sun, 14 Jan 2018 20:57:59 GMT</pubDate></item><item><title>Restructured Text Anonymous Links</title><link>https://necromuralist.github.io/posts/restructured-text-anonymous-links/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div&gt;&lt;div class="section" id="background"&gt;
 &lt;h2&gt;Background&lt;/h2&gt;
@@ -181,9 +293,9 @@ This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reit
 I recently switched to Ubuntu 17.10 (from 17.04) and found it to be surprisingly difficult. This is meant to document what I noticed so that if I decide to upgrade another machine I'll have something to jog my memory about what it was like.
 &lt;/p&gt;
 
-&lt;div id="outline-container-orgd19ea0d" class="outline-2"&gt;
-&lt;h2 id="orgd19ea0d"&gt;Complete Re-Install Required&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd19ea0d"&gt;
+&lt;div id="outline-container-orgd9fd6c6" class="outline-2"&gt;
+&lt;h2 id="orgd9fd6c6"&gt;Complete Re-Install Required&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd9fd6c6"&gt;
 &lt;p&gt;
 I upgraded four machines (I don't have all their details at hand - maybe I'll update this later). In each case they were running Ubuntu 17.04 so I used &lt;code&gt;do-release-upgrade&lt;/code&gt; initially. I didn't upgrade them all on the same day, but did upgrade all of them within the past week.
 &lt;/p&gt;
@@ -204,21 +316,21 @@ On trying to reboot I found that none of the machines would fully start. All of 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org39f6ad7" class="outline-2"&gt;
-&lt;h2 id="org39f6ad7"&gt;Backwards Steps&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org39f6ad7"&gt;
+&lt;div id="outline-container-org45ab995" class="outline-2"&gt;
+&lt;h2 id="org45ab995"&gt;Backwards Steps&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org45ab995"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org55aee22" class="outline-3"&gt;
-&lt;h3 id="org55aee22"&gt;Alternate Keyboard Layouts&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org55aee22"&gt;
+&lt;div id="outline-container-orgaa68d11" class="outline-3"&gt;
+&lt;h3 id="orgaa68d11"&gt;Alternate Keyboard Layouts&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgaa68d11"&gt;
 &lt;p&gt;
 It used to be that the installer would ask you to set up a disk-encryption password before asking you for your keyboard layout, making it harder for people like me that use alternate layouts (&lt;a href="https://www.kaufmann.no/roland/dvorak/"&gt;Programmer Dvorak&lt;/a&gt; in my case). They eventually fixed that, but now it's back again, forcing you to enter the password to decrypt your drive using &lt;code&gt;qwerty&lt;/code&gt;. The initial login to decrypt the drive after you boot the computer also has no way to switch the keyboard layout, so once again you have to use &lt;code&gt;qwerty&lt;/code&gt;. On top of that, the visual keyboard is missing keys (well, it's missing the underscore, any way) which I used to use when I found myself struggling too much with &lt;code&gt;qwerty&lt;/code&gt;, so instead I have to use the physical keyboard, hunting and pecking and trying to forget where I think the keys should be. Then, once you get past that first screen, it switches back to dvorak (although the visual keyboard doesn't, for some reason) so you have to know that the user login is using a different keyboard layout from the disk decryption prompt - even though there's no way to actually check what the layout is without just trying the variations until you find the one that works.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6962da5" class="outline-3"&gt;
-&lt;h3 id="org6962da5"&gt;Video Drivers&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6962da5"&gt;
+&lt;div id="outline-container-org40053e8" class="outline-3"&gt;
+&lt;h3 id="org40053e8"&gt;Video Drivers&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org40053e8"&gt;
 &lt;p&gt;
 On top of the keyboard problem, the default Nouveau video drivers seem to have re-introduced an old bug that causes the GUI to freeze up periodically (on my ZaReason and HP computers, at least. I haven't seen it on the other two, but I don't use them as much, anyway). Switching to the Nvidia driver fixes the freezing problem, but it then makes the initial disk-decryption login non-functional - it seems to freeze everything so you can't do anything but restart the computer and use the Grub menu to drop into recovery mode and enter the password at the command line before resuming the startup. As a 'fix' I followed the advice from &lt;a href="https://askubuntu.com/questions/16371/how-do-i-disable-x-at-boot-time-so-that-the-system-boots-in-text-mode"&gt;this Stack Overflow answer&lt;/a&gt; and disabled the initial splash screen altogether by editing the &lt;code&gt;/etc/default/grub&lt;/code&gt; file to have this line:
 &lt;/p&gt;
@@ -242,9 +354,9 @@ This makes the initial boot-screen text-only, like an old-school terminal. Not f
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org15b877a" class="outline-2"&gt;
-&lt;h2 id="org15b877a"&gt;Apt-Fast Bug&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org15b877a"&gt;
+&lt;div id="outline-container-org56a77e3" class="outline-2"&gt;
+&lt;h2 id="org56a77e3"&gt;Apt-Fast Bug&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org56a77e3"&gt;
 &lt;p&gt;
 This is a &lt;a href="https://github.com/ilikenwf/apt-fast/issues/132"&gt;bug&lt;/a&gt; in apt-fast, not an ubuntu bug, but since apt-fast is one of the first things I usually install, I figure I should document the fix. Open up &lt;code&gt;/var/lib/dpkg/info/apt-fast.config&lt;/code&gt; (as root), jump to line 212 and change this line:
 &lt;/p&gt;
@@ -266,50 +378,50 @@ In case you can't see it I added a backslash (&lt;code&gt;\&lt;/code&gt;) betwee
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgcb81000" class="outline-2"&gt;
-&lt;h2 id="orgcb81000"&gt;A Little Less Whining&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcb81000"&gt;
+&lt;div id="outline-container-org808314e" class="outline-2"&gt;
+&lt;h2 id="org808314e"&gt;A Little Less Whining&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org808314e"&gt;
 &lt;p&gt;
 Although the disk-decryption login is a major negative, I must note that I kind of like the new aesthetic, I was just really, &lt;i&gt;really&lt;/i&gt;, surprised at how defective this process seemed to be, given how far along Ubuntu has come. There's still some unexpected behaviors (switching workspaces seems to drag applications with them, even though I didn't explicitly ask to, for instance, and byobu seems to ignore my alternate escape key sometimes), but I like it overall. Maybe tomorrow I'll feel different.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;</description><category>ubuntu</category><guid>https://necromuralist.github.io/posts/the-experience-of-updating-ubuntu-1704-to-1710/</guid><pubDate>Sat, 28 Oct 2017 20:35:05 GMT</pubDate></item><item><title>Shell Output With Org-Babel Ipython</title><link>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the nice things about ipython is the ability to run shell commands with &lt;tt class="docutils literal"&gt;!&lt;/tt&gt;. When you use it in an &lt;a class="reference external" href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; block, though, it will dump the output into a popup rather than in the same emacs org-file. One alternative is to use a shell block instead. I wrote earlier that this requires you to put an echo command in the block to prevent the text going to a pop-up.&lt;/p&gt;
-&lt;pre class="code bash"&gt;&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-2"&gt;&lt;/a&gt;head Future_Connections.csv
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-5"&gt;&lt;/a&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;            &lt;span class="p"&gt;|&lt;/span&gt; Future Connection &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;, &lt;span class="m"&gt;840&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-9"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;, &lt;span class="m"&gt;197&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-10"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;620&lt;/span&gt;, &lt;span class="m"&gt;979&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-11"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;519&lt;/span&gt;, &lt;span class="m"&gt;872&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-12"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;382&lt;/span&gt;, &lt;span class="m"&gt;423&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-13"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;97&lt;/span&gt;, &lt;span class="m"&gt;226&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;  &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;1&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-14"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;349&lt;/span&gt;, &lt;span class="m"&gt;905&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-15"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;429&lt;/span&gt;, &lt;span class="m"&gt;860&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_06730dc0b664432385e1d09dafd39a85-16"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;309&lt;/span&gt;, &lt;span class="m"&gt;989&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;pre class="code bash"&gt;&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-2"&gt;&lt;/a&gt;head Future_Connections.csv
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-5"&gt;&lt;/a&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;            &lt;span class="p"&gt;|&lt;/span&gt; Future Connection &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;, &lt;span class="m"&gt;840&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-9"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;, &lt;span class="m"&gt;197&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-10"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;620&lt;/span&gt;, &lt;span class="m"&gt;979&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-11"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;519&lt;/span&gt;, &lt;span class="m"&gt;872&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-12"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;382&lt;/span&gt;, &lt;span class="m"&gt;423&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-13"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;97&lt;/span&gt;, &lt;span class="m"&gt;226&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;  &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;1&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-14"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;349&lt;/span&gt;, &lt;span class="m"&gt;905&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-15"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;429&lt;/span&gt;, &lt;span class="m"&gt;860&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-16"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;309&lt;/span&gt;, &lt;span class="m"&gt;989&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;It turns out that there's a similar solution to the ob-ipython popup, only since it's in python you have to use a print this time.&lt;/p&gt;
-&lt;pre class="code python"&gt;&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC ipython :session futures :results output&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-2"&gt;&lt;/a&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="n"&gt;Future_Connections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-3"&gt;&lt;/a&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-5"&gt;&lt;/a&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-7"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+begin_example&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Future&lt;/span&gt; &lt;span class="n"&gt;Connection&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-9"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(6, 840)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-10"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(4, 197)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-11"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(620, 979)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-12"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(519, 872)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-13"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(382, 423)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-14"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(97, 226)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-15"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(349, 905)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-16"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(429, 860)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-18"&gt;&lt;/a&gt;
-&lt;a name="rest_code_2e9463478dce48429075a52b2d8ba4a3-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
+&lt;pre class="code python"&gt;&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC ipython :session futures :results output&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-2"&gt;&lt;/a&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="n"&gt;Future_Connections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-3"&gt;&lt;/a&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-5"&gt;&lt;/a&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-7"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+begin_example&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Future&lt;/span&gt; &lt;span class="n"&gt;Connection&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-9"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(6, 840)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-10"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(4, 197)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-11"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(620, 979)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-12"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(519, 872)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-13"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(382, 423)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-14"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(97, 226)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-15"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(349, 905)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-16"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(429, 860)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-18"&gt;&lt;/a&gt;
+&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;I actually prefer the shell version, and since this is org-babel it makes more sense to use it, but I forgot about it just now and it took me a little while to figure out how to get the ob-ipython block to work so &lt;strong&gt;*note to future self:&lt;/strong&gt; &lt;em&gt;This is how to make it work, but use a shell block instead.&lt;/em&gt;&lt;/p&gt;&lt;/div&gt;</description><category>emacs</category><category>orgmode</category><category>Python</category><guid>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</guid><pubDate>Wed, 11 Oct 2017 19:49:19 GMT</pubDate></item><item><title>How To Change The Nikola Bootswatch Theme</title><link>https://necromuralist.github.io/posts/how-to-change-the-nikola-bootswatch-theme/</link><dc:creator>hades</dc:creator><description>&lt;div&gt;&lt;p&gt;I had my theme for this site set to use &lt;a class="reference external" href="http://nickmccurdy.com/bootswatch/spacelab/"&gt;Spacelab&lt;/a&gt;, which I liked, but the gradients were starting to annoy me so I decided to switch to &lt;a class="reference external" href="http://nickmccurdy.com/bootswatch/journal/"&gt;Journal&lt;/a&gt;, which matches my aesthetic tastes a little better. This took more work than I thought it would (mostly because I don't mess with the &lt;em&gt;nikola&lt;/em&gt; configuration very often). So these are my notes for the next time.&lt;/p&gt;
 &lt;div class="section" id="overview"&gt;
 &lt;h2&gt;Overview&lt;/h2&gt;
@@ -352,7 +464,7 @@ nikola build
 nikola theme -c base.tmpl
 &lt;/pre&gt;
 &lt;p&gt;This command creates a file (&lt;tt class="docutils literal"&gt;themes/custom/templates/base.tmpl&lt;/tt&gt;) which you can edit to override the built-in base template. I opened it up and changed the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;navbar-inverse&lt;/span&gt;&lt;/tt&gt; CSS class to &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;navbar-default&lt;/span&gt;&lt;/tt&gt;.&lt;/p&gt;
-&lt;pre class="code html"&gt;&lt;a name="rest_code_eefae946dacc40c3944bc05a0713e24a-1"&gt;&lt;/a&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;nav&lt;/span&gt; &lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;"navbar navbar-default navbar-static-top"&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;pre class="code html"&gt;&lt;a name="rest_code_82c3be1ec2d240999bea7379ff0ac2af-1"&gt;&lt;/a&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;nav&lt;/span&gt; &lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;"navbar navbar-default navbar-static-top"&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;The I re-built the &lt;em&gt;nikola&lt;/em&gt; posts, and reloaded the page and there it was, the white navbar I wanted.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="updating-the-css"&gt;
@@ -364,36 +476,36 @@ nikola theme -c base.tmpl
 &lt;div class="section" id="changing-the-font"&gt;
 &lt;h3&gt;Changing the Font&lt;/h3&gt;
 &lt;p&gt;Since I was editing the CSS anyway I made some other changes. First, I changed the text-font to &lt;em&gt;Goudy Bookletter&lt;/em&gt;. It's a little old-fashioned looking, but I've always liked Goudy's fonts. To do this I first added a link to the font:&lt;/p&gt;
-&lt;pre class="code css"&gt;&lt;a name="rest_code_9158bbd9ec804caf9388bfd3f71d2639-1"&gt;&lt;/a&gt;&lt;span class="p"&gt;@&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nt"&gt;url&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"https://fonts.googleapis.com/css?family=Goudy+Bookletter+1911:400,700"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;pre class="code css"&gt;&lt;a name="rest_code_e2c47b55333a417bb44258cf6a304e39-1"&gt;&lt;/a&gt;&lt;span class="p"&gt;@&lt;/span&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="nt"&gt;url&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"https://fonts.googleapis.com/css?family=Goudy+Bookletter+1911:400,700"&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;Then I updated the &lt;em&gt;font-family&lt;/em&gt;.&lt;/p&gt;
-&lt;pre class="code css"&gt;&lt;a name="rest_code_be58bdbd887543e9928e4fce47f44818-1"&gt;&lt;/a&gt;&lt;span class="nt"&gt;body&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-&lt;a name="rest_code_be58bdbd887543e9928e4fce47f44818-2"&gt;&lt;/a&gt;  &lt;span class="k"&gt;font-family&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"Goudy Bookletter 1911"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"EB Garamond"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;  &lt;span class="n"&gt;Georgia&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Times New Roman"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Times&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kc"&gt;serif&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;a name="rest_code_be58bdbd887543e9928e4fce47f44818-3"&gt;&lt;/a&gt;  &lt;span class="k"&gt;font-size&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="kt"&gt;em&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;a name="rest_code_be58bdbd887543e9928e4fce47f44818-4"&gt;&lt;/a&gt;  &lt;span class="k"&gt;line-height&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;1.42857143&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;a name="rest_code_be58bdbd887543e9928e4fce47f44818-5"&gt;&lt;/a&gt;  &lt;span class="k"&gt;color&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mh"&gt;#777777&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;a name="rest_code_be58bdbd887543e9928e4fce47f44818-6"&gt;&lt;/a&gt;  &lt;span class="k"&gt;background-color&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mh"&gt;#ffffff&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;a name="rest_code_be58bdbd887543e9928e4fce47f44818-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;pre class="code css"&gt;&lt;a name="rest_code_029bb6ae11db4f51a7191a6b3e1a1bdc-1"&gt;&lt;/a&gt;&lt;span class="nt"&gt;body&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;a name="rest_code_029bb6ae11db4f51a7191a6b3e1a1bdc-2"&gt;&lt;/a&gt;  &lt;span class="k"&gt;font-family&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"Goudy Bookletter 1911"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"EB Garamond"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;  &lt;span class="n"&gt;Georgia&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Times New Roman"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Times&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kc"&gt;serif&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;a name="rest_code_029bb6ae11db4f51a7191a6b3e1a1bdc-3"&gt;&lt;/a&gt;  &lt;span class="k"&gt;font-size&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="kt"&gt;em&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;a name="rest_code_029bb6ae11db4f51a7191a6b3e1a1bdc-4"&gt;&lt;/a&gt;  &lt;span class="k"&gt;line-height&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;1.42857143&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;a name="rest_code_029bb6ae11db4f51a7191a6b3e1a1bdc-5"&gt;&lt;/a&gt;  &lt;span class="k"&gt;color&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mh"&gt;#777777&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;a name="rest_code_029bb6ae11db4f51a7191a6b3e1a1bdc-6"&gt;&lt;/a&gt;  &lt;span class="k"&gt;background-color&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mh"&gt;#ffffff&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;a name="rest_code_029bb6ae11db4f51a7191a6b3e1a1bdc-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;div class="section" id="fixing-the-headline"&gt;
 &lt;h3&gt;Fixing the headline&lt;/h3&gt;
 &lt;p&gt;For some reason the title of the site has a CSS rule (&lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;.navbar-brand&lt;/span&gt; &lt;span class="pre"&gt;#blog-title&lt;/span&gt;&lt;/tt&gt;) that sets the top padding to 15 px even though the other elements have a padding of 19.5 px so I overrode it to make it align with the other elementes.&lt;/p&gt;
-&lt;pre class="code css"&gt;&lt;a name="rest_code_56eb03f950424031a936466c813a5ee6-1"&gt;&lt;/a&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;navbar-header&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;navbar-brand&lt;/span&gt; &lt;span class="p"&gt;#&lt;/span&gt;&lt;span class="nn"&gt;blog-title&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-&lt;a name="rest_code_56eb03f950424031a936466c813a5ee6-2"&gt;&lt;/a&gt;    &lt;span class="k"&gt;padding-top&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;19.5&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;a name="rest_code_56eb03f950424031a936466c813a5ee6-3"&gt;&lt;/a&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;pre class="code css"&gt;&lt;a name="rest_code_f6a4318c3c0b48b3b7b3f702f0f5d38b-1"&gt;&lt;/a&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;navbar-header&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;navbar-brand&lt;/span&gt; &lt;span class="p"&gt;#&lt;/span&gt;&lt;span class="nn"&gt;blog-title&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;a name="rest_code_f6a4318c3c0b48b3b7b3f702f0f5d38b-2"&gt;&lt;/a&gt;    &lt;span class="k"&gt;padding-top&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;19.5&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;a name="rest_code_f6a4318c3c0b48b3b7b3f702f0f5d38b-3"&gt;&lt;/a&gt;&lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;div class="section" id="minifying"&gt;
 &lt;h3&gt;Minifying&lt;/h3&gt;
 &lt;p&gt;When I wrote this originally, editing the &lt;tt class="docutils literal"&gt;bootstrap.css&lt;/tt&gt; file worked, but on one of &lt;a class="reference external" href="https://necromuralist.github.io/data_science/"&gt;my other sites&lt;/a&gt; the CSS file that is being created uses the &lt;tt class="docutils literal"&gt;bootstrap.mini.css&lt;/tt&gt; file instead. While this seems like it would be preferable, anyway, the change came about unexpectedly - I still don't know why Nikola is doing it on that site and not this one (I guess maybe I'll have to read the manual one of these days). So for that case, after editing the &lt;tt class="docutils literal"&gt;bootstrap.css&lt;/tt&gt; file you have to minify it (or just make a copy called &lt;tt class="docutils literal"&gt;bootstrap.min.css&lt;/tt&gt;). To minify it I use &lt;a class="reference external" href="https://github.com/jakubpawlowicz/clean-css-cli"&gt;Clean CSS CLI&lt;/a&gt;.&lt;/p&gt;
-&lt;pre class="code bash"&gt;&lt;a name="rest_code_4f93b4843bac4aaa9ed84271f738ae91-1"&gt;&lt;/a&gt;npm install clean-css-cli -g
-&lt;a name="rest_code_4f93b4843bac4aaa9ed84271f738ae91-2"&gt;&lt;/a&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; themes/custom_theme/assets/css/
-&lt;a name="rest_code_4f93b4843bac4aaa9ed84271f738ae91-3"&gt;&lt;/a&gt;cleancss -o bootstrap.min.css bootstrap.css
+&lt;pre class="code bash"&gt;&lt;a name="rest_code_561242317b68406b8d42d98c8a1343dd-1"&gt;&lt;/a&gt;npm install clean-css-cli -g
+&lt;a name="rest_code_561242317b68406b8d42d98c8a1343dd-2"&gt;&lt;/a&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; themes/custom_theme/assets/css/
+&lt;a name="rest_code_561242317b68406b8d42d98c8a1343dd-3"&gt;&lt;/a&gt;cleancss -o bootstrap.min.css bootstrap.css
 &lt;/pre&gt;&lt;p&gt;Where the &lt;tt class="docutils literal"&gt;themes&lt;/tt&gt; folder is in the root of my nikola repository, next to the &lt;tt class="docutils literal"&gt;conf.py&lt;/tt&gt; file.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="deploy"&gt;
 &lt;h2&gt;Deploy&lt;/h2&gt;
 &lt;p&gt;This isn't really to do with theme-changing, but for completeness, I'll mention it anyway.&lt;/p&gt;
-&lt;pre class="code bash"&gt;&lt;a name="rest_code_449b7c45694c4dd0bc616cfb85da5e5b-1"&gt;&lt;/a&gt;nikola github_deploy
+&lt;pre class="code bash"&gt;&lt;a name="rest_code_f9201651daa24de5bfccd1ef828a69d9-1"&gt;&lt;/a&gt;nikola github_deploy
 &lt;/pre&gt;&lt;/div&gt;
 &lt;div class="section" id="summary"&gt;
 &lt;h2&gt;Summary&lt;/h2&gt;
@@ -402,9 +514,9 @@ nikola theme -c base.tmpl
 I've grown to really like &lt;a href="http://orgmode.org"&gt;org-mode&lt;/a&gt;, particularly with &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt;, but there are times when a real Jupyter notebook is better - if you want to render it on github or use the &lt;code&gt;%matplotlib notebook&lt;/code&gt; feature, for instance. I found a blog post the &lt;a href="http://kitchingroup.cheme.cmu.edu/blog/2017/01/21/Exporting-org-mode-to-Jupyter-notebooks/"&gt;Kitchin Research Group site&lt;/a&gt; announcing the creation of an exporter and this is some documentation about how to set it up.
 &lt;/p&gt;
 
-&lt;div id="outline-container-org1eeaf2a" class="outline-2"&gt;
-&lt;h2 id="org1eeaf2a"&gt;Download&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1eeaf2a"&gt;
+&lt;div id="outline-container-org2aa7778" class="outline-2"&gt;
+&lt;h2 id="org2aa7778"&gt;Download&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2aa7778"&gt;
 &lt;p&gt;
 When I originally set this up it was only available from a link on the blog-post, but it has since been added to a much larger github repository called &lt;a href="https://github.com/jkitchin/scimax"&gt;scimax&lt;/a&gt;. I'm assuming this is where the latest version will be kept. Unfortunately there's no license so I don't think you can fork the repository, even more importantly, I can't get it to work, so skip it for now and grab the old one.
 &lt;/p&gt;
@@ -417,14 +529,13 @@ wget http://kitchingroup.cheme.cmu.edu/media/ox-ipynb.el
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orge97e757" class="outline-2"&gt;
-&lt;h2 id="orge97e757"&gt;Install&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge97e757"&gt;
+&lt;div id="outline-container-org6771d88" class="outline-2"&gt;
+&lt;h2 id="org6771d88"&gt;Install&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6771d88"&gt;
 &lt;p&gt;
 Make sure that the lisp folder is in the emacs path by putting this line in &lt;code&gt;init.el&lt;/code&gt;.
 &lt;/p&gt;
 
-/home/dogen/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;add-to-list&lt;/span&gt; &lt;span class="ss"&gt;'load-path&lt;/span&gt; &lt;span class="s"&gt;"~/.emacs.d/lisp"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -432,20 +543,18 @@ Make sure that the lisp folder is in the emacs path by putting this line in &lt;
 Also make sure that it's loaded by putting this in &lt;code&gt;init.el&lt;/code&gt;.
 &lt;/p&gt;
 
-/home/dogen/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;require&lt;/span&gt; &lt;span class="ss"&gt;'ox-ipynb&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org51aaacf" class="outline-2"&gt;
-&lt;h2 id="org51aaacf"&gt;Use&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org51aaacf"&gt;
+&lt;div id="outline-container-org7f903e3" class="outline-2"&gt;
+&lt;h2 id="org7f903e3"&gt;Use&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7f903e3"&gt;
 &lt;p&gt;
 In your org-mode file use the &lt;code&gt;export-ipython&lt;/code&gt; function to export it to an &lt;code&gt;ipynb&lt;/code&gt; file.
 &lt;/p&gt;
 
-/home/dogen/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;M-x&lt;/span&gt; &lt;span class="nv"&gt;export-ipynb-buffer&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -453,38 +562,9 @@ In your org-mode file use the &lt;code&gt;export-ipython&lt;/code&gt; function t
 Note that this will only work if you have &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; installed and at least one ipython code block in the org-file.
 &lt;/p&gt;
 
-/home/dogen/.virtualenvs/necromuralist.github.io/bin/python: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC ipython :session
 print("a")
 #+END_SRC
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>orgmode jupyter emacs</category><guid>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</guid><pubDate>Fri, 14 Apr 2017 03:00:28 GMT</pubDate></item><item><title>Decision Tree Entropy</title><link>https://necromuralist.github.io/posts/decision-tree-entropy/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-These are some basic notes on how entropy is used when making decision trees. The examples are taken from &lt;i&gt;Process Mining: Data Science In Action&lt;/i&gt;.
-&lt;/p&gt;
-
-&lt;div id="outline-container-org9474071" class="outline-2"&gt;
-&lt;h2 id="org9474071"&gt;Entropy&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9474071"&gt;
-&lt;p&gt;
-The equation for entropy is \(E = - \sum\limits_{i=1}^n p_i \log_2 p_i\), where \(p_i\) is the probability of variable \(i\). In other words, for variable \(i\), \(p_i\) is the count of instances for that variable divided by the total number of instances for all variables. Well, I'm probably not saying this clearly enough. A concrete example might be better.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org33be62a" class="outline-2"&gt;
-&lt;h2 id="org33be62a"&gt;Dying Young&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org33be62a"&gt;
-&lt;p&gt;
-This example uses a data set that contains various attributes that might predict if someone died 'young' (less than 70) or 'not young' (70 or older). There are 860 entries with 546 dying young and 314 dying old. We can calculate the entropy for the root node using the proportions of \(young\) (died young) and \(\lnot young\) (didn't die young).
-&lt;/p&gt;
-
-&lt;p&gt;
-\[
-  E = -(E_{young} + E_{\lnot young})\\
-  = -(\frac{546}{860} \log_2 \frac{546}{860} + \frac{314}{860} \log_2 \frac{314}{860})\\
-  \approx 0.9468
-\]
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>machineLearning entropy decisionTrees</category><guid>https://necromuralist.github.io/posts/decision-tree-entropy/</guid><pubDate>Mon, 06 Mar 2017 22:14:02 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>orgmode jupyter emacs</category><guid>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</guid><pubDate>Fri, 14 Apr 2017 03:00:28 GMT</pubDate></item></channel></rss>

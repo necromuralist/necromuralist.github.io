@@ -1,0 +1,82 @@
+#+BEGIN_COMMENT
+.. title: Org-Babel Ipython and Elpy Conflict
+.. slug: org-babel-ipython-and-elpy-conflict
+.. date: 2018-02-16 15:50:23 UTC-08:00
+.. tags: emacs orgmode elpy python
+.. category: Troubleshooting
+.. link: 
+.. description: A description of an elpy setting that I ran into that broke ob-ipython.
+.. type: text
+#+END_COMMENT
+
+* Short-take
+  If you use [[https://elpy.readthedocs.io/en/latest/][elpy]] and [[https://github.com/gregsexton/ob-ipython][ob-ipython]] together and use the =jupyter= option when configuring the =elpy= interpreter settings it will break the execution of =ob-ipython= code blocks, so use the =ipython= version instead. In other words use this in your =init.el= file:
+
+#+BEGIN_SRC lisp
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "-i --simple-prompt")
+#+END_SRC
+
+* Background
+I've become quite reliant on [[https://github.com/gregsexton/ob-ipython][ob-ipython]] for emacs (it lets you use ipython with org-babel to create literate programming documents). I used to use [[http://mpastell.com/pweave/][pweave]], and if I weren't an emacs user I probably would still use it, and of course there's [[http://jupyter.org][jupyter notebooks]], and the attendant [[https://github.com/millejoh/emacs-ipython-notebook][emacs-ipython-notebook]] that I've used as well (and sometimes still use - as when I need to hand in a Coursera assignment, for instance), but org-mode and ipython seems to hit the sweet spot for me (at least this week).
+
+So I was more than a little disturbed when I tried to execute a code block on my new laptop and found that nothing would run. This is a description of what happened and the fix, in case I forget the next time.
+
+* The Problem
+
+I tried executing some python code in an ipython code block but I kept getting an error. This is a toy example of what an ob-ipython block looks like:
+
+#+BEGIN_SRC org
+#+BEGIN_SRC ipython :session test :results output
+print("tester")
+,#+END_SRC
+#+END_SRC
+
+To execute it you'd put your cursor somewhere in the block and enter =Control-c Control-c=.
+
+This is the error I was getting:
+
+#+BEGIN_EXAMPLE
+There was a fatal error trying to process the request. See *ob-ipython-debug*
+#+END_EXAMPLE
+
+And in the =*ob-ipython-debug*= buffer would be this:
+
+#+BEGIN_EXAMPLE
+Error executing Jupyter command '/home/dogen/.emacs.d/elpa/ob-ipython-20180113.929/client.py': [Errno 2] No such file or directory
+#+END_EXAMPLE
+
+I tried googling for the error, which brought up some Jupyter questions on Stack Overflow that didn't seem relevant. There were also some /issues/ on the =ob-ipython= github site, but none of them looked exactly the same. They seemed to suggest that the wrong python interpreter was being used, but when I brought up the interpreter in emacs (=C-c C-v C-z=) it showed the correct interpreter version and I could import the =jupyter= module... but since that was what people said was the problem and I was using a virtualenv I decided to try setting up [[https://github.com/pyenv/pyenv][pyenv]], which apparently lets you switch between python versions fairly easily.
+
+So, I jumped on my desktop to test it out (I ran into the org-mode problem on my laptop, but I was home so I figured I'd switch), but first I brought up emacs and tried executing the same code-block that failed on my laptop, and of course it ran perfectly. So then I went into a long death-spiral of trying to download the ob-ipython git repository and going back in the git-history to see if I could find the place where it might work (my desktop version of ob-ipython was from October of 2017, my laptop's version is from January 2018), and of course none of them worked. Then I tried copying my =init.el= file from my desktop to my laptop, and suddenly things worked - so it was a configuration problem, but what was it?
+
+* The Fix
+  If you go to the [[https://github.com/jorgenschaefer/elpy][elpy]] documentation  (elpy is a mode for emacs that makes editing python much easier), there is a [[https://elpy.readthedocs.io/en/latest/ide.html#interactive-python][section on setting up which interpreter to use]] - and if you're wondering why I'm suddenly talking about =elpy= instead of =ob-ipython=, well, it's because it was the problem (or at least using them together was the problem).
+
+The documentation gives you three options for setting the interpreter - python, ipython, or jupyter. This is what my laptop had:
+
+#+BEGIN_SRC lisp
+(setq python-shell-interpreter "jupyter"
+      python-shell-interpreter-args "console --simple-prompt")
+#+END_SRC
+
+This is what my desktop had:
+
+#+BEGIN_SRC lisp
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "-i --simple-prompt")
+#+END_SRC
+
+I don't know why I configured them differently, but I tried using the =ipython= setting instead of the =jupyter= setting and all of a sudden - it worked. Maybe I've now broken something else, but it's fixed for now.
+
+#+BEGIN_SRC org
+#+BEGIN_SRC ipython :session test :results output
+print("tester")
+,#+END_SRC
+
+,#+RESULTS:
+: tester
+#+END_SRC
+
+* Summary
+  This documents a problem that I ran into wherein the =elpy= settings I used broke the execution of code blocks by =ob-ipython= . Just remember to use =ipython= instead of =jupyter= and it should be okay. Another day of my life lost to troubleshooting (well, not a /whole/ day, but too much).

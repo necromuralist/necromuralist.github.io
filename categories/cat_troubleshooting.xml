@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about Troubleshooting)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_troubleshooting.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 17 Feb 2018 01:25:57 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Org-Babel Ipython and Elpy Conflict</title><link>https://necromuralist.github.io/posts/org-babel-ipython-and-elpy-conflict/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgc6f2c20" class="outline-2"&gt;
+&lt;h2 id="orgc6f2c20"&gt;Short-take&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc6f2c20"&gt;
+&lt;p&gt;
+If you use &lt;a href="https://elpy.readthedocs.io/en/latest/"&gt;elpy&lt;/a&gt; and &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; together and use the &lt;code&gt;jupyter&lt;/code&gt; option when configuring the &lt;code&gt;elpy&lt;/code&gt; interpreter settings it will break the execution of &lt;code&gt;ob-ipython&lt;/code&gt; code blocks, so use the &lt;code&gt;ipython&lt;/code&gt; version instead. In other words use this in your &lt;code&gt;init.el&lt;/code&gt; file:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;setq&lt;/span&gt; &lt;span class="nv"&gt;python-shell-interpreter&lt;/span&gt; &lt;span class="s"&gt;"ipython"&lt;/span&gt;
+      &lt;span class="nv"&gt;python-shell-interpreter-args&lt;/span&gt; &lt;span class="s"&gt;"-i --simple-prompt"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org6d607a9" class="outline-2"&gt;
+&lt;h2 id="org6d607a9"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6d607a9"&gt;
+&lt;p&gt;
+I've become quite reliant on &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; for emacs (it lets you use ipython with org-babel to create literate programming documents). I used to use &lt;a href="http://mpastell.com/pweave/"&gt;pweave&lt;/a&gt;, and if I weren't an emacs user I probably would still use it, and of course there's &lt;a href="http://jupyter.org"&gt;jupyter notebooks&lt;/a&gt;, and the attendant &lt;a href="https://github.com/millejoh/emacs-ipython-notebook"&gt;emacs-ipython-notebook&lt;/a&gt; that I've used as well (and sometimes still use - as when I need to hand in a Coursera assignment, for instance), but org-mode and ipython seems to hit the sweet spot for me (at least this week).
+&lt;/p&gt;
+
+&lt;p&gt;
+So I was more than a little disturbed when I tried to execute a code block on my new laptop and found that nothing would run. This is a description of what happened and the fix, in case I forget the next time.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgd4ac1b8" class="outline-2"&gt;
+&lt;h2 id="orgd4ac1b8"&gt;The Problem&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd4ac1b8"&gt;
+&lt;p&gt;
+I tried executing some python code in an ipython code block but I kept getting an error. This is a toy example of what an ob-ipython block looks like:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC ipython :session test :results output
+print("tester")
+#+END_SRC
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+To execute it you'd put your cursor somewhere in the block and enter &lt;code&gt;Control-c Control-c&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;p&gt;
+This is the error I was getting:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+There was a fatal error trying to process the request. See *ob-ipython-debug*
+&lt;/pre&gt;
+
+&lt;p&gt;
+And in the &lt;code&gt;*ob-ipython-debug*&lt;/code&gt; buffer would be this:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Error executing Jupyter command '/home/dogen/.emacs.d/elpa/ob-ipython-20180113.929/client.py': [Errno 2] No such file or directory
+&lt;/pre&gt;
+
+&lt;p&gt;
+I tried googling for the error, which brought up some Jupyter questions on Stack Overflow that didn't seem relevant. There were also some &lt;i&gt;issues&lt;/i&gt; on the &lt;code&gt;ob-ipython&lt;/code&gt; github site, but none of them looked exactly the same. They seemed to suggest that the wrong python interpreter was being used, but when I brought up the interpreter in emacs (&lt;code&gt;C-c C-v C-z&lt;/code&gt;) it showed the correct interpreter version and I could import the &lt;code&gt;jupyter&lt;/code&gt; module… but since that was what people said was the problem and I was using a virtualenv I decided to try setting up &lt;a href="https://github.com/pyenv/pyenv"&gt;pyenv&lt;/a&gt;, which apparently lets you switch between python versions fairly easily.
+&lt;/p&gt;
+
+&lt;p&gt;
+So, I jumped on my desktop to test it out (I ran into the org-mode problem on my laptop, but I was home so I figured I'd switch), but first I brought up emacs and tried executing the same code-block that failed on my laptop, and of course it ran perfectly. So then I went into a long death-spiral of trying to download the ob-ipython git repository and going back in the git-history to see if I could find the place where it might work (my desktop version of ob-ipython was from October of 2017, my laptop's version is from January 2018), and of course none of them worked. Then I tried copying my &lt;code&gt;init.el&lt;/code&gt; file from my desktop to my laptop, and suddenly things worked - so it was a configuration problem, but what was it?
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org9ff130b" class="outline-2"&gt;
+&lt;h2 id="org9ff130b"&gt;The Fix&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9ff130b"&gt;
+&lt;p&gt;
+If you go to the &lt;a href="https://github.com/jorgenschaefer/elpy"&gt;elpy&lt;/a&gt; documentation  (elpy is a mode for emacs that makes editing python much easier), there is a &lt;a href="https://elpy.readthedocs.io/en/latest/ide.html#interactive-python"&gt;section on setting up which interpreter to use&lt;/a&gt; - and if you're wondering why I'm suddenly talking about &lt;code&gt;elpy&lt;/code&gt; instead of &lt;code&gt;ob-ipython&lt;/code&gt;, well, it's because it was the problem (or at least using them together was the problem).
+&lt;/p&gt;
+
+&lt;p&gt;
+The documentation gives you three options for setting the interpreter - python, ipython, or jupyter. This is what my laptop had:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;setq&lt;/span&gt; &lt;span class="nv"&gt;python-shell-interpreter&lt;/span&gt; &lt;span class="s"&gt;"jupyter"&lt;/span&gt;
+      &lt;span class="nv"&gt;python-shell-interpreter-args&lt;/span&gt; &lt;span class="s"&gt;"console --simple-prompt"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This is what my desktop had:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;setq&lt;/span&gt; &lt;span class="nv"&gt;python-shell-interpreter&lt;/span&gt; &lt;span class="s"&gt;"ipython"&lt;/span&gt;
+      &lt;span class="nv"&gt;python-shell-interpreter-args&lt;/span&gt; &lt;span class="s"&gt;"-i --simple-prompt"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+I don't know why I configured them differently, but I tried using the &lt;code&gt;ipython&lt;/code&gt; setting instead of the &lt;code&gt;jupyter&lt;/code&gt; setting and all of a sudden - it worked. Maybe I've now broken something else, but it's fixed for now.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC ipython :session test :results output
+print("tester")
+#+END_SRC
+
+#+RESULTS:
+: tester
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgc57de04" class="outline-2"&gt;
+&lt;h2 id="orgc57de04"&gt;Summary&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc57de04"&gt;
+&lt;p&gt;
+This documents a problem that I ran into wherein the &lt;code&gt;elpy&lt;/code&gt; settings I used broke the execution of code blocks by &lt;code&gt;ob-ipython&lt;/code&gt; . Just remember to use &lt;code&gt;ipython&lt;/code&gt; instead of &lt;code&gt;jupyter&lt;/code&gt; and it should be okay. Another day of my life lost to troubleshooting (well, not a &lt;i&gt;whole&lt;/i&gt; day, but too much).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>emacs orgmode elpy python</category><guid>https://necromuralist.github.io/posts/org-babel-ipython-and-elpy-conflict/</guid><pubDate>Fri, 16 Feb 2018 23:50:23 GMT</pubDate></item></channel></rss>

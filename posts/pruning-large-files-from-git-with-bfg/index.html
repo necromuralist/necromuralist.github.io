@@ -131,22 +131,22 @@
 <div class="section" id="the-process">
 <h2>2 The Process</h2>
 <p>Assuming you've downloaded the BFG jar file, this is what you need to do.</p>
-<pre class="code sh"><a name="rest_code_e01f8b495815463b9cad0d43e0c47b4e-1"></a>git clone --mirror &lt;remote git address&gt;
+<pre class="code sh"><a name="rest_code_c02dfea4364e4de19cfb6e5eecb926bd-1"></a>git clone --mirror &lt;remote git address&gt;
 </pre>
 <p>The <tt class="docutils literal"><span class="pre">--mirror</span></tt> flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the <tt class="docutils literal">.git</tt> folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in <a class="reference external" href="https://github.com/rtyley/bfg-repo-cleaner/issues/65">this bug-report</a> the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.</p>
 <p>Next run the BFG.</p>
-<pre class="code sh"><a name="rest_code_894e59f322344a71b4e31c00952fbbb0-1"></a>java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &lt;path to cloned mirror&gt;
+<pre class="code sh"><a name="rest_code_5f7e41822c5e47249e8b863390ed9548-1"></a>java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &lt;path to cloned mirror&gt;
 </pre>
 <p>Now you have to change into the cloned repository and execute some commands to update it.</p>
-<pre class="code sh"><a name="rest_code_8c55dad812074e6d942b7d1f0d4a6b94-1"></a>git reflog expire --expire-now --all
-<a name="rest_code_8c55dad812074e6d942b7d1f0d4a6b94-2"></a>git gc --prune<span class="o">=</span>now --aggressive
+<pre class="code sh"><a name="rest_code_7a888467dbbd4d7ea000470fcc0e3c11-1"></a>git reflog expire --expire-now --all
+<a name="rest_code_7a888467dbbd4d7ea000470fcc0e3c11-2"></a>git gc --prune<span class="o">=</span>now --aggressive
 </pre>
 <p>Now push it back to github.</p>
-<pre class="code sh"><a name="rest_code_7e2b08888c4a4e2cb328e6cd077373c2-1"></a>git push
+<pre class="code sh"><a name="rest_code_1a72ce4317b34f8087d3b8a0ebbdaf3d-1"></a>git push
 </pre>
 <p>At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.</p>
-<pre class="code sh"><a name="rest_code_37e39ff0ea5645a0982d3da03885d3d8-1"></a>rm -r &lt;original <span class="nb">local</span> repository&gt;
-<a name="rest_code_37e39ff0ea5645a0982d3da03885d3d8-2"></a>git clone &lt;remote repository&gt;
+<pre class="code sh"><a name="rest_code_70f6ab11ae7d49a9913980ab43f21ff9-1"></a>rm -r &lt;original <span class="nb">local</span> repository&gt;
+<a name="rest_code_70f6ab11ae7d49a9913980ab43f21ff9-2"></a>git clone &lt;remote repository&gt;
 </pre>
 <p>One thing that tripped me up a little was that I had removed the <em>master</em> branch but the <em>BFG</em> re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.</p>
 </div>
