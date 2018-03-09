@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about HowTo)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_howto.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 17 Feb 2018 00:41:33 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Pruning Large Files From Git with BFG</title><link>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</link><dc:creator>hades</dc:creator><description>&lt;div&gt;&lt;p&gt;These are my notes on removing large files from a git repository with the &lt;a class="reference external" href="https://rtyley.github.io/bfg-repo-cleaner/"&gt;BFG Repo-Cleaner&lt;/a&gt;. It assumes that you have already pushed it to a remote repository. If you've committed the changes but haven't pushed them, see &lt;a class="reference external" href="https://necromuralist.github.io/posts/removing-large-files-from-git-using-bfg-and-a-local-repository/"&gt;this post&lt;/a&gt;.&lt;/p&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about HowTo)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_howto.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 09 Mar 2018 00:08:04 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Pruning Large Files From Git with BFG</title><link>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</link><dc:creator>hades</dc:creator><description>&lt;div&gt;&lt;p&gt;These are my notes on removing large files from a git repository with the &lt;a class="reference external" href="https://rtyley.github.io/bfg-repo-cleaner/"&gt;BFG Repo-Cleaner&lt;/a&gt;. It assumes that you have already pushed it to a remote repository. If you've committed the changes but haven't pushed them, see &lt;a class="reference external" href="https://necromuralist.github.io/posts/removing-large-files-from-git-using-bfg-and-a-local-repository/"&gt;this post&lt;/a&gt;.&lt;/p&gt;
 &lt;div class="section" id="background"&gt;
 &lt;h2&gt;1 Background&lt;/h2&gt;
 &lt;p&gt;I accidentally committed an 89 MB file to git and pushed it upstream to github. This is within the allowed file-size limit, but when I looked in the file it was filled with the same error message over and over again, so it wasn't useful to keep, anyway. I was just working with small log-files, so any large files indicated an error, anyway, so I decided to clean anything over 50 MB from the repository using &lt;em&gt;BFG&lt;/em&gt;. The instructions on the home page mostly work, but didn't exactly work so I'm making some notes here for the next time.&lt;/p&gt;
@@ -7,18 +7,18 @@
 &lt;div class="section" id="the-process"&gt;
 &lt;h2&gt;2 The Process&lt;/h2&gt;
 &lt;p&gt;Assuming you've downloaded the BFG jar file, this is what you need to do.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_c02dfea4364e4de19cfb6e5eecb926bd-1"&gt;&lt;/a&gt;git clone --mirror &amp;lt;remote git address&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_b76c9dbc8d0443f2b530a7b2a981981f-1"&gt;&lt;/a&gt;git clone --mirror &amp;lt;remote git address&amp;gt;
 &lt;/pre&gt;&lt;p&gt;The &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;--mirror&lt;/span&gt;&lt;/tt&gt; flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the &lt;tt class="docutils literal"&gt;.git&lt;/tt&gt; folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in &lt;a class="reference external" href="https://github.com/rtyley/bfg-repo-cleaner/issues/65"&gt;this bug-report&lt;/a&gt; the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.&lt;/p&gt;
 &lt;p&gt;Next run the BFG.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_5f7e41822c5e47249e8b863390ed9548-1"&gt;&lt;/a&gt;java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &amp;lt;path to cloned mirror&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_3aa04387a9254cf4af94533324d112cc-1"&gt;&lt;/a&gt;java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &amp;lt;path to cloned mirror&amp;gt;
 &lt;/pre&gt;&lt;p&gt;Now you have to change into the cloned repository and execute some commands to update it.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_7a888467dbbd4d7ea000470fcc0e3c11-1"&gt;&lt;/a&gt;git reflog expire --expire-now --all
-&lt;a name="rest_code_7a888467dbbd4d7ea000470fcc0e3c11-2"&gt;&lt;/a&gt;git gc --prune&lt;span class="o"&gt;=&lt;/span&gt;now --aggressive
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_47621834c4984ef8a15feb6231c65150-1"&gt;&lt;/a&gt;git reflog expire --expire-now --all
+&lt;a name="rest_code_47621834c4984ef8a15feb6231c65150-2"&gt;&lt;/a&gt;git gc --prune&lt;span class="o"&gt;=&lt;/span&gt;now --aggressive
 &lt;/pre&gt;&lt;p&gt;Now push it back to github.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_1a72ce4317b34f8087d3b8a0ebbdaf3d-1"&gt;&lt;/a&gt;git push
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_6418c2f997b2461d84d109bea6e07af6-1"&gt;&lt;/a&gt;git push
 &lt;/pre&gt;&lt;p&gt;At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_70f6ab11ae7d49a9913980ab43f21ff9-1"&gt;&lt;/a&gt;rm -r &amp;lt;original &lt;span class="nb"&gt;local&lt;/span&gt; repository&amp;gt;
-&lt;a name="rest_code_70f6ab11ae7d49a9913980ab43f21ff9-2"&gt;&lt;/a&gt;git clone &amp;lt;remote repository&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_cb6cb3fd0837422ab1c02a4a69914684-1"&gt;&lt;/a&gt;rm -r &amp;lt;original &lt;span class="nb"&gt;local&lt;/span&gt; repository&amp;gt;
+&lt;a name="rest_code_cb6cb3fd0837422ab1c02a4a69914684-2"&gt;&lt;/a&gt;git clone &amp;lt;remote repository&amp;gt;
 &lt;/pre&gt;&lt;p&gt;One thing that tripped me up a little was that I had removed the &lt;em&gt;master&lt;/em&gt; branch but the &lt;em&gt;BFG&lt;/em&gt; re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.&lt;/p&gt;
 &lt;/div&gt;&lt;/div&gt;</description><category>git bfg howto</category><guid>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</guid><pubDate>Sun, 14 Jan 2018 20:57:59 GMT</pubDate></item><item><title>Restructured Text Anonymous Links</title><link>https://necromuralist.github.io/posts/restructured-text-anonymous-links/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div&gt;&lt;div class="section" id="background"&gt;
 &lt;h2&gt;Background&lt;/h2&gt;
@@ -43,49 +43,49 @@
 &lt;p&gt;This fixed it for me. Of course now the internal targets are gone as well, but they wouldn't have worked anyway.&lt;/p&gt;
 &lt;p&gt;See the &lt;a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references"&gt;Restructured Text Hyperlink Documentatation&lt;/a&gt; for more details.&lt;/p&gt;
 &lt;/div&gt;&lt;/div&gt;</description><category>restructuredtext</category><guid>https://necromuralist.github.io/posts/restructured-text-anonymous-links/</guid><pubDate>Tue, 09 Jan 2018 02:06:52 GMT</pubDate></item><item><title>Shell Output With Org-Babel Ipython</title><link>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the nice things about ipython is the ability to run shell commands with &lt;tt class="docutils literal"&gt;!&lt;/tt&gt;. When you use it in an &lt;a class="reference external" href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; block, though, it will dump the output into a popup rather than in the same emacs org-file. One alternative is to use a shell block instead. I wrote earlier that this requires you to put an echo command in the block to prevent the text going to a pop-up.&lt;/p&gt;
-&lt;pre class="code bash"&gt;&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-2"&gt;&lt;/a&gt;head Future_Connections.csv
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-5"&gt;&lt;/a&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;            &lt;span class="p"&gt;|&lt;/span&gt; Future Connection &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;, &lt;span class="m"&gt;840&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-9"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;, &lt;span class="m"&gt;197&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-10"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;620&lt;/span&gt;, &lt;span class="m"&gt;979&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-11"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;519&lt;/span&gt;, &lt;span class="m"&gt;872&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-12"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;382&lt;/span&gt;, &lt;span class="m"&gt;423&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-13"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;97&lt;/span&gt;, &lt;span class="m"&gt;226&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;  &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;1&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-14"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;349&lt;/span&gt;, &lt;span class="m"&gt;905&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-15"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;429&lt;/span&gt;, &lt;span class="m"&gt;860&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-16"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;309&lt;/span&gt;, &lt;span class="m"&gt;989&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;pre class="code bash"&gt;&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-2"&gt;&lt;/a&gt;head Future_Connections.csv
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-5"&gt;&lt;/a&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;            &lt;span class="p"&gt;|&lt;/span&gt; Future Connection &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;, &lt;span class="m"&gt;840&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-9"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;, &lt;span class="m"&gt;197&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-10"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;620&lt;/span&gt;, &lt;span class="m"&gt;979&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-11"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;519&lt;/span&gt;, &lt;span class="m"&gt;872&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-12"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;382&lt;/span&gt;, &lt;span class="m"&gt;423&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-13"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;97&lt;/span&gt;, &lt;span class="m"&gt;226&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;  &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;1&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-14"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;349&lt;/span&gt;, &lt;span class="m"&gt;905&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-15"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;429&lt;/span&gt;, &lt;span class="m"&gt;860&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-16"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;309&lt;/span&gt;, &lt;span class="m"&gt;989&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;It turns out that there's a similar solution to the ob-ipython popup, only since it's in python you have to use a print this time.&lt;/p&gt;
-&lt;pre class="code python"&gt;&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC ipython :session futures :results output&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-2"&gt;&lt;/a&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="n"&gt;Future_Connections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-3"&gt;&lt;/a&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-5"&gt;&lt;/a&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-7"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+begin_example&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Future&lt;/span&gt; &lt;span class="n"&gt;Connection&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-9"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(6, 840)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-10"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(4, 197)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-11"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(620, 979)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-12"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(519, 872)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-13"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(382, 423)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-14"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(97, 226)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-15"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(349, 905)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-16"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(429, 860)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-18"&gt;&lt;/a&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
+&lt;pre class="code python"&gt;&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC ipython :session futures :results output&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-2"&gt;&lt;/a&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="n"&gt;Future_Connections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-3"&gt;&lt;/a&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-5"&gt;&lt;/a&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-7"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+begin_example&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Future&lt;/span&gt; &lt;span class="n"&gt;Connection&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-9"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(6, 840)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-10"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(4, 197)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-11"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(620, 979)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-12"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(519, 872)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-13"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(382, 423)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-14"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(97, 226)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-15"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(349, 905)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-16"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(429, 860)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-18"&gt;&lt;/a&gt;
+&lt;a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;I actually prefer the shell version, and since this is org-babel it makes more sense to use it, but I forgot about it just now and it took me a little while to figure out how to get the ob-ipython block to work so &lt;strong&gt;*note to future self:&lt;/strong&gt; &lt;em&gt;This is how to make it work, but use a shell block instead.&lt;/em&gt;&lt;/p&gt;&lt;/div&gt;</description><category>emacs</category><category>orgmode</category><category>Python</category><guid>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</guid><pubDate>Wed, 11 Oct 2017 19:49:19 GMT</pubDate></item><item><title>Org To Jupyter Notebook</title><link>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
 I've grown to really like &lt;a href="http://orgmode.org"&gt;org-mode&lt;/a&gt;, particularly with &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt;, but there are times when a real Jupyter notebook is better - if you want to render it on github or use the &lt;code&gt;%matplotlib notebook&lt;/code&gt; feature, for instance. I found a blog post the &lt;a href="http://kitchingroup.cheme.cmu.edu/blog/2017/01/21/Exporting-org-mode-to-Jupyter-notebooks/"&gt;Kitchin Research Group site&lt;/a&gt; announcing the creation of an exporter and this is some documentation about how to set it up.
 &lt;/p&gt;
 
-&lt;div id="outline-container-org2aa7778" class="outline-2"&gt;
-&lt;h2 id="org2aa7778"&gt;Download&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2aa7778"&gt;
+&lt;div id="outline-container-org6e72114" class="outline-2"&gt;
+&lt;h2 id="org6e72114"&gt;Download&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6e72114"&gt;
 &lt;p&gt;
 When I originally set this up it was only available from a link on the blog-post, but it has since been added to a much larger github repository called &lt;a href="https://github.com/jkitchin/scimax"&gt;scimax&lt;/a&gt;. I'm assuming this is where the latest version will be kept. Unfortunately there's no license so I don't think you can fork the repository, even more importantly, I can't get it to work, so skip it for now and grab the old one.
 &lt;/p&gt;
@@ -98,9 +98,9 @@ wget http://kitchingroup.cheme.cmu.edu/media/ox-ipynb.el
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org6771d88" class="outline-2"&gt;
-&lt;h2 id="org6771d88"&gt;Install&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6771d88"&gt;
+&lt;div id="outline-container-orgdcbd7b8" class="outline-2"&gt;
+&lt;h2 id="orgdcbd7b8"&gt;Install&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgdcbd7b8"&gt;
 &lt;p&gt;
 Make sure that the lisp folder is in the emacs path by putting this line in &lt;code&gt;init.el&lt;/code&gt;.
 &lt;/p&gt;
@@ -117,9 +117,9 @@ Also make sure that it's loaded by putting this in &lt;code&gt;init.el&lt;/code&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org7f903e3" class="outline-2"&gt;
-&lt;h2 id="org7f903e3"&gt;Use&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7f903e3"&gt;
+&lt;div id="outline-container-org9a5a261" class="outline-2"&gt;
+&lt;h2 id="org9a5a261"&gt;Use&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9a5a261"&gt;
 &lt;p&gt;
 In your org-mode file use the &lt;code&gt;export-ipython&lt;/code&gt; function to export it to an &lt;code&gt;ipynb&lt;/code&gt; file.
 &lt;/p&gt;
@@ -136,18 +136,18 @@ print("a")
 #+END_SRC
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>orgmode jupyter emacs</category><guid>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</guid><pubDate>Fri, 14 Apr 2017 03:00:28 GMT</pubDate></item><item><title>Ubuntu 16.04 and the Brother HL-2140 Printer</title><link>https://necromuralist.github.io/posts/ubuntu-1604-and-the-brother-hl-2140-printer/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgfc24e8f" class="outline-2"&gt;
-&lt;h2 id="orgfc24e8f"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgfc24e8f"&gt;
+&lt;/div&gt;</description><category>orgmode jupyter emacs</category><guid>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</guid><pubDate>Fri, 14 Apr 2017 03:00:28 GMT</pubDate></item><item><title>Ubuntu 16.04 and the Brother HL-2140 Printer</title><link>https://necromuralist.github.io/posts/ubuntu-1604-and-the-brother-hl-2140-printer/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9c0c0e7" class="outline-2"&gt;
+&lt;h2 id="org9c0c0e7"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9c0c0e7"&gt;
 &lt;p&gt;
 I (relatively) recently bought a &lt;a href="https://zareason.com/Limbo-560.html"&gt;ZaReason Limbo Desktop PC&lt;/a&gt; which comes with Ubuntu 16.04. I'm debating whether to update it to 16.10, given that updating broke the USB WiFi adapter I had on my older computer (the USB is recognized but not the WiFi adapter), but, in any case, I wanted to print something using my new computer today and ran into the same problem that I had when I updated my old computer to Ubuntu 14.10 - the default printer driver printed out a bunch of blank pages rather than the page I wanted to print. The last time I solved it by choosing a different model (the &lt;i&gt;HL-2142&lt;/i&gt;) but this time out I found a &lt;a href="http://ubuntuforums.org/showthread.php?t=2231405"&gt;stack overflow post&lt;/a&gt; that suggested using the &lt;b&gt;Brother HL-2140 Foomatic/hl1250 [en]&lt;/b&gt; driver instead. I tried it and it worked for me, so here goes.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org1fbf939" class="outline-2"&gt;
-&lt;h2 id="org1fbf939"&gt;How To Choose the Correct Printer Driver&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1fbf939"&gt;
+&lt;div id="outline-container-orgb2d92ba" class="outline-2"&gt;
+&lt;h2 id="orgb2d92ba"&gt;How To Choose the Correct Printer Driver&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb2d92ba"&gt;
 &lt;p&gt;
 First, open &lt;i&gt;Dash&lt;/i&gt; (the windows-key launches it on my keyboard), type in &lt;i&gt;Printers&lt;/i&gt; and click on the icon.
 &lt;/p&gt;
@@ -234,9 +234,9 @@ If your experience is the same as mine, you will be able to print your documents
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org00eeaef" class="outline-2"&gt;
-&lt;h2 id="org00eeaef"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org00eeaef"&gt;
+&lt;div id="outline-container-org016f231" class="outline-2"&gt;
+&lt;h2 id="org016f231"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org016f231"&gt;
 &lt;p&gt;
 The basic method to get the &lt;i&gt;Brother HL-2140&lt;/i&gt; to print in Ubuntu 16.04 is to select the &lt;i&gt;hl1250&lt;/i&gt; driver instead of the default. Since I only do this when I need to set up a new computer, I alway have to do some googling to remember what to do, so hopefully this will help me save some searching if I ever have to do this again.
 &lt;/p&gt;
