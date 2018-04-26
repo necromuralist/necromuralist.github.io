@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://necromuralist.github.io/">
 <link rel="next" href="index-8.html" type="text/html">
 <!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><link rel="prefetch" href="posts/data-visualization-bibliography/" type="text/html">
+</script><link rel="prefetch" href="posts/bokeh-org-mode/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -100,7 +100,227 @@
 
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/data-visualization-bibliography/" class="u-url">Data Visualization Bibliography</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/bokeh-org-mode/" class="u-url">bokeh org-mode</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline"><a href="posts/bokeh-org-mode/" rel="bookmark"><time class="published dt-published" datetime="2018-04-25T21:59:50-07:00" title="2018-04-25 21:59">2018-04-25 21:59</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="outline-container-org6fd0922" class="outline-2">
+<h2 id="org6fd0922">Introduction</h2>
+<div class="outline-text-2" id="text-org6fd0922">
+<p>
+This is an illustration of how to use bokeh with org-mode in nikola. There is a more extensive and flexible explanation of how to do this in <a href="http://cherian.net/posts/bokeh-org-mode.html">this post</a> on <a href="http://cherian.net">cherian.net</a> but I made these notes to understand how it works and to have a simpler example to refer to.
+</p>
+
+<p>
+I was interested in doing this because I'm trying to re-work some of what I did for the Coursera <b>Data Science With Python</b> specialization by changing the data-sets and building them as blog posts. I might convert the posts to restructured text at some point, but while I'm working with them I'm using org-mode. Also, while most of the time I use <a href="https://matplotlib.org">matplotlib</a> for plotting since this is going to be a blog-first approach I decided to go with <a href="https://bokeh.pydata.org/en/latest/">bokeh</a>. I had <a href="https://necromuralist.github.io/data_science/posts/bokeh-test/">previously written</a> about how to gut <b>bokeh</b> into <b>Nikola</b> using restructured text, but as an intermediate step I want to do the work in org-mode and still be able to see the output as I'm working. 
+</p>
+
+<p>
+The magic mix for this seems to be to use:
+</p>
+
+<ul class="org-ul">
+<li>
+<a href="https://getnikola.com">Nikola</a> to build the HTML posts</li>
+<li>
+<a href="http://orgmode.org">org-mode</a>, an emacs mode to format the posts</li>
+<li>
+<a href="https://plugins.getnikola.com/v7/orgmode/">the orgmode-plugin</a> for nikola</li>
+<li>
+<a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> to get <a href="https://jupyter.org">jupyter/ipython</a> in the org-mode posts</li>
+<li>
+<a href="https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#userguide-quickstart">bokeh</a> to make the plots</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge0e8d41" class="outline-2">
+<h2 id="orge0e8d41">Creating the Bokeh Plot</h2>
+<div class="outline-text-2" id="text-orge0e8d41">
+</div>
+<div id="outline-container-org59e7a6e" class="outline-3">
+<h3 id="org59e7a6e">Imports</h3>
+<div class="outline-text-3" id="text-org59e7a6e">
+<p>
+These are the dependencies. It's really all <code>bokeh</code>, <code>numpy</code> is just there to generate the data-values.
+</p>
+
+<div class="highlight"><pre><span></span><span class="c1"># from pypi</span>
+<span class="kn">from</span> <span class="nn">bokeh.models</span> <span class="kn">import</span> <span class="n">HoverTool</span>
+<span class="kn">from</span> <span class="nn">bokeh.plotting</span> <span class="kn">import</span> <span class="n">figure</span><span class="p">,</span> <span class="n">ColumnDataSource</span>
+<span class="kn">from</span> <span class="nn">bokeh.embed</span> <span class="kn">import</span> <span class="n">autoload_static</span><span class="p">,</span> <span class="n">file_html</span>
+<span class="kn">import</span> <span class="nn">bokeh.resources</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+</pre></div>
+
+<p>
+I probably should save bokeh to this repository to keep the post from breaking in the future, but I'm lazy so I'm just going to import it from a CDN.
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">bokeh</span> <span class="o">=</span> <span class="n">bokeh</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">CDN</span>
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-org304ec74" class="outline-3">
+<h3 id="org304ec74">The Data</h3>
+<div class="outline-text-3" id="text-org304ec74">
+<p>
+To get a simple example going I'm just going to use some random outputs generated by numpy.
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+<p>
+In order to create a data-structure that bokeh can use (similar to a <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html">pandas dataframe</a>) you need to use a <a href="https://bokeh.pydata.org/en/0.10.0/docs/reference/models/sources.html">ColumnDataSource</a>.
+</p>
+<div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="n">ColumnDataSource</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">X</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span>
+    <span class="n">desc</span><span class="o">=</span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">,</span> <span class="s2">"e"</span><span class="p">,</span> <span class="s2">"f"</span><span class="p">,</span> <span class="s2">"g"</span><span class="p">,</span> <span class="s2">"h"</span><span class="p">,</span> <span class="s2">"i"</span><span class="p">,</span> <span class="s2">"j"</span><span class="p">],</span>
+<span class="p">))</span>
+</pre></div>
+
+<p>
+The keys in the data-dict are essentially the column headers.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left">Key</th>
+<th scope="col" class="org-left">Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="org-left">x</td>
+<td class="org-left">the x-axis values</td>
+</tr>
+<tr>
+<td class="org-left">y</td>
+<td class="org-left">the y-axis values</td>
+</tr>
+<tr>
+<td class="org-left">desc</td>
+<td class="org-left">The labels for the tooltip</td>
+</tr>
+</tbody>
+</table>
+<p>
+Now to get some tool-tips to pop up when you hover over the plot, I'll create a <code>HoverTool</code>.
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">hover</span> <span class="o">=</span> <span class="n">HoverTool</span><span class="p">(</span><span class="n">tooltips</span><span class="o">=</span><span class="p">[</span>
+    <span class="p">(</span><span class="s1">'index'</span><span class="p">,</span> <span class="s1">'$index'</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">'(x, y)'</span><span class="p">,</span> <span class="s1">'($x, $y)'</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">'desc'</span><span class="p">,</span> <span class="s1">'@desc'</span><span class="p">),</span>
+<span class="p">])</span>
+</pre></div>
+
+<p>
+The <code>tooltips</code> list maps the labels that will show up in the tooltip (the first argument to each tuple) to variables in the <code>ColumnDataSource</code> (if preceded by an <code>@</code>) or generated value (if preceded by a <code>$</code>) The <code>index</code> value is the index in the array where the data point sits (so for the first point it will be 0, the second will be 1, etc.). The <code>(x, y)</code> values are the coordinate locations of your pointer when you hover over the data points, and the <code>desc</code> will be replaced by the label I set in the <code>ColumnDataSource</code> for a particular data-point.
+</p>
+</div>
+</div>
+<div id="outline-container-orgee1b3d9" class="outline-3">
+<h3 id="orgee1b3d9">The Plot</h3>
+<div class="outline-text-3" id="text-orgee1b3d9">
+<p>
+Now I'll create the actual plot (<code>figure</code>).
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Random Example"</span><span class="p">,</span> <span class="n">x_axis_label</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">y_axis_label</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span>
+	     <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">hover</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1c18861" class="outline-2">
+<h2 id="org1c18861">Getting the Bokeh Plot Into The Post</h2>
+<div class="outline-text-2" id="text-org1c18861">
+<p>
+Finally I'll save the javascript and HTML files needed and then output the blob needed to embed the plot into this post. The <code>autoload_static</code> function takes the bokeh plot object (<code>fig</code>), the bokeh javascript that I loaded earlier (<code>bokeh</code>), and the name of the javascript file that you want it to creat (<code>test.js</code>) and returns the javascript to save (<code>javascript</code>) and the HTML fragment that will include the javascript (<code>source</code>). Note that because of the way nikola structures things I have to create a folder named <code>files/posts/bokeh-org-mode</code> and save the files there. Since nikola will automatically look in this folder the name you pass into <code>autoload_static</code> should just be the filename without the path, but when you save the javascript file you will save it there so you need to add the relative path. If my explanation seems a little convoluted, just look at the code below, it's fairly simple.
+</p>
+
+<p>
+First I'll create a variable to hold the path to the folder to save the files in. All files for nikola posts go into sub-folders of <code>files/posts/</code> and since the source file for this post is called <code>bokeh-org-mode.org</code>, the files to include in it go into the folder <code>files/posts/bokeh-org-mode</code> (<code>files/posts/</code> plus the slug for the post).
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">FOLDER_PATH</span> <span class="o">=</span> <span class="s2">"../files/posts/bokeh-org-mode/"</span>
+</pre></div>
+</div>
+<div id="outline-container-orgbdfbe07" class="outline-3">
+<h3 id="orgbdfbe07">The Javascript</h3>
+<div class="outline-text-3" id="text-orgbdfbe07">
+<p>
+Now, I'll create the javascript source for the plot.
+</p>
+
+<div class="highlight"><pre><span></span><span class="n">FILE_NAME</span> <span class="o">=</span> <span class="s2">"test.js"</span>
+<span class="n">javascript</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="n">autoload_static</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">bokeh</span><span class="p">,</span> <span class="n">FILE_NAME</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">FOLDER_PATH</span> <span class="o">+</span> <span class="n">FILE_NAME</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">javascript</span><span class="p">)</span>
+</pre></div>
+
+<p>
+The <code>javascript</code> variable holds the actual javascript source code (which then gets saved) while the <code>source</code> variable holds the string with the HTML to embed the javascript into this post (which I show at the end of this post).
+</p>
+</div>
+</div>
+
+<div id="outline-container-org17b6a95" class="outline-3">
+<h3 id="org17b6a95">Embedding the Plot</h3>
+<div class="outline-text-3" id="text-org17b6a95">
+<p>
+Finally, we need to print out the string that is stored in the <code>source</code> variable which then tells org-mode to embed the files into this post. I'll output the full org-block so you can see the header arguments.
+</p>
+
+<div class="highlight"><pre><span></span>#+BEGIN_SRC python :session bokeh :results output raw :exports results
+print('''#+BEGIN_EXPORT html
+{}
+#+END_EXPORT'''.format(source))
+#+END_SRC
+</pre></div>
+
+
+<script src="posts/bokeh-org-mode/test.js" id="99045dff-710a-4c8e-8565-6fd31b538349" data-bokeh-model-id="f46a6fe0-7aab-47d9-aae0-d14718763236" data-bokeh-doc-id="99649b1a-8c14-49b7-a6ef-c61b3ec6dbae"></script><p>
+And there you have it. I don't have a lot to say about it, other than that if you hover over the data with your cursor and then look up above at the <code>ColumnDataSource</code> above, you'll see that the variables match the inputs
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgef30799" class="outline-2">
+<h2 id="orgef30799">Summary</h2>
+<div class="outline-text-2" id="text-orgef30799">
+<p>
+To get a bokeh figure into an org-mode document in nikola:
+</p>
+
+<ol class="org-ol">
+<li>Create the bokeh plot.</li>
+<li>Create a folder in the <code>files/posts/</code> folder that matches the slug for the post.</li>
+<li>Use <code>autoload_static</code> to convert the bokeh object to javascript and create the HTML tag to embed it.</li>
+<li>Save the javascript in the <code>files/posts/&lt;slug&gt;/</code> folder that you created</li>
+<li>Print the HTML fragment in an org-mode <code>#+BEGIN_EXPORT html</code> block.</li>
+</ol>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/data-visualization-bibliography/" class="u-url">Data Visualization Bibliography</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
@@ -644,112 +864,6 @@ Although the disk-decryption login is a major negative, I must note that I kind 
 <a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-19"></a><span class="c1">#+end_example</span>
 </pre>
 <p>I actually prefer the shell version, and since this is org-babel it makes more sense to use it, but I forgot about it just now and it took me a little while to figure out how to get the ob-ipython block to work so <strong>*note to future self:</strong> <em>This is how to make it work, but use a shell block instead.</em></p>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/how-to-change-the-nikola-bootswatch-theme/" class="u-url">How To Change The Nikola Bootswatch Theme</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                <a href="authors/hades/">hades</a>
-            </span></p>
-            <p class="dateline"><a href="posts/how-to-change-the-nikola-bootswatch-theme/" rel="bookmark"><time class="published dt-published" datetime="2017-08-13T15:58:00-07:00" title="2017-08-13 15:58">2017-08-13 15:58</time></a></p>
-        </div>
-    </header><div class="e-content entry-content">
-    <div>
-<p>I had my theme for this site set to use <a class="reference external" href="http://nickmccurdy.com/bootswatch/spacelab/">Spacelab</a>, which I liked, but the gradients were starting to annoy me so I decided to switch to <a class="reference external" href="http://nickmccurdy.com/bootswatch/journal/">Journal</a>, which matches my aesthetic tastes a little better. This took more work than I thought it would (mostly because I don't mess with the <em>nikola</em> configuration very often). So these are my notes for the next time.</p>
-<div class="section" id="overview">
-<h2>Overview</h2>
-<ol class="arabic simple">
-<li>Install the <a class="reference external" href="https://themes.getnikola.com/#bootstrap3">bootswatch 3</a> nikola theme (if you haven't already) (<tt class="docutils literal">nikola install_theme bootstrap3</tt>).</li>
-<li>Install the <a class="reference external" href="https://bootswatch.com/journal/">journal bootswatch theme</a>  (<tt class="docutils literal">nikola bootswatch_theme <span class="pre">-s</span> journal</tt>).</li>
-<li>Get the base template (<tt class="docutils literal">nikola theme <span class="pre">-c</span> base.tmpl</tt>).</li>
-<li>In <tt class="docutils literal">base.tmpl</tt>, change <tt class="docutils literal"><span class="pre">navbar-inverse</span></tt> to <tt class="docutils literal"><span class="pre">navbar-default</span></tt>.</li>
-<li>Change the anchor color in <tt class="docutils literal">bootstrap.css</tt> to something less creamsicle (and do whatever other CSS adjustments you need to do).</li>
-<li>If you need to, minify the CSS (<tt class="docutils literal">cleancss <span class="pre">-o</span> bootstrap.min.css bootstrap.css</tt>).</li>
-<li>Build the posts (<tt class="docutils literal">nikola build</tt>).</li>
-<li>Admire the fruits of your (well, other people's) labor.</li>
-</ol>
-</div>
-<div class="section" id="installing-the-theme">
-<h2>Installing the theme</h2>
-<div class="section" id="the-bootswatch-3-theme">
-<h3>The Bootswatch 3 Theme</h3>
-<p>I already had the bootswatch 3 theme installed, since I was using <em>Spacelab</em>, but if you don't have it installed this is how to set the base theme:</p>
-<pre class="literal-block">
-nikola install_theme bootstrap3
-</pre>
-</div>
-<div class="section" id="the-journal-theme">
-<h3>The Journal Theme</h3>
-<p>Since I want to change the theme to <em>Journal</em> this is the next step (you can also specify a parent theme, but the default is <tt class="docutils literal">bootstrap3</tt>, which is what I wanted anyway):</p>
-<pre class="literal-block">
-nikola bootswatch_theme -s journal
-</pre>
-<p>This will set up the default bootstrap theme, but you need to re-build the HTML to have it show up on the development-server's web-page (something that I didn't realize initially, causing me to think something was broken).</p>
-<pre class="literal-block">
-nikola build
-</pre>
-</div>
-</div>
-<div class="section" id="updating-the-template">
-<h2>Updating the Template</h2>
-<p>On re-loading the page I found that it mostly worked, but for some reason it looked more orange than I expected. It turns out that the <em>nikola</em> developer decided that <tt class="docutils literal"><span class="pre">navbar-inverse</span></tt> should be the default style for the navbar (instead of <tt class="docutils literal"><span class="pre">navbar-default</span></tt>) and the section headers are hyperlinks, which in the <em>Journal</em> theme are orange (by orange I really mean something closer to a creamsicle). Following the instructions in this <a class="reference external" href="https://github.com/getnikola/nikola/issues/2552">bug report</a> (which says that it isn't a bug, it's a feature) I copied the base template from the <em>nikola</em> installation (in <tt class="docutils literal"><span class="pre">site-packages</span></tt>) into the site using a built-in <em>nikola</em> command.</p>
-<pre class="literal-block">
-nikola theme -c base.tmpl
-</pre>
-<p>This command creates a file (<tt class="docutils literal">themes/custom/templates/base.tmpl</tt>) which you can edit to override the built-in base template. I opened it up and changed the <tt class="docutils literal"><span class="pre">navbar-inverse</span></tt> CSS class to <tt class="docutils literal"><span class="pre">navbar-default</span></tt>.</p>
-<pre class="code html"><a name="rest_code_a53b3eb6d03844a886f860f27ad95390-1"></a><span class="p">&lt;</span><span class="nt">nav</span> <span class="na">class</span><span class="o">=</span><span class="s">"navbar navbar-default navbar-static-top"</span><span class="p">&gt;</span>
-</pre>
-<p>The I re-built the <em>nikola</em> posts, and reloaded the page and there it was, the white navbar I wanted.</p>
-</div>
-<div class="section" id="updating-the-css">
-<h2>Updating the CSS</h2>
-<div class="section" id="fixing-the-headline-color">
-<h3>Fixing the Headline Color</h3>
-<p>"Fixing" the headlines was more straight-forward. When you install the <em>journal</em> theme it creates a file at <tt class="docutils literal">themes/custom/assets/css/bootstrap.css</tt> (along with a mini-fied version) which you can edit. I decided to leave the anchor-hover value the same but changed the plain anchor color to <tt class="docutils literal">#990033</tt> so that it's more of a blood red than a creamsicle.</p>
-</div>
-<div class="section" id="changing-the-font">
-<h3>Changing the Font</h3>
-<p>Since I was editing the CSS anyway I made some other changes. First, I changed the text-font to <em>Goudy Bookletter</em>. It's a little old-fashioned looking, but I've always liked Goudy's fonts. To do this I first added a link to the font:</p>
-<pre class="code css"><a name="rest_code_c72495c26f6845a4be869d87bb01eaa6-1"></a><span class="p">@</span><span class="k">import</span> <span class="nt">url</span><span class="o">(</span><span class="s2">"https://fonts.googleapis.com/css?family=Goudy+Bookletter+1911:400,700"</span><span class="o">)</span><span class="p">;</span>
-</pre>
-<p>Then I updated the <em>font-family</em>.</p>
-<pre class="code css"><a name="rest_code_28805da3ca504ba6ab083f640e6ab5c3-1"></a><span class="nt">body</span> <span class="p">{</span>
-<a name="rest_code_28805da3ca504ba6ab083f640e6ab5c3-2"></a>  <span class="k">font-family</span><span class="p">:</span> <span class="s2">"Goudy Bookletter 1911"</span><span class="p">,</span> <span class="s2">"EB Garamond"</span><span class="p">,</span>  <span class="n">Georgia</span><span class="p">,</span> <span class="s2">"Times New Roman"</span><span class="p">,</span> <span class="n">Times</span><span class="p">,</span> <span class="kc">serif</span><span class="p">;</span>
-<a name="rest_code_28805da3ca504ba6ab083f640e6ab5c3-3"></a>  <span class="k">font-size</span><span class="p">:</span> <span class="mi">3</span><span class="kt">em</span><span class="p">;</span>
-<a name="rest_code_28805da3ca504ba6ab083f640e6ab5c3-4"></a>  <span class="k">line-height</span><span class="p">:</span> <span class="mf">1.42857143</span><span class="p">;</span>
-<a name="rest_code_28805da3ca504ba6ab083f640e6ab5c3-5"></a>  <span class="k">color</span><span class="p">:</span> <span class="mh">#777777</span><span class="p">;</span>
-<a name="rest_code_28805da3ca504ba6ab083f640e6ab5c3-6"></a>  <span class="k">background-color</span><span class="p">:</span> <span class="mh">#ffffff</span><span class="p">;</span>
-<a name="rest_code_28805da3ca504ba6ab083f640e6ab5c3-7"></a><span class="p">}</span>
-</pre>
-</div>
-<div class="section" id="fixing-the-headline">
-<h3>Fixing the headline</h3>
-<p>For some reason the title of the site has a CSS rule (<tt class="docutils literal"><span class="pre">.navbar-brand</span> <span class="pre">#blog-title</span></tt>) that sets the top padding to 15 px even though the other elements have a padding of 19.5 px so I overrode it to make it align with the other elementes.</p>
-<pre class="code css"><a name="rest_code_0d45ebd27d1b4089b92f2712191a974c-1"></a><span class="p">.</span><span class="nc">navbar-header</span> <span class="p">.</span><span class="nc">navbar-brand</span> <span class="p">#</span><span class="nn">blog-title</span> <span class="p">{</span>
-<a name="rest_code_0d45ebd27d1b4089b92f2712191a974c-2"></a>    <span class="k">padding-top</span><span class="p">:</span> <span class="mf">19.5</span><span class="kt">px</span><span class="p">;</span>
-<a name="rest_code_0d45ebd27d1b4089b92f2712191a974c-3"></a><span class="p">}</span>
-</pre>
-</div>
-<div class="section" id="minifying">
-<h3>Minifying</h3>
-<p>When I wrote this originally, editing the <tt class="docutils literal">bootstrap.css</tt> file worked, but on one of <a class="reference external" href="https://necromuralist.github.io/data_science/">my other sites</a> the CSS file that is being created uses the <tt class="docutils literal">bootstrap.mini.css</tt> file instead. While this seems like it would be preferable, anyway, the change came about unexpectedly - I still don't know why Nikola is doing it on that site and not this one (I guess maybe I'll have to read the manual one of these days). So for that case, after editing the <tt class="docutils literal">bootstrap.css</tt> file you have to minify it (or just make a copy called <tt class="docutils literal">bootstrap.min.css</tt>). To minify it I use <a class="reference external" href="https://github.com/jakubpawlowicz/clean-css-cli">Clean CSS CLI</a>.</p>
-<pre class="code bash"><a name="rest_code_b10a93bd25a74c9eac4ba39e79da72e2-1"></a>npm install clean-css-cli -g
-<a name="rest_code_b10a93bd25a74c9eac4ba39e79da72e2-2"></a><span class="nb">cd</span> themes/custom_theme/assets/css/
-<a name="rest_code_b10a93bd25a74c9eac4ba39e79da72e2-3"></a>cleancss -o bootstrap.min.css bootstrap.css
-</pre>
-<p>Where the <tt class="docutils literal">themes</tt> folder is in the root of my nikola repository, next to the <tt class="docutils literal">conf.py</tt> file.</p>
-</div>
-</div>
-<div class="section" id="deploy">
-<h2>Deploy</h2>
-<p>This isn't really to do with theme-changing, but for completeness, I'll mention it anyway.</p>
-<pre class="code bash"><a name="rest_code_e3a1bb0cb9e9459a96e8717b3d20e36f-1"></a>nikola github_deploy
-</pre>
-</div>
-<div class="section" id="summary">
-<h2>Summary</h2>
-<p>Changing the bootswatch theme isn't as hard as it seemed, in retrospect. You just have to know the basic commands (<tt class="docutils literal">nikola install_theme bootstrap3</tt>, <tt class="docutils literal">nikola bootswatch_theme <span class="pre">-s</span> journal</tt>), know that the inverse navbar is the default (and how to change it - <tt class="docutils literal">nikola theme <span class="pre">-c</span> base.tmpl</tt>), know how to update the CSS to whatever you want (by editing <tt class="docutils literal">bootstrap.css</tt> and minifying it if necessary), and understand that you have to build the site to see the changes on the development server (<tt class="docutils literal">nikola build</tt>).</p>
-</div>
 </div>
     </div>
     </article>

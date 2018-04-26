@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about bokeh org howto)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/bokeh-org-howto.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 26 Apr 2018 20:03:19 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>bokeh org-mode</title><link>https://necromuralist.github.io/posts/bokeh-org-mode/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org6fd0922" class="outline-2"&gt;
+&lt;h2 id="org6fd0922"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6fd0922"&gt;
+&lt;p&gt;
+This is an illustration of how to use bokeh with org-mode in nikola. There is a more extensive and flexible explanation of how to do this in &lt;a href="http://cherian.net/posts/bokeh-org-mode.html"&gt;this post&lt;/a&gt; on &lt;a href="http://cherian.net"&gt;cherian.net&lt;/a&gt; but I made these notes to understand how it works and to have a simpler example to refer to.
+&lt;/p&gt;
+
+&lt;p&gt;
+I was interested in doing this because I'm trying to re-work some of what I did for the Coursera &lt;b&gt;Data Science With Python&lt;/b&gt; specialization by changing the data-sets and building them as blog posts. I might convert the posts to restructured text at some point, but while I'm working with them I'm using org-mode. Also, while most of the time I use &lt;a href="https://matplotlib.org"&gt;matplotlib&lt;/a&gt; for plotting since this is going to be a blog-first approach I decided to go with &lt;a href="https://bokeh.pydata.org/en/latest/"&gt;bokeh&lt;/a&gt;. I had &lt;a href="https://necromuralist.github.io/data_science/posts/bokeh-test/"&gt;previously written&lt;/a&gt; about how to gut &lt;b&gt;bokeh&lt;/b&gt; into &lt;b&gt;Nikola&lt;/b&gt; using restructured text, but as an intermediate step I want to do the work in org-mode and still be able to see the output as I'm working. 
+&lt;/p&gt;
+
+&lt;p&gt;
+The magic mix for this seems to be to use:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://getnikola.com"&gt;Nikola&lt;/a&gt; to build the HTML posts&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://orgmode.org"&gt;org-mode&lt;/a&gt;, an emacs mode to format the posts&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://plugins.getnikola.com/v7/orgmode/"&gt;the orgmode-plugin&lt;/a&gt; for nikola&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; to get &lt;a href="https://jupyter.org"&gt;jupyter/ipython&lt;/a&gt; in the org-mode posts&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#userguide-quickstart"&gt;bokeh&lt;/a&gt; to make the plots&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orge0e8d41" class="outline-2"&gt;
+&lt;h2 id="orge0e8d41"&gt;Creating the Bokeh Plot&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge0e8d41"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org59e7a6e" class="outline-3"&gt;
+&lt;h3 id="org59e7a6e"&gt;Imports&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org59e7a6e"&gt;
+&lt;p&gt;
+These are the dependencies. It's really all &lt;code&gt;bokeh&lt;/code&gt;, &lt;code&gt;numpy&lt;/code&gt; is just there to generate the data-values.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# from pypi&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;bokeh.models&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;HoverTool&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;bokeh.plotting&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ColumnDataSource&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;bokeh.embed&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;autoload_static&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_html&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;bokeh.resources&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+I probably should save bokeh to this repository to keep the post from breaking in the future, but I'm lazy so I'm just going to import it from a CDN.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;bokeh&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bokeh&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;resources&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CDN&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org304ec74" class="outline-3"&gt;
+&lt;h3 id="org304ec74"&gt;The Data&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org304ec74"&gt;
+&lt;p&gt;
+To get a simple example going I'm just going to use some random outputs generated by numpy.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;arange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;Y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;randint&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+In order to create a data-structure that bokeh can use (similar to a &lt;a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html"&gt;pandas dataframe&lt;/a&gt;) you need to use a &lt;a href="https://bokeh.pydata.org/en/0.10.0/docs/reference/models/sources.html"&gt;ColumnDataSource&lt;/a&gt;.
+&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ColumnDataSource&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;desc&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"a"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"b"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"c"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"d"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"e"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"f"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"g"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"h"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"i"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"j"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+The keys in the data-dict are essentially the column headers.
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;Key&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;x&lt;/td&gt;
+&lt;td class="org-left"&gt;the x-axis values&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;y&lt;/td&gt;
+&lt;td class="org-left"&gt;the y-axis values&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;desc&lt;/td&gt;
+&lt;td class="org-left"&gt;The labels for the tooltip&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;
+Now to get some tool-tips to pop up when you hover over the plot, I'll create a &lt;code&gt;HoverTool&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;hover&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;HoverTool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tooltips&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'index'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'$index'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'(x, y)'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'($x, $y)'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'desc'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'@desc'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+The &lt;code&gt;tooltips&lt;/code&gt; list maps the labels that will show up in the tooltip (the first argument to each tuple) to variables in the &lt;code&gt;ColumnDataSource&lt;/code&gt; (if preceded by an &lt;code&gt;@&lt;/code&gt;) or generated value (if preceded by a &lt;code&gt;$&lt;/code&gt;) The &lt;code&gt;index&lt;/code&gt; value is the index in the array where the data point sits (so for the first point it will be 0, the second will be 1, etc.). The &lt;code&gt;(x, y)&lt;/code&gt; values are the coordinate locations of your pointer when you hover over the data points, and the &lt;code&gt;desc&lt;/code&gt; will be replaced by the label I set in the &lt;code&gt;ColumnDataSource&lt;/code&gt; for a particular data-point.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgee1b3d9" class="outline-3"&gt;
+&lt;h3 id="orgee1b3d9"&gt;The Plot&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgee1b3d9"&gt;
+&lt;p&gt;
+Now I'll create the actual plot (&lt;code&gt;figure&lt;/code&gt;).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;fig&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Random Example"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x_axis_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"x"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y_axis_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"y"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+	     &lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;hover&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="n"&gt;fig&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'x'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'y'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;fig&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;circle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'x'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'y'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org1c18861" class="outline-2"&gt;
+&lt;h2 id="org1c18861"&gt;Getting the Bokeh Plot Into The Post&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1c18861"&gt;
+&lt;p&gt;
+Finally I'll save the javascript and HTML files needed and then output the blob needed to embed the plot into this post. The &lt;code&gt;autoload_static&lt;/code&gt; function takes the bokeh plot object (&lt;code&gt;fig&lt;/code&gt;), the bokeh javascript that I loaded earlier (&lt;code&gt;bokeh&lt;/code&gt;), and the name of the javascript file that you want it to creat (&lt;code&gt;test.js&lt;/code&gt;) and returns the javascript to save (&lt;code&gt;javascript&lt;/code&gt;) and the HTML fragment that will include the javascript (&lt;code&gt;source&lt;/code&gt;). Note that because of the way nikola structures things I have to create a folder named &lt;code&gt;files/posts/bokeh-org-mode&lt;/code&gt; and save the files there. Since nikola will automatically look in this folder the name you pass into &lt;code&gt;autoload_static&lt;/code&gt; should just be the filename without the path, but when you save the javascript file you will save it there so you need to add the relative path. If my explanation seems a little convoluted, just look at the code below, it's fairly simple.
+&lt;/p&gt;
+
+&lt;p&gt;
+First I'll create a variable to hold the path to the folder to save the files in. All files for nikola posts go into sub-folders of &lt;code&gt;files/posts/&lt;/code&gt; and since the source file for this post is called &lt;code&gt;bokeh-org-mode.org&lt;/code&gt;, the files to include in it go into the folder &lt;code&gt;files/posts/bokeh-org-mode&lt;/code&gt; (&lt;code&gt;files/posts/&lt;/code&gt; plus the slug for the post).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;FOLDER_PATH&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"../files/posts/bokeh-org-mode/"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgbdfbe07" class="outline-3"&gt;
+&lt;h3 id="orgbdfbe07"&gt;The Javascript&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbdfbe07"&gt;
+&lt;p&gt;
+Now, I'll create the javascript source for the plot.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;FILE_NAME&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"test.js"&lt;/span&gt;
+&lt;span class="n"&gt;javascript&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;autoload_static&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fig&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bokeh&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;FILE_NAME&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;FOLDER_PATH&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;FILE_NAME&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"w"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;writer&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;writer&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;write&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;javascript&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+The &lt;code&gt;javascript&lt;/code&gt; variable holds the actual javascript source code (which then gets saved) while the &lt;code&gt;source&lt;/code&gt; variable holds the string with the HTML to embed the javascript into this post (which I show at the end of this post).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org17b6a95" class="outline-3"&gt;
+&lt;h3 id="org17b6a95"&gt;Embedding the Plot&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org17b6a95"&gt;
+&lt;p&gt;
+Finally, we need to print out the string that is stored in the &lt;code&gt;source&lt;/code&gt; variable which then tells org-mode to embed the files into this post. I'll output the full org-block so you can see the header arguments.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC python :session bokeh :results output raw :exports results
+print('''#+BEGIN_EXPORT html
+{}
+#+END_EXPORT'''.format(source))
+#+END_SRC
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;script src="https://necromuralist.github.io/posts/bokeh-org-mode/test.js" id="99045dff-710a-4c8e-8565-6fd31b538349" data-bokeh-model-id="f46a6fe0-7aab-47d9-aae0-d14718763236" data-bokeh-doc-id="99649b1a-8c14-49b7-a6ef-c61b3ec6dbae"&gt;&lt;/script&gt;
+
+&lt;p&gt;
+And there you have it. I don't have a lot to say about it, other than that if you hover over the data with your cursor and then look up above at the &lt;code&gt;ColumnDataSource&lt;/code&gt; above, you'll see that the variables match the inputs
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgef30799" class="outline-2"&gt;
+&lt;h2 id="orgef30799"&gt;Summary&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgef30799"&gt;
+&lt;p&gt;
+To get a bokeh figure into an org-mode document in nikola:
+&lt;/p&gt;
+
+&lt;ol class="org-ol"&gt;
+&lt;li&gt;Create the bokeh plot.&lt;/li&gt;
+&lt;li&gt;Create a folder in the &lt;code&gt;files/posts/&lt;/code&gt; folder that matches the slug for the post.&lt;/li&gt;
+&lt;li&gt;Use &lt;code&gt;autoload_static&lt;/code&gt; to convert the bokeh object to javascript and create the HTML tag to embed it.&lt;/li&gt;
+&lt;li&gt;Save the javascript in the &lt;code&gt;files/posts/&amp;lt;slug&amp;gt;/&lt;/code&gt; folder that you created&lt;/li&gt;
+&lt;li&gt;Print the HTML fragment in an org-mode &lt;code&gt;#+BEGIN_EXPORT html&lt;/code&gt; block.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>bokeh org howto</category><guid>https://necromuralist.github.io/posts/bokeh-org-mode/</guid><pubDate>Thu, 26 Apr 2018 04:59:50 GMT</pubDate></item></channel></rss>
