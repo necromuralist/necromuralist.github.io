@@ -1,0 +1,78 @@
+#+BEGIN_COMMENT
+.. title: TCP Dump Notes
+.. slug: tcp-dump-notes
+.. date: 2018-05-09 14:54:56 UTC-07:00
+.. tags: notes networking
+.. category: notes
+.. link: 
+.. description: Notes on TCP Dump
+.. type: text
+.. status: draft
+#+END_COMMENT
+
+These are notes I made while surfing the web looking into [[http://www.tcpdump.org/][TCP Dump]].
+
+* About TCP Dump
+ - It has more filtering capabilities and can filter while capturing packets, but it doesn't have the analytical tools that something like wireshark has[fn:1].
+* Some Examples
+** Listing interfaces
+   You can ask =tcpdump= which interfaces it is able to listen to[fn:3].
+
+#+BEGIN_EXAMPLE
+tcpdump -D
+#+END_EXAMPLE
+
+** Capture packets on an interface
+To capture packets on an interface you pass its name to the =-i= flag[fn:3] (here the interface I'll use is =eno1=).
+
+#+BEGIN_EXAMPLE
+sudo tcpdump -i eno1
+#+END_EXAMPLE
+
+*** Save the packet capture to a file
+The default behavior is for =tcpdump= to send the output to standard output, to have it save the packets to a files use the =-w= flag[fn:3] (you can call it anything, I'll call it =dump.pcap=).
+
+#+BEGIN_EXAMPLE
+sudo tcpdump -i eno1 -w dump.pcap
+#+END_EXAMPLE
+
+*** Increase the verbosity of the capture
+To increase the amount if information that's captured, pass multiple =v= arguments[fn:3] (in this case I'll use =-vvv=).
+
+#+BEGIN_EXAMPLE
+sudo tcpdump -i eno1 -vvv -w dump.pcap
+#+END_EXAMPLE
+
+** Filtering
+*** By Sender IP Address
+You can filter out all the packets except those that are being sent by a host using the =src host= argument[fn:3].
+
+#+BEGIN_EXAMPLE
+sudo tcpdump -i eno1 src host 192.168.1.12
+#+END_EXAMPLE
+
+*** By Target IP Address
+To filter out all the packets except those that are going to a specific target use the =dst host= argument[fn:3].
+
+#+BEGIN_EXAMPLE
+sudo tcpdump -i eno1 dst host 192.168.1.1
+#+END_EXAMPLE
+
+* Links
+ - (Wireshark Revealed[fn:2]) [[http://www.tcpdump.org/][The tcpdump website]]
+ - (Wireshark Revealed[fn:2]) [[http://danielmiessler.com/study/tcpdump/][A friendly tutorial]]
+ - (Wireshark Revealed[fn:2]) [[http://www.tcpdump.org/tcpdump_man.html][The official man page]]
+
+* Sources
+
+[fn:1]
+
+  Diogenes, Y. & Ozkaya, E. (2018). Cybersecurity, Attack and Defense Strategies : infrastructure security with Red Team and Blue Team tactics. Birmingham, UK: Packt Publishing.]
+
+[fn:2]
+
+  Baxter, J., Orzach, Y. & Mishra, C. (2017). Wireshark revealed : essential skills for IT professionals : get up and running with Wireshark to analyze your network effectively. Birmingham, UK: Packt Publishing.
+
+[fn:3]
+
+  Johansen, G. (2017). Digital forensics and incident response : an intelligent way to respond to attacks. Birmingham, UK: Packt Publishing.
