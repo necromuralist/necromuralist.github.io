@@ -10,7 +10,7 @@
 .. status: draft
 #+END_COMMENT
 
-These are notes I made while surfing the web looking into [[http://www.tcpdump.org/][TCP Dump]].
+These are notes I made while surfing the web looking into [[http://www.tcpdump.org/][TCP Dump]]. You will most likely need to use =sudo= to run most of the commands, but I'm leaving it off to make it shorter.
 
 * About TCP Dump
  - It has more filtering capabilities and can filter while capturing packets, but it doesn't have the analytical tools that something like wireshark has[fn:1].
@@ -26,38 +26,78 @@ tcpdump -D
 To capture packets on an interface you pass its name to the =-i= flag[fn:3] (here the interface I'll use is =eno1=).
 
 #+BEGIN_EXAMPLE
-sudo tcpdump -i eno1
+tcpdump -i eno1
 #+END_EXAMPLE
 
 *** Save the packet capture to a file
 The default behavior is for =tcpdump= to send the output to standard output, to have it save the packets to a files use the =-w= flag[fn:3] (you can call it anything, I'll call it =dump.pcap=).
 
 #+BEGIN_EXAMPLE
-sudo tcpdump -i eno1 -w dump.pcap
+tcpdump -i eno1 -w dump.pcap
 #+END_EXAMPLE
 
 *** Increase the verbosity of the capture
 To increase the amount if information that's captured, pass multiple =v= arguments[fn:3] (in this case I'll use =-vvv=).
 
 #+BEGIN_EXAMPLE
-sudo tcpdump -i eno1 -vvv -w dump.pcap
+tcpdump -i eno1 -vvv -w dump.pcap
 #+END_EXAMPLE
 
 ** Filtering
+*** By IP address
+You can get all the packets being sent or received by a host using the =host= argument[fn:4].
+
+#+BEGIN_EXAMPLE
+tcpdump host 192.168.1.12
+#+END_EXAMPLE
 *** By Sender IP Address
 You can filter out all the packets except those that are being sent by a host using the =src host= argument[fn:3].
 
 #+BEGIN_EXAMPLE
-sudo tcpdump -i eno1 src host 192.168.1.12
+tcpdump -i eno1 src host 192.168.1.12
 #+END_EXAMPLE
+
+You can leave off the =host= argument and just use =src=[fn:4]
 
 *** By Target IP Address
 To filter out all the packets except those that are going to a specific target use the =dst host= argument[fn:3].
 
 #+BEGIN_EXAMPLE
-sudo tcpdump -i eno1 dst host 192.168.1.1
+tcpdump -i eno1 dst host 192.168.1.1
 #+END_EXAMPLE
 
+*** Sender and Target IP Addresses
+You can combine parameters using the logical operators =and=, =or=, and =not=[fn:4].
+
+#+BEGIN_EXAMPLE
+tcpdump 'src 192.168.1.1 and dst 192.168.1.12'
+#+END_EXAMPLE
+
+The single quotes are optional and are just used to group the arguments together.
+
+*** By Subnet
+You can grab all the packets on a network or subnet using the =net= argument and [[https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation][CIDR]] notation[fn:4]. This example grabs all the packets on the =192.168.1.*= subnet.
+
+#+BEGIN_EXAMPLE
+tcpdump net 192.168.1.0/24
+#+END_EXAMPLE
+*** By port and/or protocol
+If you want to only catch activity on a certain [[https://en.wikipedia.org/wiki/Port_(computer_networking)][port]] and by a certain protocol then you use the =port= argument and the name of the protocol (e.g. =udp=)[fn:4]. This would catch all the =tcp= traffic over SSH.
+#+BEGIN_EXAMPLE
+tcpdump tcp port 22
+#+END_EXAMPLE
+
+You can use =tcp=, =udp=, or =icmp= for the protocols and add multiple ports using a comma[fn:5].
+
+#+BEGIN_EXAMPLE
+tcpdump tcp port 22,80
+#+END_EXAMPLE
+*** Turn off hostname and port translation
+The default behavior for =tcpdump= is to translate the hostnames and ports to something human-readable if possible. To turn this off you pass in the =-n= argument[fn:4]. Since this stops having to look things up it will reduce the amount of overhead needed by =tcpdump=.
+
+#+BEGIN_EXAMPLE
+tcpdump -n -i eno1 port 22
+#+END_EXAMPLE
 * Links
  - (Wireshark Revealed[fn:2]) [[http://www.tcpdump.org/][The tcpdump website]]
  - (Wireshark Revealed[fn:2]) [[http://danielmiessler.com/study/tcpdump/][A friendly tutorial]]
@@ -76,3 +116,11 @@ sudo tcpdump -i eno1 dst host 192.168.1.1
 [fn:3]
 
   Johansen, G. (2017). Digital forensics and incident response : an intelligent way to respond to attacks. Birmingham, UK: Packt Publishing.
+
+[fn:4]
+
+  Beltrame, J. (2017). Penetration testing bootcamp : quickly get up and running with pentesting techniques. Birmingham, UK: Packt Publishing.
+
+[fn:5]
+
+  McPhee. & Beltrame, J. (2016). Penetration testing with Raspberry Pi : learn the art of building a low-cost, portable hacking arsenal using Raspberry Pi 3 and Kali Linux 2. Birmingham, UK: Packt Publishing.
