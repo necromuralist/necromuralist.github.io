@@ -101,7 +101,73 @@
 
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/pruning-large-files-from-git-with-bfg/" class="u-url">Pruning Large Files From Git with BFG</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/removing-large-files-from-git-using-bfg-and-a-local-repository/" class="u-url">Removing Large Files From git Using BFG and a Local Repository</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/hades/">hades</a>
+            </span></p>
+            <p class="dateline"><a href="posts/removing-large-files-from-git-using-bfg-and-a-local-repository/" rel="bookmark"><time class="published dt-published" datetime="2018-01-14T13:55:37-08:00" title="2018-01-14 13:55">2018-01-14 13:55</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div>
+<div class="section" id="background">
+<h2>1 Background</h2>
+<p>This is about removinge large files that have been committed to a git repository. Github has a 100 MB file limit, and I'm using Century Link's ADSL (Fiber to the Node) so my upload speeds are much slower than my download speeds, so I'd like to keep large files out of the repository. The problem when working with data is that you can often end up with very large files that accidentally get committed, then need to be removed. Here's two cases I've run into:</p>
+<ul class="simple">
+<li>I accidentally committed some large files to a git repository and couldn't push my changes up to github, having exceeded their file-size limit</li>
+<li>I committed a folder that had some large files that were under the limit, but were just taking too long to upload.</li>
+</ul>
+<p>I stumbled upon the <a class="reference external" href="https://rtyley.github.io/bfg-repo-cleaner/">BFG Repo-Cleaner</a> while looking for a solution and kept these notes so I don't forget what I did.</p>
+<p>The instructions on the website are pretty clear, but it assumes that the large files are on a remote repository (I talk about that case <a class="reference external" href="posts/pruning-large-files-from-git-with-bfg/">here</a>) but in my case my changes were local so I needed to change the first step from cloning the repository to cleaning the git repository (I'll call the repository <tt class="docutils literal">big_files</tt>). In this case I decided to remove anything bigger than 50 MegaBytes.</p>
+</div>
+<div class="section" id="the-commands">
+<h2>2 The Commands</h2>
+<p>For reference, these are all the commands. I'll go over them in the sections that follow. The <tt class="docutils literal">java <span class="pre">-jar</span></tt> line pointing to the BFG jar file will have to match your download file name and location.</p>
+<pre class="code python"><a name="rest_code_7eb4da42cab341dc8636c5e27c712e3c-1"></a><span class="n">cd</span> <span class="n">big_files</span>
+<a name="rest_code_7eb4da42cab341dc8636c5e27c712e3c-2"></a><span class="n">git</span> <span class="n">gc</span>
+<a name="rest_code_7eb4da42cab341dc8636c5e27c712e3c-3"></a><span class="n">cd</span> <span class="o">../</span>
+<a name="rest_code_7eb4da42cab341dc8636c5e27c712e3c-4"></a><span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="n">bfg</span><span class="o">-</span><span class="mf">1.12</span><span class="o">.</span><span class="mf">7.j</span><span class="n">ar</span> <span class="o">--</span><span class="n">strip</span><span class="o">-</span><span class="n">blobs</span><span class="o">-</span><span class="n">bigger</span><span class="o">-</span><span class="n">than</span> <span class="mi">50</span><span class="n">M</span> <span class="n">big_files</span>
+<a name="rest_code_7eb4da42cab341dc8636c5e27c712e3c-5"></a><span class="n">cd</span> <span class="n">big_files</span>
+<a name="rest_code_7eb4da42cab341dc8636c5e27c712e3c-6"></a><span class="n">git</span> <span class="n">reflog</span> <span class="n">expire</span> <span class="o">--</span><span class="n">expire</span><span class="o">=</span><span class="n">now</span> <span class="o">--</span><span class="nb">all</span>
+<a name="rest_code_7eb4da42cab341dc8636c5e27c712e3c-7"></a><span class="n">git</span> <span class="n">gc</span> <span class="o">--</span><span class="n">prune</span><span class="o">=</span><span class="n">now</span> <span class="o">--</span><span class="n">aggressive</span>
+</pre>
+<p>I'll break this down into three parts:</p>
+<ol class="arabic simple">
+<li>Clean the repository</li>
+<li>Run BFG to remove the file from the git history</li>
+<li>Clean the repository again</li>
+</ol>
+<div class="section" id="clean-the-repository">
+<h3>2.1 Clean The repository</h3>
+<p>The <a class="reference external" href="https://git-scm.com/docs/git-gc">git gc</a> (garbage collection) command will clean up unnecessary files and perform some optimizations that will let us run BFG on it.</p>
+<pre class="code sh"><a name="rest_code_14e0b0c89e4143598498abacbfb06611-1"></a><span class="nb">cd</span> big_files
+<a name="rest_code_14e0b0c89e4143598498abacbfb06611-2"></a>git gc
+<a name="rest_code_14e0b0c89e4143598498abacbfb06611-3"></a><span class="nb">cd</span> ../
+</pre>
+</div>
+<div class="section" id="run-bfg">
+<h3>2.2 Run BFG</h3>
+<pre class="code sh"><a name="rest_code_99b2eb2e70e84570ab133b846731617f-1"></a>java -jar bfg-1.12.7.jar --strip-blobs-bigger-than 50M big_files
+</pre>
+<ul class="simple">
+<li>You have to run in the folder just above the git repository</li>
+<li>Change it to have the correct path to the jar (e.g. <tt class="docutils literal">java <span class="pre">-jar</span> <span class="pre">/home/username/bin/bfg-1.12.7.jar</span></tt>).</li>
+<li>The tell it to remove files bigger than 50 Megabytes</li>
+<li>In the <tt class="docutils literal">big_files</tt> folder</li>
+</ul>
+</div>
+<div class="section" id="clean-up-the-git-repository-again">
+<h3>2.3 Clean Up the Git Repository Again</h3>
+<p><tt class="docutils literal">BFG</tt> will tell you this part in it's output, although I'm not using bash so it worked better when I ran the commands separately, instead of all on one line using <tt class="docutils literal">&amp;&amp;</tt> between the commands (fish doesn't support it). These are git commands so you have to change back into the repository folder.</p>
+<pre class="code python"><a name="rest_code_040ef8a44b8f4b0abff16bb63b830f6f-1"></a><span class="n">cd</span> <span class="n">big_files</span>
+<a name="rest_code_040ef8a44b8f4b0abff16bb63b830f6f-2"></a><span class="n">git</span> <span class="n">reflog</span> <span class="n">expire</span> <span class="o">--</span><span class="n">expire</span><span class="o">=</span><span class="n">now</span> <span class="o">--</span><span class="nb">all</span>
+<a name="rest_code_040ef8a44b8f4b0abff16bb63b830f6f-3"></a><span class="n">git</span> <span class="n">gc</span> <span class="o">--</span><span class="n">prune</span><span class="o">=</span><span class="n">now</span> <span class="o">--</span><span class="n">aggressive</span>
+</pre>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/pruning-large-files-from-git-with-bfg/" class="u-url">Pruning Large Files From Git with BFG</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/hades/">hades</a>
