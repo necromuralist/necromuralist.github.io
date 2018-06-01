@@ -101,7 +101,234 @@
 
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/how-to-change-the-nikola-bootswatch-theme/" class="u-url">How To Change The Nikola Bootswatch Theme</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/pruning-large-files-from-git-with-bfg/" class="u-url">Pruning Large Files From Git with BFG</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/hades/">hades</a>
+            </span></p>
+            <p class="dateline"><a href="posts/pruning-large-files-from-git-with-bfg/" rel="bookmark"><time class="published dt-published" datetime="2018-01-14T12:57:59-08:00" title="2018-01-14 12:57">2018-01-14 12:57</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div>
+<p>These are my notes on removing large files from a git repository with the <a class="reference external" href="https://rtyley.github.io/bfg-repo-cleaner/">BFG Repo-Cleaner</a>. It assumes that you have already pushed it to a remote repository. If you've committed the changes but haven't pushed them, see <a class="reference external" href="posts/removing-large-files-from-git-using-bfg-and-a-local-repository/">this post</a>.</p>
+<div class="section" id="background">
+<h2>1 Background</h2>
+<p>I accidentally committed an 89 MB file to git and pushed it upstream to github. This is within the allowed file-size limit, but when I looked in the file it was filled with the same error message over and over again, so it wasn't useful to keep, anyway. I was just working with small log-files, so any large files indicated an error, anyway, so I decided to clean anything over 50 MB from the repository using <em>BFG</em>. The instructions on the home page mostly work, but didn't exactly work so I'm making some notes here for the next time.</p>
+</div>
+<div class="section" id="the-process">
+<h2>2 The Process</h2>
+<p>Assuming you've downloaded the BFG jar file, this is what you need to do.</p>
+<pre class="code sh"><a name="rest_code_b76c9dbc8d0443f2b530a7b2a981981f-1"></a>git clone --mirror &lt;remote git address&gt;
+</pre>
+<p>The <tt class="docutils literal"><span class="pre">--mirror</span></tt> flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the <tt class="docutils literal">.git</tt> folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in <a class="reference external" href="https://github.com/rtyley/bfg-repo-cleaner/issues/65">this bug-report</a> the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.</p>
+<p>Next run the BFG.</p>
+<pre class="code sh"><a name="rest_code_3aa04387a9254cf4af94533324d112cc-1"></a>java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &lt;path to cloned mirror&gt;
+</pre>
+<p>Now you have to change into the cloned repository and execute some commands to update it.</p>
+<pre class="code sh"><a name="rest_code_47621834c4984ef8a15feb6231c65150-1"></a>git reflog expire --expire-now --all
+<a name="rest_code_47621834c4984ef8a15feb6231c65150-2"></a>git gc --prune<span class="o">=</span>now --aggressive
+</pre>
+<p>Now push it back to github.</p>
+<pre class="code sh"><a name="rest_code_6418c2f997b2461d84d109bea6e07af6-1"></a>git push
+</pre>
+<p>At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.</p>
+<pre class="code sh"><a name="rest_code_cb6cb3fd0837422ab1c02a4a69914684-1"></a>rm -r &lt;original <span class="nb">local</span> repository&gt;
+<a name="rest_code_cb6cb3fd0837422ab1c02a4a69914684-2"></a>git clone &lt;remote repository&gt;
+</pre>
+<p>One thing that tripped me up a little was that I had removed the <em>master</em> branch but the <em>BFG</em> re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.</p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/restructured-text-anonymous-links/" class="u-url">Restructured Text Anonymous Links</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline"><a href="posts/restructured-text-anonymous-links/" rel="bookmark"><time class="published dt-published" datetime="2018-01-08T18:06:52-08:00" title="2018-01-08 18:06">2018-01-08 18:06</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div>
+<div class="section" id="background">
+<h2>Background</h2>
+<p>I'm creating an <a class="reference external" href="https://en.wikipedia.org/wiki/Annotated_bibliography">annotated bibliography</a> using nikola, and added links to the PDFs online so I could download them again if needed. I called them all <cite>PDF Link</cite> but when I built the web-page I found that there were some restructured text errors in it that looked like this.</p>
+<img alt="backlink_rst_error.png" src="posts/restructured-text-anonymous-links/backlink_rst_error.png"><p>This <a class="reference external" href="https://stackoverflow.com/questions/5464627/how-to-have-same-text-in-two-links-with-restructured-text">stack overflow answer</a> pointed me to anonymous links (which I had never heard of) to fix the problem.</p>
+</div>
+<div class="section" id="named-and-anonymous-links">
+<h2>Named and Anonymous Links</h2>
+<p>The form for hyperlinks that I learned used one underscore:</p>
+<pre class="literal-block">
+`some link&lt;http://some-target.com&gt;`_
+</pre>
+<p>This creates both a hyperlink in the document and a target that other hyperlinks can use. In this case, you can create a link back to this hyperlink somewhere else in the document using this syntax:</p>
+<pre class="literal-block">
+`some link`_
+</pre>
+<p>Unfortunately this means that the text used for the link has to be unique. In order to make multiple hyperlinks with the same text in them, use two underscores:</p>
+<pre class="literal-block">
+`some link &lt;http://some-target.com&gt;`__
+</pre>
+<p>This fixed it for me. Of course now the internal targets are gone as well, but they wouldn't have worked anyway.</p>
+<p>See the <a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references">Restructured Text Hyperlink Documentatation</a> for more details.</p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-experience-of-updating-ubuntu-1704-to-1710/" class="u-url">The Experience of Updating Ubuntu 17.04 To 17.10</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline"><a href="posts/the-experience-of-updating-ubuntu-1704-to-1710/" rel="bookmark"><time class="published dt-published" datetime="2017-10-28T13:35:05-07:00" title="2017-10-28 13:35">2017-10-28 13:35</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <p>
+I recently switched to Ubuntu 17.10 (from 17.04) and found it to be surprisingly difficult. This is meant to document what I noticed so that if I decide to upgrade another machine I'll have something to jog my memory about what it was like.
+</p>
+
+<div id="outline-container-org016136f" class="outline-2">
+<h2 id="org016136f">Complete Re-Install Required</h2>
+<div class="outline-text-2" id="text-org016136f">
+<p>
+I upgraded four machines (I don't have all their details at hand - maybe I'll update this later). In each case they were running Ubuntu 17.04 so I used <code>do-release-upgrade</code> initially. I didn't upgrade them all on the same day, but did upgrade all of them within the past week.
+</p>
+
+<ul class="org-ul">
+<li>HP Z600</li>
+<li>eMachine</li>
+<li>Zareason</li>
+<li>Toshiba portege (laptop)</li>
+</ul>
+<p>
+The first sign that something bad was happening was that the lock-screen appeared to break after the update so I couldn't log back in. The field where you would normally enter the password was gone so there was no way to authenticate myself. In retrospect, maybe since I did this four times I should have tried a headless install with GNU screen to at least see what was going on, but hindsight's always fifty-fifty, isn't it? My tendency to repeat my mistakes is why I'm writing this down, after all. 
+</p>
+
+<p>
+On trying to reboot I found that none of the machines would fully start. All of them got stuck on a black screen with a single white underscore in the top left corner. Unlike the other machines, the Toshiba let me enter the disk-decryption password, but then it ended up at the same black screen as the rest. Once it reached this state there was no way to get to the consoles either (e.g. using ctrl-alt-F1). So, in every case I had to boot from a thumb drive and do a fresh install.
+</p>
+</div>
+</div>
+<div id="outline-container-org70ea5fe" class="outline-2">
+<h2 id="org70ea5fe">Backwards Steps</h2>
+<div class="outline-text-2" id="text-org70ea5fe">
+</div>
+<div id="outline-container-orgf7af220" class="outline-3">
+<h3 id="orgf7af220">Alternate Keyboard Layouts</h3>
+<div class="outline-text-3" id="text-orgf7af220">
+<p>
+It used to be that the installer would ask you to set up a disk-encryption password before asking you for your keyboard layout, making it harder for people like me that use alternate layouts (<a href="https://www.kaufmann.no/roland/dvorak/">Programmer Dvorak</a> in my case). They eventually fixed that, but now it's back again, forcing you to enter the password to decrypt your drive using <code>qwerty</code>. The initial login to decrypt the drive after you boot the computer also has no way to switch the keyboard layout, so once again you have to use <code>qwerty</code>. On top of that, the visual keyboard is missing keys (well, it's missing the underscore, any way) which I used to use when I found myself struggling too much with <code>qwerty</code>, so instead I have to use the physical keyboard, hunting and pecking and trying to forget where I think the keys should be. Then, once you get past that first screen, it switches back to dvorak (although the visual keyboard doesn't, for some reason) so you have to know that the user login is using a different keyboard layout from the disk decryption prompt - even though there's no way to actually check what the layout is without just trying the variations until you find the one that works.
+</p>
+</div>
+</div>
+<div id="outline-container-org3b71729" class="outline-3">
+<h3 id="org3b71729">Video Drivers</h3>
+<div class="outline-text-3" id="text-org3b71729">
+<p>
+On top of the keyboard problem, the default Nouveau video drivers seem to have re-introduced an old bug that causes the GUI to freeze up periodically (on my ZaReason and HP computers, at least. I haven't seen it on the other two, but I don't use them as much, anyway). Switching to the Nvidia driver fixes the freezing problem, but it then makes the initial disk-decryption login non-functional - it seems to freeze everything so you can't do anything but restart the computer and use the Grub menu to drop into recovery mode and enter the password at the command line before resuming the startup. As a 'fix' I followed the advice from <a href="https://askubuntu.com/questions/16371/how-do-i-disable-x-at-boot-time-so-that-the-system-boots-in-text-mode">this Stack Overflow answer</a> and disabled the initial splash screen altogether by editing the <code>/etc/default/grub</code> file to have this line:
+</p>
+
+<pre class="example">
+GRUB_CMDLINE_LINUX_DEFAULT="text"
+</pre>
+
+<p>
+Then update grub (it doesn't load this file on booting up, you have to explicitly update it).
+</p>
+
+<pre class="example">
+sudo update-grub
+</pre>
+
+<p>
+This makes the initial boot-screen text-only, like an old-school terminal. Not fancy, but at least I don't have to remember to drop into recovery-mode every time I start the computer.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4a6e403" class="outline-2">
+<h2 id="org4a6e403">Apt-Fast Bug</h2>
+<div class="outline-text-2" id="text-org4a6e403">
+<p>
+This is a <a href="https://github.com/ilikenwf/apt-fast/issues/132">bug</a> in apt-fast, not an ubuntu bug, but since apt-fast is one of the first things I usually install, I figure I should document the fix. Open up <code>/var/lib/dpkg/info/apt-fast.config</code> (as root), jump to line 212 and change this line:
+</p>
+
+<pre class="example">
+if ($downloadcmd =~ /\${_MAXNUM}/){
+</pre>
+
+<p>
+to this:
+</p>
+
+<pre class="example">
+if ($downloadcmd =~ /\$\{_MAXNUM}/){
+</pre>
+
+<p>
+In case you can't see it I added a backslash (<code>\</code>) between the <code>$</code> and <code>{_MAXNUM</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org4a13f50" class="outline-2">
+<h2 id="org4a13f50">A Little Less Whining</h2>
+<div class="outline-text-2" id="text-org4a13f50">
+<p>
+Although the disk-decryption login is a major negative, I must note that I kind of like the new aesthetic, I was just really, <i>really</i>, surprised at how defective this process seemed to be, given how far along Ubuntu has come. There's still some unexpected behaviors (switching workspaces seems to drag applications with them, even though I didn't explicitly ask to, for instance, and byobu seems to ignore my alternate escape key sometimes), but I like it overall. Maybe tomorrow I'll feel different.
+</p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/shell-output-with-org-babel-ipython/" class="u-url">Shell Output With Org-Babel Ipython</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline"><a href="posts/shell-output-with-org-babel-ipython/" rel="bookmark"><time class="published dt-published" datetime="2017-10-11T12:49:19-07:00" title="2017-10-11 12:49">2017-10-11 12:49</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div>
+<p>One of the nice things about ipython is the ability to run shell commands with <tt class="docutils literal">!</tt>. When you use it in an <a class="reference external" href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> block, though, it will dump the output into a popup rather than in the same emacs org-file. One alternative is to use a shell block instead. I wrote earlier that this requires you to put an echo command in the block to prevent the text going to a pop-up.</p>
+<pre class="code bash"><a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-1"></a><span class="c1">#+BEGIN_SRC sh</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-2"></a>head Future_Connections.csv
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-3"></a><span class="nb">echo</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-4"></a><span class="c1">#+END_SRC</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-5"></a>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-6"></a><span class="c1">#+RESULTS:</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-7"></a><span class="p">|</span>            <span class="p">|</span> Future Connection <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-8"></a><span class="p">|</span> <span class="o">(</span><span class="m">6</span>, <span class="m">840</span><span class="o">)</span>   <span class="p">|</span>               <span class="m">0</span>.0 <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-9"></a><span class="p">|</span> <span class="o">(</span><span class="m">4</span>, <span class="m">197</span><span class="o">)</span>   <span class="p">|</span>               <span class="m">0</span>.0 <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-10"></a><span class="p">|</span> <span class="o">(</span><span class="m">620</span>, <span class="m">979</span><span class="o">)</span> <span class="p">|</span>               <span class="m">0</span>.0 <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-11"></a><span class="p">|</span> <span class="o">(</span><span class="m">519</span>, <span class="m">872</span><span class="o">)</span> <span class="p">|</span>               <span class="m">0</span>.0 <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-12"></a><span class="p">|</span> <span class="o">(</span><span class="m">382</span>, <span class="m">423</span><span class="o">)</span> <span class="p">|</span>               <span class="m">0</span>.0 <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-13"></a><span class="p">|</span> <span class="o">(</span><span class="m">97</span>, <span class="m">226</span><span class="o">)</span>  <span class="p">|</span>               <span class="m">1</span>.0 <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-14"></a><span class="p">|</span> <span class="o">(</span><span class="m">349</span>, <span class="m">905</span><span class="o">)</span> <span class="p">|</span>               <span class="m">0</span>.0 <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-15"></a><span class="p">|</span> <span class="o">(</span><span class="m">429</span>, <span class="m">860</span><span class="o">)</span> <span class="p">|</span>               <span class="m">0</span>.0 <span class="p">|</span>
+<a name="rest_code_7ffe129c1c074da68a183e15ea04d8ce-16"></a><span class="p">|</span> <span class="o">(</span><span class="m">309</span>, <span class="m">989</span><span class="o">)</span> <span class="p">|</span>               <span class="m">0</span>.0 <span class="p">|</span>
+</pre>
+<p>It turns out that there's a similar solution to the ob-ipython popup, only since it's in python you have to use a print this time.</p>
+<pre class="code python"><a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-1"></a><span class="c1">#+BEGIN_SRC ipython :session futures :results output</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-2"></a><span class="err">!</span><span class="n">head</span> <span class="n">Future_Connections</span><span class="o">.</span><span class="n">csv</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-3"></a><span class="k">print</span><span class="p">()</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-4"></a><span class="c1">#+END_SRC</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-5"></a>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-6"></a><span class="c1">#+RESULTS:</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-7"></a><span class="c1">#+begin_example</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-8"></a><span class="p">,</span><span class="n">Future</span> <span class="n">Connection</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-9"></a><span class="s2">"(6, 840)"</span><span class="p">,</span><span class="mf">0.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-10"></a><span class="s2">"(4, 197)"</span><span class="p">,</span><span class="mf">0.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-11"></a><span class="s2">"(620, 979)"</span><span class="p">,</span><span class="mf">0.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-12"></a><span class="s2">"(519, 872)"</span><span class="p">,</span><span class="mf">0.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-13"></a><span class="s2">"(382, 423)"</span><span class="p">,</span><span class="mf">0.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-14"></a><span class="s2">"(97, 226)"</span><span class="p">,</span><span class="mf">1.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-15"></a><span class="s2">"(349, 905)"</span><span class="p">,</span><span class="mf">0.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-16"></a><span class="s2">"(429, 860)"</span><span class="p">,</span><span class="mf">0.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-17"></a><span class="s2">"(309, 989)"</span><span class="p">,</span><span class="mf">0.0</span>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-18"></a>
+<a name="rest_code_911d347c64554541b3f3e4aeb4d05eb6-19"></a><span class="c1">#+end_example</span>
+</pre>
+<p>I actually prefer the shell version, and since this is org-babel it makes more sense to use it, but I forgot about it just now and it took me a little while to figure out how to get the ob-ipython block to work so <strong>*note to future self:</strong> <em>This is how to make it work, but use a shell block instead.</em></p>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/how-to-change-the-nikola-bootswatch-theme/" class="u-url">How To Change The Nikola Bootswatch Theme</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/hades/">hades</a>
