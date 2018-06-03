@@ -1,0 +1,55 @@
+#+BEGIN_COMMENT
+.. title: Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3
+.. slug: setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3
+.. date: 2018-06-03 15:57:12 UTC-07:00
+.. tags: rapsberrypi wireless howto
+.. category: HowTo
+.. link: 
+.. description: How to set up the Realtek 8812AU adapter on the Rasbperry Pi 3. 
+.. type: text
+#+END_COMMENT
+
+* Introduction
+  I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
+
+#+BEGIN_EXAMPLE
+iwconfig wlan0 mode monitor
+Error for wireless request "Set Mode" (8B06) :
+    SET failed on device wlan0 ; Operation not supported.
+#+END_EXAMPLE
+
+Looking around on the web I found [[https://www.reddit.com/r/raspberry_pi/comments/4ah4oi/psa_the_raspberry_pi_3s_embedded_wifi_card_does/][this reddit post]] as well as some Stack Overflow posts that said that monitor mode isn't supported on the Raspberry Pi. There is a project called [[https://github.com/seemoo-lab/nexmon][nexmon]] that apparently lets up add a firmware patch to enable it, which I'll probably try later, but before I tried that I remembered that I have a Realtek 8812AU USB WiFi adapter that I bought a while ago for an old desktop I had that I wasn't using so I decided to try it.
+* What I tried
+** Plug-and-Pray
+  The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although =lsusb= showed it, =iwconfig= didn't show it as an interface. Back to the internet. 
+** Github
+Next I found [[https://github.com/diederikdehaas/rtl8812AU][a repository on github]] that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
+
+#+BEGIN_EXAMPLE
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_RPI = y
+#+END_EXAMPLE
+
+in the =Makefile= - but when I tried to build it I got this error.
+
+#+BEGIN_EXAMPLE
+sudo dkms install -m $DRV_NAME -v $DRV_VERSION
+
+'make' KVER=4.4.38-v7+....(bad exit status: 2)
+ERROR (dkms apport): binary package for rtl8812AU: 4.3.20 not found
+Error! Bad return status for module build on kernel: 4.4.38-v7+ (armv7l)
+Consult /var/lib/dkms/rtl8812AU/4.3.20/build/make.log for more information.
+#+END_EXAMPLE
+
+There was also a message in the =make.log= file but I didn't remember to copy it. 
+* What fixed it
+The solution was in [[https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make][this StackOverflow post]] - the =make= program is being pointed to a folder named =arm7l= (thats 'arm seven ell') but it should actually be pointed to one named =arm=. The simple solution is to create an alias with the correct name.
+
+#+BEGIN_EXAMPLE
+sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.4.38-v7+/arch/armv7l
+#+END_EXAMPLE
+
+This turns out to fix the build problem and after a reboot the network interface showed up.
+
+* Conclusion
+  The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that =iwconfig= will put it in monitor mode but =airmon-ng= doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, =iw= always reports the interface as managed, even when it isn't... maybe I'll try the firmware patch after all.

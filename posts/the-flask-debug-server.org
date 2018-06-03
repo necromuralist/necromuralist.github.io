@@ -1,0 +1,85 @@
+#+BEGIN_COMMENT
+.. title: The Flask Debug Server
+.. slug: the-flask-debug-server
+.. date: 2018-05-20 13:53:54 UTC-07:00
+.. tags: flask howto
+.. category: flask
+.. link: 
+.. description: How to run the flask debug server.
+.. type: text
+#+END_COMMENT
+
+* Background
+This is documented on the [[Http://flask.pocoo.org/docs/][Flask site]], but I was trying to help someone debug some old server code that I'd written and couldn't remember how to debug it, so I'm documenting it here as I go through remembering it again so I'll have a single reference to use the next time. Some of the settings look different from what I remember using so I think that Flask has changed a little over time, but since I didn't document it the first time I don't have a record to compare against (well, I probably have some notes in a notebook but it's hard to refer to that when sitting at someone else's desk).
+* Setup
+The [[http://flask.pocoo.org/docs/1.0/quickstart/][Flask Quickstart]] tells you what to do, but for some reason when we googled it, the instructions were different, I think it might have lead us to an older form of the documentation. This is the current version (May 20, 2018.)
+** The Environment Variables
+*** The Flask App
+First you have to tell flask which file contains your flask app by setting the =FLASK_APP= environment variable. In my case I'm using [[https://github.com/zalando/connexion][connexion]], an oddly-named adapter that adds support for [[https://swagger.io/][swagger/OpenApi]] to Flask. So the file that has the app has this line in it.
+
+#+BEGIN_SRC python
+application = connexion.FlaskApp(__name__)
+#+END_SRC
+
+In this case that's a file named =api.py= which we'll say is in the =server= folder (it isn't, but that's okay) so we need to set our environment accordingly. I use the fish shell so the syntax is slightly different from the Quick Start example. Also - and this caused me a lot of trouble - when I didn't pass in the name of my =FlaskApp= instance I got this error:
+
+#+BEGIN_EXAMPLE
+Error: Failed to find application in module "server.api".  Are you sure it contains a Flask application?  Maybe you wrapped it in a WSGI middleware or you are using a factory function.
+#+END_EXAMPLE
+
+So I had to specifically tell flask the name of my app by appending it to the end of the setting (perhaps it is looking for =app= specifically, but I called mine =application=).
+
+#+BEGIN_SRC sh
+set -x FLASK_APP server.api:application
+#+END_SRC
+*** Development Mode
+    If you want the server to automatically reload when it detects changes then you should to set the =FLASK_ENV= environment variable to =development=. This is similar to using =FLASK_DEBUG= but I think it adds the reloading. Anyway, it does more than just set debug mode.
+
+#+BEGIN_SRC sh
+set -x FLASK_ENV development
+#+END_SRC
+* Run It
+** The Development server
+   This is the output of the help string for the [[http://flask.pocoo.org/docs/1.0/server/#server][development server]], note that it uses =-h= for =host= so you need to pass in =--help= to see this output or you will get an error.
+#+BEGIN_SRC sh :results raw drawer
+flask run --help
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+Usage: flask run [OPTIONS]
+
+  Run a local development server.
+
+  This server is for development purposes only. It does not provide the
+  stability, security, or performance of production WSGI servers.
+
+  The reloader and debugger are enabled by default if FLASK_ENV=development
+  or FLASK_DEBUG=1.
+
+Options:
+  -h, --host TEXT                 The interface to bind to.
+  -p, --port INTEGER              The port to bind to.
+  --cert PATH                     Specify a certificate file to use HTTPS.
+  --key PATH                      The key file to use when specifying a
+                                  certificate.
+  --reload / --no-reload          Enable or disable the reloader. By default
+                                  the reloader is active if debug is enabled.
+  --debugger / --no-debugger      Enable or disable the debugger. By default
+                                  the debugger is active if debug is enabled.
+  --eager-loading / --lazy-loader
+                                  Enable or disable eager loading. By default
+                                  eager loading is enabled if the reloader is
+                                  disabled.
+  --with-threads / --without-threads
+                                  Enable or disable multithreading.
+  --help                          Show this message and exit.
+:END:
+** Public Server
+The default server runs on localhost, but since I'm hosting the code on a [[https://www.raspberrypi.org/][raspberry pi]] sitting on the network somewhere but debugging it remotely, I need to run it on a public address.
+
+#+BEGIN_SRC sh
+flask run --host=0.0.0.0
+#+END_SRC
+* Make it repeatable
+
