@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about rapsberrypi wireless howto)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/rapsberrypi-wireless-howto.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sun, 03 Jun 2018 23:23:02 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</title><link>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orga078c16" class="outline-2"&gt;
+&lt;h2 id="orga078c16"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga078c16"&gt;
+&lt;p&gt;
+I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+iwconfig wlan0 mode monitor
+Error for wireless request "Set Mode" (8B06) :
+    SET failed on device wlan0 ; Operation not supported.
+&lt;/pre&gt;
+
+&lt;p&gt;
+Looking around on the web I found &lt;a href="https://www.reddit.com/r/raspberry_pi/comments/4ah4oi/psa_the_raspberry_pi_3s_embedded_wifi_card_does/"&gt;this reddit post&lt;/a&gt; as well as some Stack Overflow posts that said that monitor mode isn't supported on the Raspberry Pi. There is a project called &lt;a href="https://github.com/seemoo-lab/nexmon"&gt;nexmon&lt;/a&gt; that apparently lets up add a firmware patch to enable it, which I'll probably try later, but before I tried that I remembered that I have a Realtek 8812AU USB WiFi adapter that I bought a while ago for an old desktop I had that I wasn't using so I decided to try it.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgdbc9a2f" class="outline-2"&gt;
+&lt;h2 id="orgdbc9a2f"&gt;What I tried&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgdbc9a2f"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org929c4ce" class="outline-3"&gt;
+&lt;h3 id="org929c4ce"&gt;Plug-and-Pray&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org929c4ce"&gt;
+&lt;p&gt;
+The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although &lt;code&gt;lsusb&lt;/code&gt; showed it, &lt;code&gt;iwconfig&lt;/code&gt; didn't show it as an interface. Back to the internet. 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7731185" class="outline-3"&gt;
+&lt;h3 id="org7731185"&gt;Github&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7731185"&gt;
+&lt;p&gt;
+Next I found &lt;a href="https://github.com/diederikdehaas/rtl8812AU"&gt;a repository on github&lt;/a&gt; that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_RPI = y
+&lt;/pre&gt;
+
+&lt;p&gt;
+in the &lt;code&gt;Makefile&lt;/code&gt; - but when I tried to build it I got this error.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo dkms install -m $DRV_NAME -v $DRV_VERSION
+
+'make' KVER=4.4.38-v7+....(bad exit status: 2)
+ERROR (dkms apport): binary package for rtl8812AU: 4.3.20 not found
+Error! Bad return status for module build on kernel: 4.4.38-v7+ (armv7l)
+Consult /var/lib/dkms/rtl8812AU/4.3.20/build/make.log for more information.
+&lt;/pre&gt;
+
+&lt;p&gt;
+There was also a message in the &lt;code&gt;make.log&lt;/code&gt; file but I didn't remember to copy it. 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org2a1405d" class="outline-2"&gt;
+&lt;h2 id="org2a1405d"&gt;What fixed it&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2a1405d"&gt;
+&lt;p&gt;
+The solution was in &lt;a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make"&gt;this StackOverflow post&lt;/a&gt; - the &lt;code&gt;make&lt;/code&gt; program is being pointed to a folder named &lt;code&gt;arm7l&lt;/code&gt; (thats 'arm seven ell') but it should actually be pointed to one named &lt;code&gt;arm&lt;/code&gt;. The simple solution is to create an alias with the correct name.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.4.38-v7+/arch/armv7l
+&lt;/pre&gt;
+
+&lt;p&gt;
+This turns out to fix the build problem and after a reboot the network interface showed up.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org02e7a47" class="outline-2"&gt;
+&lt;h2 id="org02e7a47"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org02e7a47"&gt;
+&lt;p&gt;
+The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that &lt;code&gt;iwconfig&lt;/code&gt; will put it in monitor mode but &lt;code&gt;airmon-ng&lt;/code&gt; doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, &lt;code&gt;iw&lt;/code&gt; always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>rapsberrypi wireless howto</category><guid>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</guid><pubDate>Sun, 03 Jun 2018 22:57:12 GMT</pubDate></item></channel></rss>
