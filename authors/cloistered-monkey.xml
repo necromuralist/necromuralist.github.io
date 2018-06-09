@@ -1,7 +1,389 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 04 Jun 2018 23:08:53 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</title><link>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org38f9830" class="outline-2"&gt;
-&lt;h2 id="org38f9830"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org38f9830"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 09 Jun 2018 22:11:43 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org52c5754" class="outline-2"&gt;
+&lt;h2 id="org52c5754"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org52c5754"&gt;
+&lt;p&gt;
+I was looking for a way to update python dependencies that I'd installed with &lt;a href="https://pip.pypa.io/en/stable/"&gt;pip&lt;/a&gt; when I stumbled upon &lt;a href="https://github.com/jazzband/pip-tools/"&gt;pip-tools&lt;/a&gt;. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org935ab42" class="outline-2"&gt;
+&lt;h2 id="org935ab42"&gt;First pipdeptree&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org935ab42"&gt;
+&lt;p&gt;
+&lt;code&gt;pip-tools&lt;/code&gt; installs a command named &lt;code&gt;pip-compile&lt;/code&gt; which will use either the requirements you put in your &lt;code&gt;setup.py&lt;/code&gt; file or a special file named &lt;code&gt;requirements.in&lt;/code&gt; (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than &lt;code&gt;setup.py&lt;/code&gt;, since it makes it clearer and more likely that I'll keep it up to date. The &lt;code&gt;requirements.in&lt;/code&gt; file is a list of your dependencies but unlike the &lt;code&gt;requirements.txt&lt;/code&gt; file, it doesn't have version numbers, the version numbers are added when you call the &lt;code&gt;pip-compile&lt;/code&gt; command. 
+&lt;/p&gt;
+
+&lt;p&gt;
+So where does the &lt;code&gt;requirements.in&lt;/code&gt; file come from? You have to make it. &lt;i&gt;But if you're editing things by hand, doesn't this kind of make it less likely you'll maintain it?&lt;/i&gt; Yes, which is where &lt;a href="https://github.com/naiquevin/pipdeptree"&gt;&lt;code&gt;pipdeptree&lt;/code&gt;&lt;/a&gt; comes in. &lt;code&gt;pipdeptree&lt;/code&gt; will list all the python dependencies you installed as well as everything those dependencies pulled in as their dependencies. It's usefull to take a look at how a dependency you didn't directly install got into your virtual environment. You can install it from pypi.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install pipdeptree
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Here's its help output.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree -h
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+usage: pipdeptree [-h] [-v] [-f] [-a] [-l] [-u] [-w [{silence,suppress,fail}]]
+                  [-r] [-p PACKAGES] [-j] [--json-tree]
+                  [--graph-output OUTPUT_FORMAT]
+
+Dependency tree of the installed python packages
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -f, --freeze          Print names so as to write freeze files
+  -a, --all             list all deps at top level
+  -l, --local-only      If in a virtualenv that has global access do not show
+                        globally installed packages
+  -u, --user-only       Only show installations in the user site dir
+  -w [{silence,suppress,fail}], --warn [{silence,suppress,fail}]
+                        Warning control. "suppress" will show warnings but
+                        return 0 whether or not they are present. "silence"
+                        will not show warnings at all and always return 0.
+                        "fail" will show warnings and return 1 if any are
+                        present. The default is "suppress".
+  -r, --reverse         Shows the dependency tree in the reverse fashion ie.
+                        the sub-dependencies are listed with the list of
+                        packages that need them under them.
+  -p PACKAGES, --packages PACKAGES
+                        Comma separated list of select packages to show in the
+                        output. If set, --all will be ignored.
+  -j, --json            Display dependency tree as json. This will yield "raw"
+                        output that may be used by external tools. This option
+                        overrides all other options.
+  --json-tree           Display dependency tree as json which is nested the
+                        same way as the plain text output printed by default.
+                        This option overrides all other options (except
+                        --json).
+  --graph-output OUTPUT_FORMAT
+                        Print a dependency graph in the specified output
+                        format. Available are all formats supported by
+                        GraphViz, e.g.: dot, jpeg, pdf, png, svg
+&lt;/pre&gt;
+
+&lt;p&gt;
+If you look at the options you can see that there's a &lt;code&gt;--freeze&lt;/code&gt; option, that's what we'll be using. Let's look at some of what that looks like.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; head
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+ghp-import2==1.0.1
+graphviz==0.8.3
+Nikola==7.8.15
+  blinker==1.4
+  docutils==0.14
+  doit==0.31.1
+    cloudpickle==0.5.3
+    pyinotify==0.9.6
+  Logbook==1.4.0
+  lxml==4.2.1
+&lt;/pre&gt;
+
+&lt;p&gt;
+So it looks like the output of &lt;code&gt;pip freeze&lt;/code&gt; except it puts the packages you installed flush-left and then uses indentation to indicate what that package installed. In the example above, I installed &lt;a href="https://www.getnikola.com/handbook.html"&gt;Nikola&lt;/a&gt;, then Nikola installed &lt;a href="http://pydoit.org/"&gt;doit&lt;/a&gt;, and doit installed &lt;a href="https://github.com/cloudpipe/cloudpickle"&gt;cloudpickle&lt;/a&gt; and &lt;a href="https://github.com/seb-m/pyinotify"&gt;pyinotify&lt;/a&gt;. I kind of remember needing to install &lt;code&gt;pyinotify&lt;/code&gt; myself, but maybe &lt;code&gt;pydeptree&lt;/code&gt; caught that it was a dependency that &lt;code&gt;doit&lt;/code&gt; is using. Anyway.
+&lt;/p&gt;
+
+&lt;p&gt;
+For our &lt;code&gt;requirements.in&lt;/code&gt; file we only want the names, and although there might be a reason to keep the entire tree, I think it makes it easier to understand what I'm using if the file only holds the dependencies at the top-level (the ones that I'm using directly, rather than being a dependency of a dependency). So, we'll use a little &lt;a href="https://en.wikipedia.org/wiki/Grep"&gt;grep&lt;/a&gt;. First, since I'm a python-programmer I'm going to give it the &lt;code&gt;-P&lt;/code&gt; flag to use perl escape codes. Then I'll match only the entries that are flush left by using the &lt;code&gt;^\s&lt;/code&gt; expression to match lines that start with spaces and the &lt;code&gt;-v&lt;/code&gt; option to invert the outcome (only show lines that don't match).
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;grep&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;-P&lt;/code&gt;, &lt;code&gt;--perl-regexp&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Use perl regular expression syntax&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;^&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Match the beggining of a line&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;\s&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Match whitespace&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;-v&lt;/code&gt;, &lt;code&gt;--invert-match&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Show lines that don't match&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;
+First, let's see how many total dependencies there are.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; wc -l
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+: 160
+&lt;/pre&gt;
+
+&lt;p&gt;
+So there are 160 dependencies total. How many did I install?
+&lt;/p&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -vP &lt;span class="s2"&gt;"^\s"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+ghp-import2==1.0.1
+graphviz==0.8.3
+Nikola==7.8.15
+notebook==5.5.0
+pip-tools==2.0.2
+pipdeptree==0.12.1
+virtualfish==1.0.6
+watchdog==0.8.3
+webassets==0.12.1
+wheel==0.31.1
+ws4py==0.5.1
+&lt;/pre&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -vP &lt;span class="s2"&gt;"^\s"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; wc -l
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+: 11
+&lt;/pre&gt;
+
+&lt;p&gt;
+So out of the 158 dependencies, 11 were ones that I installed, and that includes &lt;a href="https://github.com/adambrenecki/virtualfish"&gt;virtualfish&lt;/a&gt; (to work with virtual-environments with the &lt;a href="https://fishshell.com/"&gt;fish shell&lt;/a&gt;), &lt;a href="https://github.com/pypa/wheel"&gt;wheel&lt;/a&gt; (to build wheels, for dependencies), and pip-tools, pipdeptree, and &lt;a href="https://github.com/xflr6/graphviz"&gt;graphviz&lt;/a&gt; which I installed to make the requirements files. So really there are only 8 that I installed to get Nikola working.
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;i&gt;So we're done, right?&lt;/i&gt; Not yet, we need to get rid of the &lt;code&gt;==&lt;/code&gt; and version numbers. I hadn't known that grep had this feature, since I normally use python instead of grep, but grep has an &lt;code&gt;--only-matching&lt;/code&gt; option that will discard the parts of the line that don't match. 
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;&lt;code&gt;grep&lt;/code&gt;&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;-o&lt;/code&gt;, &lt;code&gt;--only-matching&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Only show the parts of the line that match&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;\w&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Match alpha-numeric character and underscores&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -vP &lt;span class="s2"&gt;"^\s"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep -oP &lt;span class="s2"&gt;"^[\w]+"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+ghp
+graphviz
+Nikola
+notebook
+pip
+pipdeptree
+virtualfish
+watchdog
+webassets
+wheel
+ws4py
+&lt;/pre&gt;
+
+&lt;p&gt;
+If you look at the first line you might notice that it says &lt;code&gt;ghp&lt;/code&gt;, but we really want &lt;code&gt;ghp-import2&lt;/code&gt;. I guess hyphens aren't part of the alpha-numeric set. We'll add it to the character class definition.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -vP &lt;span class="s2"&gt;"^\s"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep -oP &lt;span class="s2"&gt;"^[\w\-]+"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+ghp-import2
+graphviz
+Nikola
+notebook
+pip-tools
+pipdeptree
+virtualfish
+watchdog
+webassets
+wheel
+ws4py
+&lt;/pre&gt;
+
+&lt;p&gt;
+That looks better. There are probaby other exceptions that have to be added for other installations, but this looks like enough for us. Now we can redirect this to a &lt;code&gt;requirements.in&lt;/code&gt; file and we're ready for &lt;code&gt;pip-tools&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+pipdeptree --freeze | grep -vP "^\s" | grep -oP "^[\w]+" &amp;gt; requirements.in
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org2cb58c5" class="outline-2"&gt;
+&lt;h2 id="org2cb58c5"&gt;pip-compile&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2cb58c5"&gt;
+&lt;p&gt;
+&lt;code&gt;pip-compile&lt;/code&gt; will read in the &lt;code&gt;requirements.in&lt;/code&gt; file and add the version numbers so that we can create a &lt;code&gt;requirements.txt&lt;/code&gt; file.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile requirements.in &lt;span class="p"&gt;|&lt;/span&gt; head
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+#
+# This file is autogenerated by pip-compile
+# To update, run:
+#
+#    pip-compile --output-file requirements.txt requirements.in
+#
+argh==0.26.2              # via watchdog
+backcall==0.1.0           # via ipython
+bleach==2.1.3             # via nbconvert
+blinker==1.4              # via nikola
+&lt;/pre&gt;
+
+&lt;p&gt;
+You actually don't need to pass in the input file, but that's what the instructions said to do so I'll leave it in. Now we can redirect this to &lt;code&gt;requirements.in&lt;/code&gt; and we'll have our current dependencies file.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+pip-compile requirements.in &amp;gt; requirements.txt
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orga17c891" class="outline-2"&gt;
+&lt;h2 id="orga17c891"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga17c891"&gt;
+&lt;p&gt;
+If we stopped at this point we'd have:
+&lt;/p&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;a way to check who installed what using &lt;code&gt;pipdeptree&lt;/code&gt; (as well as a way to plot the dependencies as a graph)&lt;/li&gt;
+&lt;li&gt;a way to separate out our dependencies into a separate file (&lt;code&gt;requirements.in&lt;/code&gt;) to make it easier to read&lt;/li&gt;
+&lt;li&gt;a way to create our &lt;code&gt;requirements.txt&lt;/code&gt; file using our &lt;code&gt;requirements.in&lt;/code&gt; file&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+I think that's kind of nice already, especially if you end up with a lot of dependencies. Try working with &lt;a href="http://www.sphinx-doc.org/en/master/"&gt;sphinx&lt;/a&gt; and &lt;a href="http://scikit-learn.org/stable/"&gt;scikit-learn&lt;/a&gt; and you'll see things start to explode. But of course, there's always more. 
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org33eeb14" class="outline-3"&gt;
+&lt;h3 id="org33eeb14"&gt;Upgrade&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org33eeb14"&gt;
+&lt;p&gt;
+You can run  &lt;code&gt;pip-compile&lt;/code&gt; with the &lt;code&gt;--upgrade&lt;/code&gt; option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile --upgrade &lt;span class="p"&gt;|&lt;/span&gt; head
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+#
+# This file is autogenerated by pip-compile
+# To update, run:
+#
+#    pip-compile --output-file requirements.txt requirements.in
+#
+argh==0.26.2              # via watchdog
+backcall==0.1.0           # via ipython
+bleach==2.1.3             # via nbconvert
+blinker==1.4              # via nikola
+&lt;/pre&gt;
+
+&lt;p&gt;
+This will upgrade your installation but not update the &lt;code&gt;requirements.txt&lt;/code&gt; file, so you can test it out and see if everything works before updating the &lt;code&gt;requirements.txt&lt;/code&gt;. If things don't work out, you could reinstall from the &lt;code&gt;requirements.txt&lt;/code&gt; file, but see the next section for another way. 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org22f365f" class="outline-3"&gt;
+&lt;h3 id="org22f365f"&gt;Sync&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org22f365f"&gt;
+&lt;p&gt;
+&lt;code&gt;pip-tools&lt;/code&gt; also installed a command called &lt;code&gt;pip-sync&lt;/code&gt; which will keep you in sync with what is in the requirements file, so as long as &lt;code&gt;requirements.txt&lt;/code&gt; it is always a working version, you can sync up with it to avoid problems with dependency changes. This is different from the &lt;code&gt;--upgrade&lt;/code&gt; option in that it will only install the exact version in the requirements file.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-sync
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+Collecting backcall==0.1.0
+Collecting bleach==2.1.3
+  Using cached https://files.pythonhosted.org/packages/30/b6/a8cffbb9ab4b62b557c22703163735210e9cd857d533740c64e1467d228e/bleach-2.1.3-py2.py3-none-any.whl
+Collecting certifi==2018.4.16
+  Using cached https://files.pythonhosted.org/packages/7c/e6/92ad559b7192d846975fc916b65f667c7b8c3a32bea7372340bfe9a15fa5/certifi-2018.4.16-py2.py3-none-any.whl
+Collecting cloudpickle==0.5.3
+  Using cached https://files.pythonhosted.org/packages/e7/bf/60ae7ec1e8c6742d2abbb6819c39a48ee796793bcdb7e1d5e41a3e379ddd/cloudpickle-0.5.3-py2.py3-none-any.whl
+Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle-0.5.3 decorator-4.3.0 doit-0.31.1 ipykernel-4.8.2 ipython-6.4.0 jedi-0.12.0 jupyter-client-5.2.3 logbook-1.4.0 lxml-4.2.1 natsort-5.3.2 nikola-7.8.15 notebook-5.5.0 parso-0.2.1 pexpect-4.6.0 pillow-5.1.0 python-dateutil-2.7.3 send2trash-1.5.0 tornado-5.0.2 virtualenv-16.0.0 virtualfish-1.0.6 wheel-0.31.1 ws4py-0.5.1
+#+END_SRC
+
+Since I upgraded the installation the =requirements.txt= file is now behind the latests versions so by syncing I undid the upgrade. This time I'll upgrade again and save the output.
+
+#+BEGIN_SRC sh :results none
+pip-compile --upgrade &amp;gt; requirements.txt
+#+END_SRC
+
+So now the file and my installation should be in sync.
+
+#+BEGIN_SRC sh :results output
+pip-sync
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+: Everything up-to-date
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgcfd19b2" class="outline-2"&gt;
+&lt;h2 id="orgcfd19b2"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgcfd19b2"&gt;
+&lt;p&gt;
+So there you have it, how to keep dependencies synced. The &lt;a href="https://pypi.org/project/pip-tools/"&gt;README&lt;/a&gt; for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>python programs</category><guid>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</guid><pubDate>Sat, 09 Jun 2018 19:52:57 GMT</pubDate></item><item><title>Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</title><link>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgcca0b6f" class="outline-2"&gt;
+&lt;h2 id="orgcca0b6f"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgcca0b6f"&gt;
 &lt;p&gt;
 I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
 &lt;/p&gt;
@@ -17,21 +399,21 @@ Looking around on the web I found &lt;a href="https://www.reddit.com/r/raspberry
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org159173e" class="outline-2"&gt;
-&lt;h2 id="org159173e"&gt;What I tried&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org159173e"&gt;
+&lt;div id="outline-container-orgd5febf9" class="outline-2"&gt;
+&lt;h2 id="orgd5febf9"&gt;What I tried&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd5febf9"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org0cb36dc" class="outline-3"&gt;
-&lt;h3 id="org0cb36dc"&gt;Plug-and-Pray&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org0cb36dc"&gt;
+&lt;div id="outline-container-orgffe276d" class="outline-3"&gt;
+&lt;h3 id="orgffe276d"&gt;Plug-and-Pray&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgffe276d"&gt;
 &lt;p&gt;
 The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although &lt;code&gt;lsusb&lt;/code&gt; showed it, &lt;code&gt;iwconfig&lt;/code&gt; didn't show it as an interface. Back to the internet. 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2d20924" class="outline-3"&gt;
-&lt;h3 id="org2d20924"&gt;Github&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2d20924"&gt;
+&lt;div id="outline-container-org3363897" class="outline-3"&gt;
+&lt;h3 id="org3363897"&gt;Github&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3363897"&gt;
 &lt;p&gt;
 Next I found &lt;a href="https://github.com/diederikdehaas/rtl8812AU"&gt;a repository on github&lt;/a&gt; that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
 &lt;/p&gt;
@@ -60,9 +442,9 @@ There was also a message in the &lt;code&gt;make.log&lt;/code&gt; file but I did
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4805b39" class="outline-2"&gt;
-&lt;h2 id="org4805b39"&gt;What fixed it&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4805b39"&gt;
+&lt;div id="outline-container-org1e7b8d0" class="outline-2"&gt;
+&lt;h2 id="org1e7b8d0"&gt;What fixed it&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1e7b8d0"&gt;
 &lt;p&gt;
 The solution was in &lt;a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make"&gt;this StackOverflow post&lt;/a&gt; - the &lt;code&gt;make&lt;/code&gt; program is being pointed to a folder named &lt;code&gt;arm7l&lt;/code&gt; (thats 'arm seven ell') but it should actually be pointed to one named &lt;code&gt;arm&lt;/code&gt;. The simple solution is to create an alias with the correct name.
 &lt;/p&gt;
@@ -77,23 +459,23 @@ This turns out to fix the build problem and after a reboot the network interface
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgb3a2275" class="outline-2"&gt;
-&lt;h2 id="orgb3a2275"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb3a2275"&gt;
+&lt;div id="outline-container-org43260d8" class="outline-2"&gt;
+&lt;h2 id="org43260d8"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org43260d8"&gt;
 &lt;p&gt;
 The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that &lt;code&gt;iwconfig&lt;/code&gt; will put it in monitor mode but &lt;code&gt;airmon-ng&lt;/code&gt; doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, &lt;code&gt;iw&lt;/code&gt; always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>rapsberrypi wireless howto</category><guid>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</guid><pubDate>Sun, 03 Jun 2018 22:57:12 GMT</pubDate></item><item><title>Wireless Bibliography</title><link>https://necromuralist.github.io/posts/wireless-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgc86de39" class="outline-2"&gt;
-&lt;h2 id="orgc86de39"&gt;Benchmarking&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc86de39"&gt;
+&lt;/div&gt;</description><category>rapsberrypi wireless howto</category><guid>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</guid><pubDate>Sun, 03 Jun 2018 22:57:12 GMT</pubDate></item><item><title>Wireless Bibliography</title><link>https://necromuralist.github.io/posts/wireless-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org03beb4a" class="outline-2"&gt;
+&lt;h2 id="org03beb4a"&gt;Benchmarking&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org03beb4a"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;[R1] Rehman S, Turletti T, Dabbous W. A Roadmap for Benchmarking in Wireless Networks. 2011 Aug 9;  (&lt;a href="https://www.researchgate.net/publication/279405375_A_Roadmap_for_Benchmarking_in_Wireless_Networks"&gt;ResearchGate Link&lt;/a&gt;)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>wireless bibliography</category><guid>https://necromuralist.github.io/posts/wireless-bibliography/</guid><pubDate>Thu, 31 May 2018 21:23:38 GMT</pubDate></item><item><title>Packet Capturing Bibliography</title><link>https://necromuralist.github.io/posts/packet-capturing-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9589615" class="outline-2"&gt;
-&lt;h2 id="org9589615"&gt;Packet Capturing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9589615"&gt;
+&lt;/div&gt;</description><category>wireless bibliography</category><guid>https://necromuralist.github.io/posts/wireless-bibliography/</guid><pubDate>Thu, 31 May 2018 21:23:38 GMT</pubDate></item><item><title>Packet Capturing Bibliography</title><link>https://necromuralist.github.io/posts/packet-capturing-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org39197da" class="outline-2"&gt;
+&lt;h2 id="org39197da"&gt;Packet Capturing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org39197da"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;[R3] Schulman A, Levin D, Spring N. On the fidelity of 802.11 packet traces. InInternational Conference on Passive and Active Network Measurement 2008 Apr 29 (pp. 132-141). Springer, Berlin, Heidelberg. (&lt;a href="https://pdfs.semanticscholar.org/8cea/05cc5c93684a0d8923a3c4eddaed234361b0.pdf"&gt;PDF Link&lt;/a&gt;)&lt;/li&gt;
 
@@ -106,9 +488,9 @@ The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out o
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org572b55b" class="outline-2"&gt;
-&lt;h2 id="org572b55b"&gt;Merging PCAP Files&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org572b55b"&gt;
+&lt;div id="outline-container-org2addce3" class="outline-2"&gt;
+&lt;h2 id="org2addce3"&gt;Merging PCAP Files&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2addce3"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;p&gt;
 [R1] Veselý V. &lt;a href="https://www.researchgate.net/publication/260745050_Extended_Comparison_Study_on_Merging_PCAP_Files"&gt;Extended Comparison Study on Merging PCAP Files&lt;/a&gt;. ElectroScope. 2012 Oct 1;2012:1–6. 
@@ -128,20 +510,20 @@ This is a presentation for a security conference. It has a list of common packet
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1066fc6" class="outline-2"&gt;
-&lt;h2 id="org1066fc6"&gt;Key&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1066fc6"&gt;
+&lt;div id="outline-container-org65a09b3" class="outline-2"&gt;
+&lt;h2 id="org65a09b3"&gt;Key&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org65a09b3"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;[R&amp;lt;number&amp;gt;] - Research Paper&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>bibliography packets</category><guid>https://necromuralist.github.io/posts/packet-capturing-bibliography/</guid><pubDate>Fri, 25 May 2018 20:32:02 GMT</pubDate></item><item><title>Networking Monitoring Tools</title><link>https://necromuralist.github.io/posts/networking-tools/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org4681166" class="outline-2"&gt;
-&lt;h2 id="org4681166"&gt;Packet Capturing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4681166"&gt;
+&lt;/div&gt;</description><category>bibliography packets</category><guid>https://necromuralist.github.io/posts/packet-capturing-bibliography/</guid><pubDate>Fri, 25 May 2018 20:32:02 GMT</pubDate></item><item><title>Networking Monitoring Tools</title><link>https://necromuralist.github.io/posts/networking-tools/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9ab1226" class="outline-2"&gt;
+&lt;h2 id="org9ab1226"&gt;Packet Capturing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9ab1226"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb070cf4" class="outline-3"&gt;
-&lt;h3 id="orgb070cf4"&gt;&lt;a href="http://staff.washington.edu/corey/gulp/"&gt;Gulp&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb070cf4"&gt;
+&lt;div id="outline-container-org3762053" class="outline-3"&gt;
+&lt;h3 id="org3762053"&gt;&lt;a href="http://staff.washington.edu/corey/gulp/"&gt;Gulp&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3762053"&gt;
 &lt;p&gt;
 Gulp purports to be better at capturing packets than tcpdump (although they can work together).
 &lt;/p&gt;
@@ -160,93 +542,93 @@ There is more than one version out there:
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org9761bbc" class="outline-3"&gt;
-&lt;h3 id="org9761bbc"&gt;&lt;a href="https://www.tcpdump.org"&gt;tcpdump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9761bbc"&gt;
+&lt;div id="outline-container-org4a22d5b" class="outline-3"&gt;
+&lt;h3 id="org4a22d5b"&gt;&lt;a href="https://www.tcpdump.org"&gt;tcpdump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4a22d5b"&gt;
 &lt;p&gt;
 More easily obtainable and better documentation available (although still not enough).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb27f484" class="outline-3"&gt;
-&lt;h3 id="orgb27f484"&gt;&lt;a href="http://ssldump.sourceforge.net"&gt;ssldump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb27f484"&gt;
+&lt;div id="outline-container-org5144501" class="outline-3"&gt;
+&lt;h3 id="org5144501"&gt;&lt;a href="http://ssldump.sourceforge.net"&gt;ssldump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5144501"&gt;
 &lt;p&gt;
 Captures packets and decodes SSL/TLS packets.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org45dd779" class="outline-2"&gt;
-&lt;h2 id="org45dd779"&gt;Packet Examining&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org45dd779"&gt;
+&lt;div id="outline-container-orgdfcf65c" class="outline-2"&gt;
+&lt;h2 id="orgdfcf65c"&gt;Packet Examining&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgdfcf65c"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org06a6fe7" class="outline-3"&gt;
-&lt;h3 id="org06a6fe7"&gt;&lt;a href="https://github.com/mschiffm/cppip"&gt;Compressed PCAP Packet Indexing Prograpm (cppip)&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org06a6fe7"&gt;
+&lt;div id="outline-container-org6a10653" class="outline-3"&gt;
+&lt;h3 id="org6a10653"&gt;&lt;a href="https://github.com/mschiffm/cppip"&gt;Compressed PCAP Packet Indexing Prograpm (cppip)&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6a10653"&gt;
 &lt;p&gt;
 This adds indexing to &lt;a href="http://www.htslib.org/doc/bgzip.html"&gt;bgzip&lt;/a&gt; compressed LibPCAP files which then lets you extract them while the original files are still compressed.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org8dac63c" class="outline-3"&gt;
-&lt;h3 id="org8dac63c"&gt;&lt;a href="https://linux.die.net/man/8/tcpslice"&gt;tcpslice&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8dac63c"&gt;
+&lt;div id="outline-container-org184e1c2" class="outline-3"&gt;
+&lt;h3 id="org184e1c2"&gt;&lt;a href="https://linux.die.net/man/8/tcpslice"&gt;tcpslice&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org184e1c2"&gt;
 &lt;p&gt;
 This lets you extract part of or combine files created by tcpdump when using file rotation.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org914df15" class="outline-3"&gt;
-&lt;h3 id="org914df15"&gt;&lt;a href="https://github.com/jpr5/ngrep"&gt;ngrep&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org914df15"&gt;
+&lt;div id="outline-container-orgc85c33c" class="outline-3"&gt;
+&lt;h3 id="orgc85c33c"&gt;&lt;a href="https://github.com/jpr5/ngrep"&gt;ngrep&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc85c33c"&gt;
 &lt;p&gt;
 Describes itself as like GNU grep but for packets.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc0c5da2" class="outline-3"&gt;
-&lt;h3 id="orgc0c5da2"&gt;&lt;a href="https://github.com/signed0/pylibpcap"&gt;pylibpcap&lt;/a&gt;, &lt;a href="https://github.com/pynetwork/pypcap"&gt;pypcap&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc0c5da2"&gt;
+&lt;div id="outline-container-orgd2db582" class="outline-3"&gt;
+&lt;h3 id="orgd2db582"&gt;&lt;a href="https://github.com/signed0/pylibpcap"&gt;pylibpcap&lt;/a&gt;, &lt;a href="https://github.com/pynetwork/pypcap"&gt;pypcap&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgd2db582"&gt;
 &lt;p&gt;
 Python code to work with libpcap.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge43d503" class="outline-3"&gt;
-&lt;h3 id="orge43d503"&gt;WireShark&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge43d503"&gt;
+&lt;div id="outline-container-org50b75d2" class="outline-3"&gt;
+&lt;h3 id="org50b75d2"&gt;WireShark&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org50b75d2"&gt;
 &lt;p&gt;
 These are installed when you install wireshark.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org689e926" class="outline-4"&gt;
-&lt;h4 id="org689e926"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/tshark.html"&gt;tshark&lt;/a&gt;/&lt;a href="https://www.wireshark.org"&gt;wireshark&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org689e926"&gt;
+&lt;div id="outline-container-org3324e3d" class="outline-4"&gt;
+&lt;h4 id="org3324e3d"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/tshark.html"&gt;tshark&lt;/a&gt;/&lt;a href="https://www.wireshark.org"&gt;wireshark&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org3324e3d"&gt;
 &lt;p&gt;
 Packet capturing and examining (better documented than most of the other programs)
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org286cf25" class="outline-4"&gt;
-&lt;h4 id="org286cf25"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/reordercap.html"&gt;reordercap&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org286cf25"&gt;
+&lt;div id="outline-container-orgf22726c" class="outline-4"&gt;
+&lt;h4 id="orgf22726c"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/reordercap.html"&gt;reordercap&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgf22726c"&gt;
 &lt;p&gt;
 Reorders the packets by timestamp.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1d17866" class="outline-4"&gt;
-&lt;h4 id="org1d17866"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org1d17866"&gt;
+&lt;div id="outline-container-org5eefe09" class="outline-4"&gt;
+&lt;h4 id="org5eefe09"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org5eefe09"&gt;
 &lt;p&gt;
 This prints summary information about packe files (works with gzipped files).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org429c576" class="outline-4"&gt;
-&lt;h4 id="org429c576"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/mergecap.html"&gt;mergecap&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org429c576"&gt;
+&lt;div id="outline-container-orgc7eb70d" class="outline-4"&gt;
+&lt;h4 id="orgc7eb70d"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/mergecap.html"&gt;mergecap&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgc7eb70d"&gt;
 &lt;p&gt;
 Merges multiple packet files together. Mergecap will try to keep timestamps in order when merging, but it assumes each individual file to merge is already in order.
 &lt;/p&gt;
@@ -254,123 +636,123 @@ Merges multiple packet files together. Mergecap will try to keep timestamps in o
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org8714a81" class="outline-2"&gt;
-&lt;h2 id="org8714a81"&gt;Packet Flows&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8714a81"&gt;
+&lt;div id="outline-container-org72cb2ef" class="outline-2"&gt;
+&lt;h2 id="org72cb2ef"&gt;Packet Flows&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org72cb2ef"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2b9a8a8" class="outline-3"&gt;
-&lt;h3 id="org2b9a8a8"&gt;&lt;a href="http://tcpick.sourceforge.net"&gt;tcpick&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2b9a8a8"&gt;
+&lt;div id="outline-container-org895efa9" class="outline-3"&gt;
+&lt;h3 id="org895efa9"&gt;&lt;a href="http://tcpick.sourceforge.net"&gt;tcpick&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org895efa9"&gt;
 &lt;p&gt;
 Track, reassemble, reorder TCP streams.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4af43d2" class="outline-3"&gt;
-&lt;h3 id="org4af43d2"&gt;&lt;a href="http://www.tcptrace.org"&gt;tcptrace&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org4af43d2"&gt;
+&lt;div id="outline-container-org0c1a60d" class="outline-3"&gt;
+&lt;h3 id="org0c1a60d"&gt;&lt;a href="http://www.tcptrace.org"&gt;tcptrace&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org0c1a60d"&gt;
 &lt;p&gt;
 Gives connection information taken from a capture file.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org99dfb39" class="outline-3"&gt;
-&lt;h3 id="org99dfb39"&gt;&lt;a href="https://github.com/simsong/tcpflow"&gt;tcpflow&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org99dfb39"&gt;
+&lt;div id="outline-container-org0bdf3ee" class="outline-3"&gt;
+&lt;h3 id="org0bdf3ee"&gt;&lt;a href="https://github.com/simsong/tcpflow"&gt;tcpflow&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org0bdf3ee"&gt;
 &lt;p&gt;
 Separates out TCP flows into separate files.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org81c3a62" class="outline-2"&gt;
-&lt;h2 id="org81c3a62"&gt;Capture Summarizing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org81c3a62"&gt;
+&lt;div id="outline-container-org88edcac" class="outline-2"&gt;
+&lt;h2 id="org88edcac"&gt;Capture Summarizing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org88edcac"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org09a3bbd" class="outline-3"&gt;
-&lt;h3 id="org09a3bbd"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h3&gt;
+&lt;div id="outline-container-org7c86a8f" class="outline-3"&gt;
+&lt;h3 id="org7c86a8f"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h3&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org87449b4" class="outline-3"&gt;
-&lt;h3 id="org87449b4"&gt;&lt;a href="https://github.com/kohler/ipsumdump"&gt;ipsumdump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org87449b4"&gt;
+&lt;div id="outline-container-org24c881d" class="outline-3"&gt;
+&lt;h3 id="org24c881d"&gt;&lt;a href="https://github.com/kohler/ipsumdump"&gt;ipsumdump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org24c881d"&gt;
 &lt;p&gt;
 Summarizes packet information in ASCII format
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2fe8962" class="outline-3"&gt;
-&lt;h3 id="org2fe8962"&gt;&lt;a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html"&gt;tcpdstat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2fe8962"&gt;
+&lt;div id="outline-container-org0970f74" class="outline-3"&gt;
+&lt;h3 id="org0970f74"&gt;&lt;a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html"&gt;tcpdstat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org0970f74"&gt;
 &lt;p&gt;
 Gives summary statistics for a pcap file
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgdd8cec8" class="outline-2"&gt;
-&lt;h2 id="orgdd8cec8"&gt;Network Monitoring&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgdd8cec8"&gt;
+&lt;div id="outline-container-orgfcbe5eb" class="outline-2"&gt;
+&lt;h2 id="orgfcbe5eb"&gt;Network Monitoring&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgfcbe5eb"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org69a82b0" class="outline-3"&gt;
-&lt;h3 id="org69a82b0"&gt;&lt;a href="https://www.ntop.org"&gt;ntop&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org69a82b0"&gt;
+&lt;div id="outline-container-org899fcff" class="outline-3"&gt;
+&lt;h3 id="org899fcff"&gt;&lt;a href="https://www.ntop.org"&gt;ntop&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org899fcff"&gt;
 &lt;p&gt;
 Like top but for the network.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org493cf09" class="outline-3"&gt;
-&lt;h3 id="org493cf09"&gt;&lt;a href="http://man7.org/linux/man-pages/man8/ss.8.html"&gt;ss (socket statistics)&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org493cf09"&gt;
+&lt;div id="outline-container-org07fed64" class="outline-3"&gt;
+&lt;h3 id="org07fed64"&gt;&lt;a href="http://man7.org/linux/man-pages/man8/ss.8.html"&gt;ss (socket statistics)&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org07fed64"&gt;
 &lt;p&gt;
 Part of &lt;a href="https://en.wikipedia.org/wiki/Iproute2"&gt;iproute2&lt;/a&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org0a71ef6" class="outline-2"&gt;
-&lt;h2 id="org0a71ef6"&gt;Miscellaneous&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0a71ef6"&gt;
+&lt;div id="outline-container-org35c8c6c" class="outline-2"&gt;
+&lt;h2 id="org35c8c6c"&gt;Miscellaneous&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org35c8c6c"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org8e762b8" class="outline-3"&gt;
-&lt;h3 id="org8e762b8"&gt;&lt;a href="https://en.wikipedia.org/wiki/Netcat"&gt;netcat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8e762b8"&gt;
+&lt;div id="outline-container-orgaf690c6" class="outline-3"&gt;
+&lt;h3 id="orgaf690c6"&gt;&lt;a href="https://en.wikipedia.org/wiki/Netcat"&gt;netcat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgaf690c6"&gt;
 &lt;p&gt;
 Read from and write to TCP/UDP network connections.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org308ed05" class="outline-3"&gt;
-&lt;h3 id="org308ed05"&gt;&lt;a href="https://linux.die.net/man/1/socat"&gt;socat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org308ed05"&gt;
+&lt;div id="outline-container-org529181b" class="outline-3"&gt;
+&lt;h3 id="org529181b"&gt;&lt;a href="https://linux.die.net/man/1/socat"&gt;socat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org529181b"&gt;
 &lt;p&gt;
 Route data between byte streams.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>networking wireless tools</category><guid>https://necromuralist.github.io/posts/networking-tools/</guid><pubDate>Tue, 22 May 2018 20:57:42 GMT</pubDate></item><item><title>The Flask Debug Server</title><link>https://necromuralist.github.io/posts/the-flask-debug-server/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org027cb85" class="outline-2"&gt;
-&lt;h2 id="org027cb85"&gt;Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org027cb85"&gt;
+&lt;/div&gt;</description><category>networking wireless tools</category><guid>https://necromuralist.github.io/posts/networking-tools/</guid><pubDate>Tue, 22 May 2018 20:57:42 GMT</pubDate></item><item><title>The Flask Debug Server</title><link>https://necromuralist.github.io/posts/the-flask-debug-server/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org82cf067" class="outline-2"&gt;
+&lt;h2 id="org82cf067"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org82cf067"&gt;
 &lt;p&gt;
 This is documented on the &lt;a href="//flask.pocoo.org/docs/"&gt;Flask site&lt;/a&gt;, but I was trying to help someone debug some old server code that I'd written and couldn't remember how to debug it, so I'm documenting it here as I go through remembering it again so I'll have a single reference to use the next time. Some of the settings look different from what I remember using so I think that Flask has changed a little over time, but since I didn't document it the first time I don't have a record to compare against (well, I probably have some notes in a notebook but it's hard to refer to that when sitting at someone else's desk).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6fa73ac" class="outline-2"&gt;
-&lt;h2 id="org6fa73ac"&gt;Setup&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6fa73ac"&gt;
+&lt;div id="outline-container-org2b87afa" class="outline-2"&gt;
+&lt;h2 id="org2b87afa"&gt;Setup&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2b87afa"&gt;
 &lt;p&gt;
 The &lt;a href="http://flask.pocoo.org/docs/1.0/quickstart/"&gt;Flask Quickstart&lt;/a&gt; tells you what to do, but for some reason when we googled it, the instructions were different, I think it might have lead us to an older form of the documentation. This is the current version (May 20, 2018.)
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org570467e" class="outline-3"&gt;
-&lt;h3 id="org570467e"&gt;The Environment Variables&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org570467e"&gt;
+&lt;div id="outline-container-org90dde60" class="outline-3"&gt;
+&lt;h3 id="org90dde60"&gt;The Environment Variables&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org90dde60"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1fcf849" class="outline-4"&gt;
-&lt;h4 id="org1fcf849"&gt;The Flask App&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org1fcf849"&gt;
+&lt;div id="outline-container-org62a452c" class="outline-4"&gt;
+&lt;h4 id="org62a452c"&gt;The Flask App&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org62a452c"&gt;
 &lt;p&gt;
 First you have to tell flask which file contains your flask app by setting the &lt;code&gt;FLASK_APP&lt;/code&gt; environment variable. In my case I'm using &lt;a href="https://github.com/zalando/connexion"&gt;connexion&lt;/a&gt;, an oddly-named adapter that adds support for &lt;a href="https://swagger.io/"&gt;swagger/OpenApi&lt;/a&gt; to Flask. So the file that has the app has this line in it.
 &lt;/p&gt;
@@ -394,9 +776,9 @@ So I had to specifically tell flask the name of my app by appending it to the en
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd96edee" class="outline-4"&gt;
-&lt;h4 id="orgd96edee"&gt;Development Mode&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgd96edee"&gt;
+&lt;div id="outline-container-org62199b4" class="outline-4"&gt;
+&lt;h4 id="org62199b4"&gt;Development Mode&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org62199b4"&gt;
 &lt;p&gt;
 If you want the server to automatically reload when it detects changes then you should to set the &lt;code&gt;FLASK_ENV&lt;/code&gt; environment variable to &lt;code&gt;development&lt;/code&gt;. This is similar to using &lt;code&gt;FLASK_DEBUG&lt;/code&gt; but I think it adds the reloading. Anyway, it does more than just set debug mode.
 &lt;/p&gt;
@@ -407,13 +789,13 @@ If you want the server to automatically reload when it detects changes then you 
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3dd285e" class="outline-2"&gt;
-&lt;h2 id="org3dd285e"&gt;Run It&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3dd285e"&gt;
+&lt;div id="outline-container-org3e035d3" class="outline-2"&gt;
+&lt;h2 id="org3e035d3"&gt;Run It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3e035d3"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6122c6b" class="outline-3"&gt;
-&lt;h3 id="org6122c6b"&gt;The Development server&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6122c6b"&gt;
+&lt;div id="outline-container-orgb8d9809" class="outline-3"&gt;
+&lt;h3 id="orgb8d9809"&gt;The Development server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb8d9809"&gt;
 &lt;p&gt;
 This is the output of the help string for the &lt;a href="http://flask.pocoo.org/docs/1.0/server/#server"&gt;development server&lt;/a&gt;, note that it uses &lt;code&gt;-h&lt;/code&gt; for &lt;code&gt;host&lt;/code&gt; so you need to pass in &lt;code&gt;--help&lt;/code&gt; to see this output or you will get an error.
 &lt;/p&gt;
@@ -421,9 +803,9 @@ This is the output of the help string for the &lt;a href="http://flask.pocoo.org
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge215525" class="outline-3"&gt;
-&lt;h3 id="orge215525"&gt;Public Server&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge215525"&gt;
+&lt;div id="outline-container-org32b9755" class="outline-3"&gt;
+&lt;h3 id="org32b9755"&gt;Public Server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org32b9755"&gt;
 &lt;p&gt;
 The default server runs on localhost, but since I'm hosting the code on a &lt;a href="https://www.raspberrypi.org/"&gt;raspberry pi&lt;/a&gt; sitting on the network somewhere but debugging it remotely, I need to run it on a public address.
 &lt;/p&gt;
@@ -433,20 +815,20 @@ The default server runs on localhost, but since I'm hosting the code on a &lt;a 
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7859384" class="outline-2"&gt;
-&lt;h2 id="org7859384"&gt;Make it repeatable&lt;/h2&gt;
-&lt;/div&gt;</description><category>flask howto</category><guid>https://necromuralist.github.io/posts/the-flask-debug-server/</guid><pubDate>Sun, 20 May 2018 20:53:54 GMT</pubDate></item><item><title>Monitor Mode With airmon-ng</title><link>https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org1625d92" class="outline-2"&gt;
-&lt;h2 id="org1625d92"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1625d92"&gt;
+&lt;div id="outline-container-orgc0fffe8" class="outline-2"&gt;
+&lt;h2 id="orgc0fffe8"&gt;Make it repeatable&lt;/h2&gt;
+&lt;/div&gt;</description><category>flask howto</category><guid>https://necromuralist.github.io/posts/the-flask-debug-server/</guid><pubDate>Sun, 20 May 2018 20:53:54 GMT</pubDate></item><item><title>Monitor Mode With airmon-ng</title><link>https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org60fe7c0" class="outline-2"&gt;
+&lt;h2 id="org60fe7c0"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org60fe7c0"&gt;
 &lt;p&gt;
 I'm looking into setting up a wireless (WiFi and bluetooth) monitoring station to collect data that correlates with how my network is performing and what the state of the network is and I thought that, as a first step, I'd get some &lt;a href="https://en.wikipedia.org/wiki/Packet_analyzer"&gt;packet capturing&lt;/a&gt; logs going. I'm primarily a python programmer who's kept my toe in the Linux command-line world but it's been a little while since I really dove into the wireless networking world. I had some vague notion about doing it with &lt;a href="https://en.wikipedia.org/wiki/Wireless_tools_for_Linux"&gt;iwconfig&lt;/a&gt; or &lt;a href="https://wireless.wiki.kernel.org/en/users/documentation/iw"&gt;iw&lt;/a&gt;, but then I found &lt;a href="https://www.aircrack-ng.org/doku.php?id=airmon-ng"&gt;airmon-ng&lt;/a&gt; and realized that it was what I was really looking for.
 Why is it better? Well, to be honest, I'm not informed enough to say that it's better, but when I tried to use &lt;code&gt;iw&lt;/code&gt; it failed without really telling me why, while &lt;code&gt;airmon-ng&lt;/code&gt; not only didn't fail, but it told me that there were other processes already using my wireless interface which is likely why &lt;code&gt;iw&lt;/code&gt; failed and it told me how to fix it. On the one hand, since it's hiding so much from you &lt;code&gt;airmon-ng&lt;/code&gt; lets you be a little ignorant and still do stuff, on the other - &lt;b&gt;what's wrong with that?&lt;/b&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org8c1d2dd" class="outline-2"&gt;
-&lt;h2 id="org8c1d2dd"&gt;Setting Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8c1d2dd"&gt;
+&lt;div id="outline-container-org5c4df27" class="outline-2"&gt;
+&lt;h2 id="org5c4df27"&gt;Setting Up&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5c4df27"&gt;
 &lt;p&gt;
 I'm using Ubuntu &lt;a href="http://releases.ubuntu.com/18.04/"&gt;18.04 (Bionic Beaver)&lt;/a&gt; - which seems to have both fixed and broken a surprising amount of stuff (nice that you let me log in with Dvorak now, but maybe you should let me know the keyboard layout has changed ahead of time) - so these instructions are based on that. First, &lt;code&gt;airmon-ng&lt;/code&gt; is part of the &lt;code&gt;aircrack-ng&lt;/code&gt; package so you need to install it to get what we want.
 &lt;/p&gt;
@@ -481,17 +863,17 @@ So I won't list it here - you can check it out if you're interested. It's actual
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6f7847a" class="outline-2"&gt;
-&lt;h2 id="org6f7847a"&gt;Monitor Mode&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6f7847a"&gt;
+&lt;div id="outline-container-orgea8bffd" class="outline-2"&gt;
+&lt;h2 id="orgea8bffd"&gt;Monitor Mode&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgea8bffd"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgcfb42aa" class="outline-3"&gt;
-&lt;h3 id="orgcfb42aa"&gt;Starting Up Monitor Mode&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgcfb42aa"&gt;
+&lt;div id="outline-container-orgf0f61d7" class="outline-3"&gt;
+&lt;h3 id="orgf0f61d7"&gt;Starting Up Monitor Mode&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf0f61d7"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org53aa45f" class="outline-4"&gt;
-&lt;h4 id="org53aa45f"&gt;Finding your interface&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org53aa45f"&gt;
+&lt;div id="outline-container-orgd6453bd" class="outline-4"&gt;
+&lt;h4 id="orgd6453bd"&gt;Finding your interface&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgd6453bd"&gt;
 &lt;p&gt;
 In the good old days you could be pretty sure that your wireless interface was &lt;code&gt;wlan0&lt;/code&gt; (assuming you only had one) but then ubuntu/freedesktop went and &lt;a href="https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/"&gt;changed things&lt;/a&gt; so now you should probably check what your interface name is using &lt;code&gt;iw&lt;/code&gt;.
 &lt;/p&gt;
@@ -505,9 +887,9 @@ So it looks like we have a wireless interface named &lt;code&gt;wlp2s0&lt;/code&
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org13edef4" class="outline-3"&gt;
-&lt;h3 id="org13edef4"&gt;Okay, now monitor it&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org13edef4"&gt;
+&lt;div id="outline-container-org04c5436" class="outline-3"&gt;
+&lt;h3 id="org04c5436"&gt;Okay, now monitor it&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org04c5436"&gt;
 &lt;p&gt;
 The syntax to start monitor mode is &lt;code&gt;airmon-ng start &amp;lt;interface&amp;gt;&lt;/code&gt;.
 &lt;/p&gt;
@@ -596,9 +978,9 @@ Note that we need to use the new interface name. Also, if it wasn't obvious up t
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge55fc92" class="outline-2"&gt;
-&lt;h2 id="orge55fc92"&gt;Cleaning Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge55fc92"&gt;
+&lt;div id="outline-container-orgd5a5a83" class="outline-2"&gt;
+&lt;h2 id="orgd5a5a83"&gt;Cleaning Up&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd5a5a83"&gt;
 &lt;p&gt;
 We already got a preview of turning off monitor mode earlier. The syntax is &lt;code&gt;airmon-ng stop &amp;lt;interface&amp;gt;&lt;/code&gt;.
 &lt;/p&gt;
@@ -612,9 +994,9 @@ This will bring back the original wireless interface, but it won't (likely) re-e
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb9b2680" class="outline-2"&gt;
-&lt;h2 id="orgb9b2680"&gt;Summary&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb9b2680"&gt;
+&lt;div id="outline-container-orgd8c57b1" class="outline-2"&gt;
+&lt;h2 id="orgd8c57b1"&gt;Summary&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd8c57b1"&gt;
 &lt;p&gt;
 These were my notes on setting up monitor mode using &lt;code&gt;airmon-ng&lt;/code&gt;. The main point I wanted to get across is how easy it is to do using &lt;code&gt;airmon-ng&lt;/code&gt; as opposed to the other methods. I didn't actually show how much harder it is to use iwconfig, but if you have tried you might know what it entails. In any case, hopefully these notes will help me in the future as I keep watching the packets.
 &lt;/p&gt;
@@ -623,21 +1005,21 @@ These were my notes on setting up monitor mode using &lt;code&gt;airmon-ng&lt;/c
 These are notes I made while surfing the web looking into &lt;a href="http://www.tcpdump.org/"&gt;TCP Dump&lt;/a&gt;. You will most likely need to use &lt;code&gt;sudo&lt;/code&gt; to run most of the commands, but I'm leaving it off to make it shorter.
 &lt;/p&gt;
 
-&lt;div id="outline-container-orgef24888" class="outline-2"&gt;
-&lt;h2 id="orgef24888"&gt;About TCP Dump&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgef24888"&gt;
+&lt;div id="outline-container-org1e16df1" class="outline-2"&gt;
+&lt;h2 id="org1e16df1"&gt;About TCP Dump&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1e16df1"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;It has more filtering capabilities and can filter while capturing packets, but it doesn't have the analytical tools that something like wireshark has&lt;sup&gt;&lt;a id="fnr.1" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.1"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc31d311" class="outline-2"&gt;
-&lt;h2 id="orgc31d311"&gt;Some Examples&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc31d311"&gt;
+&lt;div id="outline-container-org1267794" class="outline-2"&gt;
+&lt;h2 id="org1267794"&gt;Some Examples&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1267794"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org318fc7f" class="outline-3"&gt;
-&lt;h3 id="org318fc7f"&gt;Listing interfaces&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org318fc7f"&gt;
+&lt;div id="outline-container-orgd7c55a6" class="outline-3"&gt;
+&lt;h3 id="orgd7c55a6"&gt;Listing interfaces&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgd7c55a6"&gt;
 &lt;p&gt;
 You can ask &lt;code&gt;tcpdump&lt;/code&gt; which interfaces it is able to listen to&lt;sup&gt;&lt;a id="fnr.2" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
@@ -648,9 +1030,9 @@ tcpdump -D
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org6dcac6b" class="outline-3"&gt;
-&lt;h3 id="org6dcac6b"&gt;Capture packets on an interface&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6dcac6b"&gt;
+&lt;div id="outline-container-org5469484" class="outline-3"&gt;
+&lt;h3 id="org5469484"&gt;Capture packets on an interface&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5469484"&gt;
 &lt;p&gt;
 To capture packets on an interface you pass its name to the &lt;code&gt;-i&lt;/code&gt; flag&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt; (here the interface I'll use is &lt;code&gt;eno1&lt;/code&gt;).
 &lt;/p&gt;
@@ -660,9 +1042,9 @@ tcpdump -i eno1
 &lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org375a933" class="outline-4"&gt;
-&lt;h4 id="org375a933"&gt;Save the packet capture to a file&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org375a933"&gt;
+&lt;div id="outline-container-orgfadb347" class="outline-4"&gt;
+&lt;h4 id="orgfadb347"&gt;Save the packet capture to a file&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgfadb347"&gt;
 &lt;p&gt;
 The default behavior is for &lt;code&gt;tcpdump&lt;/code&gt; to send the output to standard output, to have it save the packets to a files use the &lt;code&gt;-w&lt;/code&gt; flag&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt; (you can call it anything, I'll call it &lt;code&gt;dump.pcap&lt;/code&gt;).
 &lt;/p&gt;
@@ -673,9 +1055,9 @@ tcpdump -i eno1 -w dump.pcap
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org88d218f" class="outline-4"&gt;
-&lt;h4 id="org88d218f"&gt;Increase the verbosity of the capture&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org88d218f"&gt;
+&lt;div id="outline-container-org8935134" class="outline-4"&gt;
+&lt;h4 id="org8935134"&gt;Increase the verbosity of the capture&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org8935134"&gt;
 &lt;p&gt;
 To increase the amount if information that's captured, pass multiple &lt;code&gt;v&lt;/code&gt; arguments&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt; (in this case I'll use &lt;code&gt;-vvv&lt;/code&gt;).
 &lt;/p&gt;
@@ -687,13 +1069,13 @@ tcpdump -i eno1 -vvv -w dump.pcap
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org7535631" class="outline-3"&gt;
-&lt;h3 id="org7535631"&gt;Filtering&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org7535631"&gt;
+&lt;div id="outline-container-org1608242" class="outline-3"&gt;
+&lt;h3 id="org1608242"&gt;Filtering&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org1608242"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org087775f" class="outline-4"&gt;
-&lt;h4 id="org087775f"&gt;By IP address&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org087775f"&gt;
+&lt;div id="outline-container-orgbd178e9" class="outline-4"&gt;
+&lt;h4 id="orgbd178e9"&gt;By IP address&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgbd178e9"&gt;
 &lt;p&gt;
 You can get all the packets being sent or received by a host using the &lt;code&gt;host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.3" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
@@ -703,9 +1085,9 @@ tcpdump host 192.168.1.12
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org548b5aa" class="outline-4"&gt;
-&lt;h4 id="org548b5aa"&gt;By Sender IP Address&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org548b5aa"&gt;
+&lt;div id="outline-container-orge63a986" class="outline-4"&gt;
+&lt;h4 id="orge63a986"&gt;By Sender IP Address&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orge63a986"&gt;
 &lt;p&gt;
 You can filter out all the packets except those that are being sent by a host using the &lt;code&gt;src host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
@@ -720,9 +1102,9 @@ You can leave off the &lt;code&gt;host&lt;/code&gt; argument and just use &lt;co
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgf8c322e" class="outline-4"&gt;
-&lt;h4 id="orgf8c322e"&gt;By Target IP Address&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgf8c322e"&gt;
+&lt;div id="outline-container-orgf6bc769" class="outline-4"&gt;
+&lt;h4 id="orgf6bc769"&gt;By Target IP Address&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgf6bc769"&gt;
 &lt;p&gt;
 To filter out all the packets except those that are going to a specific target use the &lt;code&gt;dst host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
@@ -733,9 +1115,9 @@ tcpdump -i eno1 dst host 192.168.1.1
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgfd68cc3" class="outline-4"&gt;
-&lt;h4 id="orgfd68cc3"&gt;Sender and Target IP Addresses&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgfd68cc3"&gt;
+&lt;div id="outline-container-orga799429" class="outline-4"&gt;
+&lt;h4 id="orga799429"&gt;Sender and Target IP Addresses&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orga799429"&gt;
 &lt;p&gt;
 You can combine parameters using the logical operators &lt;code&gt;and&lt;/code&gt;, &lt;code&gt;or&lt;/code&gt;, and &lt;code&gt;not&lt;/code&gt;&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
@@ -750,9 +1132,9 @@ The single quotes are optional and are just used to group the arguments together
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org91b5628" class="outline-4"&gt;
-&lt;h4 id="org91b5628"&gt;By Subnet&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org91b5628"&gt;
+&lt;div id="outline-container-org866c9fe" class="outline-4"&gt;
+&lt;h4 id="org866c9fe"&gt;By Subnet&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org866c9fe"&gt;
 &lt;p&gt;
 You can grab all the packets on a network or subnet using the &lt;code&gt;net&lt;/code&gt; argument and &lt;a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation"&gt;CIDR&lt;/a&gt; notation&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;. This example grabs all the packets on the &lt;code&gt;192.168.1.*&lt;/code&gt; subnet.
 &lt;/p&gt;
@@ -762,9 +1144,9 @@ tcpdump net 192.168.1.0/24
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org199a052" class="outline-4"&gt;
-&lt;h4 id="org199a052"&gt;By port and/or protocol&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org199a052"&gt;
+&lt;div id="outline-container-org49ded4b" class="outline-4"&gt;
+&lt;h4 id="org49ded4b"&gt;By port and/or protocol&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org49ded4b"&gt;
 &lt;p&gt;
 If you want to only catch activity on a certain &lt;a href="https://en.wikipedia.org/wiki/Port_(computer_networking)"&gt;port&lt;/a&gt; and by a certain protocol then you use the &lt;code&gt;port&lt;/code&gt; argument and the name of the protocol (e.g. &lt;code&gt;udp&lt;/code&gt;)&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;. This would catch all the &lt;code&gt;tcp&lt;/code&gt; traffic over SSH.
 &lt;/p&gt;
@@ -781,9 +1163,9 @@ tcpdump tcp port 22,80
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9ffc83d" class="outline-4"&gt;
-&lt;h4 id="org9ffc83d"&gt;Turn off hostname and port translation&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org9ffc83d"&gt;
+&lt;div id="outline-container-org9145519" class="outline-4"&gt;
+&lt;h4 id="org9145519"&gt;Turn off hostname and port translation&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org9145519"&gt;
 &lt;p&gt;
 The default behavior for &lt;code&gt;tcpdump&lt;/code&gt; is to translate the hostnames and ports to something human-readable if possible. To turn this off you pass in the &lt;code&gt;-n&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;. Since this stops having to look things up it will reduce the amount of overhead needed by &lt;code&gt;tcpdump&lt;/code&gt;.
 &lt;/p&gt;
@@ -795,9 +1177,9 @@ tcpdump -n -i eno1 port 22
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org8b2392b" class="outline-2"&gt;
-&lt;h2 id="org8b2392b"&gt;Links&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8b2392b"&gt;
+&lt;div id="outline-container-org8de0353" class="outline-2"&gt;
+&lt;h2 id="org8de0353"&gt;Links&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org8de0353"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;(Wireshark Revealed&lt;sup&gt;&lt;a id="fnr.5" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.5"&gt;5&lt;/a&gt;&lt;/sup&gt;) &lt;a href="http://www.tcpdump.org/"&gt;The tcpdump website&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;(Wireshark Revealed&lt;sup&gt;&lt;a id="fnr.5.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.5"&gt;5&lt;/a&gt;&lt;/sup&gt;) &lt;a href="http://danielmiessler.com/study/tcpdump/"&gt;A friendly tutorial&lt;/a&gt;&lt;/li&gt;
@@ -806,9 +1188,9 @@ tcpdump -n -i eno1 port 22
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgbdb471e" class="outline-2"&gt;
-&lt;h2 id="orgbdb471e"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbdb471e"&gt;
+&lt;div id="outline-container-org39b313c" class="outline-2"&gt;
+&lt;h2 id="org39b313c"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org39b313c"&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div id="footnotes"&gt;
@@ -837,17 +1219,17 @@ tcpdump -n -i eno1 port 22
 
 
 &lt;/div&gt;
-&lt;/div&gt;</description><category>notes networking</category><guid>https://necromuralist.github.io/posts/tcp-dump-notes/</guid><pubDate>Wed, 09 May 2018 21:54:56 GMT</pubDate></item><item><title>MNIST Digits With Keras</title><link>https://necromuralist.github.io/posts/mnist-digits-with-keras/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgeca2eb2" class="outline-2"&gt;
-&lt;h2 id="orgeca2eb2"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgeca2eb2"&gt;
+&lt;/div&gt;</description><category>notes networking</category><guid>https://necromuralist.github.io/posts/tcp-dump-notes/</guid><pubDate>Wed, 09 May 2018 21:54:56 GMT</pubDate></item><item><title>MNIST Digits With Keras</title><link>https://necromuralist.github.io/posts/mnist-digits-with-keras/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org3cb3f86" class="outline-2"&gt;
+&lt;h2 id="org3cb3f86"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3cb3f86"&gt;
 &lt;p&gt;
 These are the parts that will make up the model.
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org044309f" class="outline-3"&gt;
-&lt;h3 id="org044309f"&gt;The Sequential Model&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org044309f"&gt;
+&lt;div id="outline-container-orgd6d69fa" class="outline-3"&gt;
+&lt;h3 id="orgd6d69fa"&gt;The Sequential Model&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgd6d69fa"&gt;
 &lt;p&gt;
 The Keras &lt;a href="https://keras.io/getting-started/sequential-model-guide/"&gt;Sequential Model&lt;/a&gt; is a stack of layers that will make up the neural network.
 &lt;/p&gt;
@@ -857,9 +1239,9 @@ The Keras &lt;a href="https://keras.io/getting-started/sequential-model-guide/"&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8989ed7" class="outline-3"&gt;
-&lt;h3 id="org8989ed7"&gt;The Dense Layers&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8989ed7"&gt;
+&lt;div id="outline-container-org0c9e0e1" class="outline-3"&gt;
+&lt;h3 id="org0c9e0e1"&gt;The Dense Layers&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org0c9e0e1"&gt;
 &lt;p&gt;
 The Keras &lt;a href="https://keras.io/layers/core/"&gt;Dense&lt;/a&gt; layer is a densely-connected layer within our neural network.
 &lt;/p&gt;
@@ -869,9 +1251,9 @@ The Keras &lt;a href="https://keras.io/layers/core/"&gt;Dense&lt;/a&gt; layer is
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org294b322" class="outline-3"&gt;
-&lt;h3 id="org294b322"&gt;Activation&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org294b322"&gt;
+&lt;div id="outline-container-org5d2acf6" class="outline-3"&gt;
+&lt;h3 id="org5d2acf6"&gt;Activation&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5d2acf6"&gt;
 &lt;p&gt;
 The &lt;a href="https://keras.io/layers/core/#activation"&gt;Activation&lt;/a&gt; represents the activation function for each layer (e.g. &lt;b&gt;relu&lt;/b&gt;).
 &lt;/p&gt;
@@ -881,9 +1263,9 @@ The &lt;a href="https://keras.io/layers/core/#activation"&gt;Activation&lt;/a&gt
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org1816351" class="outline-3"&gt;
-&lt;h3 id="org1816351"&gt;Adam&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1816351"&gt;
+&lt;div id="outline-container-org0bacccb" class="outline-3"&gt;
+&lt;h3 id="org0bacccb"&gt;Adam&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org0bacccb"&gt;
 &lt;p&gt;
 To tune the model to the data we'll use the &lt;a href="https://keras.io/optimizers/#adam"&gt;Adam&lt;/a&gt; optimizer
 &lt;/p&gt;
@@ -893,9 +1275,9 @@ To tune the model to the data we'll use the &lt;a href="https://keras.io/optimiz
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org195a021" class="outline-3"&gt;
-&lt;h3 id="org195a021"&gt;Categorical Converter&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org195a021"&gt;
+&lt;div id="outline-container-orgac78cb3" class="outline-3"&gt;
+&lt;h3 id="orgac78cb3"&gt;Categorical Converter&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgac78cb3"&gt;
 &lt;p&gt;
 Finally, since our problem is a classification problem (identify which of 10 digits an image represents) I'll import the Keras &lt;a href="https://keras.io/utils/#to_categorical"&gt;&lt;code&gt;to_categorical&lt;/code&gt;&lt;/a&gt; function to enable classification of our data.
 &lt;/p&gt;
@@ -924,9 +1306,9 @@ To make our output the same every time, I'll set the random seed to April 28, 20
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>deeplearning keras</category><guid>https://necromuralist.github.io/posts/mnist-digits-with-keras/</guid><pubDate>Sat, 28 Apr 2018 23:22:20 GMT</pubDate></item><item><title>bokeh org-mode</title><link>https://necromuralist.github.io/posts/bokeh-org-mode/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgbff3d55" class="outline-2"&gt;
-&lt;h2 id="orgbff3d55"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbff3d55"&gt;
+&lt;/div&gt;</description><category>deeplearning keras</category><guid>https://necromuralist.github.io/posts/mnist-digits-with-keras/</guid><pubDate>Sat, 28 Apr 2018 23:22:20 GMT</pubDate></item><item><title>bokeh org-mode</title><link>https://necromuralist.github.io/posts/bokeh-org-mode/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9928d76" class="outline-2"&gt;
+&lt;h2 id="org9928d76"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9928d76"&gt;
 &lt;p&gt;
 This is an illustration of how to use bokeh with org-mode in nikola. There is a more extensive and flexible explanation of how to do this in &lt;a href="http://cherian.net/posts/bokeh-org-mode.html"&gt;this post&lt;/a&gt; on &lt;a href="http://cherian.net"&gt;cherian.net&lt;/a&gt; but I made these notes to understand how it works and to have a simpler example to refer to.
 &lt;/p&gt;
@@ -949,13 +1331,13 @@ The magic mix for this seems to be to use:
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org4907b57" class="outline-2"&gt;
-&lt;h2 id="org4907b57"&gt;Creating the Bokeh Plot&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4907b57"&gt;
+&lt;div id="outline-container-org942e4cd" class="outline-2"&gt;
+&lt;h2 id="org942e4cd"&gt;Creating the Bokeh Plot&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org942e4cd"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga36315e" class="outline-3"&gt;
-&lt;h3 id="orga36315e"&gt;Imports&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga36315e"&gt;
+&lt;div id="outline-container-org03b16b9" class="outline-3"&gt;
+&lt;h3 id="org03b16b9"&gt;Imports&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org03b16b9"&gt;
 &lt;p&gt;
 These are the dependencies. It's really all &lt;code&gt;bokeh&lt;/code&gt;, &lt;code&gt;numpy&lt;/code&gt; is just there to generate the data-values.
 &lt;/p&gt;
@@ -977,9 +1359,9 @@ I probably should save bokeh to this repository to keep the post from breaking i
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org6c4a6a0" class="outline-3"&gt;
-&lt;h3 id="org6c4a6a0"&gt;The Data&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6c4a6a0"&gt;
+&lt;div id="outline-container-org2fe81f0" class="outline-3"&gt;
+&lt;h3 id="org2fe81f0"&gt;The Data&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org2fe81f0"&gt;
 &lt;p&gt;
 To get a simple example going I'm just going to use some random outputs generated by numpy.
 &lt;/p&gt;
@@ -1050,9 +1432,9 @@ The &lt;code&gt;tooltips&lt;/code&gt; list maps the labels that will show up in 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org32b1308" class="outline-3"&gt;
-&lt;h3 id="org32b1308"&gt;The Plot&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org32b1308"&gt;
+&lt;div id="outline-container-org934ece4" class="outline-3"&gt;
+&lt;h3 id="org934ece4"&gt;The Plot&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org934ece4"&gt;
 &lt;p&gt;
 Now I'll create the actual plot (&lt;code&gt;figure&lt;/code&gt;).
 &lt;/p&gt;
@@ -1066,9 +1448,9 @@ Now I'll create the actual plot (&lt;code&gt;figure&lt;/code&gt;).
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org93529ab" class="outline-2"&gt;
-&lt;h2 id="org93529ab"&gt;Getting the Bokeh Plot Into The Post&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org93529ab"&gt;
+&lt;div id="outline-container-orgd1405fc" class="outline-2"&gt;
+&lt;h2 id="orgd1405fc"&gt;Getting the Bokeh Plot Into The Post&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd1405fc"&gt;
 &lt;p&gt;
 Finally I'll save the javascript and HTML files needed and then output the blob needed to embed the plot into this post. The &lt;code&gt;autoload_static&lt;/code&gt; function takes the bokeh plot object (&lt;code&gt;fig&lt;/code&gt;), the bokeh javascript that I loaded earlier (&lt;code&gt;bokeh&lt;/code&gt;), and the name of the javascript file that you want it to creat (&lt;code&gt;test.js&lt;/code&gt;) and returns the javascript to save (&lt;code&gt;javascript&lt;/code&gt;) and the HTML fragment that will include the javascript (&lt;code&gt;source&lt;/code&gt;). Note that because of the way nikola structures things I have to create a folder named &lt;code&gt;files/posts/bokeh-org-mode&lt;/code&gt; and save the files there. Since nikola will automatically look in this folder the name you pass into &lt;code&gt;autoload_static&lt;/code&gt; should just be the filename without the path, but when you save the javascript file you will save it there so you need to add the relative path. If my explanation seems a little convoluted, just look at the code below, it's fairly simple.
 &lt;/p&gt;
@@ -1080,9 +1462,9 @@ First I'll create a variable to hold the path to the folder to save the files in
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;FOLDER_PATH&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"../files/posts/bokeh-org-mode/"&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org362fb6f" class="outline-3"&gt;
-&lt;h3 id="org362fb6f"&gt;The Javascript&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org362fb6f"&gt;
+&lt;div id="outline-container-org9054d6a" class="outline-3"&gt;
+&lt;h3 id="org9054d6a"&gt;The Javascript&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9054d6a"&gt;
 &lt;p&gt;
 Now, I'll create the javascript source for the plot.
 &lt;/p&gt;
@@ -1100,9 +1482,9 @@ The &lt;code&gt;javascript&lt;/code&gt; variable holds the actual javascript sou
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgcafbc56" class="outline-3"&gt;
-&lt;h3 id="orgcafbc56"&gt;Embedding the Plot&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgcafbc56"&gt;
+&lt;div id="outline-container-org35c448e" class="outline-3"&gt;
+&lt;h3 id="org35c448e"&gt;Embedding the Plot&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org35c448e"&gt;
 &lt;p&gt;
 Finally, we need to print out the string that is stored in the &lt;code&gt;source&lt;/code&gt; variable which then tells org-mode to embed the files into this post. I'll output the full org-block so you can see the header arguments.
 &lt;/p&gt;
@@ -1124,9 +1506,9 @@ And there you have it. I don't have a lot to say about it, other than that if yo
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org5a30e4a" class="outline-2"&gt;
-&lt;h2 id="org5a30e4a"&gt;Summary&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5a30e4a"&gt;
+&lt;div id="outline-container-org70f33d1" class="outline-2"&gt;
+&lt;h2 id="org70f33d1"&gt;Summary&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org70f33d1"&gt;
 &lt;p&gt;
 To get a bokeh figure into an org-mode document in nikola:
 &lt;/p&gt;
@@ -1139,7 +1521,4 @@ To get a bokeh figure into an org-mode document in nikola:
 &lt;li&gt;Print the HTML fragment in an org-mode &lt;code&gt;#+BEGIN_EXPORT html&lt;/code&gt; block.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>bokeh org howto</category><guid>https://necromuralist.github.io/posts/bokeh-org-mode/</guid><pubDate>Thu, 26 Apr 2018 04:59:50 GMT</pubDate></item><item><title>Data Visualization Bibliography</title><link>https://necromuralist.github.io/posts/data-visualization-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div&gt;&lt;p&gt;MW.1. Playing With The. (2018) Drawing animated GIFs with matplotlib - Eli Bendersky's website. Retrieved February 27, 2018, from &lt;a class="reference external" href="https://eli.thegreenplace.net/2016/drawing-animated-gifs-with-matplotlib/"&gt;https://eli.thegreenplace.net/2016/drawing-animated-gifs-with-matplotlib/&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;This shows how to save the animation as a GIF using ImageMagick.&lt;/p&gt;
-&lt;p&gt;MW.2. Repeatedly Calling A. (2018) animation module — Matplotlib 2.1.2 documentation. Retrieved February 27, 2018, from &lt;a class="reference external" href="https://matplotlib.org/api/animation_api.html"&gt;https://matplotlib.org/api/animation_api.html&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;This is the matplotlib documentation for creating animations.&lt;/p&gt;&lt;/div&gt;</description><category>bibliography data visualization</category><guid>https://necromuralist.github.io/posts/data-visualization-bibliography/</guid><pubDate>Tue, 27 Feb 2018 21:44:37 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>bokeh org howto</category><guid>https://necromuralist.github.io/posts/bokeh-org-mode/</guid><pubDate>Thu, 26 Apr 2018 04:59:50 GMT</pubDate></item></channel></rss>

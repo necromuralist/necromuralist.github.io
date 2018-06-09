@@ -127,29 +127,29 @@
 <div class="section" id="the-dockerfile">
 <h2>The Dockerfile</h2>
 <p>This is the configuration for building the docker image.</p>
-<pre class="code dockerfile"><a name="rest_code_528e521275e547369075c38ed8229163-1"></a><span class="k">FROM</span><span class="s"> ubuntu:latest</span>
-<a name="rest_code_528e521275e547369075c38ed8229163-2"></a><span class="k">WORKDIR</span><span class="s"> /code</span>
-<a name="rest_code_528e521275e547369075c38ed8229163-3"></a><span class="k">RUN</span> apt-get update <span class="o">&amp;&amp;</span> apt-get -y upgrade
-<a name="rest_code_528e521275e547369075c38ed8229163-4"></a><span class="k">RUN</span> apt-get install -y build-essential python-dev
-<a name="rest_code_528e521275e547369075c38ed8229163-5"></a><span class="k">RUN</span> apt-get install -y python python-distribute python-pip
-<a name="rest_code_528e521275e547369075c38ed8229163-6"></a><span class="k">RUN</span> pip install pip --upgrade
-<a name="rest_code_528e521275e547369075c38ed8229163-7"></a><span class="k">ADD</span><span class="s"> requirements.txt /code</span>
-<a name="rest_code_528e521275e547369075c38ed8229163-8"></a><span class="k">RUN</span> pip install -r requirements.txt
-<a name="rest_code_528e521275e547369075c38ed8229163-9"></a><span class="k">RUN</span> mkdir /notebooks
-<a name="rest_code_528e521275e547369075c38ed8229163-10"></a><span class="k">CMD</span><span class="s"> jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 /notebooks</span>
+<pre class="code dockerfile"><a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-1"></a><span class="k">FROM</span><span class="s"> ubuntu:latest</span>
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-2"></a><span class="k">WORKDIR</span><span class="s"> /code</span>
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-3"></a><span class="k">RUN</span> apt-get update <span class="o">&amp;&amp;</span> apt-get -y upgrade
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-4"></a><span class="k">RUN</span> apt-get install -y build-essential python-dev
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-5"></a><span class="k">RUN</span> apt-get install -y python python-distribute python-pip
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-6"></a><span class="k">RUN</span> pip install pip --upgrade
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-7"></a><span class="k">ADD</span><span class="s"> requirements.txt /code</span>
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-8"></a><span class="k">RUN</span> pip install -r requirements.txt
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-9"></a><span class="k">RUN</span> mkdir /notebooks
+<a name="rest_code_36a63d25f22140cbb07c7823cd9dcb25-10"></a><span class="k">CMD</span><span class="s"> jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 /notebooks</span>
 </pre>
 <p>The <tt class="docutils literal">FROM</tt> line shows that I'm building my container using an ubuntu image (the latest image). The <tt class="docutils literal">WORKDIR</tt> sets the current working directory so commands that are run will look there for files. The next set of <tt class="docutils literal">RUN</tt> lines just say to update <tt class="docutils literal"><span class="pre">apt-get</span></tt> and install some basic python packages. The <tt class="docutils literal">ADD</tt> line takes the <tt class="docutils literal">requirements.txt</tt> file in the directory where I'm going to run this and put it in <tt class="docutils literal">/CODE</tt> which I pointed to with the <tt class="docutils literal">WORKDIR</tt> line. The next <tt class="docutils literal">RUN</tt> commands install my python dependencies and make a folder called <tt class="docutils literal">/notebooks</tt> to put the jupyter notebooks in. The last line (<tt class="docutils literal">CMD</tt>) is what will be executed when the container is run.</p>
 </div>
 <div class="section" id="building-the-image">
 <h2>Building the Image</h2>
 <p>If the docker-file is stored in a file named <tt class="docutils literal">jupyter.dockerfile</tt> next to the <tt class="docutils literal">requirements.txt</tt> file, both of which are in the directory where I run the build command. To build it (and name the image <tt class="docutils literal">jupyter</tt>) I'd run the command:</p>
-<pre class="code bash"><a name="rest_code_03c4d84b93b54fcea6164389b9e1b593-1"></a>docker -f jupyter.dockerfile -t jupyter:latest .
+<pre class="code bash"><a name="rest_code_09668ff496ce4cb0babf05fb2547c3f1-1"></a>docker -f jupyter.dockerfile -t jupyter:latest .
 </pre>
 </div>
 <div class="section" id="running-the-server">
 <h2>Running the Server</h2>
 <p>To run the server in the same directory where the notebooks should be stored and using the default port of 8888:</p>
-<pre class="code bash"><a name="rest_code_89c3bb79c6904b98a0cff5e81876fbf8-1"></a>docker --name jupyter -p <span class="m">8888</span>:8888 -v <span class="nv">$PWD</span>:/notebooks -d jupyter
+<pre class="code bash"><a name="rest_code_e18e8bc3f3584b99bc115b0511a993e3-1"></a>docker --name jupyter -p <span class="m">8888</span>:8888 -v <span class="nv">$PWD</span>:/notebooks -d jupyter
 </pre>
 <p>Now the server should be reachable at <tt class="docutils literal"><span class="pre">http://localhost:8888</span></tt>.</p>
 </div>
@@ -170,7 +170,7 @@
         <!--End of body content-->
 
         <footer id="footer">
-            Contents © 2018         <a href="mailto:necromuralist@gmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+            Contents © 2018         <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
             
         </footer>
 </div>
