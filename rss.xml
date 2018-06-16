@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 09 Jun 2018 22:11:43 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org52c5754" class="outline-2"&gt;
-&lt;h2 id="org52c5754"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org52c5754"&gt;
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 16 Jun 2018 19:00:43 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgf79177a" class="outline-2"&gt;
+&lt;h2 id="orgf79177a"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf79177a"&gt;
 &lt;p&gt;
 I was looking for a way to update python dependencies that I'd installed with &lt;a href="https://pip.pypa.io/en/stable/"&gt;pip&lt;/a&gt; when I stumbled upon &lt;a href="https://github.com/jazzband/pip-tools/"&gt;pip-tools&lt;/a&gt;. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org935ab42" class="outline-2"&gt;
-&lt;h2 id="org935ab42"&gt;First pipdeptree&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org935ab42"&gt;
+&lt;div id="outline-container-org7581767" class="outline-2"&gt;
+&lt;h2 id="org7581767"&gt;First pipdeptree&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7581767"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-tools&lt;/code&gt; installs a command named &lt;code&gt;pip-compile&lt;/code&gt; which will use either the requirements you put in your &lt;code&gt;setup.py&lt;/code&gt; file or a special file named &lt;code&gt;requirements.in&lt;/code&gt; (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than &lt;code&gt;setup.py&lt;/code&gt;, since it makes it clearer and more likely that I'll keep it up to date. The &lt;code&gt;requirements.in&lt;/code&gt; file is a list of your dependencies but unlike the &lt;code&gt;requirements.txt&lt;/code&gt; file, it doesn't have version numbers, the version numbers are added when you call the &lt;code&gt;pip-compile&lt;/code&gt; command. 
 &lt;/p&gt;
@@ -75,25 +75,13 @@ If you look at the options you can see that there's a &lt;code&gt;--freeze&lt;/c
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; head
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
-ghp-import2==1.0.1
-graphviz==0.8.3
-Nikola==7.8.15
-  blinker==1.4
-  docutils==0.14
-  doit==0.31.1
-    cloudpickle==0.5.3
-    pyinotify==0.9.6
-  Logbook==1.4.0
-  lxml==4.2.1
-&lt;/pre&gt;
 
 &lt;p&gt;
 So it looks like the output of &lt;code&gt;pip freeze&lt;/code&gt; except it puts the packages you installed flush-left and then uses indentation to indicate what that package installed. In the example above, I installed &lt;a href="https://www.getnikola.com/handbook.html"&gt;Nikola&lt;/a&gt;, then Nikola installed &lt;a href="http://pydoit.org/"&gt;doit&lt;/a&gt;, and doit installed &lt;a href="https://github.com/cloudpipe/cloudpickle"&gt;cloudpickle&lt;/a&gt; and &lt;a href="https://github.com/seb-m/pyinotify"&gt;pyinotify&lt;/a&gt;. I kind of remember needing to install &lt;code&gt;pyinotify&lt;/code&gt; myself, but maybe &lt;code&gt;pydeptree&lt;/code&gt; caught that it was a dependency that &lt;code&gt;doit&lt;/code&gt; is using. Anyway.
 &lt;/p&gt;
 
 &lt;p&gt;
-For our &lt;code&gt;requirements.in&lt;/code&gt; file we only want the names, and although there might be a reason to keep the entire tree, I think it makes it easier to understand what I'm using if the file only holds the dependencies at the top-level (the ones that I'm using directly, rather than being a dependency of a dependency). So, we'll use a little &lt;a href="https://en.wikipedia.org/wiki/Grep"&gt;grep&lt;/a&gt;. First, since I'm a python-programmer I'm going to give it the &lt;code&gt;-P&lt;/code&gt; flag to use perl escape codes. Then I'll match only the entries that are flush left by using the &lt;code&gt;^\s&lt;/code&gt; expression to match lines that start with spaces and the &lt;code&gt;-v&lt;/code&gt; option to invert the outcome (only show lines that don't match).
+For our &lt;code&gt;requirements.in&lt;/code&gt; file we only want the names, and although there might be a reason to keep the entire tree, I think it makes it easier to understand what I'm using if the file only holds the dependencies at the top-level (the ones that I'm using directly, rather than being a dependency of a dependency). So, we'll use a little &lt;a href="https://en.wikipedia.org/wiki/Grep"&gt;grep&lt;/a&gt;. First, since I'm a python-programmer I'm going to give it the &lt;code&gt;-P&lt;/code&gt; flag to use perl escape codes. Next, we want to only match the lines that have alpha-numeric characters as the first character in the line.
 &lt;/p&gt;
 
 &lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
@@ -122,16 +110,17 @@ For our &lt;code&gt;requirements.in&lt;/code&gt; file we only want the names, an
 &lt;/tr&gt;
 
 &lt;tr&gt;
-&lt;td class="org-left"&gt;&lt;code&gt;\s&lt;/code&gt;&lt;/td&gt;
-&lt;td class="org-left"&gt;Match whitespace&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;\w&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Match alpha-numeric character and underscores&lt;/td&gt;
 &lt;/tr&gt;
 
 &lt;tr&gt;
-&lt;td class="org-left"&gt;&lt;code&gt;-v&lt;/code&gt;, &lt;code&gt;--invert-match&lt;/code&gt;&lt;/td&gt;
-&lt;td class="org-left"&gt;Show lines that don't match&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;+&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Match one or more&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
+
 
 &lt;p&gt;
 First, let's see how many total dependencies there are.
@@ -148,33 +137,11 @@ First, let's see how many total dependencies there are.
 So there are 160 dependencies total. How many did I install?
 &lt;/p&gt;
 
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -vP &lt;span class="s2"&gt;"^\s"&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep --perl-regexp &lt;span class="s2"&gt;"^\w+"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; wc -l
 &lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-ghp-import2==1.0.1
-graphviz==0.8.3
-Nikola==7.8.15
-notebook==5.5.0
-pip-tools==2.0.2
-pipdeptree==0.12.1
-virtualfish==1.0.6
-watchdog==0.8.3
-webassets==0.12.1
-wheel==0.31.1
-ws4py==0.5.1
-&lt;/pre&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -vP &lt;span class="s2"&gt;"^\s"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; wc -l
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-: 11
-&lt;/pre&gt;
 
 &lt;p&gt;
-So out of the 158 dependencies, 11 were ones that I installed, and that includes &lt;a href="https://github.com/adambrenecki/virtualfish"&gt;virtualfish&lt;/a&gt; (to work with virtual-environments with the &lt;a href="https://fishshell.com/"&gt;fish shell&lt;/a&gt;), &lt;a href="https://github.com/pypa/wheel"&gt;wheel&lt;/a&gt; (to build wheels, for dependencies), and pip-tools, pipdeptree, and &lt;a href="https://github.com/xflr6/graphviz"&gt;graphviz&lt;/a&gt; which I installed to make the requirements files. So really there are only 8 that I installed to get Nikola working.
+Out of the 160 only 11 were directly installed by me.
 &lt;/p&gt;
 
 &lt;p&gt;
@@ -200,36 +167,83 @@ So out of the 158 dependencies, 11 were ones that I installed, and that includes
 &lt;td class="org-left"&gt;&lt;code&gt;-o&lt;/code&gt;, &lt;code&gt;--only-matching&lt;/code&gt;&lt;/td&gt;
 &lt;td class="org-left"&gt;Only show the parts of the line that match&lt;/td&gt;
 &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep --only-matching --perl-regexp &lt;span class="s2"&gt;"^\w+"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+If you look at the first entry you'll notice it says &lt;code&gt;ghp&lt;/code&gt;, but the actual name of the package is &lt;code&gt;ghp-import&lt;/code&gt;, but the hyphen isn't part of the alpha-numeric set, so we'll have to add it.
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
 &lt;tr&gt;
-&lt;td class="org-left"&gt;&lt;code&gt;\w&lt;/code&gt;&lt;/td&gt;
-&lt;td class="org-left"&gt;Match alpha-numeric character and underscores&lt;/td&gt;
+&lt;th scope="col" class="org-left"&gt;grep&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;[]&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Match one or the entries in the brackets&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -vP &lt;span class="s2"&gt;"^\s"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep -oP &lt;span class="s2"&gt;"^[\w]+"&lt;/span&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -oP &lt;span class="s2"&gt;"^[\w\-]+"&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
+&lt;p&gt;
+This looks like what we want, but there's a couple of things that we should take care of that would happen if this were for an installed package.
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;there's &lt;a href="https://bugs.launchpad.net/ubuntu/+source/python-pip/+bug/1635463"&gt;a bug in ubuntu&lt;/a&gt; that causes pip to include &lt;code&gt;pkg-resources&lt;/code&gt;, which isn't something you can install.&lt;/li&gt;
+&lt;li&gt;it will add an extra entry for your python egg, something like this:&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;pre class="example"&gt;
-ghp
-graphviz
-Nikola
-notebook
-pip
-pipdeptree
-virtualfish
-watchdog
-webassets
-wheel
-ws4py
+-e git+git@github.com:russell-n/iperflexer.git@65f4d3ca72670591f584efa6fa9bfd64c18a925b#egg=iperflexer
 &lt;/pre&gt;
 
 &lt;p&gt;
-If you look at the first line you might notice that it says &lt;code&gt;ghp&lt;/code&gt;, but we really want &lt;code&gt;ghp-import2&lt;/code&gt;. I guess hyphens aren't part of the alpha-numeric set. We'll add it to the character class definition.
+So we should filter those out.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep -vP &lt;span class="s2"&gt;"^\s"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep -oP &lt;span class="s2"&gt;"^[\w\-]+"&lt;/span&gt;
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;&lt;code&gt;grep&lt;/code&gt;&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;code&gt;-v&lt;/code&gt;, &lt;code&gt;--invert-match&lt;/code&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;Return lines that don't match&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree --freeze &lt;span class="p"&gt;|&lt;/span&gt; grep --only-matching --perl-regexp &lt;span class="s2"&gt;"^[\w\-]+"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep --invert-match &lt;span class="s2"&gt;"\-e\|pkg"&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;pre class="example"&gt;
@@ -247,22 +261,22 @@ ws4py
 &lt;/pre&gt;
 
 &lt;p&gt;
-That looks better. There are probaby other exceptions that have to be added for other installations, but this looks like enough for us. Now we can redirect this to a &lt;code&gt;requirements.in&lt;/code&gt; file and we're ready for &lt;code&gt;pip-tools&lt;/code&gt;.
+There are probaby other exceptions that have to be added for other installations, but this looks like enough for us. Now we can redirect this to a &lt;code&gt;requirements.in&lt;/code&gt; file and we're ready for &lt;code&gt;pip-tools&lt;/code&gt;.
 &lt;/p&gt;
 
 &lt;pre class="example"&gt;
-pipdeptree --freeze | grep -vP "^\s" | grep -oP "^[\w]+" &amp;gt; requirements.in
+pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" &amp;gt; requirements.in
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2cb58c5" class="outline-2"&gt;
-&lt;h2 id="org2cb58c5"&gt;pip-compile&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2cb58c5"&gt;
+&lt;div id="outline-container-orgad1f813" class="outline-2"&gt;
+&lt;h2 id="orgad1f813"&gt;pip-compile&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgad1f813"&gt;
 &lt;p&gt;
-&lt;code&gt;pip-compile&lt;/code&gt; will read in the &lt;code&gt;requirements.in&lt;/code&gt; file and add the version numbers so that we can create a &lt;code&gt;requirements.txt&lt;/code&gt; file.
+&lt;code&gt;pip-compile&lt;/code&gt; will read in the &lt;code&gt;requirements.in&lt;/code&gt; file and add the version numbers and can create a &lt;code&gt;requirements.txt&lt;/code&gt; file. It will automatically look for the &lt;code&gt;requirements.in&lt;/code&gt; file or you can explicitly pass in the filename.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile requirements.in &lt;span class="p"&gt;|&lt;/span&gt; head
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile &lt;span class="p"&gt;|&lt;/span&gt; head
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;pre class="example"&gt;
@@ -279,18 +293,13 @@ blinker==1.4              # via nikola
 &lt;/pre&gt;
 
 &lt;p&gt;
-You actually don't need to pass in the input file, but that's what the instructions said to do so I'll leave it in. Now we can redirect this to &lt;code&gt;requirements.in&lt;/code&gt; and we'll have our current dependencies file.
+You'll notice it adds in the dependencies of the dependencies and shows what requries them.
 &lt;/p&gt;
-
-&lt;pre class="example"&gt;
-pip-compile requirements.in &amp;gt; requirements.txt
-&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-
-&lt;div id="outline-container-orga17c891" class="outline-2"&gt;
-&lt;h2 id="orga17c891"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga17c891"&gt;
+&lt;div id="outline-container-org86bd733" class="outline-2"&gt;
+&lt;h2 id="org86bd733"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org86bd733"&gt;
 &lt;p&gt;
 If we stopped at this point we'd have:
 &lt;/p&gt;
@@ -305,9 +314,9 @@ I think that's kind of nice already, especially if you end up with a lot of depe
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org33eeb14" class="outline-3"&gt;
-&lt;h3 id="org33eeb14"&gt;Upgrade&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org33eeb14"&gt;
+&lt;div id="outline-container-org9a90497" class="outline-3"&gt;
+&lt;h3 id="org9a90497"&gt;Upgrade&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9a90497"&gt;
 &lt;p&gt;
 You can run  &lt;code&gt;pip-compile&lt;/code&gt; with the &lt;code&gt;--upgrade&lt;/code&gt; option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
 &lt;/p&gt;
@@ -334,11 +343,11 @@ This will upgrade your installation but not update the &lt;code&gt;requirements.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org22f365f" class="outline-3"&gt;
-&lt;h3 id="org22f365f"&gt;Sync&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org22f365f"&gt;
+&lt;div id="outline-container-orgf9e2c80" class="outline-3"&gt;
+&lt;h3 id="orgf9e2c80"&gt;Sync&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf9e2c80"&gt;
 &lt;p&gt;
-&lt;code&gt;pip-tools&lt;/code&gt; also installed a command called &lt;code&gt;pip-sync&lt;/code&gt; which will keep you in sync with what is in the requirements file, so as long as &lt;code&gt;requirements.txt&lt;/code&gt; it is always a working version, you can sync up with it to avoid problems with dependency changes. This is different from the &lt;code&gt;--upgrade&lt;/code&gt; option in that it will only install the exact version in the requirements file.
+&lt;code&gt;pip-tools&lt;/code&gt; also installed a command called &lt;code&gt;pip-sync&lt;/code&gt; which will keep you in sync with what is in the requirements file, so as long as &lt;code&gt;requirements.txt&lt;/code&gt; is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the &lt;code&gt;--upgrade&lt;/code&gt; option in that it will only install the exact version in the requirements file.
 &lt;/p&gt;
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-sync
@@ -353,30 +362,32 @@ Collecting certifi==2018.4.16
 Collecting cloudpickle==0.5.3
   Using cached https://files.pythonhosted.org/packages/e7/bf/60ae7ec1e8c6742d2abbb6819c39a48ee796793bcdb7e1d5e41a3e379ddd/cloudpickle-0.5.3-py2.py3-none-any.whl
 Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle-0.5.3 decorator-4.3.0 doit-0.31.1 ipykernel-4.8.2 ipython-6.4.0 jedi-0.12.0 jupyter-client-5.2.3 logbook-1.4.0 lxml-4.2.1 natsort-5.3.2 nikola-7.8.15 notebook-5.5.0 parso-0.2.1 pexpect-4.6.0 pillow-5.1.0 python-dateutil-2.7.3 send2trash-1.5.0 tornado-5.0.2 virtualenv-16.0.0 virtualfish-1.0.6 wheel-0.31.1 ws4py-0.5.1
-#+END_SRC
+&lt;/pre&gt;
 
-Since I upgraded the installation the =requirements.txt= file is now behind the latests versions so by syncing I undid the upgrade. This time I'll upgrade again and save the output.
+&lt;p&gt;
+Since I upgraded the installation the &lt;code&gt;requirements.txt&lt;/code&gt; file is now behind the latests versions so by syncing I undid the upgrade. This time I'll upgrade again and save the output.
+&lt;/p&gt;
 
-#+BEGIN_SRC sh :results none
-pip-compile --upgrade &amp;gt; requirements.txt
-#+END_SRC
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile --upgrade
+&lt;/pre&gt;&lt;/div&gt;
 
+&lt;p&gt;
 So now the file and my installation should be in sync.
+&lt;/p&gt;
 
-#+BEGIN_SRC sh :results output
-pip-sync
-#+END_SRC
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-sync
+&lt;/pre&gt;&lt;/div&gt;
 
-#+BEGIN_EXAMPLE
+&lt;pre class="example"&gt;
 : Everything up-to-date
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgcfd19b2" class="outline-2"&gt;
-&lt;h2 id="orgcfd19b2"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcfd19b2"&gt;
+&lt;div id="outline-container-orgf870239" class="outline-2"&gt;
+&lt;h2 id="orgf870239"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf870239"&gt;
 &lt;p&gt;
 So there you have it, how to keep dependencies synced. The &lt;a href="https://pypi.org/project/pip-tools/"&gt;README&lt;/a&gt; for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
 &lt;/p&gt;
