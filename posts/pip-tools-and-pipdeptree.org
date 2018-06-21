@@ -1,0 +1,301 @@
+#+BEGIN_COMMENT
+.. title: pip-tools and pipdeptree
+.. slug: pip-tools-and-pipdeptree
+.. date: 2018-06-09 12:52:57 UTC-07:00
+.. tags: python programs
+.. category: HowTo
+.. link: 
+.. description: How I use =pip-tools= and =pipdeptree=.
+.. type: text
+#+END_COMMENT
+
+* Introduction
+  I was looking for a way to update python dependencies that I'd installed with [[https://pip.pypa.io/en/stable/][pip]] when I stumbled upon [[https://github.com/jazzband/pip-tools/][pip-tools]]. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
+* First pipdeptree
+  =pip-tools= installs a command named =pip-compile= which will use either the requirements you put in your =setup.py= file or a special file named =requirements.in= (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than =setup.py=, since it makes it clearer and more likely that I'll keep it up to date. The =requirements.in= file is a list of your dependencies but unlike the =requirements.txt= file, it doesn't have version numbers, the version numbers are added when you call the =pip-compile= command. 
+
+  So where does the =requirements.in= file come from? You have to make it. /But if you're editing things by hand, doesn't this kind of make it less likely you'll maintain it?/ Yes, which is where [[https://github.com/naiquevin/pipdeptree][=pipdeptree=]] comes in. =pipdeptree= will list all the python dependencies you installed as well as everything those dependencies pulled in as their dependencies. It's usefull to take a look at how a dependency you didn't directly install got into your virtual environment. You can install it from pypi.
+
+#+BEGIN_SRC sh :results raw drawer
+pip install pipdeptree
+#+END_SRC
+
+Here's its help output.
+
+#+BEGIN_SRC sh :results raw drawer
+pipdeptree -h
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+usage: pipdeptree [-h] [-v] [-f] [-a] [-l] [-u] [-w [{silence,suppress,fail}]]
+                  [-r] [-p PACKAGES] [-j] [--json-tree]
+                  [--graph-output OUTPUT_FORMAT]
+
+Dependency tree of the installed python packages
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -f, --freeze          Print names so as to write freeze files
+  -a, --all             list all deps at top level
+  -l, --local-only      If in a virtualenv that has global access do not show
+                        globally installed packages
+  -u, --user-only       Only show installations in the user site dir
+  -w [{silence,suppress,fail}], --warn [{silence,suppress,fail}]
+                        Warning control. "suppress" will show warnings but
+                        return 0 whether or not they are present. "silence"
+                        will not show warnings at all and always return 0.
+                        "fail" will show warnings and return 1 if any are
+                        present. The default is "suppress".
+  -r, --reverse         Shows the dependency tree in the reverse fashion ie.
+                        the sub-dependencies are listed with the list of
+                        packages that need them under them.
+  -p PACKAGES, --packages PACKAGES
+                        Comma separated list of select packages to show in the
+                        output. If set, --all will be ignored.
+  -j, --json            Display dependency tree as json. This will yield "raw"
+                        output that may be used by external tools. This option
+                        overrides all other options.
+  --json-tree           Display dependency tree as json which is nested the
+                        same way as the plain text output printed by default.
+                        This option overrides all other options (except
+                        --json).
+  --graph-output OUTPUT_FORMAT
+                        Print a dependency graph in the specified output
+                        format. Available are all formats supported by
+                        GraphViz, e.g.: dot, jpeg, pdf, png, svg
+#+END_EXAMPLE
+
+If you look at the options you can see that there's a =--freeze= option, that's what we'll be using. Let's look at some of what that looks like.
+
+#+BEGIN_SRC sh :results output
+pipdeptree --freeze | head
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ghp-import2==1.0.1
+graphviz==0.8.3
+Nikola==7.8.15
+  blinker==1.4
+  docutils==0.14
+  doit==0.31.1
+    cloudpickle==0.5.3
+    pyinotify==0.9.6
+  Logbook==1.4.0
+  lxml==4.2.1
+#+end_example
+
+
+So it looks like the output of =pip freeze= except it puts the packages you installed flush-left and then uses indentation to indicate what that package installed. In the example above, I installed [[https://www.getnikola.com/handbook.html][Nikola]], then Nikola installed [[http://pydoit.org/][doit]], and doit installed [[https://github.com/cloudpipe/cloudpickle][cloudpickle]] and [[https://github.com/seb-m/pyinotify][pyinotify]]. I kind of remember needing to install =pyinotify= myself, but maybe =pydeptree= caught that it was a dependency that =doit= is using. Anyway.
+
+For our =requirements.in= file we only want the names, and although there might be a reason to keep the entire tree, I think it makes it easier to understand what I'm using if the file only holds the dependencies at the top-level (the ones that I'm using directly, rather than being a dependency of a dependency). So, we'll use a little [[https://en.wikipedia.org/wiki/Grep][grep]]. First, since I'm a python-programmer I'm going to give it the =-P= flag to use perl escape codes. Next, we want to only match the lines that have alpha-numeric characters as the first character in the line.
+
+| grep                  | Description                                   |
+|-----------------------+-----------------------------------------------|
+| =-P=, =--perl-regexp= | Use perl regular expression syntax            |
+| =^=                   | Match the beggining of a line                 |
+| =\w=                  | Match alpha-numeric character and underscores |
+| =+=                   | Match one or more                             |
+
+
+First, let's see how many total dependencies there are.
+
+#+BEGIN_SRC sh :results output
+pipdeptree --freeze | wc -l
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+: 160
+#+END_EXAMPLE
+
+So there are 160 dependencies total. How many did I install?
+
+#+BEGIN_SRC sh :results output
+pipdeptree --freeze | grep --perl-regexp "^\w+" | wc -l
+#+END_SRC
+
+#+RESULTS:
+: 11
+
+Out of the 160 only 11 were directly installed by me.
+
+/So we're done, right?/ Not yet, we need to get rid of the ~==~ and version numbers. I hadn't known that grep had this feature, since I normally use python instead of grep, but grep has an =--only-matching= option that will discard the parts of the line that don't match. 
+
+| =grep=                  | Description                                   |
+|-------------------------+-----------------------------------------------|
+| =-o=, =--only-matching= | Only show the parts of the line that match    |
+
+#+BEGIN_SRC sh :results output
+pipdeptree --freeze | grep --only-matching --perl-regexp "^\w+"
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ghp
+graphviz
+Nikola
+notebook
+pip
+pipdeptree
+virtualfish
+watchdog
+webassets
+wheel
+ws4py
+#+end_example
+
+If you look at the first entry you'll notice it says =ghp=, but the actual name of the package is =ghp-import=, but the hyphen isn't part of the alpha-numeric set, so we'll have to add it.
+
+| grep | Description                              |
+|------+------------------------------------------|
+| =[]= | Match one or the entries in the brackets |
+
+
+#+BEGIN_SRC sh :results output
+pipdeptree --freeze | grep -oP "^[\w\-]+"
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ghp-import2
+graphviz
+Nikola
+notebook
+pip-tools
+pipdeptree
+virtualfish
+watchdog
+webassets
+wheel
+ws4py
+#+end_example
+
+This looks like what we want, but there's a couple of things that we should take care of that would happen if this were for an installed package.
+
+ - there's [[https://bugs.launchpad.net/ubuntu/+source/python-pip/+bug/1635463][a bug in ubuntu]] that causes pip to include =pkg-resources=, which isn't something you can install. 
+ - it will add an extra entry for your python egg, something like this:
+
+#+BEGIN_EXAMPLE
+-e git+git@github.com:russell-n/iperflexer.git@65f4d3ca72670591f584efa6fa9bfd64c18a925b#egg=iperflexer
+#+END_EXAMPLE
+
+So we should filter those out.
+
+| =grep=                 | Description                   |
+|------------------------+-------------------------------|
+| =-v=, =--invert-match= | Return lines that don't match |
+
+
+#+BEGIN_SRC sh :results output
+pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg"
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+ghp-import2
+graphviz
+Nikola
+notebook
+pip-tools
+pipdeptree
+virtualfish
+watchdog
+webassets
+wheel
+ws4py
+#+END_EXAMPLE
+
+There are probaby other exceptions that have to be added for other installations, but this looks like enough for us. Now we can redirect this to a =requirements.in= file and we're ready for =pip-tools=.
+
+#+BEGIN_EXAMPLE
+pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" > requirements.in
+#+END_EXAMPLE
+* pip-compile
+  =pip-compile= will read in the =requirements.in= file and add the version numbers and can create a =requirements.txt= file. It will automatically look for the =requirements.in= file or you can explicitly pass in the filename.
+
+#+BEGIN_SRC sh :results output
+pip-compile | head
+#+END_SRC  
+
+#+RESULTS:
+
+#+begin_example
+#
+# This file is autogenerated by pip-compile
+# To update, run:
+#
+#    pip-compile --output-file requirements.txt requirements.in
+#
+argh==0.26.2              # via watchdog
+backcall==0.1.0           # via ipython
+bleach==2.1.3             # via nbconvert
+blinker==1.4              # via nikola
+#+end_example
+
+You'll notice it adds in the dependencies of the dependencies and shows what requries them.
+* Well, that was a lot of work just for that.
+  If we stopped at this point we'd have:
+   - a way to check who installed what using =pipdeptree= (as well as a way to plot the dependencies as a graph)
+   - a way to separate out our dependencies into a separate file (=requirements.in=) to make it easier to read
+   - a way to create our =requirements.txt= file using our =requirements.in= file
+
+I think that's kind of nice already, especially if you end up with a lot of dependencies. Try working with [[http://www.sphinx-doc.org/en/master/][sphinx]] and [[http://scikit-learn.org/stable/][scikit-learn]] and you'll see things start to explode. But of course, there's always more. 
+
+** Upgrade
+You can run  =pip-compile= with the =--upgrade= option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
+
+#+BEGIN_SRC sh :results output
+pip-compile --upgrade | head
+#+END_SRC
+
+#+begin_example
+#
+# This file is autogenerated by pip-compile
+# To update, run:
+#
+#    pip-compile --output-file requirements.txt requirements.in
+#
+argh==0.26.2              # via watchdog
+backcall==0.1.0           # via ipython
+bleach==2.1.3             # via nbconvert
+blinker==1.4              # via nikola
+#+end_example
+
+This will upgrade your installation but not update the =requirements.txt= file, so you can test it out and see if everything works before updating the =requirements.txt=. If things don't work out, you could reinstall from the =requirements.txt= file, but see the next section for another way. 
+
+** Sync
+=pip-tools= also installed a command called =pip-sync= which will keep you in sync with what is in the requirements file, so as long as =requirements.txt= is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the =--upgrade= option in that it will only install the exact version in the requirements file.
+
+#+BEGIN_SRC sh :results output
+pip-sync
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+Collecting backcall==0.1.0
+Collecting bleach==2.1.3
+  Using cached https://files.pythonhosted.org/packages/30/b6/a8cffbb9ab4b62b557c22703163735210e9cd857d533740c64e1467d228e/bleach-2.1.3-py2.py3-none-any.whl
+Collecting certifi==2018.4.16
+  Using cached https://files.pythonhosted.org/packages/7c/e6/92ad559b7192d846975fc916b65f667c7b8c3a32bea7372340bfe9a15fa5/certifi-2018.4.16-py2.py3-none-any.whl
+Collecting cloudpickle==0.5.3
+  Using cached https://files.pythonhosted.org/packages/e7/bf/60ae7ec1e8c6742d2abbb6819c39a48ee796793bcdb7e1d5e41a3e379ddd/cloudpickle-0.5.3-py2.py3-none-any.whl
+Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle-0.5.3 decorator-4.3.0 doit-0.31.1 ipykernel-4.8.2 ipython-6.4.0 jedi-0.12.0 jupyter-client-5.2.3 logbook-1.4.0 lxml-4.2.1 natsort-5.3.2 nikola-7.8.15 notebook-5.5.0 parso-0.2.1 pexpect-4.6.0 pillow-5.1.0 python-dateutil-2.7.3 send2trash-1.5.0 tornado-5.0.2 virtualenv-16.0.0 virtualfish-1.0.6 wheel-0.31.1 ws4py-0.5.1
+#+END_EXAMPLE
+
+Since I upgraded the installation the =requirements.txt= file is now behind the latests versions so by syncing I undid the upgrade. This time I'll upgrade again and save the output.
+
+#+BEGIN_SRC sh :results none
+pip-compile --upgrade
+#+END_SRC
+
+So now the file and my installation should be in sync.
+
+#+BEGIN_SRC sh :results output
+pip-sync
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+: Everything up-to-date
+#+END_EXAMPLE
+
+* Conclusion
+  So there you have it, how to keep dependencies synced. The [[https://pypi.org/project/pip-tools/][README]] for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
