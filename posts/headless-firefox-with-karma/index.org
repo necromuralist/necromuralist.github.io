@@ -1,0 +1,56 @@
+#+BEGIN_COMMENT
+.. title: Headless Firefox with Karma
+.. slug: headless-firefox-with-karma
+.. date: 2018-06-21 13:23:31 UTC-07:00
+.. tags: testing javascript
+.. category: testing
+.. link: 
+.. description: Setting up Headless Firefox for testing with karma.
+.. type: text
+#+END_COMMENT
+
+* Introduction
+  I recently started revisiting some [[https://vuejs.org/][vue.js]] code that I was working on at work and when I ran the unit-tests all of them failed with pretty much the same error.
+
+#+BEGIN_EXAMPLE
+actual.should.equal is not a function. (In 'actual.should.equal(expected)', 'actual.should.equal' is an instance of ProxyObject)
+#+END_EXAMPLE
+
+I'm using the [[http://www.chaijs.com/guide/styles/#should][chai BDD 'should']] style of testing, so this /should/ have worked (because it was working before). To debug it I ran it with FireFox and when I did, all the tests mysteriously started working. It turns out I was using [[http://phantomjs.org/][PhantomJS]], which [[https://github.com/ariya/phantomjs/issues/15344][has been abandoned]], and somewhere along the line something in chai stopped working with it, so I decided to set up Firefox headless as my browser instead. This is how I did it.
+* Set Up
+** Install the plugin
+   I already had this installed for debugging, but I'll mention it anyway, for completeness.
+
+#+BEGIN_EXAMPLE
+npm install karma-firefox-launcher --save-dev
+#+END_EXAMPLE
+
+** Set it up in Karma
+   I'm running the tests using [[https://karma-runner.github.io/2.0/index.html][karma]] and I had hoped that I would just have to change the name of the browser in the configuration, but it turns out to need a little setup in the =karma.conf.js= file. First get rid of the =PhantomJS= reference. Delete this:
+
+#+BEGIN_SRC javascript
+browsers: ['PhantomJS'],
+#+END_SRC
+
+and replace it with this.
+
+#+BEGIN_EXAMPLE
+browsers: ['FirefoxHeadless'],
+#+END_EXAMPLE
+
+The =FirefoxHeadless= browser isn't actually defined, so you have to add it (I put it right after the =browsers= declaration).
+
+#+BEGIN_EXAMPLE
+customLaunchers: {
+      'FirefoxHeadless': {
+        base: 'Firefox',
+        flags: [
+          '-headless',
+        ],
+      }
+    },
+#+END_EXAMPLE
+
+This tells karma to run =firefox= and pass in the =-headless= flag, as shown in the Mozilla documentation about [[https://developer.mozilla.org/en-US/Firefox/Headless_mode#Using_headless_mode][firefox's headless mode]]. I found out how to do it from [[https://stackoverflow.com/questions/46779498/running-karma-tests-in-headless-firefox-browser-not-working-on-jenkins][a question on Stack Overflow]].
+* Conclusion
+  =PhantomJS= breaks the Chai's BDD style of testing, but since both Firefox and [[https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md][Chrome]] have headless modes, using them instead makes it work without actually needing to have the GUI launch.

@@ -15,6 +15,7 @@
 <!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
 </script><meta name="author" content="Cloistered Monkey">
 <link rel="prev" href="../setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/" title="Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3" type="text/html">
+<link rel="next" href="../headless-firefox-with-karma/" title="Headless Firefox with Karma" type="text/html">
 <meta property="og:site_name" content="The Cloistered Monkey">
 <meta property="og:title" content="pip-tools and pipdeptree">
 <meta property="og:url" content="https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/">
@@ -121,17 +122,17 @@
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
-    <div id="outline-container-orgf79177a" class="outline-2">
-<h2 id="orgf79177a">Introduction</h2>
-<div class="outline-text-2" id="text-orgf79177a">
+    <div id="outline-container-org9224dc8" class="outline-2">
+<h2 id="org9224dc8">Introduction</h2>
+<div class="outline-text-2" id="text-org9224dc8">
 <p>
 I was looking for a way to update python dependencies that I'd installed with <a href="https://pip.pypa.io/en/stable/">pip</a> when I stumbled upon <a href="https://github.com/jazzband/pip-tools/">pip-tools</a>. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
 </p>
 </div>
 </div>
-<div id="outline-container-org7581767" class="outline-2">
-<h2 id="org7581767">First pipdeptree</h2>
-<div class="outline-text-2" id="text-org7581767">
+<div id="outline-container-org0bdc48c" class="outline-2">
+<h2 id="org0bdc48c">First pipdeptree</h2>
+<div class="outline-text-2" id="text-org0bdc48c">
 <p>
 <code>pip-tools</code> installs a command named <code>pip-compile</code> which will use either the requirements you put in your <code>setup.py</code> file or a special file named <code>requirements.in</code> (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than <code>setup.py</code>, since it makes it clearer and more likely that I'll keep it up to date. The <code>requirements.in</code> file is a list of your dependencies but unlike the <code>requirements.txt</code> file, it doesn't have version numbers, the version numbers are added when you call the <code>pip-compile</code> command. 
 </p>
@@ -360,9 +361,9 @@ pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --inv
 </pre>
 </div>
 </div>
-<div id="outline-container-orgad1f813" class="outline-2">
-<h2 id="orgad1f813">pip-compile</h2>
-<div class="outline-text-2" id="text-orgad1f813">
+<div id="outline-container-org391b6e8" class="outline-2">
+<h2 id="org391b6e8">pip-compile</h2>
+<div class="outline-text-2" id="text-org391b6e8">
 <p>
 <code>pip-compile</code> will read in the <code>requirements.in</code> file and add the version numbers and can create a <code>requirements.txt</code> file. It will automatically look for the <code>requirements.in</code> file or you can explicitly pass in the filename.
 </p>
@@ -388,9 +389,9 @@ You'll notice it adds in the dependencies of the dependencies and shows what req
 </p>
 </div>
 </div>
-<div id="outline-container-org86bd733" class="outline-2">
-<h2 id="org86bd733">Well, that was a lot of work just for that.</h2>
-<div class="outline-text-2" id="text-org86bd733">
+<div id="outline-container-org69dd721" class="outline-2">
+<h2 id="org69dd721">Well, that was a lot of work just for that.</h2>
+<div class="outline-text-2" id="text-org69dd721">
 <p>
 If we stopped at this point we'd have:
 </p>
@@ -404,9 +405,9 @@ I think that's kind of nice already, especially if you end up with a lot of depe
 </p>
 </div>
 
-<div id="outline-container-org9a90497" class="outline-3">
-<h3 id="org9a90497">Upgrade</h3>
-<div class="outline-text-3" id="text-org9a90497">
+<div id="outline-container-org07d9191" class="outline-3">
+<h3 id="org07d9191">Upgrade</h3>
+<div class="outline-text-3" id="text-org07d9191">
 <p>
 You can run  <code>pip-compile</code> with the <code>--upgrade</code> option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
 </p>
@@ -433,9 +434,9 @@ This will upgrade your installation but not update the <code>requirements.txt</c
 </div>
 </div>
 
-<div id="outline-container-orgf9e2c80" class="outline-3">
-<h3 id="orgf9e2c80">Sync</h3>
-<div class="outline-text-3" id="text-orgf9e2c80">
+<div id="outline-container-orgd2ffc76" class="outline-3">
+<h3 id="orgd2ffc76">Sync</h3>
+<div class="outline-text-3" id="text-orgd2ffc76">
 <p>
 <code>pip-tools</code> also installed a command called <code>pip-sync</code> which will keep you in sync with what is in the requirements file, so as long as <code>requirements.txt</code> is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the <code>--upgrade</code> option in that it will only install the exact version in the requirements file.
 </p>
@@ -475,9 +476,9 @@ So now the file and my installation should be in sync.
 </div>
 </div>
 
-<div id="outline-container-orgf870239" class="outline-2">
-<h2 id="orgf870239">Conclusion</h2>
-<div class="outline-text-2" id="text-orgf870239">
+<div id="outline-container-org2659aa2" class="outline-2">
+<h2 id="org2659aa2">Conclusion</h2>
+<div class="outline-text-2" id="text-org2659aa2">
 <p>
 So there you have it, how to keep dependencies synced. The <a href="https://pypi.org/project/pip-tools/">README</a> for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
 </p>
@@ -490,6 +491,9 @@ So there you have it, how to keep dependencies synced. The <a href="https://pypi
 <ul class="pager hidden-print">
 <li class="previous">
                 <a href="../setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/" rel="prev" title="Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="../headless-firefox-with-karma/" rel="next" title="Headless Firefox with Karma">Next post</a>
             </li>
         </ul></nav></aside></article>
 </div>

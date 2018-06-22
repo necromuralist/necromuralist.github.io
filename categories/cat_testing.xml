@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about testing)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_testing.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Thu, 21 Jun 2018 20:46:02 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Headless Firefox with Karma</title><link>https://necromuralist.github.io/posts/headless-firefox-with-karma/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgef04073" class="outline-2"&gt;
+&lt;h2 id="orgef04073"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgef04073"&gt;
+&lt;p&gt;
+I recently started revisiting some &lt;a href="https://vuejs.org/"&gt;vue.js&lt;/a&gt; code that I was working on at work and when I ran the unit-tests all of them failed with pretty much the same error.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+actual.should.equal is not a function. (In 'actual.should.equal(expected)', 'actual.should.equal' is an instance of ProxyObject)
+&lt;/pre&gt;
+
+&lt;p&gt;
+I'm using the &lt;a href="http://www.chaijs.com/guide/styles/#should"&gt;chai BDD 'should'&lt;/a&gt; style of testing, so this &lt;i&gt;should&lt;/i&gt; have worked (because it was working before). To debug it I ran it with FireFox and when I did, all the tests mysteriously started working. It turns out I was using &lt;a href="http://phantomjs.org/"&gt;PhantomJS&lt;/a&gt;, which &lt;a href="https://github.com/ariya/phantomjs/issues/15344"&gt;has been abandoned&lt;/a&gt;, and somewhere along the line something in chai stopped working with it, so I decided to set up Firefox headless as my browser instead. This is how I did it.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org1f6da67" class="outline-2"&gt;
+&lt;h2 id="org1f6da67"&gt;Set Up&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1f6da67"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org5fa2748" class="outline-3"&gt;
+&lt;h3 id="org5fa2748"&gt;Install the plugin&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5fa2748"&gt;
+&lt;p&gt;
+I already had this installed for debugging, but I'll mention it anyway, for completeness.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+npm install karma-firefox-launcher --save-dev
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgf514105" class="outline-3"&gt;
+&lt;h3 id="orgf514105"&gt;Set it up in Karma&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf514105"&gt;
+&lt;p&gt;
+I'm running the tests using &lt;a href="https://karma-runner.github.io/2.0/index.html"&gt;karma&lt;/a&gt; and I had hoped that I would just have to change the name of the browser in the configuration, but it turns out to need a little setup in the &lt;code&gt;karma.conf.js&lt;/code&gt; file. First get rid of the &lt;code&gt;PhantomJS&lt;/code&gt; reference. Delete this:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;browsers: ['PhantomJS'],
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+and replace it with this.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+browsers: ['FirefoxHeadless'],
+&lt;/pre&gt;
+
+&lt;p&gt;
+The &lt;code&gt;FirefoxHeadless&lt;/code&gt; browser isn't actually defined, so you have to add it (I put it right after the &lt;code&gt;browsers&lt;/code&gt; declaration).
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+customLaunchers: {
+      'FirefoxHeadless': {
+        base: 'Firefox',
+        flags: [
+          '-headless',
+        ],
+      }
+    },
+&lt;/pre&gt;
+
+&lt;p&gt;
+This tells karma to run &lt;code&gt;firefox&lt;/code&gt; and pass in the &lt;code&gt;-headless&lt;/code&gt; flag, as shown in the Mozilla documentation about &lt;a href="https://developer.mozilla.org/en-US/Firefox/Headless_mode#Using_headless_mode"&gt;firefox's headless mode&lt;/a&gt;. I found out how to do it from &lt;a href="https://stackoverflow.com/questions/46779498/running-karma-tests-in-headless-firefox-browser-not-working-on-jenkins"&gt;a question on Stack Overflow&lt;/a&gt;.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgb85a266" class="outline-2"&gt;
+&lt;h2 id="orgb85a266"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb85a266"&gt;
+&lt;p&gt;
+&lt;code&gt;PhantomJS&lt;/code&gt; breaks the Chai's BDD style of testing, but since both Firefox and &lt;a href="https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md"&gt;Chrome&lt;/a&gt; have headless modes, using them instead makes it work without actually needing to have the GUI launch.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>testing javascript</category><guid>https://necromuralist.github.io/posts/headless-firefox-with-karma/</guid><pubDate>Thu, 21 Jun 2018 20:23:31 GMT</pubDate></item></channel></rss>

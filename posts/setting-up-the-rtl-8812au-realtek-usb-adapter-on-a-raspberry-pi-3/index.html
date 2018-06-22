@@ -122,9 +122,9 @@
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
-    <div id="outline-container-orgcca0b6f" class="outline-2">
-<h2 id="orgcca0b6f">Introduction</h2>
-<div class="outline-text-2" id="text-orgcca0b6f">
+    <div id="outline-container-org38f9830" class="outline-2">
+<h2 id="org38f9830">Introduction</h2>
+<div class="outline-text-2" id="text-org38f9830">
 <p>
 I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
 </p>
@@ -140,21 +140,21 @@ Looking around on the web I found <a href="https://www.reddit.com/r/raspberry_pi
 </p>
 </div>
 </div>
-<div id="outline-container-orgd5febf9" class="outline-2">
-<h2 id="orgd5febf9">What I tried</h2>
-<div class="outline-text-2" id="text-orgd5febf9">
+<div id="outline-container-org159173e" class="outline-2">
+<h2 id="org159173e">What I tried</h2>
+<div class="outline-text-2" id="text-org159173e">
 </div>
-<div id="outline-container-orgffe276d" class="outline-3">
-<h3 id="orgffe276d">Plug-and-Pray</h3>
-<div class="outline-text-3" id="text-orgffe276d">
+<div id="outline-container-org0cb36dc" class="outline-3">
+<h3 id="org0cb36dc">Plug-and-Pray</h3>
+<div class="outline-text-3" id="text-org0cb36dc">
 <p>
 The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although <code>lsusb</code> showed it, <code>iwconfig</code> didn't show it as an interface. Back to the internet. 
 </p>
 </div>
 </div>
-<div id="outline-container-org3363897" class="outline-3">
-<h3 id="org3363897">Github</h3>
-<div class="outline-text-3" id="text-org3363897">
+<div id="outline-container-org2d20924" class="outline-3">
+<h3 id="org2d20924">Github</h3>
+<div class="outline-text-3" id="text-org2d20924">
 <p>
 Next I found <a href="https://github.com/diederikdehaas/rtl8812AU">a repository on github</a> that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
 </p>
@@ -183,9 +183,9 @@ There was also a message in the <code>make.log</code> file but I didn't remember
 </div>
 </div>
 </div>
-<div id="outline-container-org1e7b8d0" class="outline-2">
-<h2 id="org1e7b8d0">What fixed it</h2>
-<div class="outline-text-2" id="text-org1e7b8d0">
+<div id="outline-container-org4805b39" class="outline-2">
+<h2 id="org4805b39">What fixed it</h2>
+<div class="outline-text-2" id="text-org4805b39">
 <p>
 The solution was in <a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make">this StackOverflow post</a> - the <code>make</code> program is being pointed to a folder named <code>arm7l</code> (thats 'arm seven ell') but it should actually be pointed to one named <code>arm</code>. The simple solution is to create an alias with the correct name.
 </p>
@@ -200,9 +200,9 @@ This turns out to fix the build problem and after a reboot the network interface
 </div>
 </div>
 
-<div id="outline-container-org43260d8" class="outline-2">
-<h2 id="org43260d8">Conclusion</h2>
-<div class="outline-text-2" id="text-org43260d8">
+<div id="outline-container-orgb3a2275" class="outline-2">
+<h2 id="orgb3a2275">Conclusion</h2>
+<div class="outline-text-2" id="text-orgb3a2275">
 <p>
 The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that <code>iwconfig</code> will put it in monitor mode but <code>airmon-ng</code> doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, <code>iw</code> always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
 </p>
