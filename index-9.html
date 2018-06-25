@@ -101,7 +101,344 @@
 
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/bokeh-org-mode/" class="u-url">bokeh org-mode</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/tcp-dump-notes/" class="u-url">TCP Dump Notes</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline"><a href="posts/tcp-dump-notes/" rel="bookmark"><time class="published dt-published" datetime="2018-05-09T14:54:56-07:00" title="2018-05-09 14:54">2018-05-09 14:54</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <p>
+These are notes I made while surfing the web looking into <a href="http://www.tcpdump.org/">TCP Dump</a>. You will most likely need to use <code>sudo</code> to run most of the commands, but I'm leaving it off to make it shorter.
+</p>
+
+<div id="outline-container-org1e16df1" class="outline-2">
+<h2 id="org1e16df1">About TCP Dump</h2>
+<div class="outline-text-2" id="text-org1e16df1">
+<ul class="org-ul">
+<li>It has more filtering capabilities and can filter while capturing packets, but it doesn't have the analytical tools that something like wireshark has<sup><a id="fnr.1" class="footref" href="posts/tcp-dump-notes/#fn.1">1</a></sup>.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1267794" class="outline-2">
+<h2 id="org1267794">Some Examples</h2>
+<div class="outline-text-2" id="text-org1267794">
+</div>
+<div id="outline-container-orgd7c55a6" class="outline-3">
+<h3 id="orgd7c55a6">Listing interfaces</h3>
+<div class="outline-text-3" id="text-orgd7c55a6">
+<p>
+You can ask <code>tcpdump</code> which interfaces it is able to listen to<sup><a id="fnr.2" class="footref" href="posts/tcp-dump-notes/#fn.2">2</a></sup>.
+</p>
+
+<pre class="example">
+tcpdump -D
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org5469484" class="outline-3">
+<h3 id="org5469484">Capture packets on an interface</h3>
+<div class="outline-text-3" id="text-org5469484">
+<p>
+To capture packets on an interface you pass its name to the <code>-i</code> flag<sup><a id="fnr.2.100" class="footref" href="posts/tcp-dump-notes/#fn.2">2</a></sup> (here the interface I'll use is <code>eno1</code>).
+</p>
+
+<pre class="example">
+tcpdump -i eno1
+</pre>
+</div>
+
+<div id="outline-container-orgfadb347" class="outline-4">
+<h4 id="orgfadb347">Save the packet capture to a file</h4>
+<div class="outline-text-4" id="text-orgfadb347">
+<p>
+The default behavior is for <code>tcpdump</code> to send the output to standard output, to have it save the packets to a files use the <code>-w</code> flag<sup><a id="fnr.2.100" class="footref" href="posts/tcp-dump-notes/#fn.2">2</a></sup> (you can call it anything, I'll call it <code>dump.pcap</code>).
+</p>
+
+<pre class="example">
+tcpdump -i eno1 -w dump.pcap
+</pre>
+</div>
+</div>
+
+<div id="outline-container-org8935134" class="outline-4">
+<h4 id="org8935134">Increase the verbosity of the capture</h4>
+<div class="outline-text-4" id="text-org8935134">
+<p>
+To increase the amount if information that's captured, pass multiple <code>v</code> arguments<sup><a id="fnr.2.100" class="footref" href="posts/tcp-dump-notes/#fn.2">2</a></sup> (in this case I'll use <code>-vvv</code>).
+</p>
+
+<pre class="example">
+tcpdump -i eno1 -vvv -w dump.pcap
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1608242" class="outline-3">
+<h3 id="org1608242">Filtering</h3>
+<div class="outline-text-3" id="text-org1608242">
+</div>
+<div id="outline-container-orgbd178e9" class="outline-4">
+<h4 id="orgbd178e9">By IP address</h4>
+<div class="outline-text-4" id="text-orgbd178e9">
+<p>
+You can get all the packets being sent or received by a host using the <code>host</code> argument<sup><a id="fnr.3" class="footref" href="posts/tcp-dump-notes/#fn.3">3</a></sup>.
+</p>
+
+<pre class="example">
+tcpdump host 192.168.1.12
+</pre>
+</div>
+</div>
+<div id="outline-container-orge63a986" class="outline-4">
+<h4 id="orge63a986">By Sender IP Address</h4>
+<div class="outline-text-4" id="text-orge63a986">
+<p>
+You can filter out all the packets except those that are being sent by a host using the <code>src host</code> argument<sup><a id="fnr.2.100" class="footref" href="posts/tcp-dump-notes/#fn.2">2</a></sup>.
+</p>
+
+<pre class="example">
+tcpdump -i eno1 src host 192.168.1.12
+</pre>
+
+<p>
+You can leave off the <code>host</code> argument and just use <code>src</code><sup><a id="fnr.3.100" class="footref" href="posts/tcp-dump-notes/#fn.3">3</a></sup></p>
+</div>
+</div>
+
+<div id="outline-container-orgf6bc769" class="outline-4">
+<h4 id="orgf6bc769">By Target IP Address</h4>
+<div class="outline-text-4" id="text-orgf6bc769">
+<p>
+To filter out all the packets except those that are going to a specific target use the <code>dst host</code> argument<sup><a id="fnr.2.100" class="footref" href="posts/tcp-dump-notes/#fn.2">2</a></sup>.
+</p>
+
+<pre class="example">
+tcpdump -i eno1 dst host 192.168.1.1
+</pre>
+</div>
+</div>
+
+<div id="outline-container-orga799429" class="outline-4">
+<h4 id="orga799429">Sender and Target IP Addresses</h4>
+<div class="outline-text-4" id="text-orga799429">
+<p>
+You can combine parameters using the logical operators <code>and</code>, <code>or</code>, and <code>not</code><sup><a id="fnr.3.100" class="footref" href="posts/tcp-dump-notes/#fn.3">3</a></sup>.
+</p>
+
+<pre class="example">
+tcpdump 'src 192.168.1.1 and dst 192.168.1.12'
+</pre>
+
+<p>
+The single quotes are optional and are just used to group the arguments together.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org866c9fe" class="outline-4">
+<h4 id="org866c9fe">By Subnet</h4>
+<div class="outline-text-4" id="text-org866c9fe">
+<p>
+You can grab all the packets on a network or subnet using the <code>net</code> argument and <a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation">CIDR</a> notation<sup><a id="fnr.3.100" class="footref" href="posts/tcp-dump-notes/#fn.3">3</a></sup>. This example grabs all the packets on the <code>192.168.1.*</code> subnet.
+</p>
+
+<pre class="example">
+tcpdump net 192.168.1.0/24
+</pre>
+</div>
+</div>
+<div id="outline-container-org49ded4b" class="outline-4">
+<h4 id="org49ded4b">By port and/or protocol</h4>
+<div class="outline-text-4" id="text-org49ded4b">
+<p>
+If you want to only catch activity on a certain <a href="https://en.wikipedia.org/wiki/Port_(computer_networking)">port</a> and by a certain protocol then you use the <code>port</code> argument and the name of the protocol (e.g. <code>udp</code>)<sup><a id="fnr.3.100" class="footref" href="posts/tcp-dump-notes/#fn.3">3</a></sup>. This would catch all the <code>tcp</code> traffic over SSH.
+</p>
+<pre class="example">
+tcpdump tcp port 22
+</pre>
+
+<p>
+You can use <code>tcp</code>, <code>udp</code>, or <code>icmp</code> for the protocols and add multiple ports using a comma<sup><a id="fnr.4" class="footref" href="posts/tcp-dump-notes/#fn.4">4</a></sup>.
+</p>
+
+<pre class="example">
+tcpdump tcp port 22,80
+</pre>
+</div>
+</div>
+<div id="outline-container-org9145519" class="outline-4">
+<h4 id="org9145519">Turn off hostname and port translation</h4>
+<div class="outline-text-4" id="text-org9145519">
+<p>
+The default behavior for <code>tcpdump</code> is to translate the hostnames and ports to something human-readable if possible. To turn this off you pass in the <code>-n</code> argument<sup><a id="fnr.3.100" class="footref" href="posts/tcp-dump-notes/#fn.3">3</a></sup>. Since this stops having to look things up it will reduce the amount of overhead needed by <code>tcpdump</code>.
+</p>
+
+<pre class="example">
+tcpdump -n -i eno1 port 22
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org8de0353" class="outline-2">
+<h2 id="org8de0353">Links</h2>
+<div class="outline-text-2" id="text-org8de0353">
+<ul class="org-ul">
+<li>(Wireshark Revealed<sup><a id="fnr.5" class="footref" href="posts/tcp-dump-notes/#fn.5">5</a></sup>) <a href="http://www.tcpdump.org/">The tcpdump website</a>
+</li>
+<li>(Wireshark Revealed<sup><a id="fnr.5.100" class="footref" href="posts/tcp-dump-notes/#fn.5">5</a></sup>) <a href="http://danielmiessler.com/study/tcpdump/">A friendly tutorial</a>
+</li>
+<li>(Wireshark Revealed<sup><a id="fnr.5.100" class="footref" href="posts/tcp-dump-notes/#fn.5">5</a></sup>) <a href="http://www.tcpdump.org/tcpdump_man.html">The official man page</a>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org39b313c" class="outline-2">
+<h2 id="org39b313c">Sources</h2>
+<div class="outline-text-2" id="text-org39b313c">
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef">
+<sup><a id="fn.1" class="footnum" href="posts/tcp-dump-notes/#fnr.1">1</a></sup><div class="footpara"><p class="footpara">
+  Diogenes, Y. &amp; Ozkaya, E. (2018). Cybersecurity, Attack and Defense Strategies : infrastructure security with Red Team and Blue Team tactics. Birmingham, UK: Packt Publishing.]
+</p></div>
+</div>
+
+<div class="footdef">
+<sup><a id="fn.2" class="footnum" href="posts/tcp-dump-notes/#fnr.2">2</a></sup><div class="footpara"><p class="footpara">
+  Johansen, G. (2017). Digital forensics and incident response : an intelligent way to respond to attacks. Birmingham, UK: Packt Publishing.
+</p></div>
+</div>
+
+<div class="footdef">
+<sup><a id="fn.3" class="footnum" href="posts/tcp-dump-notes/#fnr.3">3</a></sup><div class="footpara"><p class="footpara">
+  Beltrame, J. (2017). Penetration testing bootcamp : quickly get up and running with pentesting techniques. Birmingham, UK: Packt Publishing.
+</p></div>
+</div>
+
+<div class="footdef">
+<sup><a id="fn.4" class="footnum" href="posts/tcp-dump-notes/#fnr.4">4</a></sup><div class="footpara"><p class="footpara">
+  McPhee. &amp; Beltrame, J. (2016). Penetration testing with Raspberry Pi : learn the art of building a low-cost, portable hacking arsenal using Raspberry Pi 3 and Kali Linux 2. Birmingham, UK: Packt Publishing.
+</p></div>
+</div>
+
+<div class="footdef">
+<sup><a id="fn.5" class="footnum" href="posts/tcp-dump-notes/#fnr.5">5</a></sup><div class="footpara"><p class="footpara">
+  Baxter, J., Orzach, Y. &amp; Mishra, C. (2017). Wireshark revealed : essential skills for IT professionals : get up and running with Wireshark to analyze your network effectively. Birmingham, UK: Packt Publishing.
+</p></div>
+</div>
+
+
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/mnist-digits-with-keras/" class="u-url">MNIST Digits With Keras</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline"><a href="posts/mnist-digits-with-keras/" rel="bookmark"><time class="published dt-published" datetime="2018-04-28T16:22:20-07:00" title="2018-04-28 16:22">2018-04-28 16:22</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="outline-container-org3cb3f86" class="outline-2">
+<h2 id="org3cb3f86">Imports</h2>
+<div class="outline-text-2" id="text-org3cb3f86">
+<p>
+These are the parts that will make up the model.
+</p>
+</div>
+
+<div id="outline-container-orgd6d69fa" class="outline-3">
+<h3 id="orgd6d69fa">The Sequential Model</h3>
+<div class="outline-text-3" id="text-orgd6d69fa">
+<p>
+The Keras <a href="https://keras.io/getting-started/sequential-model-guide/">Sequential Model</a> is a stack of layers that will make up the neural network.
+</p>
+
+<div class="highlight"><pre><span></span>from keras.models import Sequential
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-org0c9e0e1" class="outline-3">
+<h3 id="org0c9e0e1">The Dense Layers</h3>
+<div class="outline-text-3" id="text-org0c9e0e1">
+<p>
+The Keras <a href="https://keras.io/layers/core/">Dense</a> layer is a densely-connected layer within our neural network.
+</p>
+
+<div class="highlight"><pre><span></span>from keras.layers.core import Activation
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-org5d2acf6" class="outline-3">
+<h3 id="org5d2acf6">Activation</h3>
+<div class="outline-text-3" id="text-org5d2acf6">
+<p>
+The <a href="https://keras.io/layers/core/#activation">Activation</a> represents the activation function for each layer (e.g. <b>relu</b>).
+</p>
+
+<div class="highlight"><pre><span></span>from keras.layers.core import Activation
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-org0bacccb" class="outline-3">
+<h3 id="org0bacccb">Adam</h3>
+<div class="outline-text-3" id="text-org0bacccb">
+<p>
+To tune the model to the data we'll use the <a href="https://keras.io/optimizers/#adam">Adam</a> optimizer
+</p>
+
+<div class="highlight"><pre><span></span>from keras.optimizers import Adam
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-orgac78cb3" class="outline-3">
+<h3 id="orgac78cb3">Categorical Converter</h3>
+<div class="outline-text-3" id="text-orgac78cb3">
+<p>
+Finally, since our problem is a classification problem (identify which of 10 digits an image represents) I'll import the Keras <a href="https://keras.io/utils/#to_categorical"><code>to_categorical</code></a> function to enable classification of our data.
+</p>
+
+<div class="highlight"><pre><span></span>from keras.utils import np_utils
+</pre></div>
+
+<p>
+The <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a> is made up of human-classified hand-written digits. Keras includes it as part of their installation so we can load it directly from keras.
+</p>
+
+<div class="highlight"><pre><span></span>from keras.datasets import mnist
+</pre></div>
+
+<p>
+We're going to use numpy to reshape the data.
+</p>
+<div class="highlight"><pre><span></span>import numpy
+</pre></div>
+
+<p>
+To make our output the same every time, I'll set the random seed to April 28, 2018 as a string of digits.
+</p>
+
+<div class="highlight"><pre><span></span>numpy.random.seed(4282018)
+</pre></div>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/bokeh-org-mode/" class="u-url">bokeh org-mode</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
@@ -109,9 +446,9 @@
             <p class="dateline"><a href="posts/bokeh-org-mode/" rel="bookmark"><time class="published dt-published" datetime="2018-04-25T21:59:50-07:00" title="2018-04-25 21:59">2018-04-25 21:59</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgbff3d55" class="outline-2">
-<h2 id="orgbff3d55">Introduction</h2>
-<div class="outline-text-2" id="text-orgbff3d55">
+    <div id="outline-container-org9928d76" class="outline-2">
+<h2 id="org9928d76">Introduction</h2>
+<div class="outline-text-2" id="text-org9928d76">
 <p>
 This is an illustration of how to use bokeh with org-mode in nikola. There is a more extensive and flexible explanation of how to do this in <a href="http://cherian.net/posts/bokeh-org-mode.html">this post</a> on <a href="http://cherian.net">cherian.net</a> but I made these notes to understand how it works and to have a simpler example to refer to.
 </p>
@@ -139,13 +476,13 @@ The magic mix for this seems to be to use:
 </div>
 </div>
 
-<div id="outline-container-org4907b57" class="outline-2">
-<h2 id="org4907b57">Creating the Bokeh Plot</h2>
-<div class="outline-text-2" id="text-org4907b57">
+<div id="outline-container-org942e4cd" class="outline-2">
+<h2 id="org942e4cd">Creating the Bokeh Plot</h2>
+<div class="outline-text-2" id="text-org942e4cd">
 </div>
-<div id="outline-container-orga36315e" class="outline-3">
-<h3 id="orga36315e">Imports</h3>
-<div class="outline-text-3" id="text-orga36315e">
+<div id="outline-container-org03b16b9" class="outline-3">
+<h3 id="org03b16b9">Imports</h3>
+<div class="outline-text-3" id="text-org03b16b9">
 <p>
 These are the dependencies. It's really all <code>bokeh</code>, <code>numpy</code> is just there to generate the data-values.
 </p>
@@ -167,9 +504,9 @@ I probably should save bokeh to this repository to keep the post from breaking i
 </div>
 </div>
 
-<div id="outline-container-org6c4a6a0" class="outline-3">
-<h3 id="org6c4a6a0">The Data</h3>
-<div class="outline-text-3" id="text-org6c4a6a0">
+<div id="outline-container-org2fe81f0" class="outline-3">
+<h3 id="org2fe81f0">The Data</h3>
+<div class="outline-text-3" id="text-org2fe81f0">
 <p>
 To get a simple example going I'm just going to use some random outputs generated by numpy.
 </p>
@@ -232,9 +569,9 @@ The <code>tooltips</code> list maps the labels that will show up in the tooltip 
 </p>
 </div>
 </div>
-<div id="outline-container-org32b1308" class="outline-3">
-<h3 id="org32b1308">The Plot</h3>
-<div class="outline-text-3" id="text-org32b1308">
+<div id="outline-container-org934ece4" class="outline-3">
+<h3 id="org934ece4">The Plot</h3>
+<div class="outline-text-3" id="text-org934ece4">
 <p>
 Now I'll create the actual plot (<code>figure</code>).
 </p>
@@ -248,9 +585,9 @@ Now I'll create the actual plot (<code>figure</code>).
 </div>
 </div>
 
-<div id="outline-container-org93529ab" class="outline-2">
-<h2 id="org93529ab">Getting the Bokeh Plot Into The Post</h2>
-<div class="outline-text-2" id="text-org93529ab">
+<div id="outline-container-orgd1405fc" class="outline-2">
+<h2 id="orgd1405fc">Getting the Bokeh Plot Into The Post</h2>
+<div class="outline-text-2" id="text-orgd1405fc">
 <p>
 Finally I'll save the javascript and HTML files needed and then output the blob needed to embed the plot into this post. The <code>autoload_static</code> function takes the bokeh plot object (<code>fig</code>), the bokeh javascript that I loaded earlier (<code>bokeh</code>), and the name of the javascript file that you want it to creat (<code>test.js</code>) and returns the javascript to save (<code>javascript</code>) and the HTML fragment that will include the javascript (<code>source</code>). Note that because of the way nikola structures things I have to create a folder named <code>files/posts/bokeh-org-mode</code> and save the files there. Since nikola will automatically look in this folder the name you pass into <code>autoload_static</code> should just be the filename without the path, but when you save the javascript file you will save it there so you need to add the relative path. If my explanation seems a little convoluted, just look at the code below, it's fairly simple.
 </p>
@@ -262,9 +599,9 @@ First I'll create a variable to hold the path to the folder to save the files in
 <div class="highlight"><pre><span></span><span class="n">FOLDER_PATH</span> <span class="o">=</span> <span class="s2">"../files/posts/bokeh-org-mode/"</span>
 </pre></div>
 </div>
-<div id="outline-container-org362fb6f" class="outline-3">
-<h3 id="org362fb6f">The Javascript</h3>
-<div class="outline-text-3" id="text-org362fb6f">
+<div id="outline-container-org9054d6a" class="outline-3">
+<h3 id="org9054d6a">The Javascript</h3>
+<div class="outline-text-3" id="text-org9054d6a">
 <p>
 Now, I'll create the javascript source for the plot.
 </p>
@@ -282,9 +619,9 @@ The <code>javascript</code> variable holds the actual javascript source code (wh
 </div>
 </div>
 
-<div id="outline-container-orgcafbc56" class="outline-3">
-<h3 id="orgcafbc56">Embedding the Plot</h3>
-<div class="outline-text-3" id="text-orgcafbc56">
+<div id="outline-container-org35c448e" class="outline-3">
+<h3 id="org35c448e">Embedding the Plot</h3>
+<div class="outline-text-3" id="text-org35c448e">
 <p>
 Finally, we need to print out the string that is stored in the <code>source</code> variable which then tells org-mode to embed the files into this post. I'll output the full org-block so you can see the header arguments.
 </p>
@@ -304,9 +641,9 @@ And there you have it. I don't have a lot to say about it, other than that if yo
 </div>
 </div>
 
-<div id="outline-container-org5a30e4a" class="outline-2">
-<h2 id="org5a30e4a">Summary</h2>
-<div class="outline-text-2" id="text-org5a30e4a">
+<div id="outline-container-org70f33d1" class="outline-2">
+<h2 id="org70f33d1">Summary</h2>
+<div class="outline-text-2" id="text-org70f33d1">
 <p>
 To get a bokeh figure into an org-mode document in nikola:
 </p>

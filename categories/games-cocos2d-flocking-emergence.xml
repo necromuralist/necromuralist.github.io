@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about games cocos2d flocking emergence)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/games-cocos2d-flocking-emergence.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Fri, 09 Mar 2018 00:08:02 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Seek With Cocos2D</title><link>https://necromuralist.github.io/posts/seek-with-cocos2d/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about games cocos2d flocking emergence)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/games-cocos2d-flocking-emergence.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Sat, 09 Jun 2018 21:45:51 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Seek With Cocos2D</title><link>https://necromuralist.github.io/posts/seek-with-cocos2d/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
 This is an implementation of Craig Reynold's flocking behavior based on the book &lt;a href="https://www.packtpub.com/game-development/python-game-programming-example"&gt;Python Game Programming By Example&lt;/a&gt;. Reynolds mentions many variations for flocking. This will implement a basic boid that flocks to the mouse pointer.
 &lt;/p&gt;
 
-&lt;div id="outline-container-org0f9bd95" class="outline-2"&gt;
-&lt;h2 id="org0f9bd95"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0f9bd95"&gt;
+&lt;div id="outline-container-orgfe15f7c" class="outline-2"&gt;
+&lt;h2 id="orgfe15f7c"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgfe15f7c"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# third party&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.cocosnode&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;CocosNode&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.euclid&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;
@@ -14,22 +14,22 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb1df28f" class="outline-2"&gt;
-&lt;h2 id="orgb1df28f"&gt;Constants&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb1df28f"&gt;
+&lt;div id="outline-container-org1199e36" class="outline-2"&gt;
+&lt;h2 id="org1199e36"&gt;Constants&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1199e36"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;CHASE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;span class="n"&gt;RUN_AWAY&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;span class="n"&gt;CHANGE_BEHAVIOR&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgeed7ab0" class="outline-2"&gt;
-&lt;h2 id="orgeed7ab0"&gt;The Boid&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgeed7ab0"&gt;
+&lt;div id="outline-container-org5804e23" class="outline-2"&gt;
+&lt;h2 id="org5804e23"&gt;The Boid&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5804e23"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgdaf6d72" class="outline-3"&gt;
-&lt;h3 id="orgdaf6d72"&gt;Boid Settings&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgdaf6d72"&gt;
+&lt;div id="outline-container-orga267184" class="outline-3"&gt;
+&lt;h3 id="orga267184"&gt;Boid Settings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga267184"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BoidSettings&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""a settings object"""&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -213,12 +213,12 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc481898" class="outline-3"&gt;
-&lt;h3 id="orgc481898"&gt;Boid Node&lt;/h3&gt;
+&lt;div id="outline-container-org70b7930" class="outline-3"&gt;
+&lt;h3 id="org70b7930"&gt;Boid Node&lt;/h3&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6c7cc1d" class="outline-3"&gt;
-&lt;h3 id="org6c7cc1d"&gt;the Constructor&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6c7cc1d"&gt;
+&lt;div id="outline-container-orgcd320ad" class="outline-3"&gt;
+&lt;h3 id="orgcd320ad"&gt;the Constructor&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgcd320ad"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CocosNode&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""represents a boid&lt;/span&gt;
 &lt;span class="sd"&gt;    Parameters&lt;/span&gt;
@@ -254,9 +254,9 @@ The &lt;code&gt;add&lt;/code&gt; method sets the &lt;code&gt;Sun&lt;/code&gt; in
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgaa945ca" class="outline-3"&gt;
-&lt;h3 id="orgaa945ca"&gt;The Current Position&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgaa945ca"&gt;
+&lt;div id="outline-container-org75821ba" class="outline-3"&gt;
+&lt;h3 id="org75821ba"&gt;The Current Position&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org75821ba"&gt;
 &lt;p&gt;
 This is just a convenience attribute. It probably takes a performance hit, but the original code was a little obscure so I thought I'd pull it out to document it.
 &lt;/p&gt;
@@ -279,9 +279,9 @@ I had to look it up, since there's no setting of &lt;code&gt;self.x&lt;/code&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgd486c1d" class="outline-3"&gt;
-&lt;h3 id="orgd486c1d"&gt;The Update Method&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgd486c1d"&gt;
+&lt;div id="outline-container-orge291380" class="outline-3"&gt;
+&lt;h3 id="orge291380"&gt;The Update Method&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge291380"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;update&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;delta&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""updates the current position&lt;/span&gt;
 
@@ -347,9 +347,9 @@ This next method reduces a vector if its magnitude is above a given threshold.
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4265527" class="outline-2"&gt;
-&lt;h2 id="org4265527"&gt;Main Layer&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4265527"&gt;
+&lt;div id="outline-container-org6a0eb91" class="outline-2"&gt;
+&lt;h2 id="org6a0eb91"&gt;Main Layer&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6a0eb91"&gt;
 &lt;p&gt;
 This is the class to act as the event handler.
 &lt;/p&gt;
@@ -426,9 +426,9 @@ The first thing to note is that the &lt;code&gt;cocos.director.init&lt;/code&gt;
 This is an implementation of Craig Reynold's flocking behavior based on the book &lt;a href="https://www.packtpub.com/game-development/python-game-programming-example"&gt;Python Game Programming By Example&lt;/a&gt;.
 &lt;/p&gt;
 
-&lt;div id="outline-container-org25cdc28" class="outline-2"&gt;
-&lt;h2 id="org25cdc28"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org25cdc28"&gt;
+&lt;div id="outline-container-org57bbcdd" class="outline-2"&gt;
+&lt;h2 id="org57bbcdd"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org57bbcdd"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# third party&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.cocosnode&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;CocosNode&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;cocos&lt;/span&gt;
@@ -437,16 +437,16 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgbb5e43f" class="outline-2"&gt;
-&lt;h2 id="orgbb5e43f"&gt;Constants&lt;/h2&gt;
+&lt;div id="outline-container-org66d43d3" class="outline-2"&gt;
+&lt;h2 id="org66d43d3"&gt;Constants&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org169a34e" class="outline-2"&gt;
-&lt;h2 id="org169a34e"&gt;The Boid&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org169a34e"&gt;
+&lt;div id="outline-container-org172f2b5" class="outline-2"&gt;
+&lt;h2 id="org172f2b5"&gt;The Boid&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org172f2b5"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3cb9e22" class="outline-3"&gt;
-&lt;h3 id="org3cb9e22"&gt;Boid Settings&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3cb9e22"&gt;
+&lt;div id="outline-container-org1d5c6d5" class="outline-3"&gt;
+&lt;h3 id="org1d5c6d5"&gt;Boid Settings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org1d5c6d5"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BoidSettings&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""a settings object"""&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -600,9 +600,9 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2c0e049" class="outline-3"&gt;
-&lt;h3 id="org2c0e049"&gt;Boid Node&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2c0e049"&gt;
+&lt;div id="outline-container-orgdf0a033" class="outline-3"&gt;
+&lt;h3 id="orgdf0a033"&gt;Boid Node&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgdf0a033"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CocosNode&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""represents a boid&lt;/span&gt;
 &lt;span class="sd"&gt;    Parameters&lt;/span&gt;
@@ -661,6 +661,6 @@ The target
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge2ed29c" class="outline-2"&gt;
-&lt;h2 id="orge2ed29c"&gt;Main&lt;/h2&gt;
+&lt;div id="outline-container-org304c596" class="outline-2"&gt;
+&lt;h2 id="org304c596"&gt;Main&lt;/h2&gt;
 &lt;/div&gt;</description><category>games cocos2d flocking emergence</category><guid>https://necromuralist.github.io/posts/flocking-with-cocos2d/</guid><pubDate>Mon, 20 Feb 2017 22:59:43 GMT</pubDate></item></channel></rss>
