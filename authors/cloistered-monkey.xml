@@ -1,43 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Mon, 25 Jun 2018 05:31:27 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Barking Up The Wrong Tree Notes</title><link>https://necromuralist.github.io/posts/barking-up-the-wrong-tree-notes/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org7ed94a7" class="outline-2"&gt;
-&lt;h2 id="org7ed94a7"&gt;What Really Produces Success?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7ed94a7"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 26 Jun 2018 21:03:39 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>TCPDump On an External Hard Drive</title><link>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgc9f9210" class="outline-2"&gt;
+&lt;h2 id="orgc9f9210"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc9f9210"&gt;
+&lt;p&gt;
+I'm using &lt;a href="http://www.tcpdump.org/"&gt;tcpdump&lt;/a&gt; to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org7e1999b" class="outline-2"&gt;
+&lt;h2 id="org7e1999b"&gt;Setting Up The Drive&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7e1999b"&gt;
+&lt;p&gt;
+The first thing I wanted to do was format the drive. First I needed to get the name.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo lshw -C disk
+&lt;/pre&gt;
+
+&lt;p&gt;
+Gave me this
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+*-disk
+      description: SCSI Disk
+      product: Elements 25A1
+      vendor: WD
+      physical id: 0.0.0
+      bus info: scsi@1:0.0.0
+      logical name: /dev/sda
+      version: 1014
+      serial: WX71D186F83C
+      size: 3725GiB (4TB)
+      capabilities: gpt-1.00 partitioned partitioned:gpt
+      configuration: ansiversion=6 guid=7ff8067e-6905-4746-a8ec-f3a1f90f99d0 logicalsectorsize=512 sectorsize=4096
+&lt;/pre&gt;
+
+&lt;p&gt;
+So it's named &lt;code&gt;/dev/sda&lt;/code&gt;. Now let's see if it's mounted.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+lsblk -f
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
+sda
+└─sda1      ntfs   Elements A4F2DF7DF2DF5262
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT  EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT  9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+&lt;/pre&gt;
+
+&lt;p&gt;
+So you can see that there is a partition named &lt;code&gt;sda1&lt;/code&gt; and it's formatted using &lt;code&gt;ntfs&lt;/code&gt; and it isn't mounted. Since I'm running it with linux I'll reformant the drive using &lt;code&gt;ext4&lt;/code&gt;. I'm also going to give it the label &lt;code&gt;westerndigital&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo mkfs -t ext4 -L westerndigital /dev/sda1
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+mke2fs 1.42.13 (17-May-2015)
+/dev/sda1 contains a ntfs file system labelled 'Elements'
+Proceed anyway? (y,n) y
+&lt;/pre&gt;
+
+&lt;p&gt;
+Apparently Western Digital named the partition &lt;code&gt;Elements&lt;/code&gt;. I entered &lt;code&gt;y&lt;/code&gt; and continued.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Creating filesystem with 976745728 4k blocks and 244187136 inodes
+Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+        4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968,
+        102400000, 214990848, 512000000, 550731776, 644972544
+&lt;/pre&gt;
+
+&lt;p&gt;
+So checking it again.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+lsblk -f
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
+sda
+└─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT        EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT        9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+
+&lt;/pre&gt;
+
+&lt;p&gt;
+Shows that it's now &lt;code&gt;ext4&lt;/code&gt; and it has the label &lt;code&gt;westerndigital&lt;/code&gt;. According to &lt;a href="https://help.ubuntu.com/community/UsingUUID"&gt;this page&lt;/a&gt; the Hardware Abstraction Layer (HAL) will auto-mount drives that have labels, although I haven't tested this yet.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org0d27782" class="outline-2"&gt;
+&lt;h2 id="org0d27782"&gt;Mounting It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0d27782"&gt;
+&lt;p&gt;
+First make a directory for it.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo mkdir /media/westerndigital
+&lt;/pre&gt;
+
+&lt;p&gt;
+Then mount it.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo mount /dev/sda1 /media/westerndigital/
+&lt;/pre&gt;
+
+&lt;p&gt;
+Now we can check on it.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+lsblk
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda           8:0    0  3.7T  0 disk
+└─sda1        8:1    0  3.7T  0 part /media/westerndigital
+mmcblk0     179:0    0 29.8G  0 disk
+├─mmcblk0p1 179:1    0   63M  0 part /boot
+└─mmcblk0p2 179:2    0 29.8G  0 part /
+&lt;/pre&gt;
+
+&lt;p&gt;
+So we can see that it's mounted at &lt;code&gt;/media/westerndigital/&lt;/code&gt;.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org653fb24" class="outline-2"&gt;
+&lt;h2 id="org653fb24"&gt;Running TCP Dump with Rotating files&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org653fb24"&gt;
+&lt;p&gt;
+First I needed to put the wireless interface into monitor mode.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+iwconfig wlx00c0ca967afb mode monitor
+&lt;/pre&gt;
+
+&lt;p&gt;
+Then I ran tcpdump.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
+&lt;/pre&gt;
+
+&lt;p&gt;
+Which gave me this.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
+&lt;/pre&gt;
+
+&lt;p&gt;
+On my desktop the solution was in the comments of this &lt;a href="https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied"&gt;StackOverflow post&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
+&lt;/pre&gt;
+
+&lt;p&gt;
+But on my raspberry pi this raised an error.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
+Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
+Use --subdomainfs to override.
+&lt;/pre&gt;
+
+&lt;p&gt;
+The solution was in the same post. I just made the permissions wide open.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo chmod 777 /media/westerndigital
+&lt;/pre&gt;
+
+&lt;p&gt;
+This is probably a security risk, but it works.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>tcpdump linux howto</category><guid>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</guid><pubDate>Tue, 26 Jun 2018 18:32:20 GMT</pubDate></item><item><title>Barking Up The Wrong Tree Notes</title><link>https://necromuralist.github.io/posts/barking-up-the-wrong-tree-notes/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgbb9150f" class="outline-2"&gt;
+&lt;h2 id="orgbb9150f"&gt;What Really Produces Success?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgbb9150f"&gt;
 &lt;p&gt;
 Success comes from knowing what you're best at and being aligned with your context. Even insanity can be helpful given the right context.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc61fe3d" class="outline-2"&gt;
-&lt;h2 id="orgc61fe3d"&gt;Should We Play It Safe and Do What We're Told If We Want To Succeed?&lt;/h2&gt;
+&lt;div id="outline-container-org4cf0a15" class="outline-2"&gt;
+&lt;h2 id="org4cf0a15"&gt;Should We Play It Safe and Do What We're Told If We Want To Succeed?&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org415ce5e" class="outline-2"&gt;
-&lt;h2 id="org415ce5e"&gt;Do Nice Guys Finish Last?&lt;/h2&gt;
+&lt;div id="outline-container-orga81aa07" class="outline-2"&gt;
+&lt;h2 id="orga81aa07"&gt;Do Nice Guys Finish Last?&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org0b25728" class="outline-2"&gt;
-&lt;h2 id="org0b25728"&gt;Do Quitters Never Win and Winners Never Quit?&lt;/h2&gt;
+&lt;div id="outline-container-org9cef42b" class="outline-2"&gt;
+&lt;h2 id="org9cef42b"&gt;Do Quitters Never Win and Winners Never Quit?&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgf7fcf61" class="outline-2"&gt;
-&lt;h2 id="orgf7fcf61"&gt;It's Now What You Know It's Who You Know&lt;/h2&gt;
+&lt;div id="outline-container-orgd1d1f69" class="outline-2"&gt;
+&lt;h2 id="orgd1d1f69"&gt;It's Now What You Know It's Who You Know&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgf3499f8" class="outline-2"&gt;
-&lt;h2 id="orgf3499f8"&gt;Believe In Yourself… Sometimes&lt;/h2&gt;
+&lt;div id="outline-container-orge1001b1" class="outline-2"&gt;
+&lt;h2 id="orge1001b1"&gt;Believe In Yourself… Sometimes&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org14bcbc6" class="outline-2"&gt;
-&lt;h2 id="org14bcbc6"&gt;Work, Work, Work… Or Work-Life Balance?&lt;/h2&gt;
+&lt;div id="outline-container-org0ac1da8" class="outline-2"&gt;
+&lt;h2 id="org0ac1da8"&gt;Work, Work, Work… Or Work-Life Balance?&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6f13f4c" class="outline-2"&gt;
-&lt;h2 id="org6f13f4c"&gt;What Makes a Successful Life?&lt;/h2&gt;
+&lt;div id="outline-container-org724680c" class="outline-2"&gt;
+&lt;h2 id="org724680c"&gt;What Makes a Successful Life?&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb3f5679" class="outline-2"&gt;
-&lt;h2 id="orgb3f5679"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb3f5679"&gt;
+&lt;div id="outline-container-org5b10ed5" class="outline-2"&gt;
+&lt;h2 id="org5b10ed5"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5b10ed5"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Barker, Eric. &lt;i&gt;Barking Up the Wrong Tree: The Surprising Science Behind Why Everything You Know About Success Is (Mostly) Wrong&lt;/i&gt;. New York: HarperCollins Publishers Inc, 2017.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>mind notes</category><guid>https://necromuralist.github.io/posts/barking-up-the-wrong-tree-notes/</guid><pubDate>Sun, 24 Jun 2018 18:33:32 GMT</pubDate></item><item><title>Headless Firefox with Karma</title><link>https://necromuralist.github.io/posts/headless-firefox-with-karma/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgbb5b93f" class="outline-2"&gt;
-&lt;h2 id="orgbb5b93f"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbb5b93f"&gt;
+&lt;/div&gt;</description><category>mind notes</category><guid>https://necromuralist.github.io/posts/barking-up-the-wrong-tree-notes/</guid><pubDate>Sun, 24 Jun 2018 18:33:32 GMT</pubDate></item><item><title>Headless Firefox with Karma</title><link>https://necromuralist.github.io/posts/headless-firefox-with-karma/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgef04073" class="outline-2"&gt;
+&lt;h2 id="orgef04073"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgef04073"&gt;
 &lt;p&gt;
 I recently started revisiting some &lt;a href="https://vuejs.org/"&gt;vue.js&lt;/a&gt; code that I was working on at work and when I ran the unit-tests all of them failed with pretty much the same error.
 &lt;/p&gt;
@@ -51,13 +256,13 @@ I'm using the &lt;a href="http://www.chaijs.com/guide/styles/#should"&gt;chai BD
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org10a120a" class="outline-2"&gt;
-&lt;h2 id="org10a120a"&gt;Set Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org10a120a"&gt;
+&lt;div id="outline-container-org1f6da67" class="outline-2"&gt;
+&lt;h2 id="org1f6da67"&gt;Set Up&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1f6da67"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc882249" class="outline-3"&gt;
-&lt;h3 id="orgc882249"&gt;Install the plugin&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc882249"&gt;
+&lt;div id="outline-container-org5fa2748" class="outline-3"&gt;
+&lt;h3 id="org5fa2748"&gt;Install the plugin&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5fa2748"&gt;
 &lt;p&gt;
 I already had this installed for debugging, but I'll mention it anyway, for completeness.
 &lt;/p&gt;
@@ -68,9 +273,9 @@ npm install karma-firefox-launcher --save-dev
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org0d7b3c2" class="outline-3"&gt;
-&lt;h3 id="org0d7b3c2"&gt;Set it up in Karma&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org0d7b3c2"&gt;
+&lt;div id="outline-container-orgf514105" class="outline-3"&gt;
+&lt;h3 id="orgf514105"&gt;Set it up in Karma&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf514105"&gt;
 &lt;p&gt;
 I'm running the tests using &lt;a href="https://karma-runner.github.io/2.0/index.html"&gt;karma&lt;/a&gt; and I had hoped that I would just have to change the name of the browser in the configuration, but it turns out to need a little setup in the &lt;code&gt;karma.conf.js&lt;/code&gt; file. First get rid of the &lt;code&gt;PhantomJS&lt;/code&gt; reference. Delete this:
 &lt;/p&gt;
@@ -107,16 +312,16 @@ This tells karma to run &lt;code&gt;firefox&lt;/code&gt; and pass in the &lt;cod
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2f2baf7" class="outline-2"&gt;
-&lt;h2 id="org2f2baf7"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2f2baf7"&gt;
+&lt;div id="outline-container-orgb85a266" class="outline-2"&gt;
+&lt;h2 id="orgb85a266"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb85a266"&gt;
 &lt;p&gt;
 &lt;code&gt;PhantomJS&lt;/code&gt; breaks the Chai's BDD style of testing, but since both Firefox and &lt;a href="https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md"&gt;Chrome&lt;/a&gt; have headless modes, using them instead makes it work without actually needing to have the GUI launch.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>testing javascript</category><guid>https://necromuralist.github.io/posts/headless-firefox-with-karma/</guid><pubDate>Thu, 21 Jun 2018 20:23:31 GMT</pubDate></item><item><title>TensorFlow Tutorials</title><link>https://necromuralist.github.io/posts/tensorflow-tutorials/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org56ba0d4" class="outline-2"&gt;
-&lt;h2 id="org56ba0d4"&gt;Github&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org56ba0d4"&gt;
+&lt;/div&gt;</description><category>testing javascript</category><guid>https://necromuralist.github.io/posts/headless-firefox-with-karma/</guid><pubDate>Thu, 21 Jun 2018 20:23:31 GMT</pubDate></item><item><title>TensorFlow Tutorials</title><link>https://necromuralist.github.io/posts/tensorflow-tutorials/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org09fb723" class="outline-2"&gt;
+&lt;h2 id="org09fb723"&gt;Github&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org09fb723"&gt;
 &lt;p&gt;
 These are tutorials I found on github.
 &lt;/p&gt;
@@ -129,17 +334,17 @@ These are tutorials I found on github.
 &lt;li&gt;&lt;a href="https://github.com/pkmital/tensorflow_tutorials"&gt;pkmital&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>tensorflow tutorial machinelearning bibliography</category><guid>https://necromuralist.github.io/posts/tensorflow-tutorials/</guid><pubDate>Wed, 20 Jun 2018 05:24:09 GMT</pubDate></item><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgf79177a" class="outline-2"&gt;
-&lt;h2 id="orgf79177a"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf79177a"&gt;
+&lt;/div&gt;</description><category>tensorflow tutorial machinelearning bibliography</category><guid>https://necromuralist.github.io/posts/tensorflow-tutorials/</guid><pubDate>Wed, 20 Jun 2018 05:24:09 GMT</pubDate></item><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9224dc8" class="outline-2"&gt;
+&lt;h2 id="org9224dc8"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9224dc8"&gt;
 &lt;p&gt;
 I was looking for a way to update python dependencies that I'd installed with &lt;a href="https://pip.pypa.io/en/stable/"&gt;pip&lt;/a&gt; when I stumbled upon &lt;a href="https://github.com/jazzband/pip-tools/"&gt;pip-tools&lt;/a&gt;. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7581767" class="outline-2"&gt;
-&lt;h2 id="org7581767"&gt;First pipdeptree&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7581767"&gt;
+&lt;div id="outline-container-org0bdc48c" class="outline-2"&gt;
+&lt;h2 id="org0bdc48c"&gt;First pipdeptree&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0bdc48c"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-tools&lt;/code&gt; installs a command named &lt;code&gt;pip-compile&lt;/code&gt; which will use either the requirements you put in your &lt;code&gt;setup.py&lt;/code&gt; file or a special file named &lt;code&gt;requirements.in&lt;/code&gt; (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than &lt;code&gt;setup.py&lt;/code&gt;, since it makes it clearer and more likely that I'll keep it up to date. The &lt;code&gt;requirements.in&lt;/code&gt; file is a list of your dependencies but unlike the &lt;code&gt;requirements.txt&lt;/code&gt; file, it doesn't have version numbers, the version numbers are added when you call the &lt;code&gt;pip-compile&lt;/code&gt; command. 
 &lt;/p&gt;
@@ -399,9 +604,9 @@ pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --inv
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgad1f813" class="outline-2"&gt;
-&lt;h2 id="orgad1f813"&gt;pip-compile&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgad1f813"&gt;
+&lt;div id="outline-container-org391b6e8" class="outline-2"&gt;
+&lt;h2 id="org391b6e8"&gt;pip-compile&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org391b6e8"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-compile&lt;/code&gt; will read in the &lt;code&gt;requirements.in&lt;/code&gt; file and add the version numbers and can create a &lt;code&gt;requirements.txt&lt;/code&gt; file. It will automatically look for the &lt;code&gt;requirements.in&lt;/code&gt; file or you can explicitly pass in the filename.
 &lt;/p&gt;
@@ -427,9 +632,9 @@ You'll notice it adds in the dependencies of the dependencies and shows what req
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org86bd733" class="outline-2"&gt;
-&lt;h2 id="org86bd733"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org86bd733"&gt;
+&lt;div id="outline-container-org69dd721" class="outline-2"&gt;
+&lt;h2 id="org69dd721"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org69dd721"&gt;
 &lt;p&gt;
 If we stopped at this point we'd have:
 &lt;/p&gt;
@@ -444,9 +649,9 @@ I think that's kind of nice already, especially if you end up with a lot of depe
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org9a90497" class="outline-3"&gt;
-&lt;h3 id="org9a90497"&gt;Upgrade&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9a90497"&gt;
+&lt;div id="outline-container-org07d9191" class="outline-3"&gt;
+&lt;h3 id="org07d9191"&gt;Upgrade&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org07d9191"&gt;
 &lt;p&gt;
 You can run  &lt;code&gt;pip-compile&lt;/code&gt; with the &lt;code&gt;--upgrade&lt;/code&gt; option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
 &lt;/p&gt;
@@ -473,9 +678,9 @@ This will upgrade your installation but not update the &lt;code&gt;requirements.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgf9e2c80" class="outline-3"&gt;
-&lt;h3 id="orgf9e2c80"&gt;Sync&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgf9e2c80"&gt;
+&lt;div id="outline-container-orgd2ffc76" class="outline-3"&gt;
+&lt;h3 id="orgd2ffc76"&gt;Sync&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgd2ffc76"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-tools&lt;/code&gt; also installed a command called &lt;code&gt;pip-sync&lt;/code&gt; which will keep you in sync with what is in the requirements file, so as long as &lt;code&gt;requirements.txt&lt;/code&gt; is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the &lt;code&gt;--upgrade&lt;/code&gt; option in that it will only install the exact version in the requirements file.
 &lt;/p&gt;
@@ -515,16 +720,16 @@ So now the file and my installation should be in sync.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgf870239" class="outline-2"&gt;
-&lt;h2 id="orgf870239"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf870239"&gt;
+&lt;div id="outline-container-org2659aa2" class="outline-2"&gt;
+&lt;h2 id="org2659aa2"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2659aa2"&gt;
 &lt;p&gt;
 So there you have it, how to keep dependencies synced. The &lt;a href="https://pypi.org/project/pip-tools/"&gt;README&lt;/a&gt; for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>python programs</category><guid>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</guid><pubDate>Sat, 09 Jun 2018 19:52:57 GMT</pubDate></item><item><title>Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</title><link>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgcca0b6f" class="outline-2"&gt;
-&lt;h2 id="orgcca0b6f"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcca0b6f"&gt;
+&lt;/div&gt;</description><category>python programs</category><guid>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</guid><pubDate>Sat, 09 Jun 2018 19:52:57 GMT</pubDate></item><item><title>Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</title><link>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org38f9830" class="outline-2"&gt;
+&lt;h2 id="org38f9830"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org38f9830"&gt;
 &lt;p&gt;
 I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
 &lt;/p&gt;
@@ -540,21 +745,21 @@ Looking around on the web I found &lt;a href="https://www.reddit.com/r/raspberry
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd5febf9" class="outline-2"&gt;
-&lt;h2 id="orgd5febf9"&gt;What I tried&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd5febf9"&gt;
+&lt;div id="outline-container-org159173e" class="outline-2"&gt;
+&lt;h2 id="org159173e"&gt;What I tried&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org159173e"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgffe276d" class="outline-3"&gt;
-&lt;h3 id="orgffe276d"&gt;Plug-and-Pray&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgffe276d"&gt;
+&lt;div id="outline-container-org0cb36dc" class="outline-3"&gt;
+&lt;h3 id="org0cb36dc"&gt;Plug-and-Pray&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org0cb36dc"&gt;
 &lt;p&gt;
 The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although &lt;code&gt;lsusb&lt;/code&gt; showed it, &lt;code&gt;iwconfig&lt;/code&gt; didn't show it as an interface. Back to the internet. 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3363897" class="outline-3"&gt;
-&lt;h3 id="org3363897"&gt;Github&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3363897"&gt;
+&lt;div id="outline-container-org2d20924" class="outline-3"&gt;
+&lt;h3 id="org2d20924"&gt;Github&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org2d20924"&gt;
 &lt;p&gt;
 Next I found &lt;a href="https://github.com/diederikdehaas/rtl8812AU"&gt;a repository on github&lt;/a&gt; that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
 &lt;/p&gt;
@@ -583,9 +788,9 @@ There was also a message in the &lt;code&gt;make.log&lt;/code&gt; file but I did
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1e7b8d0" class="outline-2"&gt;
-&lt;h2 id="org1e7b8d0"&gt;What fixed it&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1e7b8d0"&gt;
+&lt;div id="outline-container-org4805b39" class="outline-2"&gt;
+&lt;h2 id="org4805b39"&gt;What fixed it&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4805b39"&gt;
 &lt;p&gt;
 The solution was in &lt;a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make"&gt;this StackOverflow post&lt;/a&gt; - the &lt;code&gt;make&lt;/code&gt; program is being pointed to a folder named &lt;code&gt;arm7l&lt;/code&gt; (thats 'arm seven ell') but it should actually be pointed to one named &lt;code&gt;arm&lt;/code&gt;. The simple solution is to create an alias with the correct name.
 &lt;/p&gt;
@@ -600,23 +805,23 @@ This turns out to fix the build problem and after a reboot the network interface
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org43260d8" class="outline-2"&gt;
-&lt;h2 id="org43260d8"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org43260d8"&gt;
+&lt;div id="outline-container-orgb3a2275" class="outline-2"&gt;
+&lt;h2 id="orgb3a2275"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb3a2275"&gt;
 &lt;p&gt;
 The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that &lt;code&gt;iwconfig&lt;/code&gt; will put it in monitor mode but &lt;code&gt;airmon-ng&lt;/code&gt; doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, &lt;code&gt;iw&lt;/code&gt; always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>rapsberrypi wireless howto</category><guid>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</guid><pubDate>Sun, 03 Jun 2018 22:57:12 GMT</pubDate></item><item><title>Wireless Bibliography</title><link>https://necromuralist.github.io/posts/wireless-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org03beb4a" class="outline-2"&gt;
-&lt;h2 id="org03beb4a"&gt;Benchmarking&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org03beb4a"&gt;
+&lt;/div&gt;</description><category>rapsberrypi wireless howto</category><guid>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</guid><pubDate>Sun, 03 Jun 2018 22:57:12 GMT</pubDate></item><item><title>Wireless Bibliography</title><link>https://necromuralist.github.io/posts/wireless-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgc86de39" class="outline-2"&gt;
+&lt;h2 id="orgc86de39"&gt;Benchmarking&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc86de39"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;[R1] Rehman S, Turletti T, Dabbous W. A Roadmap for Benchmarking in Wireless Networks. 2011 Aug 9;  (&lt;a href="https://www.researchgate.net/publication/279405375_A_Roadmap_for_Benchmarking_in_Wireless_Networks"&gt;ResearchGate Link&lt;/a&gt;)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>wireless bibliography</category><guid>https://necromuralist.github.io/posts/wireless-bibliography/</guid><pubDate>Thu, 31 May 2018 21:23:38 GMT</pubDate></item><item><title>Packet Capturing Bibliography</title><link>https://necromuralist.github.io/posts/packet-capturing-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org39197da" class="outline-2"&gt;
-&lt;h2 id="org39197da"&gt;Packet Capturing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org39197da"&gt;
+&lt;/div&gt;</description><category>wireless bibliography</category><guid>https://necromuralist.github.io/posts/wireless-bibliography/</guid><pubDate>Thu, 31 May 2018 21:23:38 GMT</pubDate></item><item><title>Packet Capturing Bibliography</title><link>https://necromuralist.github.io/posts/packet-capturing-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9589615" class="outline-2"&gt;
+&lt;h2 id="org9589615"&gt;Packet Capturing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9589615"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;[R3] Schulman A, Levin D, Spring N. On the fidelity of 802.11 packet traces. InInternational Conference on Passive and Active Network Measurement 2008 Apr 29 (pp. 132-141). Springer, Berlin, Heidelberg. (&lt;a href="https://pdfs.semanticscholar.org/8cea/05cc5c93684a0d8923a3c4eddaed234361b0.pdf"&gt;PDF Link&lt;/a&gt;)&lt;/li&gt;
 
@@ -629,9 +834,9 @@ The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out o
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org2addce3" class="outline-2"&gt;
-&lt;h2 id="org2addce3"&gt;Merging PCAP Files&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2addce3"&gt;
+&lt;div id="outline-container-org572b55b" class="outline-2"&gt;
+&lt;h2 id="org572b55b"&gt;Merging PCAP Files&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org572b55b"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;p&gt;
 [R1] Veselý V. &lt;a href="https://www.researchgate.net/publication/260745050_Extended_Comparison_Study_on_Merging_PCAP_Files"&gt;Extended Comparison Study on Merging PCAP Files&lt;/a&gt;. ElectroScope. 2012 Oct 1;2012:1–6. 
@@ -651,20 +856,20 @@ This is a presentation for a security conference. It has a list of common packet
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org65a09b3" class="outline-2"&gt;
-&lt;h2 id="org65a09b3"&gt;Key&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org65a09b3"&gt;
+&lt;div id="outline-container-org1066fc6" class="outline-2"&gt;
+&lt;h2 id="org1066fc6"&gt;Key&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1066fc6"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;[R&amp;lt;number&amp;gt;] - Research Paper&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>bibliography packets</category><guid>https://necromuralist.github.io/posts/packet-capturing-bibliography/</guid><pubDate>Fri, 25 May 2018 20:32:02 GMT</pubDate></item><item><title>Networking Tools</title><link>https://necromuralist.github.io/posts/networking-tools/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgbbe19d5" class="outline-2"&gt;
-&lt;h2 id="orgbbe19d5"&gt;Packet Capturing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbbe19d5"&gt;
+&lt;/div&gt;</description><category>bibliography packets</category><guid>https://necromuralist.github.io/posts/packet-capturing-bibliography/</guid><pubDate>Fri, 25 May 2018 20:32:02 GMT</pubDate></item><item><title>Networking Tools</title><link>https://necromuralist.github.io/posts/networking-tools/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgcd7b0f7" class="outline-2"&gt;
+&lt;h2 id="orgcd7b0f7"&gt;Packet Capturing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgcd7b0f7"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7336ac8" class="outline-3"&gt;
-&lt;h3 id="org7336ac8"&gt;&lt;a href="http://staff.washington.edu/corey/gulp/"&gt;Gulp&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org7336ac8"&gt;
+&lt;div id="outline-container-org5034c72" class="outline-3"&gt;
+&lt;h3 id="org5034c72"&gt;&lt;a href="http://staff.washington.edu/corey/gulp/"&gt;Gulp&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5034c72"&gt;
 &lt;p&gt;
 Gulp purports to be better at capturing packets than tcpdump (although they can work together).
 &lt;/p&gt;
@@ -683,93 +888,93 @@ There is more than one version out there:
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgc284808" class="outline-3"&gt;
-&lt;h3 id="orgc284808"&gt;&lt;a href="https://www.tcpdump.org"&gt;tcpdump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc284808"&gt;
+&lt;div id="outline-container-org8401fec" class="outline-3"&gt;
+&lt;h3 id="org8401fec"&gt;&lt;a href="https://www.tcpdump.org"&gt;tcpdump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8401fec"&gt;
 &lt;p&gt;
 More easily obtainable and better documentation available (although still not enough).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga1a6c11" class="outline-3"&gt;
-&lt;h3 id="orga1a6c11"&gt;&lt;a href="http://ssldump.sourceforge.net"&gt;ssldump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga1a6c11"&gt;
+&lt;div id="outline-container-orgc17ad27" class="outline-3"&gt;
+&lt;h3 id="orgc17ad27"&gt;&lt;a href="http://ssldump.sourceforge.net"&gt;ssldump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc17ad27"&gt;
 &lt;p&gt;
 Captures packets and decodes SSL/TLS packets.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5f88441" class="outline-2"&gt;
-&lt;h2 id="org5f88441"&gt;Packet Examining&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5f88441"&gt;
+&lt;div id="outline-container-org99fb115" class="outline-2"&gt;
+&lt;h2 id="org99fb115"&gt;Packet Examining&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org99fb115"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org8fb3040" class="outline-3"&gt;
-&lt;h3 id="org8fb3040"&gt;&lt;a href="https://github.com/mschiffm/cppip"&gt;Compressed PCAP Packet Indexing Prograpm (cppip)&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8fb3040"&gt;
+&lt;div id="outline-container-org014e519" class="outline-3"&gt;
+&lt;h3 id="org014e519"&gt;&lt;a href="https://github.com/mschiffm/cppip"&gt;Compressed PCAP Packet Indexing Prograpm (cppip)&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org014e519"&gt;
 &lt;p&gt;
 This adds indexing to &lt;a href="http://www.htslib.org/doc/bgzip.html"&gt;bgzip&lt;/a&gt; compressed LibPCAP files which then lets you extract them while the original files are still compressed.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org80b49ce" class="outline-3"&gt;
-&lt;h3 id="org80b49ce"&gt;&lt;a href="https://linux.die.net/man/8/tcpslice"&gt;tcpslice&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org80b49ce"&gt;
+&lt;div id="outline-container-orgb277739" class="outline-3"&gt;
+&lt;h3 id="orgb277739"&gt;&lt;a href="https://linux.die.net/man/8/tcpslice"&gt;tcpslice&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb277739"&gt;
 &lt;p&gt;
 This lets you extract part of or combine files created by tcpdump when using file rotation.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org36a4eae" class="outline-3"&gt;
-&lt;h3 id="org36a4eae"&gt;&lt;a href="https://github.com/jpr5/ngrep"&gt;ngrep&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org36a4eae"&gt;
+&lt;div id="outline-container-org15a618f" class="outline-3"&gt;
+&lt;h3 id="org15a618f"&gt;&lt;a href="https://github.com/jpr5/ngrep"&gt;ngrep&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org15a618f"&gt;
 &lt;p&gt;
 Describes itself as like GNU grep but for packets.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge6e5fd5" class="outline-3"&gt;
-&lt;h3 id="orge6e5fd5"&gt;&lt;a href="https://github.com/signed0/pylibpcap"&gt;pylibpcap&lt;/a&gt;, &lt;a href="https://github.com/pynetwork/pypcap"&gt;pypcap&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge6e5fd5"&gt;
+&lt;div id="outline-container-org393f049" class="outline-3"&gt;
+&lt;h3 id="org393f049"&gt;&lt;a href="https://github.com/signed0/pylibpcap"&gt;pylibpcap&lt;/a&gt;, &lt;a href="https://github.com/pynetwork/pypcap"&gt;pypcap&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org393f049"&gt;
 &lt;p&gt;
 Python code to work with libpcap.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org19ceb83" class="outline-3"&gt;
-&lt;h3 id="org19ceb83"&gt;WireShark&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org19ceb83"&gt;
+&lt;div id="outline-container-orga1eaa33" class="outline-3"&gt;
+&lt;h3 id="orga1eaa33"&gt;WireShark&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga1eaa33"&gt;
 &lt;p&gt;
 These are installed when you install wireshark.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org531c71d" class="outline-4"&gt;
-&lt;h4 id="org531c71d"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/tshark.html"&gt;tshark&lt;/a&gt;/&lt;a href="https://www.wireshark.org"&gt;wireshark&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org531c71d"&gt;
+&lt;div id="outline-container-orge72b423" class="outline-4"&gt;
+&lt;h4 id="orge72b423"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/tshark.html"&gt;tshark&lt;/a&gt;/&lt;a href="https://www.wireshark.org"&gt;wireshark&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orge72b423"&gt;
 &lt;p&gt;
 Packet capturing and examining (better documented than most of the other programs)
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9e3d9c8" class="outline-4"&gt;
-&lt;h4 id="org9e3d9c8"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/reordercap.html"&gt;reordercap&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org9e3d9c8"&gt;
+&lt;div id="outline-container-orga6ad3a5" class="outline-4"&gt;
+&lt;h4 id="orga6ad3a5"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/reordercap.html"&gt;reordercap&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orga6ad3a5"&gt;
 &lt;p&gt;
 Reorders the packets by timestamp.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgf6ff28c" class="outline-4"&gt;
-&lt;h4 id="orgf6ff28c"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgf6ff28c"&gt;
+&lt;div id="outline-container-orgf098b74" class="outline-4"&gt;
+&lt;h4 id="orgf098b74"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgf098b74"&gt;
 &lt;p&gt;
 This prints summary information about packe files (works with gzipped files).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc4cbdad" class="outline-4"&gt;
-&lt;h4 id="orgc4cbdad"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/mergecap.html"&gt;mergecap&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgc4cbdad"&gt;
+&lt;div id="outline-container-orgb532910" class="outline-4"&gt;
+&lt;h4 id="orgb532910"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/mergecap.html"&gt;mergecap&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgb532910"&gt;
 &lt;p&gt;
 Merges multiple packet files together. Mergecap will try to keep timestamps in order when merging, but it assumes each individual file to merge is already in order.
 &lt;/p&gt;
@@ -777,131 +982,131 @@ Merges multiple packet files together. Mergecap will try to keep timestamps in o
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7e29bfe" class="outline-2"&gt;
-&lt;h2 id="org7e29bfe"&gt;Packet Flows&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7e29bfe"&gt;
+&lt;div id="outline-container-orgc10a13e" class="outline-2"&gt;
+&lt;h2 id="orgc10a13e"&gt;Packet Flows&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc10a13e"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge816175" class="outline-3"&gt;
-&lt;h3 id="orge816175"&gt;&lt;a href="http://tcpick.sourceforge.net"&gt;tcpick&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge816175"&gt;
+&lt;div id="outline-container-org7df92c8" class="outline-3"&gt;
+&lt;h3 id="org7df92c8"&gt;&lt;a href="http://tcpick.sourceforge.net"&gt;tcpick&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7df92c8"&gt;
 &lt;p&gt;
 Track, reassemble, reorder TCP streams.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb3905e2" class="outline-3"&gt;
-&lt;h3 id="orgb3905e2"&gt;&lt;a href="http://www.tcptrace.org"&gt;tcptrace&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb3905e2"&gt;
+&lt;div id="outline-container-org4c829c5" class="outline-3"&gt;
+&lt;h3 id="org4c829c5"&gt;&lt;a href="http://www.tcptrace.org"&gt;tcptrace&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4c829c5"&gt;
 &lt;p&gt;
 Gives connection information taken from a capture file.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8ee7e13" class="outline-3"&gt;
-&lt;h3 id="org8ee7e13"&gt;&lt;a href="https://github.com/simsong/tcpflow"&gt;tcpflow&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8ee7e13"&gt;
+&lt;div id="outline-container-org8564d64" class="outline-3"&gt;
+&lt;h3 id="org8564d64"&gt;&lt;a href="https://github.com/simsong/tcpflow"&gt;tcpflow&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8564d64"&gt;
 &lt;p&gt;
 Separates out TCP flows into separate files.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org914cf2a" class="outline-2"&gt;
-&lt;h2 id="org914cf2a"&gt;Capture Summarizing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org914cf2a"&gt;
+&lt;div id="outline-container-orgc3e78ce" class="outline-2"&gt;
+&lt;h2 id="orgc3e78ce"&gt;Capture Summarizing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc3e78ce"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4273007" class="outline-3"&gt;
-&lt;h3 id="org4273007"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h3&gt;
+&lt;div id="outline-container-org8b57346" class="outline-3"&gt;
+&lt;h3 id="org8b57346"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h3&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2ecd725" class="outline-3"&gt;
-&lt;h3 id="org2ecd725"&gt;&lt;a href="https://github.com/kohler/ipsumdump"&gt;ipsumdump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2ecd725"&gt;
+&lt;div id="outline-container-org8e398d8" class="outline-3"&gt;
+&lt;h3 id="org8e398d8"&gt;&lt;a href="https://github.com/kohler/ipsumdump"&gt;ipsumdump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8e398d8"&gt;
 &lt;p&gt;
 Summarizes packet information in ASCII format
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5601c9b" class="outline-3"&gt;
-&lt;h3 id="org5601c9b"&gt;&lt;a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html"&gt;tcpdstat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org5601c9b"&gt;
+&lt;div id="outline-container-orgfd3d705" class="outline-3"&gt;
+&lt;h3 id="orgfd3d705"&gt;&lt;a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html"&gt;tcpdstat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfd3d705"&gt;
 &lt;p&gt;
 Gives summary statistics for a pcap file
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7c2af90" class="outline-2"&gt;
-&lt;h2 id="org7c2af90"&gt;Network Monitoring&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7c2af90"&gt;
+&lt;div id="outline-container-org9db556f" class="outline-2"&gt;
+&lt;h2 id="org9db556f"&gt;Network Monitoring&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9db556f"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6da655c" class="outline-3"&gt;
-&lt;h3 id="org6da655c"&gt;&lt;a href="https://www.ntop.org"&gt;ntop&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6da655c"&gt;
+&lt;div id="outline-container-orgad6e9b0" class="outline-3"&gt;
+&lt;h3 id="orgad6e9b0"&gt;&lt;a href="https://www.ntop.org"&gt;ntop&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgad6e9b0"&gt;
 &lt;p&gt;
 Like top but for the network.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org907ea7b" class="outline-3"&gt;
-&lt;h3 id="org907ea7b"&gt;&lt;a href="http://man7.org/linux/man-pages/man8/ss.8.html"&gt;ss (socket statistics)&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org907ea7b"&gt;
+&lt;div id="outline-container-org9ff89f6" class="outline-3"&gt;
+&lt;h3 id="org9ff89f6"&gt;&lt;a href="http://man7.org/linux/man-pages/man8/ss.8.html"&gt;ss (socket statistics)&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9ff89f6"&gt;
 &lt;p&gt;
 Part of &lt;a href="https://en.wikipedia.org/wiki/Iproute2"&gt;iproute2&lt;/a&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga1cba2d" class="outline-2"&gt;
-&lt;h2 id="orga1cba2d"&gt;Miscellaneous&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga1cba2d"&gt;
+&lt;div id="outline-container-orgd83500f" class="outline-2"&gt;
+&lt;h2 id="orgd83500f"&gt;Miscellaneous&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd83500f"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgef84892" class="outline-3"&gt;
-&lt;h3 id="orgef84892"&gt;&lt;a href="http://tcpreplay.appneta.com/"&gt;tcpreplay&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgef84892"&gt;
+&lt;div id="outline-container-org5130709" class="outline-3"&gt;
+&lt;h3 id="org5130709"&gt;&lt;a href="http://tcpreplay.appneta.com/"&gt;tcpreplay&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5130709"&gt;
 &lt;p&gt;
 A suite of programs to edit and replay pcap files.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb8b7a00" class="outline-3"&gt;
-&lt;h3 id="orgb8b7a00"&gt;&lt;a href="https://en.wikipedia.org/wiki/Netcat"&gt;netcat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb8b7a00"&gt;
+&lt;div id="outline-container-orge1db049" class="outline-3"&gt;
+&lt;h3 id="orge1db049"&gt;&lt;a href="https://en.wikipedia.org/wiki/Netcat"&gt;netcat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge1db049"&gt;
 &lt;p&gt;
 Read from and write to TCP/UDP network connections.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org791e65c" class="outline-3"&gt;
-&lt;h3 id="org791e65c"&gt;&lt;a href="https://linux.die.net/man/1/socat"&gt;socat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org791e65c"&gt;
+&lt;div id="outline-container-org1564250" class="outline-3"&gt;
+&lt;h3 id="org1564250"&gt;&lt;a href="https://linux.die.net/man/1/socat"&gt;socat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org1564250"&gt;
 &lt;p&gt;
 Route data between byte streams.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>networking wireless tools</category><guid>https://necromuralist.github.io/posts/networking-tools/</guid><pubDate>Tue, 22 May 2018 20:57:42 GMT</pubDate></item><item><title>The Flask Debug Server</title><link>https://necromuralist.github.io/posts/the-flask-debug-server/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org82cf067" class="outline-2"&gt;
-&lt;h2 id="org82cf067"&gt;Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org82cf067"&gt;
+&lt;/div&gt;</description><category>networking wireless tools</category><guid>https://necromuralist.github.io/posts/networking-tools/</guid><pubDate>Tue, 22 May 2018 20:57:42 GMT</pubDate></item><item><title>The Flask Debug Server</title><link>https://necromuralist.github.io/posts/the-flask-debug-server/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org027cb85" class="outline-2"&gt;
+&lt;h2 id="org027cb85"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org027cb85"&gt;
 &lt;p&gt;
 This is documented on the &lt;a href="//flask.pocoo.org/docs/"&gt;Flask site&lt;/a&gt;, but I was trying to help someone debug some old server code that I'd written and couldn't remember how to debug it, so I'm documenting it here as I go through remembering it again so I'll have a single reference to use the next time. Some of the settings look different from what I remember using so I think that Flask has changed a little over time, but since I didn't document it the first time I don't have a record to compare against (well, I probably have some notes in a notebook but it's hard to refer to that when sitting at someone else's desk).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2b87afa" class="outline-2"&gt;
-&lt;h2 id="org2b87afa"&gt;Setup&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2b87afa"&gt;
+&lt;div id="outline-container-org6fa73ac" class="outline-2"&gt;
+&lt;h2 id="org6fa73ac"&gt;Setup&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6fa73ac"&gt;
 &lt;p&gt;
 The &lt;a href="http://flask.pocoo.org/docs/1.0/quickstart/"&gt;Flask Quickstart&lt;/a&gt; tells you what to do, but for some reason when we googled it, the instructions were different, I think it might have lead us to an older form of the documentation. This is the current version (May 20, 2018.)
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org90dde60" class="outline-3"&gt;
-&lt;h3 id="org90dde60"&gt;The Environment Variables&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org90dde60"&gt;
+&lt;div id="outline-container-org570467e" class="outline-3"&gt;
+&lt;h3 id="org570467e"&gt;The Environment Variables&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org570467e"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org62a452c" class="outline-4"&gt;
-&lt;h4 id="org62a452c"&gt;The Flask App&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org62a452c"&gt;
+&lt;div id="outline-container-org1fcf849" class="outline-4"&gt;
+&lt;h4 id="org1fcf849"&gt;The Flask App&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org1fcf849"&gt;
 &lt;p&gt;
 First you have to tell flask which file contains your flask app by setting the &lt;code&gt;FLASK_APP&lt;/code&gt; environment variable. In my case I'm using &lt;a href="https://github.com/zalando/connexion"&gt;connexion&lt;/a&gt;, an oddly-named adapter that adds support for &lt;a href="https://swagger.io/"&gt;swagger/OpenApi&lt;/a&gt; to Flask. So the file that has the app has this line in it.
 &lt;/p&gt;
@@ -925,9 +1130,9 @@ So I had to specifically tell flask the name of my app by appending it to the en
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org62199b4" class="outline-4"&gt;
-&lt;h4 id="org62199b4"&gt;Development Mode&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org62199b4"&gt;
+&lt;div id="outline-container-orgd96edee" class="outline-4"&gt;
+&lt;h4 id="orgd96edee"&gt;Development Mode&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgd96edee"&gt;
 &lt;p&gt;
 If you want the server to automatically reload when it detects changes then you should to set the &lt;code&gt;FLASK_ENV&lt;/code&gt; environment variable to &lt;code&gt;development&lt;/code&gt;. This is similar to using &lt;code&gt;FLASK_DEBUG&lt;/code&gt; but I think it adds the reloading. Anyway, it does more than just set debug mode.
 &lt;/p&gt;
@@ -938,13 +1143,13 @@ If you want the server to automatically reload when it detects changes then you 
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3e035d3" class="outline-2"&gt;
-&lt;h2 id="org3e035d3"&gt;Run It&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3e035d3"&gt;
+&lt;div id="outline-container-org3dd285e" class="outline-2"&gt;
+&lt;h2 id="org3dd285e"&gt;Run It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3dd285e"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb8d9809" class="outline-3"&gt;
-&lt;h3 id="orgb8d9809"&gt;The Development server&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb8d9809"&gt;
+&lt;div id="outline-container-org6122c6b" class="outline-3"&gt;
+&lt;h3 id="org6122c6b"&gt;The Development server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6122c6b"&gt;
 &lt;p&gt;
 This is the output of the help string for the &lt;a href="http://flask.pocoo.org/docs/1.0/server/#server"&gt;development server&lt;/a&gt;, note that it uses &lt;code&gt;-h&lt;/code&gt; for &lt;code&gt;host&lt;/code&gt; so you need to pass in &lt;code&gt;--help&lt;/code&gt; to see this output or you will get an error.
 &lt;/p&gt;
@@ -952,9 +1157,9 @@ This is the output of the help string for the &lt;a href="http://flask.pocoo.org
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org32b9755" class="outline-3"&gt;
-&lt;h3 id="org32b9755"&gt;Public Server&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org32b9755"&gt;
+&lt;div id="outline-container-orge215525" class="outline-3"&gt;
+&lt;h3 id="orge215525"&gt;Public Server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge215525"&gt;
 &lt;p&gt;
 The default server runs on localhost, but since I'm hosting the code on a &lt;a href="https://www.raspberrypi.org/"&gt;raspberry pi&lt;/a&gt; sitting on the network somewhere but debugging it remotely, I need to run it on a public address.
 &lt;/p&gt;
@@ -964,190 +1169,6 @@ The default server runs on localhost, but since I'm hosting the code on a &lt;a 
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc0fffe8" class="outline-2"&gt;
-&lt;h2 id="orgc0fffe8"&gt;Make it repeatable&lt;/h2&gt;
-&lt;/div&gt;</description><category>flask howto</category><guid>https://necromuralist.github.io/posts/the-flask-debug-server/</guid><pubDate>Sun, 20 May 2018 20:53:54 GMT</pubDate></item><item><title>Monitor Mode With airmon-ng</title><link>https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org60fe7c0" class="outline-2"&gt;
-&lt;h2 id="org60fe7c0"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org60fe7c0"&gt;
-&lt;p&gt;
-I'm looking into setting up a wireless (WiFi and bluetooth) monitoring station to collect data that correlates with how my network is performing and what the state of the network is and I thought that, as a first step, I'd get some &lt;a href="https://en.wikipedia.org/wiki/Packet_analyzer"&gt;packet capturing&lt;/a&gt; logs going. I'm primarily a python programmer who's kept my toe in the Linux command-line world but it's been a little while since I really dove into the wireless networking world. I had some vague notion about doing it with &lt;a href="https://en.wikipedia.org/wiki/Wireless_tools_for_Linux"&gt;iwconfig&lt;/a&gt; or &lt;a href="https://wireless.wiki.kernel.org/en/users/documentation/iw"&gt;iw&lt;/a&gt;, but then I found &lt;a href="https://www.aircrack-ng.org/doku.php?id=airmon-ng"&gt;airmon-ng&lt;/a&gt; and realized that it was what I was really looking for.
-Why is it better? Well, to be honest, I'm not informed enough to say that it's better, but when I tried to use &lt;code&gt;iw&lt;/code&gt; it failed without really telling me why, while &lt;code&gt;airmon-ng&lt;/code&gt; not only didn't fail, but it told me that there were other processes already using my wireless interface which is likely why &lt;code&gt;iw&lt;/code&gt; failed and it told me how to fix it. On the one hand, since it's hiding so much from you &lt;code&gt;airmon-ng&lt;/code&gt; lets you be a little ignorant and still do stuff, on the other - &lt;b&gt;what's wrong with that?&lt;/b&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org5c4df27" class="outline-2"&gt;
-&lt;h2 id="org5c4df27"&gt;Setting Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5c4df27"&gt;
-&lt;p&gt;
-I'm using Ubuntu &lt;a href="http://releases.ubuntu.com/18.04/"&gt;18.04 (Bionic Beaver)&lt;/a&gt; - which seems to have both fixed and broken a surprising amount of stuff (nice that you let me log in with Dvorak now, but maybe you should let me know the keyboard layout has changed ahead of time) - so these instructions are based on that. First, &lt;code&gt;airmon-ng&lt;/code&gt; is part of the &lt;code&gt;aircrack-ng&lt;/code&gt; package so you need to install it to get what we want.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo apt install aircrack-ng
-&lt;/pre&gt;
-
-&lt;p&gt;
-Once you do this you'll see that &lt;code&gt;airmon-ng&lt;/code&gt; is installed.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;which airmon-ng
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Interestingly, if you check it out, you'll see that all it is is a bash script.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;file `which airmon-ng`
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-The file is kind of long.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wc -l `which airmon-ng`
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-So I won't list it here - you can check it out if you're interested. It's actually very informative if you want to learn how to do this kind of stuff, but for this case, we just need to know it works.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgea8bffd" class="outline-2"&gt;
-&lt;h2 id="orgea8bffd"&gt;Monitor Mode&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgea8bffd"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgf0f61d7" class="outline-3"&gt;
-&lt;h3 id="orgf0f61d7"&gt;Starting Up Monitor Mode&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgf0f61d7"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgd6453bd" class="outline-4"&gt;
-&lt;h4 id="orgd6453bd"&gt;Finding your interface&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgd6453bd"&gt;
-&lt;p&gt;
-In the good old days you could be pretty sure that your wireless interface was &lt;code&gt;wlan0&lt;/code&gt; (assuming you only had one) but then ubuntu/freedesktop went and &lt;a href="https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/"&gt;changed things&lt;/a&gt; so now you should probably check what your interface name is using &lt;code&gt;iw&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;iw dev
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-So it looks like we have a wireless interface named &lt;code&gt;wlp2s0&lt;/code&gt; that we want to change from &lt;b&gt;managed&lt;/b&gt; to &lt;b&gt;monitor&lt;/b&gt; mode.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org04c5436" class="outline-3"&gt;
-&lt;h3 id="org04c5436"&gt;Okay, now monitor it&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org04c5436"&gt;
-&lt;p&gt;
-The syntax to start monitor mode is &lt;code&gt;airmon-ng start &amp;lt;interface&amp;gt;&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo airmon-ng start wlp2s0
-&lt;/pre&gt;
-
-&lt;pre class="example"&gt;
-Found 5 processes that could cause trouble.
-If airodump-ng, aireplay-ng or airtun-ng stops working after
-a short period of time, you may want to run 'airmon-ng check kill'
-
-  PID Name
- 1505 wpa_supplicant
- 1524 NetworkManager
- 1541 avahi-daemon
- 1748 avahi-daemon
- 2298 dhclient
-
-PHY     Interface       Driver          Chipset
-
-phy0    wlp2s0          iwlwifi         Intel Corporation Wireless 7260 (rev 73)
-
-                (mac80211 monitor mode vif enabled for [phy0]wlp2s0 on [phy0]wlp2s0mon)
-                (mac80211 station mode vif disabled for [phy0]wlp2s0)
-#+END_SRC
-
-The first thing you should notice is that there are five potentially interfering processes. This is probably what interferes with the =iw= method, but we'll leave it alone and see if it works. Why don't we check on the interface.
-
-#+BEGIN_SRC bash :results raw
-iw dev
-#+END_SRC
-
-#+RESULTS:
-phy#0
-	Interface wlp2s0mon
-		ifindex 5
-		wdev 0x3
-		addr 7c:5c:f8:f7:f5:c6
-		type monitor
-		channel 10 (2457 MHz), width: 20 MHz (no HT), center1: 2457 MHz
-		txpower 0.00 dBm
-
-So you can see that running =airmon-ng start= killed our original =wlp2s0= interface and replaced it with =wlp2s0mo= which is in monitor mode on channel 10. Unforturnately I wanted channel 6 but forgot to specify it. Let's try that again.
-
-The first thing we have to do is to turn off monitor mode.
-
-#+BEGIN_EXAMPLE
-sudo airmon-ng stop wlp2s0mon
-&lt;/pre&gt;
-
-&lt;p&gt;
-Note that we are stopping the new monitor-mode interface, not our original wireless interface. Now we can start the monitor-mode interface set to channel 6. The syntax is &lt;code&gt;airmon-ng start &amp;lt;interface&amp;gt; &amp;lt;channel&amp;gt;&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo airmon-ng start wlp2s0 6
-#+END_SRC
-
-There's some output from the command, but we want to know what =iw= thinks is going on.
-
-#+BEGIN_SRC bash :results raw
-iw dev
-#+END_SRC
-
-#+RESULTS:
-phy#0
-	Interface wlp2s0mon
-		ifindex 7
-		wdev 0x6
-		addr 7c:5c:f8:f7:f5:c6
-		type monitor
-		channel 6 (2437 MHz), width: 20 MHz (no HT), center1: 2437 MHz
-		txpower 0.00 dBm
-
-So now we have an interface (=wlp2s0mon=) on channel 6 in monitor mode. We can make sure that it's working using [[https://tcpdump.org][tcpdump]].
-
-#+BEGIN_EXAMPLE
-sudo tcpdump -i wlp2s0mon -n
-&lt;/pre&gt;
-
-&lt;p&gt;
-Note that we need to use the new interface name. Also, if it wasn't obvious up to now, putting the interface into monitor mode will break any networking capabilities for that interface on your computer (so if it was your internet connection, don't expect to access the web when it's in monitor mode).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgd5a5a83" class="outline-2"&gt;
-&lt;h2 id="orgd5a5a83"&gt;Cleaning Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd5a5a83"&gt;
-&lt;p&gt;
-We already got a preview of turning off monitor mode earlier. The syntax is &lt;code&gt;airmon-ng stop &amp;lt;interface&amp;gt;&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo airmon-ng stop wlp2s0mon
-&lt;/pre&gt;
-
-&lt;p&gt;
-This will bring back the original wireless interface, but it won't (likely) re-establish your connection to your wireless access point. To get back onto the network you will probably need to open network manager and go through the setup process again.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgd8c57b1" class="outline-2"&gt;
-&lt;h2 id="orgd8c57b1"&gt;Summary&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd8c57b1"&gt;
-&lt;p&gt;
-These were my notes on setting up monitor mode using &lt;code&gt;airmon-ng&lt;/code&gt;. The main point I wanted to get across is how easy it is to do using &lt;code&gt;airmon-ng&lt;/code&gt; as opposed to the other methods. I didn't actually show how much harder it is to use iwconfig, but if you have tried you might know what it entails. In any case, hopefully these notes will help me in the future as I keep watching the packets.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>wireless packets</category><guid>https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/</guid><pubDate>Sun, 13 May 2018 01:00:48 GMT</pubDate></item></channel></rss>
+&lt;div id="outline-container-org7859384" class="outline-2"&gt;
+&lt;h2 id="org7859384"&gt;Make it repeatable&lt;/h2&gt;
+&lt;/div&gt;</description><category>flask howto</category><guid>https://necromuralist.github.io/posts/the-flask-debug-server/</guid><pubDate>Sun, 20 May 2018 20:53:54 GMT</pubDate></item></channel></rss>

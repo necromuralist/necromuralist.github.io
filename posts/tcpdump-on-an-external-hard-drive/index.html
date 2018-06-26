@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Setting up TCPDump to save packets on an external USB hard-drive.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TCPDump On an External Hard Drive | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
+<link rel="canonical" href="https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><meta name="author" content="Cloistered Monkey">
+<link rel="prev" href="../barking-up-the-wrong-tree-notes/" title="Barking Up The Wrong Tree Notes" type="text/html">
+<meta property="og:site_name" content="The Cloistered Monkey">
+<meta property="og:title" content="TCPDump On an External Hard Drive">
+<meta property="og:url" content="https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/">
+<meta property="og:description" content="Setting up TCPDump to save packets on an external USB hard-drive.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2018-06-26T11:32:20-07:00">
+<meta property="article:tag" content="tcpdump linux howto">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-default navbar-static-top"><div class="container">
+<!-- This keeps the margins nice -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="https://necromuralist.github.io/">
+
+                <span id="blog-title">The Cloistered Monkey</span>
+            </a>
+        </div>
+<!-- /.navbar-header -->
+        <div class="collapse navbar-collapse" id="bs-navbar" aria-expanded="false">
+            <ul class="nav navbar-nav">
+<li>
+<a href="../../archive.html">Archive</a>
+                </li>
+<li>
+<a href="../../categories/">Tags</a>
+                </li>
+<li>
+<a href="../../rss.xml">RSS feed</a>
+            </li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+<li>
+<a href="../../machine-learning-projects/">Machine Learning</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/p5_explorations/">P5 Explorations</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/tddmachinelearning/">TDD Machine Learning</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a>
+                    </li>
+<li>
+<a href="https://necromuralist.github.io/data_science/">Data Science With Python</a>
+            </li>
+</ul>
+</li>
+</ul>
+<!-- Google custom search --><form method="get" action="https://www.google.com/search" class="navbar-form navbar-right" role="search">
+<div class="form-group">
+<input type="text" name="q" class="form-control" placeholder="Search">
+</div>
+<button type="submit" class="btn btn-primary">
+	<span class="glyphicon glyphicon-search"></span>
+</button>
+<input type="hidden" name="sitesearch" value="https://necromuralist.github.io/">
+</form>
+<!-- End of custom search -->
+
+
+            <ul class="nav navbar-nav navbar-right">
+<li>
+    <a href="index.org" id="sourcelink">Source</a>
+    </li>
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        <div class="row">
+            
+            
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">TCPDump On an External Hard Drive</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    <a href="../../authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-06-26T11:32:20-07:00" itemprop="datePublished" title="2018-06-26 11:32">2018-06-26 11:32</time></a></p>
+            
+        <p class="sourceline"><a href="index.org" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div id="outline-container-orgc9f9210" class="outline-2">
+<h2 id="orgc9f9210">Introduction</h2>
+<div class="outline-text-2" id="text-orgc9f9210">
+<p>
+I'm using <a href="http://www.tcpdump.org/">tcpdump</a> to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7e1999b" class="outline-2">
+<h2 id="org7e1999b">Setting Up The Drive</h2>
+<div class="outline-text-2" id="text-org7e1999b">
+<p>
+The first thing I wanted to do was format the drive. First I needed to get the name.
+</p>
+
+<pre class="example">
+sudo lshw -C disk
+</pre>
+
+<p>
+Gave me this
+</p>
+
+<pre class="example">
+*-disk
+      description: SCSI Disk
+      product: Elements 25A1
+      vendor: WD
+      physical id: 0.0.0
+      bus info: scsi@1:0.0.0
+      logical name: /dev/sda
+      version: 1014
+      serial: WX71D186F83C
+      size: 3725GiB (4TB)
+      capabilities: gpt-1.00 partitioned partitioned:gpt
+      configuration: ansiversion=6 guid=7ff8067e-6905-4746-a8ec-f3a1f90f99d0 logicalsectorsize=512 sectorsize=4096
+</pre>
+
+<p>
+So it's named <code>/dev/sda</code>. Now let's see if it's mounted.
+</p>
+
+<pre class="example">
+lsblk -f
+</pre>
+
+<pre class="example">
+NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
+sda
+└─sda1      ntfs   Elements A4F2DF7DF2DF5262
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT  EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT  9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+</pre>
+
+<p>
+So you can see that there is a partition named <code>sda1</code> and it's formatted using <code>ntfs</code> and it isn't mounted. Since I'm running it with linux I'll reformant the drive using <code>ext4</code>. I'm also going to give it the label <code>westerndigital</code>.
+</p>
+
+<pre class="example">
+sudo mkfs -t ext4 -L westerndigital /dev/sda1
+</pre>
+
+<pre class="example">
+mke2fs 1.42.13 (17-May-2015)
+/dev/sda1 contains a ntfs file system labelled 'Elements'
+Proceed anyway? (y,n) y
+</pre>
+
+<p>
+Apparently Western Digital named the partition <code>Elements</code>. I entered <code>y</code> and continued.
+</p>
+
+<pre class="example">
+Creating filesystem with 976745728 4k blocks and 244187136 inodes
+Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+        4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968,
+        102400000, 214990848, 512000000, 550731776, 644972544
+</pre>
+
+<p>
+So checking it again.
+</p>
+
+<pre class="example">
+lsblk -f
+</pre>
+
+<pre class="example">
+NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
+sda
+└─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT        EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT        9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+
+</pre>
+
+<p>
+Shows that it's now <code>ext4</code> and it has the label <code>westerndigital</code>. According to <a href="https://help.ubuntu.com/community/UsingUUID">this page</a> the Hardware Abstraction Layer (HAL) will auto-mount drives that have labels, although I haven't tested this yet.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0d27782" class="outline-2">
+<h2 id="org0d27782">Mounting It</h2>
+<div class="outline-text-2" id="text-org0d27782">
+<p>
+First make a directory for it.
+</p>
+
+<pre class="example">
+sudo mkdir /media/westerndigital
+</pre>
+
+<p>
+Then mount it.
+</p>
+
+<pre class="example">
+sudo mount /dev/sda1 /media/westerndigital/
+</pre>
+
+<p>
+Now we can check on it.
+</p>
+
+<pre class="example">
+lsblk
+</pre>
+
+<pre class="example">
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda           8:0    0  3.7T  0 disk
+└─sda1        8:1    0  3.7T  0 part /media/westerndigital
+mmcblk0     179:0    0 29.8G  0 disk
+├─mmcblk0p1 179:1    0   63M  0 part /boot
+└─mmcblk0p2 179:2    0 29.8G  0 part /
+</pre>
+
+<p>
+So we can see that it's mounted at <code>/media/westerndigital/</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org653fb24" class="outline-2">
+<h2 id="org653fb24">Running TCP Dump with Rotating files</h2>
+<div class="outline-text-2" id="text-org653fb24">
+<p>
+First I needed to put the wireless interface into monitor mode.
+</p>
+
+<pre class="example">
+iwconfig wlx00c0ca967afb mode monitor
+</pre>
+
+<p>
+Then I ran tcpdump.
+</p>
+
+<pre class="example">
+sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
+</pre>
+
+<p>
+Which gave me this.
+</p>
+
+<pre class="example">
+tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
+</pre>
+
+<p>
+On my desktop the solution was in the comments of this <a href="https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied">StackOverflow post</a>.
+</p>
+
+<pre class="example">
+sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
+</pre>
+
+<p>
+But on my raspberry pi this raised an error.
+</p>
+
+<pre class="example">
+Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
+Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
+Use --subdomainfs to override.
+</pre>
+
+<p>
+The solution was in the same post. I just made the permissions wide open.
+</p>
+
+<pre class="example">
+sudo chmod 777 /media/westerndigital
+</pre>
+
+<p>
+This is probably a security risk, but it works.
+</p>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/tcpdump-linux-howto/" rel="tag">tcpdump linux howto</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../barking-up-the-wrong-tree-notes/" rel="prev" title="Barking Up The Wrong Tree Notes">Previous post</a>
+            </li>
+        </ul></nav></aside></article>
+</div>
+        <!--End of body content-->
+
+        <footer id="footer">
+            Contents © 2018         <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+            
+        </footer>
+</div>
+</div>
+
+
+            <script src="../../assets/js/all-nocdn.js"></script><script>$('a.image-reference:not(.islink) img:not(.islink)').parent().colorbox({rel:"gal",maxWidth:"100%",maxHeight:"100%",scalePhotos:true});</script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates -->
+</body>
+</html>

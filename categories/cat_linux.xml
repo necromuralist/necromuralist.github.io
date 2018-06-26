@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about linux)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_linux.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Tue, 26 Jun 2018 21:02:38 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>TCPDump On an External Hard Drive</title><link>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgc9f9210" class="outline-2"&gt;
+&lt;h2 id="orgc9f9210"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc9f9210"&gt;
+&lt;p&gt;
+I'm using &lt;a href="http://www.tcpdump.org/"&gt;tcpdump&lt;/a&gt; to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org7e1999b" class="outline-2"&gt;
+&lt;h2 id="org7e1999b"&gt;Setting Up The Drive&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7e1999b"&gt;
+&lt;p&gt;
+The first thing I wanted to do was format the drive. First I needed to get the name.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo lshw -C disk
+&lt;/pre&gt;
+
+&lt;p&gt;
+Gave me this
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+*-disk
+      description: SCSI Disk
+      product: Elements 25A1
+      vendor: WD
+      physical id: 0.0.0
+      bus info: scsi@1:0.0.0
+      logical name: /dev/sda
+      version: 1014
+      serial: WX71D186F83C
+      size: 3725GiB (4TB)
+      capabilities: gpt-1.00 partitioned partitioned:gpt
+      configuration: ansiversion=6 guid=7ff8067e-6905-4746-a8ec-f3a1f90f99d0 logicalsectorsize=512 sectorsize=4096
+&lt;/pre&gt;
+
+&lt;p&gt;
+So it's named &lt;code&gt;/dev/sda&lt;/code&gt;. Now let's see if it's mounted.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+lsblk -f
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
+sda
+└─sda1      ntfs   Elements A4F2DF7DF2DF5262
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT  EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT  9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+&lt;/pre&gt;
+
+&lt;p&gt;
+So you can see that there is a partition named &lt;code&gt;sda1&lt;/code&gt; and it's formatted using &lt;code&gt;ntfs&lt;/code&gt; and it isn't mounted. Since I'm running it with linux I'll reformant the drive using &lt;code&gt;ext4&lt;/code&gt;. I'm also going to give it the label &lt;code&gt;westerndigital&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo mkfs -t ext4 -L westerndigital /dev/sda1
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+mke2fs 1.42.13 (17-May-2015)
+/dev/sda1 contains a ntfs file system labelled 'Elements'
+Proceed anyway? (y,n) y
+&lt;/pre&gt;
+
+&lt;p&gt;
+Apparently Western Digital named the partition &lt;code&gt;Elements&lt;/code&gt;. I entered &lt;code&gt;y&lt;/code&gt; and continued.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Creating filesystem with 976745728 4k blocks and 244187136 inodes
+Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+        4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968,
+        102400000, 214990848, 512000000, 550731776, 644972544
+&lt;/pre&gt;
+
+&lt;p&gt;
+So checking it again.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+lsblk -f
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
+sda
+└─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT        EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT        9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+
+&lt;/pre&gt;
+
+&lt;p&gt;
+Shows that it's now &lt;code&gt;ext4&lt;/code&gt; and it has the label &lt;code&gt;westerndigital&lt;/code&gt;. According to &lt;a href="https://help.ubuntu.com/community/UsingUUID"&gt;this page&lt;/a&gt; the Hardware Abstraction Layer (HAL) will auto-mount drives that have labels, although I haven't tested this yet.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org0d27782" class="outline-2"&gt;
+&lt;h2 id="org0d27782"&gt;Mounting It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0d27782"&gt;
+&lt;p&gt;
+First make a directory for it.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo mkdir /media/westerndigital
+&lt;/pre&gt;
+
+&lt;p&gt;
+Then mount it.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo mount /dev/sda1 /media/westerndigital/
+&lt;/pre&gt;
+
+&lt;p&gt;
+Now we can check on it.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+lsblk
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda           8:0    0  3.7T  0 disk
+└─sda1        8:1    0  3.7T  0 part /media/westerndigital
+mmcblk0     179:0    0 29.8G  0 disk
+├─mmcblk0p1 179:1    0   63M  0 part /boot
+└─mmcblk0p2 179:2    0 29.8G  0 part /
+&lt;/pre&gt;
+
+&lt;p&gt;
+So we can see that it's mounted at &lt;code&gt;/media/westerndigital/&lt;/code&gt;.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org653fb24" class="outline-2"&gt;
+&lt;h2 id="org653fb24"&gt;Running TCP Dump with Rotating files&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org653fb24"&gt;
+&lt;p&gt;
+First I needed to put the wireless interface into monitor mode.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+iwconfig wlx00c0ca967afb mode monitor
+&lt;/pre&gt;
+
+&lt;p&gt;
+Then I ran tcpdump.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
+&lt;/pre&gt;
+
+&lt;p&gt;
+Which gave me this.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
+&lt;/pre&gt;
+
+&lt;p&gt;
+On my desktop the solution was in the comments of this &lt;a href="https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied"&gt;StackOverflow post&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
+&lt;/pre&gt;
+
+&lt;p&gt;
+But on my raspberry pi this raised an error.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
+Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
+Use --subdomainfs to override.
+&lt;/pre&gt;
+
+&lt;p&gt;
+The solution was in the same post. I just made the permissions wide open.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo chmod 777 /media/westerndigital
+&lt;/pre&gt;
+
+&lt;p&gt;
+This is probably a security risk, but it works.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>tcpdump linux howto</category><guid>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</guid><pubDate>Tue, 26 Jun 2018 18:32:20 GMT</pubDate></item></channel></rss>

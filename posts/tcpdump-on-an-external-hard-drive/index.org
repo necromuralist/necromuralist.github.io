@@ -1,0 +1,163 @@
+#+BEGIN_COMMENT
+.. title: TCPDump On an External Hard Drive
+.. slug: tcpdump-on-an-external-hard-drive
+.. date: 2018-06-26 11:32:20 UTC-07:00
+.. tags: tcpdump linux howto
+.. category: linux
+.. link: 
+.. description: Setting up TCPDump to save packets on an external USB hard-drive.
+.. type: text
+#+END_COMMENT
+
+* Introduction
+  I'm using [[http://www.tcpdump.org/][tcpdump]] to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
+
+* Setting Up The Drive
+  The first thing I wanted to do was format the drive. First I needed to get the name.
+
+#+BEGIN_EXAMPLE
+sudo lshw -C disk
+#+END_EXAMPLE
+
+Gave me this
+
+#+BEGIN_EXAMPLE
+ *-disk
+       description: SCSI Disk
+       product: Elements 25A1
+       vendor: WD
+       physical id: 0.0.0
+       bus info: scsi@1:0.0.0
+       logical name: /dev/sda
+       version: 1014
+       serial: WX71D186F83C
+       size: 3725GiB (4TB)
+       capabilities: gpt-1.00 partitioned partitioned:gpt
+       configuration: ansiversion=6 guid=7ff8067e-6905-4746-a8ec-f3a1f90f99d0 logicalsectorsize=512 sectorsize=4096
+#+END_EXAMPLE
+
+So it's named =/dev/sda=. Now let's see if it's mounted.
+
+#+BEGIN_EXAMPLE
+lsblk -f
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
+sda
+└─sda1      ntfs   Elements A4F2DF7DF2DF5262
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT  EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT  9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+#+END_EXAMPLE
+
+So you can see that there is a partition named =sda1= and it's formatted using =ntfs= and it isn't mounted. Since I'm running it with linux I'll reformant the drive using =ext4=. I'm also going to give it the label =westerndigital=.
+
+#+BEGIN_EXAMPLE
+sudo mkfs -t ext4 -L westerndigital /dev/sda1
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+mke2fs 1.42.13 (17-May-2015)
+/dev/sda1 contains a ntfs file system labelled 'Elements'
+Proceed anyway? (y,n) y
+#+END_EXAMPLE
+
+Apparently Western Digital named the partition =Elements=. I entered =y= and continued.
+
+#+BEGIN_EXAMPLE
+Creating filesystem with 976745728 4k blocks and 244187136 inodes
+Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+        4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968,
+        102400000, 214990848, 512000000, 550731776, 644972544
+#+END_EXAMPLE
+
+So checking it again.
+
+#+BEGIN_EXAMPLE
+lsblk -f
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
+sda
+└─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT        EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT        9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+
+#+END_EXAMPLE
+
+Shows that it's now =ext4= and it has the label =westerndigital=. According to [[https://help.ubuntu.com/community/UsingUUID][this page]] the Hardware Abstraction Layer (HAL) will auto-mount drives that have labels, although I haven't tested this yet.
+
+* Mounting It
+  First make a directory for it.
+
+#+BEGIN_EXAMPLE
+sudo mkdir /media/westerndigital
+#+END_EXAMPLE
+
+Then mount it.
+
+#+BEGIN_EXAMPLE
+sudo mount /dev/sda1 /media/westerndigital/
+#+END_EXAMPLE
+  
+Now we can check on it.
+
+#+BEGIN_EXAMPLE
+lsblk
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda           8:0    0  3.7T  0 disk
+└─sda1        8:1    0  3.7T  0 part /media/westerndigital
+mmcblk0     179:0    0 29.8G  0 disk
+├─mmcblk0p1 179:1    0   63M  0 part /boot
+└─mmcblk0p2 179:2    0 29.8G  0 part /
+#+END_EXAMPLE
+
+So we can see that it's mounted at =/media/westerndigital/=.
+* Running TCP Dump with Rotating files
+  First I needed to put the wireless interface into monitor mode.
+
+#+BEGIN_EXAMPLE
+iwconfig wlx00c0ca967afb mode monitor
+#+END_EXAMPLE
+
+Then I ran tcpdump.
+
+#+BEGIN_EXAMPLE
+sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
+#+END_EXAMPLE
+
+Which gave me this.
+
+#+BEGIN_EXAMPLE
+tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
+#+END_EXAMPLE
+
+On my desktop the solution was in the comments of this [[https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied][StackOverflow post]].
+
+#+BEGIN_EXAMPLE
+sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
+#+END_EXAMPLE
+
+But on my raspberry pi this raised an error.
+
+#+BEGIN_EXAMPLE
+Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
+Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
+Use --subdomainfs to override.
+#+END_EXAMPLE
+
+The solution was in the same post. I just made the permissions wide open.
+
+#+BEGIN_EXAMPLE
+sudo chmod 777 /media/westerndigital
+#+END_EXAMPLE
+
+This is probably a security risk, but it works.
