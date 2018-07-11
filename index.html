@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://necromuralist.github.io/">
 <link rel="next" href="index-9.html" type="text/html">
 <!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><link rel="prefetch" href="posts/tcpdump-on-an-external-hard-drive/" type="text/html">
+</script><link rel="prefetch" href="posts/openvpn-on-ubuntu-1804/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -100,7 +100,170 @@
 
     
 <div class="postindex">
-    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/tcpdump-on-an-external-hard-drive/" class="u-url">TCPDump On an External Hard Drive</a></h1>
+    <article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/openvpn-on-ubuntu-1804/" class="u-url">OpenVPN on Ubuntu 18.04</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline"><a href="posts/openvpn-on-ubuntu-1804/" rel="bookmark"><time class="published dt-published" datetime="2018-07-10T18:11:39-07:00" title="2018-07-10 18:11">2018-07-10 18:11</time></a></p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="outline-container-orgb292ec7" class="outline-2">
+<h2 id="orgb292ec7">Introduction</h2>
+<div class="outline-text-2" id="text-orgb292ec7">
+<p>
+I'm connecting to a remote network using <a href="https://openvpn.net/">OpenVPN</a> served by an ASUS access point. I originally did it at the command line.
+</p>
+
+<pre class="example">
+sudo openvpn --config client.ovpn
+</pre>
+
+<p>
+It turns out that this doesn't allow me to access anything outside of the network that I was connecting to. From what I can tell it's a DNS problem, but nothing I found about fixing DNS problems with OpenVPN from the command line worked. Luckily the Network Settings GUI works, but even then, it didn't work out of the box.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3befd7f" class="outline-2">
+<h2 id="org3befd7f">Initial Configuration</h2>
+<div class="outline-text-2" id="text-org3befd7f">
+<p>
+First, not everything you need is installed. Besides the openvpn client itself (which I had installed before trying to run it at the command line) you need some things for the network settings as well.
+</p>
+
+<pre class="example">
+apt install openvpn network-manager-openvpn network-manager-openvpn-gnome
+</pre>
+
+<p>
+Now open the network settings.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/network_settings_menu.png" alt=" network_settings_menu.png"></p>
+</div>
+
+
+<p>
+In the window that pops up click on the + sign to add a connection.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/network_settings.png" alt=" network_settings.png"></p>
+</div>
+
+<p>
+In the window that then pops up click on <code>Import from file...</code> (I'm assuming you are using a config file).
+</p>
+
+<p>
+Navigate to the config file, and double-click on it. In the dialog that pops up enter whatever extra information you need. In my case it was the username and password.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/vpn_dialog.png" alt=" vpn_dialog.png"></p>
+</div>
+
+<p>
+Click on the green 'Add' button and you should now have an entry for your VPN connection in the network settings. Click on the on switch (initially labeled 'Off') and if you're lucky it will connect.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/add_vpn.png" alt=" add_vpn.png"></p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org960f72a" class="outline-2">
+<h2 id="org960f72a">Fixing the Password Problem</h2>
+<div class="outline-text-2" id="text-org960f72a">
+<p>
+Unfortunately for me it didn't connect. In <code>/var/log/syslog</code> I could see entries like this:
+</p>
+
+<pre class="example">
+gnome-shell[2805]: Invalid VPN service type (cannot find authentication binary)
+</pre>
+
+<p>
+I don't know if the message is directly telling you this (it doesn't seem to), but it turns out that for some reason the Network Settings doesn't save your password. Look in <code>/etc/NetworkManager/system-connections/</code> for a file that matches the name you gave your vpn in the settings. In my case it was just called 'client'. Open it as root in an editor.
+</p>
+
+<pre class="example">
+sudo emacs /etc/NetworkManager/system-connections/client
+</pre>
+
+<p>
+Then change this line in the <code>[vpn]</code> section:
+</p>
+
+<pre class="example">
+password-flags=1
+</pre>
+
+<p>
+to
+</p>
+
+<pre class="example">
+password-flags=0
+</pre>
+
+<p>
+Then add this section.
+</p>
+
+<pre class="example">
+[vpn-secrets]
+password="your-password"
+</pre>
+
+<p>
+Where <code>"your-password"</code> is your vpn password. <i>The quotation marks around your password are required.</i>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org143f109" class="outline-2">
+<h2 id="org143f109">Now Really Connect</h2>
+<div class="outline-text-2" id="text-org143f109">
+<p>
+First restart the network manager.
+</p>
+
+<pre class="example">
+sudo service network-manager restart
+</pre>
+
+<p>
+Now re-open the network settings and click on the switch again. With any luck this time it will stay on and you can check by going to one of the devices on your VPN network.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/switch_on.png" alt=" switch_on.png"></p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc6f5a83" class="outline-2">
+<h2 id="orgc6f5a83">Sources</h2>
+<div class="outline-text-2" id="text-orgc6f5a83">
+<ul class="org-ul">
+<li>Network Manager Dependencies: <a href="https://askubuntu.com/questions/579159/unable-to-load-vpn-connection-editor-in-ubuntu-14-04-lts">https://askubuntu.com/questions/579159/unable-to-load-vpn-connection-editor-in-ubuntu-14-04-lts</a>
+</li>
+<li>Add VPN Password: <a href="https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10">https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10</a>
+</li>
+</ul>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/tcpdump-on-an-external-hard-drive/" class="u-url">TCPDump On an External Hard Drive</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
@@ -108,18 +271,18 @@
             <p class="dateline"><a href="posts/tcpdump-on-an-external-hard-drive/" rel="bookmark"><time class="published dt-published" datetime="2018-06-26T11:32:20-07:00" title="2018-06-26 11:32">2018-06-26 11:32</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgc9f9210" class="outline-2">
-<h2 id="orgc9f9210">Introduction</h2>
-<div class="outline-text-2" id="text-orgc9f9210">
+    <div id="outline-container-org434c1e2" class="outline-2">
+<h2 id="org434c1e2">Introduction</h2>
+<div class="outline-text-2" id="text-org434c1e2">
 <p>
 I'm using <a href="http://www.tcpdump.org/">tcpdump</a> to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org7e1999b" class="outline-2">
-<h2 id="org7e1999b">Setting Up The Drive</h2>
-<div class="outline-text-2" id="text-org7e1999b">
+<div id="outline-container-org2c59e5e" class="outline-2">
+<h2 id="org2c59e5e">Setting Up The Drive</h2>
+<div class="outline-text-2" id="text-org2c59e5e">
 <p>
 The first thing I wanted to do was format the drive. First I needed to get the name.
 </p>
@@ -215,9 +378,9 @@ Shows that it's now <code>ext4</code> and it has the label <code>westerndigital<
 </div>
 </div>
 
-<div id="outline-container-org0d27782" class="outline-2">
-<h2 id="org0d27782">Mounting It</h2>
-<div class="outline-text-2" id="text-org0d27782">
+<div id="outline-container-org1e8c6f3" class="outline-2">
+<h2 id="org1e8c6f3">Mounting It</h2>
+<div class="outline-text-2" id="text-org1e8c6f3">
 <p>
 First make a directory for it.
 </p>
@@ -256,9 +419,9 @@ So we can see that it's mounted at <code>/media/westerndigital/</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-org653fb24" class="outline-2">
-<h2 id="org653fb24">Running TCP Dump with Rotating files</h2>
-<div class="outline-text-2" id="text-org653fb24">
+<div id="outline-container-orgd424cd8" class="outline-2">
+<h2 id="orgd424cd8">Running TCP Dump with Rotating files</h2>
+<div class="outline-text-2" id="text-orgd424cd8">
 <p>
 First I needed to put the wireless interface into monitor mode.
 </p>
@@ -323,38 +486,38 @@ This is probably a security risk, but it works.
             <p class="dateline"><a href="posts/barking-up-the-wrong-tree-notes/" rel="bookmark"><time class="published dt-published" datetime="2018-06-24T11:33:32-07:00" title="2018-06-24 11:33">2018-06-24 11:33</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgbb9150f" class="outline-2">
-<h2 id="orgbb9150f">What Really Produces Success?</h2>
-<div class="outline-text-2" id="text-orgbb9150f">
+    <div id="outline-container-org7ed94a7" class="outline-2">
+<h2 id="org7ed94a7">What Really Produces Success?</h2>
+<div class="outline-text-2" id="text-org7ed94a7">
 <p>
 Success comes from knowing what you're best at and being aligned with your context. Even insanity can be helpful given the right context.
 </p>
 </div>
 </div>
-<div id="outline-container-org4cf0a15" class="outline-2">
-<h2 id="org4cf0a15">Should We Play It Safe and Do What We're Told If We Want To Succeed?</h2>
+<div id="outline-container-orgc61fe3d" class="outline-2">
+<h2 id="orgc61fe3d">Should We Play It Safe and Do What We're Told If We Want To Succeed?</h2>
 </div>
-<div id="outline-container-orga81aa07" class="outline-2">
-<h2 id="orga81aa07">Do Nice Guys Finish Last?</h2>
+<div id="outline-container-org415ce5e" class="outline-2">
+<h2 id="org415ce5e">Do Nice Guys Finish Last?</h2>
 </div>
-<div id="outline-container-org9cef42b" class="outline-2">
-<h2 id="org9cef42b">Do Quitters Never Win and Winners Never Quit?</h2>
+<div id="outline-container-org0b25728" class="outline-2">
+<h2 id="org0b25728">Do Quitters Never Win and Winners Never Quit?</h2>
 </div>
-<div id="outline-container-orgd1d1f69" class="outline-2">
-<h2 id="orgd1d1f69">It's Now What You Know It's Who You Know</h2>
+<div id="outline-container-orgf7fcf61" class="outline-2">
+<h2 id="orgf7fcf61">It's Now What You Know It's Who You Know</h2>
 </div>
-<div id="outline-container-orge1001b1" class="outline-2">
-<h2 id="orge1001b1">Believe In Yourself… Sometimes</h2>
+<div id="outline-container-orgf3499f8" class="outline-2">
+<h2 id="orgf3499f8">Believe In Yourself… Sometimes</h2>
 </div>
-<div id="outline-container-org0ac1da8" class="outline-2">
-<h2 id="org0ac1da8">Work, Work, Work… Or Work-Life Balance?</h2>
+<div id="outline-container-org14bcbc6" class="outline-2">
+<h2 id="org14bcbc6">Work, Work, Work… Or Work-Life Balance?</h2>
 </div>
-<div id="outline-container-org724680c" class="outline-2">
-<h2 id="org724680c">What Makes a Successful Life?</h2>
+<div id="outline-container-org6f13f4c" class="outline-2">
+<h2 id="org6f13f4c">What Makes a Successful Life?</h2>
 </div>
-<div id="outline-container-org5b10ed5" class="outline-2">
-<h2 id="org5b10ed5">Sources</h2>
-<div class="outline-text-2" id="text-org5b10ed5">
+<div id="outline-container-orgb3f5679" class="outline-2">
+<h2 id="orgb3f5679">Sources</h2>
+<div class="outline-text-2" id="text-orgb3f5679">
 <ul class="org-ul">
 <li>Barker, Eric. <i>Barking Up the Wrong Tree: The Surprising Science Behind Why Everything You Know About Success Is (Mostly) Wrong</i>. New York: HarperCollins Publishers Inc, 2017.</li>
 </ul>
@@ -369,9 +532,9 @@ Success comes from knowing what you're best at and being aligned with your conte
             <p class="dateline"><a href="posts/headless-firefox-with-karma/" rel="bookmark"><time class="published dt-published" datetime="2018-06-21T13:23:31-07:00" title="2018-06-21 13:23">2018-06-21 13:23</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgef04073" class="outline-2">
-<h2 id="orgef04073">Introduction</h2>
-<div class="outline-text-2" id="text-orgef04073">
+    <div id="outline-container-orgbb5b93f" class="outline-2">
+<h2 id="orgbb5b93f">Introduction</h2>
+<div class="outline-text-2" id="text-orgbb5b93f">
 <p>
 I recently started revisiting some <a href="https://vuejs.org/">vue.js</a> code that I was working on at work and when I ran the unit-tests all of them failed with pretty much the same error.
 </p>
@@ -385,13 +548,13 @@ I'm using the <a href="http://www.chaijs.com/guide/styles/#should">chai BDD 'sho
 </p>
 </div>
 </div>
-<div id="outline-container-org1f6da67" class="outline-2">
-<h2 id="org1f6da67">Set Up</h2>
-<div class="outline-text-2" id="text-org1f6da67">
+<div id="outline-container-org10a120a" class="outline-2">
+<h2 id="org10a120a">Set Up</h2>
+<div class="outline-text-2" id="text-org10a120a">
 </div>
-<div id="outline-container-org5fa2748" class="outline-3">
-<h3 id="org5fa2748">Install the plugin</h3>
-<div class="outline-text-3" id="text-org5fa2748">
+<div id="outline-container-orgc882249" class="outline-3">
+<h3 id="orgc882249">Install the plugin</h3>
+<div class="outline-text-3" id="text-orgc882249">
 <p>
 I already had this installed for debugging, but I'll mention it anyway, for completeness.
 </p>
@@ -402,9 +565,9 @@ npm install karma-firefox-launcher --save-dev
 </div>
 </div>
 
-<div id="outline-container-orgf514105" class="outline-3">
-<h3 id="orgf514105">Set it up in Karma</h3>
-<div class="outline-text-3" id="text-orgf514105">
+<div id="outline-container-org0d7b3c2" class="outline-3">
+<h3 id="org0d7b3c2">Set it up in Karma</h3>
+<div class="outline-text-3" id="text-org0d7b3c2">
 <p>
 I'm running the tests using <a href="https://karma-runner.github.io/2.0/index.html">karma</a> and I had hoped that I would just have to change the name of the browser in the configuration, but it turns out to need a little setup in the <code>karma.conf.js</code> file. First get rid of the <code>PhantomJS</code> reference. Delete this:
 </p>
@@ -441,9 +604,9 @@ This tells karma to run <code>firefox</code> and pass in the <code>-headless</co
 </div>
 </div>
 </div>
-<div id="outline-container-orgb85a266" class="outline-2">
-<h2 id="orgb85a266">Conclusion</h2>
-<div class="outline-text-2" id="text-orgb85a266">
+<div id="outline-container-org2f2baf7" class="outline-2">
+<h2 id="org2f2baf7">Conclusion</h2>
+<div class="outline-text-2" id="text-org2f2baf7">
 <p>
 <code>PhantomJS</code> breaks the Chai's BDD style of testing, but since both Firefox and <a href="https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md">Chrome</a> have headless modes, using them instead makes it work without actually needing to have the GUI launch.
 </p>
@@ -458,9 +621,9 @@ This tells karma to run <code>firefox</code> and pass in the <code>-headless</co
             <p class="dateline"><a href="posts/tensorflow-tutorials/" rel="bookmark"><time class="published dt-published" datetime="2018-06-19T22:24:09-07:00" title="2018-06-19 22:24">2018-06-19 22:24</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-org09fb723" class="outline-2">
-<h2 id="org09fb723">Github</h2>
-<div class="outline-text-2" id="text-org09fb723">
+    <div id="outline-container-org56ba0d4" class="outline-2">
+<h2 id="org56ba0d4">Github</h2>
+<div class="outline-text-2" id="text-org56ba0d4">
 <p>
 These are tutorials I found on github.
 </p>
@@ -483,17 +646,17 @@ These are tutorials I found on github.
             <p class="dateline"><a href="posts/pip-tools-and-pipdeptree/" rel="bookmark"><time class="published dt-published" datetime="2018-06-09T12:52:57-07:00" title="2018-06-09 12:52">2018-06-09 12:52</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-org9224dc8" class="outline-2">
-<h2 id="org9224dc8">Introduction</h2>
-<div class="outline-text-2" id="text-org9224dc8">
+    <div id="outline-container-orgf79177a" class="outline-2">
+<h2 id="orgf79177a">Introduction</h2>
+<div class="outline-text-2" id="text-orgf79177a">
 <p>
 I was looking for a way to update python dependencies that I'd installed with <a href="https://pip.pypa.io/en/stable/">pip</a> when I stumbled upon <a href="https://github.com/jazzband/pip-tools/">pip-tools</a>. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
 </p>
 </div>
 </div>
-<div id="outline-container-org0bdc48c" class="outline-2">
-<h2 id="org0bdc48c">First pipdeptree</h2>
-<div class="outline-text-2" id="text-org0bdc48c">
+<div id="outline-container-org7581767" class="outline-2">
+<h2 id="org7581767">First pipdeptree</h2>
+<div class="outline-text-2" id="text-org7581767">
 <p>
 <code>pip-tools</code> installs a command named <code>pip-compile</code> which will use either the requirements you put in your <code>setup.py</code> file or a special file named <code>requirements.in</code> (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than <code>setup.py</code>, since it makes it clearer and more likely that I'll keep it up to date. The <code>requirements.in</code> file is a list of your dependencies but unlike the <code>requirements.txt</code> file, it doesn't have version numbers, the version numbers are added when you call the <code>pip-compile</code> command. 
 </p>
@@ -722,9 +885,9 @@ pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --inv
 </pre>
 </div>
 </div>
-<div id="outline-container-org391b6e8" class="outline-2">
-<h2 id="org391b6e8">pip-compile</h2>
-<div class="outline-text-2" id="text-org391b6e8">
+<div id="outline-container-orgad1f813" class="outline-2">
+<h2 id="orgad1f813">pip-compile</h2>
+<div class="outline-text-2" id="text-orgad1f813">
 <p>
 <code>pip-compile</code> will read in the <code>requirements.in</code> file and add the version numbers and can create a <code>requirements.txt</code> file. It will automatically look for the <code>requirements.in</code> file or you can explicitly pass in the filename.
 </p>
@@ -750,9 +913,9 @@ You'll notice it adds in the dependencies of the dependencies and shows what req
 </p>
 </div>
 </div>
-<div id="outline-container-org69dd721" class="outline-2">
-<h2 id="org69dd721">Well, that was a lot of work just for that.</h2>
-<div class="outline-text-2" id="text-org69dd721">
+<div id="outline-container-org86bd733" class="outline-2">
+<h2 id="org86bd733">Well, that was a lot of work just for that.</h2>
+<div class="outline-text-2" id="text-org86bd733">
 <p>
 If we stopped at this point we'd have:
 </p>
@@ -766,9 +929,9 @@ I think that's kind of nice already, especially if you end up with a lot of depe
 </p>
 </div>
 
-<div id="outline-container-org07d9191" class="outline-3">
-<h3 id="org07d9191">Upgrade</h3>
-<div class="outline-text-3" id="text-org07d9191">
+<div id="outline-container-org9a90497" class="outline-3">
+<h3 id="org9a90497">Upgrade</h3>
+<div class="outline-text-3" id="text-org9a90497">
 <p>
 You can run  <code>pip-compile</code> with the <code>--upgrade</code> option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
 </p>
@@ -795,9 +958,9 @@ This will upgrade your installation but not update the <code>requirements.txt</c
 </div>
 </div>
 
-<div id="outline-container-orgd2ffc76" class="outline-3">
-<h3 id="orgd2ffc76">Sync</h3>
-<div class="outline-text-3" id="text-orgd2ffc76">
+<div id="outline-container-orgf9e2c80" class="outline-3">
+<h3 id="orgf9e2c80">Sync</h3>
+<div class="outline-text-3" id="text-orgf9e2c80">
 <p>
 <code>pip-tools</code> also installed a command called <code>pip-sync</code> which will keep you in sync with what is in the requirements file, so as long as <code>requirements.txt</code> is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the <code>--upgrade</code> option in that it will only install the exact version in the requirements file.
 </p>
@@ -837,9 +1000,9 @@ So now the file and my installation should be in sync.
 </div>
 </div>
 
-<div id="outline-container-org2659aa2" class="outline-2">
-<h2 id="org2659aa2">Conclusion</h2>
-<div class="outline-text-2" id="text-org2659aa2">
+<div id="outline-container-orgf870239" class="outline-2">
+<h2 id="orgf870239">Conclusion</h2>
+<div class="outline-text-2" id="text-orgf870239">
 <p>
 So there you have it, how to keep dependencies synced. The <a href="https://pypi.org/project/pip-tools/">README</a> for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
 </p>
@@ -854,9 +1017,9 @@ So there you have it, how to keep dependencies synced. The <a href="https://pypi
             <p class="dateline"><a href="posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/" rel="bookmark"><time class="published dt-published" datetime="2018-06-03T15:57:12-07:00" title="2018-06-03 15:57">2018-06-03 15:57</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-org38f9830" class="outline-2">
-<h2 id="org38f9830">Introduction</h2>
-<div class="outline-text-2" id="text-org38f9830">
+    <div id="outline-container-orgcca0b6f" class="outline-2">
+<h2 id="orgcca0b6f">Introduction</h2>
+<div class="outline-text-2" id="text-orgcca0b6f">
 <p>
 I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
 </p>
@@ -872,21 +1035,21 @@ Looking around on the web I found <a href="https://www.reddit.com/r/raspberry_pi
 </p>
 </div>
 </div>
-<div id="outline-container-org159173e" class="outline-2">
-<h2 id="org159173e">What I tried</h2>
-<div class="outline-text-2" id="text-org159173e">
+<div id="outline-container-orgd5febf9" class="outline-2">
+<h2 id="orgd5febf9">What I tried</h2>
+<div class="outline-text-2" id="text-orgd5febf9">
 </div>
-<div id="outline-container-org0cb36dc" class="outline-3">
-<h3 id="org0cb36dc">Plug-and-Pray</h3>
-<div class="outline-text-3" id="text-org0cb36dc">
+<div id="outline-container-orgffe276d" class="outline-3">
+<h3 id="orgffe276d">Plug-and-Pray</h3>
+<div class="outline-text-3" id="text-orgffe276d">
 <p>
 The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although <code>lsusb</code> showed it, <code>iwconfig</code> didn't show it as an interface. Back to the internet. 
 </p>
 </div>
 </div>
-<div id="outline-container-org2d20924" class="outline-3">
-<h3 id="org2d20924">Github</h3>
-<div class="outline-text-3" id="text-org2d20924">
+<div id="outline-container-org3363897" class="outline-3">
+<h3 id="org3363897">Github</h3>
+<div class="outline-text-3" id="text-org3363897">
 <p>
 Next I found <a href="https://github.com/diederikdehaas/rtl8812AU">a repository on github</a> that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
 </p>
@@ -915,9 +1078,9 @@ There was also a message in the <code>make.log</code> file but I didn't remember
 </div>
 </div>
 </div>
-<div id="outline-container-org4805b39" class="outline-2">
-<h2 id="org4805b39">What fixed it</h2>
-<div class="outline-text-2" id="text-org4805b39">
+<div id="outline-container-org1e7b8d0" class="outline-2">
+<h2 id="org1e7b8d0">What fixed it</h2>
+<div class="outline-text-2" id="text-org1e7b8d0">
 <p>
 The solution was in <a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make">this StackOverflow post</a> - the <code>make</code> program is being pointed to a folder named <code>arm7l</code> (thats 'arm seven ell') but it should actually be pointed to one named <code>arm</code>. The simple solution is to create an alias with the correct name.
 </p>
@@ -932,9 +1095,9 @@ This turns out to fix the build problem and after a reboot the network interface
 </div>
 </div>
 
-<div id="outline-container-orgb3a2275" class="outline-2">
-<h2 id="orgb3a2275">Conclusion</h2>
-<div class="outline-text-2" id="text-orgb3a2275">
+<div id="outline-container-org43260d8" class="outline-2">
+<h2 id="org43260d8">Conclusion</h2>
+<div class="outline-text-2" id="text-org43260d8">
 <p>
 The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that <code>iwconfig</code> will put it in monitor mode but <code>airmon-ng</code> doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, <code>iw</code> always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
 </p>
@@ -949,9 +1112,9 @@ The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out o
             <p class="dateline"><a href="posts/wireless-bibliography/" rel="bookmark"><time class="published dt-published" datetime="2018-05-31T14:23:38-07:00" title="2018-05-31 14:23">2018-05-31 14:23</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgc86de39" class="outline-2">
-<h2 id="orgc86de39">Benchmarking</h2>
-<div class="outline-text-2" id="text-orgc86de39">
+    <div id="outline-container-org03beb4a" class="outline-2">
+<h2 id="org03beb4a">Benchmarking</h2>
+<div class="outline-text-2" id="text-org03beb4a">
 <ul class="org-ul">
 <li>[R1] Rehman S, Turletti T, Dabbous W. A Roadmap for Benchmarking in Wireless Networks. 2011 Aug 9;  (<a href="https://www.researchgate.net/publication/279405375_A_Roadmap_for_Benchmarking_in_Wireless_Networks">ResearchGate Link</a>)</li>
 </ul>
@@ -966,9 +1129,9 @@ The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out o
             <p class="dateline"><a href="posts/packet-capturing-bibliography/" rel="bookmark"><time class="published dt-published" datetime="2018-05-25T13:32:02-07:00" title="2018-05-25 13:32">2018-05-25 13:32</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-org9589615" class="outline-2">
-<h2 id="org9589615">Packet Capturing</h2>
-<div class="outline-text-2" id="text-org9589615">
+    <div id="outline-container-org39197da" class="outline-2">
+<h2 id="org39197da">Packet Capturing</h2>
+<div class="outline-text-2" id="text-org39197da">
 <ul class="org-ul">
 <li>[R3] Schulman A, Levin D, Spring N. On the fidelity of 802.11 packet traces. InInternational Conference on Passive and Active Network Measurement 2008 Apr 29 (pp. 132-141). Springer, Berlin, Heidelberg. (<a href="https://pdfs.semanticscholar.org/8cea/05cc5c93684a0d8923a3c4eddaed234361b0.pdf">PDF Link</a>)</li>
 
@@ -981,9 +1144,9 @@ The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out o
 </div>
 </div>
 
-<div id="outline-container-org572b55b" class="outline-2">
-<h2 id="org572b55b">Merging PCAP Files</h2>
-<div class="outline-text-2" id="text-org572b55b">
+<div id="outline-container-org2addce3" class="outline-2">
+<h2 id="org2addce3">Merging PCAP Files</h2>
+<div class="outline-text-2" id="text-org2addce3">
 <ul class="org-ul">
 <li>
 <p>
@@ -1007,9 +1170,9 @@ This is a presentation for a security conference. It has a list of common packet
 </ul>
 </div>
 </div>
-<div id="outline-container-org1066fc6" class="outline-2">
-<h2 id="org1066fc6">Key</h2>
-<div class="outline-text-2" id="text-org1066fc6">
+<div id="outline-container-org65a09b3" class="outline-2">
+<h2 id="org65a09b3">Key</h2>
+<div class="outline-text-2" id="text-org65a09b3">
 <ul class="org-ul">
 <li>[R&lt;number&gt;] - Research Paper</li>
 </ul>
@@ -1024,13 +1187,13 @@ This is a presentation for a security conference. It has a list of common packet
             <p class="dateline"><a href="posts/networking-tools/" rel="bookmark"><time class="published dt-published" datetime="2018-05-22T13:57:42-07:00" title="2018-05-22 13:57">2018-05-22 13:57</time></a></p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgcd7b0f7" class="outline-2">
-<h2 id="orgcd7b0f7">Packet Capturing</h2>
-<div class="outline-text-2" id="text-orgcd7b0f7">
+    <div id="outline-container-orgbbe19d5" class="outline-2">
+<h2 id="orgbbe19d5">Packet Capturing</h2>
+<div class="outline-text-2" id="text-orgbbe19d5">
 </div>
-<div id="outline-container-org5034c72" class="outline-3">
-<h3 id="org5034c72"><a href="http://staff.washington.edu/corey/gulp/">Gulp</a></h3>
-<div class="outline-text-3" id="text-org5034c72">
+<div id="outline-container-org7336ac8" class="outline-3">
+<h3 id="org7336ac8"><a href="http://staff.washington.edu/corey/gulp/">Gulp</a></h3>
+<div class="outline-text-3" id="text-org7336ac8">
 <p>
 Gulp purports to be better at capturing packets than tcpdump (although they can work together).
 </p>
@@ -1051,97 +1214,97 @@ There is more than one version out there:
 </div>
 </div>
 
-<div id="outline-container-org8401fec" class="outline-3">
-<h3 id="org8401fec"><a href="https://www.tcpdump.org">tcpdump</a></h3>
-<div class="outline-text-3" id="text-org8401fec">
+<div id="outline-container-orgc284808" class="outline-3">
+<h3 id="orgc284808"><a href="https://www.tcpdump.org">tcpdump</a></h3>
+<div class="outline-text-3" id="text-orgc284808">
 <p>
 More easily obtainable and better documentation available (although still not enough).
 </p>
 </div>
 </div>
-<div id="outline-container-orgc17ad27" class="outline-3">
-<h3 id="orgc17ad27"><a href="http://ssldump.sourceforge.net">ssldump</a></h3>
-<div class="outline-text-3" id="text-orgc17ad27">
+<div id="outline-container-orga1a6c11" class="outline-3">
+<h3 id="orga1a6c11"><a href="http://ssldump.sourceforge.net">ssldump</a></h3>
+<div class="outline-text-3" id="text-orga1a6c11">
 <p>
 Captures packets and decodes SSL/TLS packets.
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-org99fb115" class="outline-2">
-<h2 id="org99fb115">Packet Examining</h2>
-<div class="outline-text-2" id="text-org99fb115">
+<div id="outline-container-org5f88441" class="outline-2">
+<h2 id="org5f88441">Packet Examining</h2>
+<div class="outline-text-2" id="text-org5f88441">
 </div>
-<div id="outline-container-org014e519" class="outline-3">
-<h3 id="org014e519"><a href="https://github.com/mschiffm/cppip">Compressed PCAP Packet Indexing Prograpm (cppip)</a></h3>
-<div class="outline-text-3" id="text-org014e519">
+<div id="outline-container-org8fb3040" class="outline-3">
+<h3 id="org8fb3040"><a href="https://github.com/mschiffm/cppip">Compressed PCAP Packet Indexing Prograpm (cppip)</a></h3>
+<div class="outline-text-3" id="text-org8fb3040">
 <p>
 This adds indexing to <a href="http://www.htslib.org/doc/bgzip.html">bgzip</a> compressed LibPCAP files which then lets you extract them while the original files are still compressed.
 </p>
 </div>
 </div>
-<div id="outline-container-orgb277739" class="outline-3">
-<h3 id="orgb277739"><a href="https://linux.die.net/man/8/tcpslice">tcpslice</a></h3>
-<div class="outline-text-3" id="text-orgb277739">
+<div id="outline-container-org80b49ce" class="outline-3">
+<h3 id="org80b49ce"><a href="https://linux.die.net/man/8/tcpslice">tcpslice</a></h3>
+<div class="outline-text-3" id="text-org80b49ce">
 <p>
 This lets you extract part of or combine files created by tcpdump when using file rotation.
 </p>
 </div>
 </div>
-<div id="outline-container-org15a618f" class="outline-3">
-<h3 id="org15a618f"><a href="https://github.com/jpr5/ngrep">ngrep</a></h3>
-<div class="outline-text-3" id="text-org15a618f">
+<div id="outline-container-org36a4eae" class="outline-3">
+<h3 id="org36a4eae"><a href="https://github.com/jpr5/ngrep">ngrep</a></h3>
+<div class="outline-text-3" id="text-org36a4eae">
 <p>
 Describes itself as like GNU grep but for packets.
 </p>
 </div>
 </div>
-<div id="outline-container-org393f049" class="outline-3">
-<h3 id="org393f049">
+<div id="outline-container-orge6e5fd5" class="outline-3">
+<h3 id="orge6e5fd5">
 <a href="https://github.com/signed0/pylibpcap">pylibpcap</a>, <a href="https://github.com/pynetwork/pypcap">pypcap</a>
 </h3>
-<div class="outline-text-3" id="text-org393f049">
+<div class="outline-text-3" id="text-orge6e5fd5">
 <p>
 Python code to work with libpcap.
 </p>
 </div>
 </div>
-<div id="outline-container-orga1eaa33" class="outline-3">
-<h3 id="orga1eaa33">WireShark</h3>
-<div class="outline-text-3" id="text-orga1eaa33">
+<div id="outline-container-org19ceb83" class="outline-3">
+<h3 id="org19ceb83">WireShark</h3>
+<div class="outline-text-3" id="text-org19ceb83">
 <p>
 These are installed when you install wireshark.
 </p>
 </div>
-<div id="outline-container-orge72b423" class="outline-4">
-<h4 id="orge72b423">
+<div id="outline-container-org531c71d" class="outline-4">
+<h4 id="org531c71d">
 <a href="https://www.wireshark.org/docs/man-pages/tshark.html">tshark</a>/<a href="https://www.wireshark.org">wireshark</a>
 </h4>
-<div class="outline-text-4" id="text-orge72b423">
+<div class="outline-text-4" id="text-org531c71d">
 <p>
 Packet capturing and examining (better documented than most of the other programs)
 </p>
 </div>
 </div>
-<div id="outline-container-orga6ad3a5" class="outline-4">
-<h4 id="orga6ad3a5"><a href="https://www.wireshark.org/docs/man-pages/reordercap.html">reordercap</a></h4>
-<div class="outline-text-4" id="text-orga6ad3a5">
+<div id="outline-container-org9e3d9c8" class="outline-4">
+<h4 id="org9e3d9c8"><a href="https://www.wireshark.org/docs/man-pages/reordercap.html">reordercap</a></h4>
+<div class="outline-text-4" id="text-org9e3d9c8">
 <p>
 Reorders the packets by timestamp.
 </p>
 </div>
 </div>
-<div id="outline-container-orgf098b74" class="outline-4">
-<h4 id="orgf098b74"><a href="https://www.wireshark.org/docs/man-pages/capinfos.html">capinfos</a></h4>
-<div class="outline-text-4" id="text-orgf098b74">
+<div id="outline-container-orgf6ff28c" class="outline-4">
+<h4 id="orgf6ff28c"><a href="https://www.wireshark.org/docs/man-pages/capinfos.html">capinfos</a></h4>
+<div class="outline-text-4" id="text-orgf6ff28c">
 <p>
 This prints summary information about packe files (works with gzipped files).
 </p>
 </div>
 </div>
-<div id="outline-container-orgb532910" class="outline-4">
-<h4 id="orgb532910"><a href="https://www.wireshark.org/docs/man-pages/mergecap.html">mergecap</a></h4>
-<div class="outline-text-4" id="text-orgb532910">
+<div id="outline-container-orgc4cbdad" class="outline-4">
+<h4 id="orgc4cbdad"><a href="https://www.wireshark.org/docs/man-pages/mergecap.html">mergecap</a></h4>
+<div class="outline-text-4" id="text-orgc4cbdad">
 <p>
 Merges multiple packet files together. Mergecap will try to keep timestamps in order when merging, but it assumes each individual file to merge is already in order.
 </p>
@@ -1149,205 +1312,109 @@ Merges multiple packet files together. Mergecap will try to keep timestamps in o
 </div>
 </div>
 </div>
-<div id="outline-container-orgc10a13e" class="outline-2">
-<h2 id="orgc10a13e">Packet Flows</h2>
-<div class="outline-text-2" id="text-orgc10a13e">
+<div id="outline-container-org7e29bfe" class="outline-2">
+<h2 id="org7e29bfe">Packet Flows</h2>
+<div class="outline-text-2" id="text-org7e29bfe">
 </div>
-<div id="outline-container-org7df92c8" class="outline-3">
-<h3 id="org7df92c8"><a href="http://tcpick.sourceforge.net">tcpick</a></h3>
-<div class="outline-text-3" id="text-org7df92c8">
+<div id="outline-container-orge816175" class="outline-3">
+<h3 id="orge816175"><a href="http://tcpick.sourceforge.net">tcpick</a></h3>
+<div class="outline-text-3" id="text-orge816175">
 <p>
 Track, reassemble, reorder TCP streams.
 </p>
 </div>
 </div>
-<div id="outline-container-org4c829c5" class="outline-3">
-<h3 id="org4c829c5"><a href="http://www.tcptrace.org">tcptrace</a></h3>
-<div class="outline-text-3" id="text-org4c829c5">
+<div id="outline-container-orgb3905e2" class="outline-3">
+<h3 id="orgb3905e2"><a href="http://www.tcptrace.org">tcptrace</a></h3>
+<div class="outline-text-3" id="text-orgb3905e2">
 <p>
 Gives connection information taken from a capture file.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org8564d64" class="outline-3">
-<h3 id="org8564d64"><a href="https://github.com/simsong/tcpflow">tcpflow</a></h3>
-<div class="outline-text-3" id="text-org8564d64">
+<div id="outline-container-org8ee7e13" class="outline-3">
+<h3 id="org8ee7e13"><a href="https://github.com/simsong/tcpflow">tcpflow</a></h3>
+<div class="outline-text-3" id="text-org8ee7e13">
 <p>
 Separates out TCP flows into separate files.
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-orgc3e78ce" class="outline-2">
-<h2 id="orgc3e78ce">Capture Summarizing</h2>
-<div class="outline-text-2" id="text-orgc3e78ce">
+<div id="outline-container-org914cf2a" class="outline-2">
+<h2 id="org914cf2a">Capture Summarizing</h2>
+<div class="outline-text-2" id="text-org914cf2a">
 </div>
-<div id="outline-container-org8b57346" class="outline-3">
-<h3 id="org8b57346"><a href="https://www.wireshark.org/docs/man-pages/capinfos.html">capinfos</a></h3>
+<div id="outline-container-org4273007" class="outline-3">
+<h3 id="org4273007"><a href="https://www.wireshark.org/docs/man-pages/capinfos.html">capinfos</a></h3>
 </div>
-<div id="outline-container-org8e398d8" class="outline-3">
-<h3 id="org8e398d8"><a href="https://github.com/kohler/ipsumdump">ipsumdump</a></h3>
-<div class="outline-text-3" id="text-org8e398d8">
+<div id="outline-container-org2ecd725" class="outline-3">
+<h3 id="org2ecd725"><a href="https://github.com/kohler/ipsumdump">ipsumdump</a></h3>
+<div class="outline-text-3" id="text-org2ecd725">
 <p>
 Summarizes packet information in ASCII format
 </p>
 </div>
 </div>
-<div id="outline-container-orgfd3d705" class="outline-3">
-<h3 id="orgfd3d705"><a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html">tcpdstat</a></h3>
-<div class="outline-text-3" id="text-orgfd3d705">
+<div id="outline-container-org5601c9b" class="outline-3">
+<h3 id="org5601c9b"><a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html">tcpdstat</a></h3>
+<div class="outline-text-3" id="text-org5601c9b">
 <p>
 Gives summary statistics for a pcap file
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-org9db556f" class="outline-2">
-<h2 id="org9db556f">Network Monitoring</h2>
-<div class="outline-text-2" id="text-org9db556f">
+<div id="outline-container-org7c2af90" class="outline-2">
+<h2 id="org7c2af90">Network Monitoring</h2>
+<div class="outline-text-2" id="text-org7c2af90">
 </div>
-<div id="outline-container-orgad6e9b0" class="outline-3">
-<h3 id="orgad6e9b0"><a href="https://www.ntop.org">ntop</a></h3>
-<div class="outline-text-3" id="text-orgad6e9b0">
+<div id="outline-container-org6da655c" class="outline-3">
+<h3 id="org6da655c"><a href="https://www.ntop.org">ntop</a></h3>
+<div class="outline-text-3" id="text-org6da655c">
 <p>
 Like top but for the network.
 </p>
 </div>
 </div>
-<div id="outline-container-org9ff89f6" class="outline-3">
-<h3 id="org9ff89f6"><a href="http://man7.org/linux/man-pages/man8/ss.8.html">ss (socket statistics)</a></h3>
-<div class="outline-text-3" id="text-org9ff89f6">
+<div id="outline-container-org907ea7b" class="outline-3">
+<h3 id="org907ea7b"><a href="http://man7.org/linux/man-pages/man8/ss.8.html">ss (socket statistics)</a></h3>
+<div class="outline-text-3" id="text-org907ea7b">
 <p>
 Part of <a href="https://en.wikipedia.org/wiki/Iproute2">iproute2</a>
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-orgd83500f" class="outline-2">
-<h2 id="orgd83500f">Miscellaneous</h2>
-<div class="outline-text-2" id="text-orgd83500f">
+<div id="outline-container-orga1cba2d" class="outline-2">
+<h2 id="orga1cba2d">Miscellaneous</h2>
+<div class="outline-text-2" id="text-orga1cba2d">
 </div>
-<div id="outline-container-org5130709" class="outline-3">
-<h3 id="org5130709"><a href="http://tcpreplay.appneta.com/">tcpreplay</a></h3>
-<div class="outline-text-3" id="text-org5130709">
+<div id="outline-container-orgef84892" class="outline-3">
+<h3 id="orgef84892"><a href="http://tcpreplay.appneta.com/">tcpreplay</a></h3>
+<div class="outline-text-3" id="text-orgef84892">
 <p>
 A suite of programs to edit and replay pcap files.
 </p>
 </div>
 </div>
-<div id="outline-container-orge1db049" class="outline-3">
-<h3 id="orge1db049"><a href="https://en.wikipedia.org/wiki/Netcat">netcat</a></h3>
-<div class="outline-text-3" id="text-orge1db049">
+<div id="outline-container-orgb8b7a00" class="outline-3">
+<h3 id="orgb8b7a00"><a href="https://en.wikipedia.org/wiki/Netcat">netcat</a></h3>
+<div class="outline-text-3" id="text-orgb8b7a00">
 <p>
 Read from and write to TCP/UDP network connections.
 </p>
 </div>
 </div>
-<div id="outline-container-org1564250" class="outline-3">
-<h3 id="org1564250"><a href="https://linux.die.net/man/1/socat">socat</a></h3>
-<div class="outline-text-3" id="text-org1564250">
+<div id="outline-container-org791e65c" class="outline-3">
+<h3 id="org791e65c"><a href="https://linux.die.net/man/1/socat">socat</a></h3>
+<div class="outline-text-3" id="text-org791e65c">
 <p>
 Route data between byte streams.
 </p>
 </div>
 </div>
-</div>
-    </div>
-    </article><article class="h-entry post-text"><header><h1 class="p-name entry-title"><a href="posts/the-flask-debug-server/" class="u-url">The Flask Debug Server</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
-            </span></p>
-            <p class="dateline"><a href="posts/the-flask-debug-server/" rel="bookmark"><time class="published dt-published" datetime="2018-05-20T13:53:54-07:00" title="2018-05-20 13:53">2018-05-20 13:53</time></a></p>
-        </div>
-    </header><div class="e-content entry-content">
-    <div id="outline-container-org027cb85" class="outline-2">
-<h2 id="org027cb85">Background</h2>
-<div class="outline-text-2" id="text-org027cb85">
-<p>
-This is documented on the <a href="//flask.pocoo.org/docs/">Flask site</a>, but I was trying to help someone debug some old server code that I'd written and couldn't remember how to debug it, so I'm documenting it here as I go through remembering it again so I'll have a single reference to use the next time. Some of the settings look different from what I remember using so I think that Flask has changed a little over time, but since I didn't document it the first time I don't have a record to compare against (well, I probably have some notes in a notebook but it's hard to refer to that when sitting at someone else's desk).
-</p>
-</div>
-</div>
-<div id="outline-container-org6fa73ac" class="outline-2">
-<h2 id="org6fa73ac">Setup</h2>
-<div class="outline-text-2" id="text-org6fa73ac">
-<p>
-The <a href="http://flask.pocoo.org/docs/1.0/quickstart/">Flask Quickstart</a> tells you what to do, but for some reason when we googled it, the instructions were different, I think it might have lead us to an older form of the documentation. This is the current version (May 20, 2018.)
-</p>
-</div>
-<div id="outline-container-org570467e" class="outline-3">
-<h3 id="org570467e">The Environment Variables</h3>
-<div class="outline-text-3" id="text-org570467e">
-</div>
-<div id="outline-container-org1fcf849" class="outline-4">
-<h4 id="org1fcf849">The Flask App</h4>
-<div class="outline-text-4" id="text-org1fcf849">
-<p>
-First you have to tell flask which file contains your flask app by setting the <code>FLASK_APP</code> environment variable. In my case I'm using <a href="https://github.com/zalando/connexion">connexion</a>, an oddly-named adapter that adds support for <a href="https://swagger.io/">swagger/OpenApi</a> to Flask. So the file that has the app has this line in it.
-</p>
-
-<div class="highlight"><pre><span></span><span class="n">application</span> <span class="o">=</span> <span class="n">connexion</span><span class="o">.</span><span class="n">FlaskApp</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</pre></div>
-
-<p>
-In this case that's a file named <code>api.py</code> which we'll say is in the <code>server</code> folder (it isn't, but that's okay) so we need to set our environment accordingly. I use the fish shell so the syntax is slightly different from the Quick Start example. Also - and this caused me a lot of trouble - when I didn't pass in the name of my <code>FlaskApp</code> instance I got this error:
-</p>
-
-<pre class="example">
-Error: Failed to find application in module "server.api".  Are you sure it contains a Flask application?  Maybe you wrapped it in a WSGI middleware or you are using a factory function.
-</pre>
-
-<p>
-So I had to specifically tell flask the name of my app by appending it to the end of the setting (perhaps it is looking for <code>app</code> specifically, but I called mine <code>application</code>).
-</p>
-
-<div class="highlight"><pre><span></span><span class="nb">set</span> -x FLASK_APP server.api:application
-</pre></div>
-</div>
-</div>
-<div id="outline-container-orgd96edee" class="outline-4">
-<h4 id="orgd96edee">Development Mode</h4>
-<div class="outline-text-4" id="text-orgd96edee">
-<p>
-If you want the server to automatically reload when it detects changes then you should to set the <code>FLASK_ENV</code> environment variable to <code>development</code>. This is similar to using <code>FLASK_DEBUG</code> but I think it adds the reloading. Anyway, it does more than just set debug mode.
-</p>
-
-<div class="highlight"><pre><span></span><span class="nb">set</span> -x FLASK_ENV development
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div id="outline-container-org3dd285e" class="outline-2">
-<h2 id="org3dd285e">Run It</h2>
-<div class="outline-text-2" id="text-org3dd285e">
-</div>
-<div id="outline-container-org6122c6b" class="outline-3">
-<h3 id="org6122c6b">The Development server</h3>
-<div class="outline-text-3" id="text-org6122c6b">
-<p>
-This is the output of the help string for the <a href="http://flask.pocoo.org/docs/1.0/server/#server">development server</a>, note that it uses <code>-h</code> for <code>host</code> so you need to pass in <code>--help</code> to see this output or you will get an error.
-</p>
-<div class="highlight"><pre><span></span>flask run --help
-</pre></div>
-</div>
-</div>
-<div id="outline-container-orge215525" class="outline-3">
-<h3 id="orge215525">Public Server</h3>
-<div class="outline-text-3" id="text-orge215525">
-<p>
-The default server runs on localhost, but since I'm hosting the code on a <a href="https://www.raspberrypi.org/">raspberry pi</a> sitting on the network somewhere but debugging it remotely, I need to run it on a public address.
-</p>
-
-<div class="highlight"><pre><span></span>flask run --host<span class="o">=</span><span class="m">0</span>.0.0.0
-</pre></div>
-</div>
-</div>
-</div>
-<div id="outline-container-org7859384" class="outline-2">
-<h2 id="org7859384">Make it repeatable</h2>
 </div>
     </div>
     </article>
