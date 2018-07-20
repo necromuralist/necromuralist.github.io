@@ -1,0 +1,151 @@
+#+BEGIN_COMMENT
+.. title: The Linux IPv6 Router Advertisement Daemon (radvd)
+.. slug: the-linux-ipv6-router-advertisement-daemon-radvd
+.. date: 2018-07-20 11:12:11 UTC-07:00
+.. tags: howto networking
+.. category: networking
+.. link: 
+.. description: How to set up radvd on ubuntu.
+.. type: text
+#+END_COMMENT
+
+* Background
+  [[http://www.litech.org/radvd/][radvd]] (the router advertisement daemon) sends IPv6 advertisements and responds to node IPv6 requests. Here's the description from the man page.
+
+#+BEGIN_QUOTE
+*radvd* is the router advertisement daemon for IPv6. It listens to router solicitations and sends router advertisements as described in "Neighbor Discovery for IP Version 6 (IPv6)" (RFC 4861). With these advertisements hosts can automatically configure their addresses and some other parameters. They also can choose a default router based on these advertisements. 
+#+END_QUOTE
+
+* Installation and Setup
+  Setting *radvd* is suspiciously easy compared to other linux services. First you install it.
+
+#+BEGIN_EXAMPLE
+sudo apt install radvd
+#+END_EXAMPLE
+
+Installing it will also start the service so we can use =systemctl= to check how it's doing.
+
+#+BEGIN_EXAMPLE
+systemctl status radvd
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+systemctl status radvd
+● radvd.service - LSB: Router Advertising Daemon
+   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
+   Active: active (exited) since Fri 2018-07-20 12:39:19 PDT; 36s ago
+     Docs: man:systemd-sysv-generator(8)
+
+Jul 20 12:39:18 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
+Jul 20 12:39:19 asgaard radvd[8532]: Starting radvd:
+Jul 20 12:39:19 asgaard radvd[8532]: * /etc/radvd.conf does not exist or is empty.
+Jul 20 12:39:19 asgaard radvd[8532]: * See /usr/share/doc/radvd/README.Debian
+Jul 20 12:39:19 asgaard radvd[8532]: * radvd will *not* be started.
+Jul 20 12:39:19 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
+#+END_EXAMPLE
+
+You can see in the output that there's a line with =/etc/radvd.conf does not exist or is empty.=. To fix this we're going to create the configuration file.
+
+** The Configuration File
+Now create a configuration file (named =radvd.conf=). Here's an example.
+
+#+BEGIN_EXAMPLE
+interface eth0
+{
+MinRtrAdvInterval 3;
+MaxRtrAdvInterval 4;
+AdvSendAdvert on;
+AdvManagedFlag on;
+prefix 2001:db7::/64
+{ AdvValidLifetime 14300; AdvPreferredLifetime 14200; }
+;
+};
+#+END_EXAMPLE
+
+Note that the interface name depends on your system. Most linux systems don't use the =eth0= convention anymore. On my desktop the ethernet inteface is called =enp1s0= and on my raspberry pi it's =enxb827eb6c9129= so make sure you check what your interface name is using =ifconfig=.
+
+Now move (or copy) the config file into =/etc/=
+
+#+BEGIN_EXAMPLE
+sudo mv radvd.conf /etc/
+#+END_EXAMPLE
+
+And then restart =radvd= and check its state.
+
+#+BEGIN_EXAMPLE
+sudo service radvd restart
+systemctl status radvd
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+● radvd.service - LSB: Router Advertising Daemon
+   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
+   Active: active (exited) since Fri 2018-07-20 12:41:36 PDT; 2s ago
+     Docs: man:systemd-sysv-generator(8)
+  Process: 10008 ExecStop=/etc/init.d/radvd stop (code=exited, status=0/SUCCESS)
+  Process: 10017 ExecStart=/etc/init.d/radvd start (code=exited, status=0/SUCCESS)
+
+Jul 20 12:41:36 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
+Jul 20 12:41:36 asgaard radvd[10017]: Starting radvd:
+Jul 20 12:41:36 asgaard radvd[10017]: * IPv6 forwarding seems to be disabled.
+Jul 20 12:41:36 asgaard radvd[10017]: * See /usr/share/doc/radvd/README.Debian
+Jul 20 12:41:36 asgaard radvd[10017]: * radvd will *not* be started.
+Jul 20 12:41:36 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
+#+END_EXAMPLE
+
+So the warning about the configuration file went away, now we have to fix the =IPv6 forwarding seems to be disabled.= error.
+
+** Enable IPv6 Forwarding
+   For now you can enable it at the command line.
+
+#+BEGIN_EXAMPLE
+sudo sysctl -w net.ipv6.conf.all.forwarding=1
+#+END_EXAMPLE
+
+And restart and check =radvd= again.
+
+#+BEGIN_EXAMPLE
+sudo service radvd restart
+systemctl status radvd
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+● radvd.service - LSB: Router Advertising Daemon
+   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
+   Active: active (running) since Fri 2018-07-20 12:45:02 PDT; 20s ago
+     Docs: man:systemd-sysv-generator(8)
+  Process: 12255 ExecStop=/etc/init.d/radvd stop (code=exited, status=0/SUCCESS)
+  Process: 12264 ExecStart=/etc/init.d/radvd start (code=exited, status=0/SUCCESS)
+   CGroup: /system.slice/radvd.service
+           ├─12275 /usr/sbin/radvd -u radvd -p /var/run/radvd/radvd.pid
+           └─12276 /usr/sbin/radvd -u radvd -p /var/run/radvd/radvd.pid
+
+Jul 20 12:45:01 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
+Jul 20 12:45:02 asgaard radvd[12274]: version 2.11 started
+Jul 20 12:45:02 asgaard radvd[12264]: Starting radvd: radvd.
+Jul 20 12:45:02 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
+#+END_EXAMPLE
+
+So it looks like our daemon is working. If you restart the server, though, the IPv6 port forwarding won't be enabled so open up =/etc/sysctl.conf= and un-comment out the following line.
+
+#+BEGIN_EXAMPLE
+net.ipv6.conf.all.forwarding=1
+#+END_EXAMPLE
+
+Now the next time you power on the computer it should be enabled.
+
+* Checking
+  To check if it's working you can put another device on the LAN and check =ifconfig=. In our =radvd.conf= file we defined the prefix for the address:
+
+#+BEGIN_EXAMPLE
+prefix 2001:db7::/64
+#+END_EXAMPLE
+
+So in the =ifconfig= output  we should see an entry for an IPv6 address that starts with =2001:db7::=. In fact I ended up with two.
+
+#+BEGIN_EXAMPLE
+        inet6 2001:db7::b8b4:6adf:6267:5571  prefixlen 64  scopeid 0x0<global>
+        inet6 2001:db7::a80c:1a05:eaac:c1e8  prefixlen 64  scopeid 0x0<global>
+#+END_EXAMPLE
+* Sources
+  - [[https://www.linux.com/learn/intro-to-linux/2017/12/ipv6-auto-configuration-linux][IPv6 auto-configuration]] - how to setup *radvd* (from linux.com)
