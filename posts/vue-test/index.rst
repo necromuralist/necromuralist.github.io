@@ -1,0 +1,29 @@
+.. title: Vue Test
+.. slug: vue-test
+.. date: 2018-07-20 18:52:53 UTC-07:00
+.. tags: 
+.. category: 
+.. link: 
+.. description: 
+.. type: text
+
+.. raw:: html
+
+   <div id="app">
+     <p v-if="isMorning">Go away, it's too early!</p>
+     <p v-if="isAfternoon">Go away, it's time for my nap!</p>
+     <p v-if="isEvening">Go away, it's too late!</p>
+     <p v-else>What the hell</p>
+   </div>
+
+   <script>
+     var hours = new Date().getHours();
+     new Vue({
+        el: "#app",
+        data: {
+          isMorning: hours < 12,
+          isAfternoon: hours >= 12 && hours < 18,
+          isEvening: hours >= 18
+        }
+     });
+   </script>
