@@ -146,6 +146,8 @@ NAVIGATION_LINKS = {
                  "Boston Housing Project"),
                 ("https://necromuralist.github.io/data_science/",
                  "Data Science With Python"),
+                ("https://necromuralist.github.io/reading-list/",
+                 "Reading Notes"),
             ),
             "Projects"
         ),
