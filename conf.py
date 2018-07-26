@@ -151,7 +151,12 @@ NAVIGATION_LINKS = {
             ),
             "Projects"
         ),
-
+        (
+            (
+                ("https://necromuralist.github.io/vue_practice/", "Vue Practice"),
+            ),
+            "Pages"
+        ),
     ),
 }
 
@@ -1204,5 +1209,4 @@ EXTRA_HEAD_DATA = """
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 """
