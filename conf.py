@@ -147,14 +147,16 @@ NAVIGATION_LINKS = {
         ),
         (
             (
-                ("https://necromuralist.github.io/vue_practice/", "Vue Practice"),
+                ("https://necromuralist.github.io/machine-learning-studies/",
+                 "Machine Learning Studies"),
+                ("https://necromuralist.github.io/p5_explorations/",
+                 "P5 Explorations"),
                 ("https://necromuralist.github.io/reading-list/",
                  "Reading Notes"),
                 ("https://necromuralist.github.io/text-processing/", "Notes on Text-Procesing"),
                 ("https://necromuralist.github.io/tddmachinelearning/",
                  "TDD Machine Learning"),
-                ("https://necromuralist.github.io/p5_explorations/",
-                 "P5 Explorations"),
+                ("https://necromuralist.github.io/vue_practice/", "Vue Practice"),
             ),
             "Pages"
         ),
