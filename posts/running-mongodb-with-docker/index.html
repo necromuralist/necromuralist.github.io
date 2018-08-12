@@ -76,6 +76,9 @@
 <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pages <b class="caret"></b></a>
             <ul class="dropdown-menu">
 <li>
+<a href="https://necromuralist.github.io/kaggle-competitions/">Kaggle Competitions</a>
+                    </li>
+<li>
 <a href="https://necromuralist.github.io/machine-learning-studies/">Machine Learning Studies</a>
                     </li>
 <li>
@@ -143,21 +146,21 @@
 <p>I am working through O'Reilly's <cite>Data Visualization with Python and JavaScript</cite> and the chapter on reading and writing data uses MongoDB (among other things) as an example. I've wanted to isolate my exploratory/development software installation as much as possible. With python this is fairly easy (thanks to <cite>virtualenv</cite>), and <cite>npm</cite> can make isolating javascript installations easier, but I wanted to try and use Docker to isolate any other things I had to install so this is a first step. It's actuall a second step, since I already have a Redis container, but I didnt' take any notes when I installed it so I don't really remember doing it, and I'm going to extend the use of docker to handle all the intallations I make while reading this book so it's a first-step for this reason, at least.</p>
 <p>Anyway, here's what to do.</p>
 <p>First pull the <cite>mongo</cite> docker image.</p>
-<pre class="code bash"><a name="rest_code_d82c6434a6b44db484b3a7c997189bba-1"></a>docker pull mongo
+<pre class="code bash"><a name="rest_code_19b009cd4ff1455b86bf95d22ae0a2db-1"></a>docker pull mongo
 </pre>
 <p>To check that it's there after everything is done you can run <tt class="docutils literal">docker images</tt> and you should see something like this.</p>
-<pre class="code bash"><a name="rest_code_1b8b14c777a54570b429f613a8de614b-1"></a>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-<a name="rest_code_1b8b14c777a54570b429f613a8de614b-2"></a>mongo               latest              282fd552add6        <span class="m">2</span> days ago          <span class="m">336</span>.1 MB
-<a name="rest_code_1b8b14c777a54570b429f613a8de614b-3"></a>redis               latest              be9c5a746699        <span class="m">5</span> weeks ago         <span class="m">184</span>.9 MB
+<pre class="code bash"><a name="rest_code_f7fdde57c9854863aa9a14fcd16b1679-1"></a>REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+<a name="rest_code_f7fdde57c9854863aa9a14fcd16b1679-2"></a>mongo               latest              282fd552add6        <span class="m">2</span> days ago          <span class="m">336</span>.1 MB
+<a name="rest_code_f7fdde57c9854863aa9a14fcd16b1679-3"></a>redis               latest              be9c5a746699        <span class="m">5</span> weeks ago         <span class="m">184</span>.9 MB
 </pre>
 <p>In this case I want the connection to Mongo DB to be available so I'm going to bind its local port (27017) to my host. I'm also going mount my local data file in the container so it will save its data my local folder.</p>
-<pre class="code bash"><a name="rest_code_0de3b416003243b3b88105ba663d4f33-1"></a>docker run --name mongo -p <span class="m">27017</span>:27017 -v <span class="nv">$PWD</span>/data:/data/db -d mongo
+<pre class="code bash"><a name="rest_code_5d957247b28c44efb9bd62d78fb274f9-1"></a>docker run --name mongo -p <span class="m">27017</span>:27017 -v <span class="nv">$PWD</span>/data:/data/db -d mongo
 </pre>
 <p>The <tt class="docutils literal"><span class="pre">--name</span></tt> flag gives the name that you'll see if you run <tt class="docutils literal">docker ps</tt> to see the running containers. <tt class="docutils literal"><span class="pre">-p</span> 27017:27017</tt> makes it available to my host machine via <tt class="docutils literal">localhost:27017</tt>. <tt class="docutils literal"><span class="pre">-v</span> <span class="pre">$PWD/data:/data/db</span></tt> mounts the <tt class="docutils literal">data</tt> folder in the directory where I ran the docker command inside the container at <tt class="docutils literal">/data/db</tt>. <tt class="docutils literal"><span class="pre">-d</span></tt> says to run it as a daemon. Finally the last argument <tt class="docutils literal">mongo</tt> identifies the image for the container.</p>
 <p>At this point MongoDb is accessible from my host machine, so, using <tt class="docutils literal">pymongo</tt> I can connect to it using something like this.</p>
-<pre class="code python"><a name="rest_code_9262f76fb2024da79865aa6b73694cc4-1"></a><span class="kn">from</span> <span class="nn">pymongo</span> <span class="kn">import</span> <span class="n">MongoClient</span>
-<a name="rest_code_9262f76fb2024da79865aa6b73694cc4-2"></a>
-<a name="rest_code_9262f76fb2024da79865aa6b73694cc4-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">MongoClient</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span> <span class="mi">27017</span><span class="p">)</span>
+<pre class="code python"><a name="rest_code_12a10bba4fa34da08c64841659539f27-1"></a><span class="kn">from</span> <span class="nn">pymongo</span> <span class="kn">import</span> <span class="n">MongoClient</span>
+<a name="rest_code_12a10bba4fa34da08c64841659539f27-2"></a>
+<a name="rest_code_12a10bba4fa34da08c64841659539f27-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">MongoClient</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span> <span class="mi">27017</span><span class="p">)</span>
 </pre>
 <p>And that's it.</p>
 </div>

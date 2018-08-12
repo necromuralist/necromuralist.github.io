@@ -1,0 +1,57 @@
+#+BEGIN_COMMENT
+.. title: Disabling Sub-scripting in Org-Mode
+.. slug: disabling-subscripting-in-org-mode
+.. date: 2018-08-03 08:12:01 UTC-07:00
+.. tags: emacs orgmode howto
+.. category: orgmode
+.. link: 
+.. description: Disabling the underscore in org-mode.
+.. type: text
+#+END_COMMENT
+#+OPTIONS: ^:{}
+
+* The Problem
+  If you use underscores in org-mode it will treat them almost the way [[https://en.wikipedia.org/wiki/LaTeX#Versions][latex]] does, changing the text that immediately follows the underscore as a sub-string.
+
+This:
+
+#+BEGIN_EXAMPLE
+before-the-underscore_aftertheunderscore
+#+END_EXAMPLE
+
+Is rendered as this:
+
+  before-the-underscore_{aftertheunderscore}
+
+But sometimes you just want an underscore (especially if you are writing about python code).
+
+* Stack Overflow to the Rescue (Again)
+  I found the answer [[https://stackoverflow.com/questions/698562/disabling-underscore-to-subscript-in-emacs-org-mode-export][on Stack Overflow]] (of course) - you can add an =#+OPTIONS= directive to the file to disable this behavior. I originally went with the accepted answer which was to add =#+OPTIONS: ^:nil=, and it works in most cases, but then I couldn't figure out how to write this post, since the underscores stopped working and I didn't want to have to use MathJax to show what I meant (although maybe that wouldn't be so bad), so now I think the better answer is the one given by [[https://stackoverflow.com/users/60183/danielpoe][danielpoe]] in the comments - use =#+OPTIONS: ^:{}= instead. This disables the sub-scripting behavior of the underscore in most cases but allows you to add sub-scripting by putting the text following the underscore in curly-braces.
+
+I wrote the example above, for instance, like this:
+
+#+BEGIN_EXAMPLE
+before-the-underscore_{aftertheunderscore}
+#+END_EXAMPLE
+
+* A Final Note
+
+This solution doesn't replicate the original org-mode behavior completely when you use the curly-braces. Without the directive if you have multiple underscores org-mode puts everything after the first underscore in the sub-string and removes all subsequent underscores, smashing the words together.
+
+When I wrote this:
+
+#+BEGIN_EXAMPLE
+before-the-underscore_after_the_under_score
+#+END_EXAMPLE
+
+It came out as this:
+
+ before-the-underscore_{aftertheunderscore}
+
+But the curly-braces keeps them:
+
+ before-the-underscore_{after_the_under_score}
+
+Which seems like an improvement anyway. 
+
+The only problem now is that I keep forgetting what to type in every time I want to use an underscore, which is why I'm making this post.
