@@ -136,22 +136,30 @@ NAVIGATION_LINKS = {
         (
             (
                 ("/machine-learning-projects/", "Machine Learning"),
-                ("https://necromuralist.github.io/p5_explorations/",
-                 "P5 Explorations"),
-                ("https://necromuralist.github.io/tddmachinelearning/",
-                 "TDD Machine Learning"),
                 ("https://necromuralist.github.io/student_intervention/",
                  "Student Intervention Project"),
                 ("https://necromuralist.github.io/boston_housing/",
                  "Boston Housing Project"),
                 ("https://necromuralist.github.io/data_science/",
                  "Data Science With Python"),
-                ("https://necromuralist.github.io/reading-list/",
-                 "Reading Notes"),
             ),
             "Projects"
         ),
-
+        (
+            (
+                ("https://necromuralist.github.io/machine-learning-studies/",
+                 "Machine Learning Studies"),
+                ("https://necromuralist.github.io/p5_explorations/",
+                 "P5 Explorations"),
+                ("https://necromuralist.github.io/reading-list/",
+                 "Reading Notes"),
+                ("https://necromuralist.github.io/text-processing/", "Notes on Text-Procesing"),
+                ("https://necromuralist.github.io/tddmachinelearning/",
+                 "TDD Machine Learning"),
+                ("https://necromuralist.github.io/vue_practice/", "Vue Practice"),
+            ),
+            "Pages"
+        ),
     ),
 }
 
@@ -1204,5 +1212,4 @@ EXTRA_HEAD_DATA = """
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 """
