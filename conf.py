@@ -147,6 +147,8 @@ NAVIGATION_LINKS = {
         ),
         (
             (
+                ("https://necromuralist.github.io/kaggle-competitions/",
+                 "Kaggle Competitions"),
                 ("https://necromuralist.github.io/machine-learning-studies/",
                  "Machine Learning Studies"),
                 ("https://necromuralist.github.io/p5_explorations/",
