@@ -1,7 +1,7 @@
 .. title: Data Visualization Bibliography
 .. slug: data-visualization-bibliography
 .. date: 2018-02-27 13:44:37 UTC-08:00
-.. tags: bibliography data visualization
+.. tags: bibliography, data visualization
 .. category: bibliography
 .. link: 
 .. description: A collection of sources for data visualization.

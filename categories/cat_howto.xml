@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about HowTo)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_howto.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><lastBuildDate>Wed, 15 Aug 2018 03:50:00 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>OpenVPN on Ubuntu 18.04</title><link>https://necromuralist.github.io/posts/openvpn-on-ubuntu-1804/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9b3ef53" class="outline-2"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about HowTo)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_howto.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2018 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 20 Sep 2018 15:06:33 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>OpenVPN on Ubuntu 18.04</title><link>https://necromuralist.github.io/posts/openvpn-on-ubuntu-1804/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9b3ef53" class="outline-2"&gt;
 &lt;h2 id="org9b3ef53"&gt;Introduction&lt;/h2&gt;
 &lt;div class="outline-text-2" id="text-org9b3ef53"&gt;
 &lt;p&gt;
@@ -648,191 +648,7 @@ This turns out to fix the build problem and after a reboot the network interface
 The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that &lt;code&gt;iwconfig&lt;/code&gt; will put it in monitor mode but &lt;code&gt;airmon-ng&lt;/code&gt; doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, &lt;code&gt;iw&lt;/code&gt; always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>rapsberrypi wireless howto</category><guid>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</guid><pubDate>Sun, 03 Jun 2018 22:57:12 GMT</pubDate></item><item><title>Monitor Mode With airmon-ng</title><link>https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org60fe7c0" class="outline-2"&gt;
-&lt;h2 id="org60fe7c0"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org60fe7c0"&gt;
-&lt;p&gt;
-I'm looking into setting up a wireless (WiFi and bluetooth) monitoring station to collect data that correlates with how my network is performing and what the state of the network is and I thought that, as a first step, I'd get some &lt;a href="https://en.wikipedia.org/wiki/Packet_analyzer"&gt;packet capturing&lt;/a&gt; logs going. I'm primarily a python programmer who's kept my toe in the Linux command-line world but it's been a little while since I really dove into the wireless networking world. I had some vague notion about doing it with &lt;a href="https://en.wikipedia.org/wiki/Wireless_tools_for_Linux"&gt;iwconfig&lt;/a&gt; or &lt;a href="https://wireless.wiki.kernel.org/en/users/documentation/iw"&gt;iw&lt;/a&gt;, but then I found &lt;a href="https://www.aircrack-ng.org/doku.php?id=airmon-ng"&gt;airmon-ng&lt;/a&gt; and realized that it was what I was really looking for.
-Why is it better? Well, to be honest, I'm not informed enough to say that it's better, but when I tried to use &lt;code&gt;iw&lt;/code&gt; it failed without really telling me why, while &lt;code&gt;airmon-ng&lt;/code&gt; not only didn't fail, but it told me that there were other processes already using my wireless interface which is likely why &lt;code&gt;iw&lt;/code&gt; failed and it told me how to fix it. On the one hand, since it's hiding so much from you &lt;code&gt;airmon-ng&lt;/code&gt; lets you be a little ignorant and still do stuff, on the other - &lt;b&gt;what's wrong with that?&lt;/b&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org5c4df27" class="outline-2"&gt;
-&lt;h2 id="org5c4df27"&gt;Setting Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5c4df27"&gt;
-&lt;p&gt;
-I'm using Ubuntu &lt;a href="http://releases.ubuntu.com/18.04/"&gt;18.04 (Bionic Beaver)&lt;/a&gt; - which seems to have both fixed and broken a surprising amount of stuff (nice that you let me log in with Dvorak now, but maybe you should let me know the keyboard layout has changed ahead of time) - so these instructions are based on that. First, &lt;code&gt;airmon-ng&lt;/code&gt; is part of the &lt;code&gt;aircrack-ng&lt;/code&gt; package so you need to install it to get what we want.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo apt install aircrack-ng
-&lt;/pre&gt;
-
-&lt;p&gt;
-Once you do this you'll see that &lt;code&gt;airmon-ng&lt;/code&gt; is installed.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;which airmon-ng
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Interestingly, if you check it out, you'll see that all it is is a bash script.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;file `which airmon-ng`
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-The file is kind of long.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wc -l `which airmon-ng`
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-So I won't list it here - you can check it out if you're interested. It's actually very informative if you want to learn how to do this kind of stuff, but for this case, we just need to know it works.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgea8bffd" class="outline-2"&gt;
-&lt;h2 id="orgea8bffd"&gt;Monitor Mode&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgea8bffd"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgf0f61d7" class="outline-3"&gt;
-&lt;h3 id="orgf0f61d7"&gt;Starting Up Monitor Mode&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgf0f61d7"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgd6453bd" class="outline-4"&gt;
-&lt;h4 id="orgd6453bd"&gt;Finding your interface&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgd6453bd"&gt;
-&lt;p&gt;
-In the good old days you could be pretty sure that your wireless interface was &lt;code&gt;wlan0&lt;/code&gt; (assuming you only had one) but then ubuntu/freedesktop went and &lt;a href="https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/"&gt;changed things&lt;/a&gt; so now you should probably check what your interface name is using &lt;code&gt;iw&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;iw dev
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-So it looks like we have a wireless interface named &lt;code&gt;wlp2s0&lt;/code&gt; that we want to change from &lt;b&gt;managed&lt;/b&gt; to &lt;b&gt;monitor&lt;/b&gt; mode.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org04c5436" class="outline-3"&gt;
-&lt;h3 id="org04c5436"&gt;Okay, now monitor it&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org04c5436"&gt;
-&lt;p&gt;
-The syntax to start monitor mode is &lt;code&gt;airmon-ng start &amp;lt;interface&amp;gt;&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo airmon-ng start wlp2s0
-&lt;/pre&gt;
-
-&lt;pre class="example"&gt;
-Found 5 processes that could cause trouble.
-If airodump-ng, aireplay-ng or airtun-ng stops working after
-a short period of time, you may want to run 'airmon-ng check kill'
-
-  PID Name
- 1505 wpa_supplicant
- 1524 NetworkManager
- 1541 avahi-daemon
- 1748 avahi-daemon
- 2298 dhclient
-
-PHY     Interface       Driver          Chipset
-
-phy0    wlp2s0          iwlwifi         Intel Corporation Wireless 7260 (rev 73)
-
-                (mac80211 monitor mode vif enabled for [phy0]wlp2s0 on [phy0]wlp2s0mon)
-                (mac80211 station mode vif disabled for [phy0]wlp2s0)
-#+END_SRC
-
-The first thing you should notice is that there are five potentially interfering processes. This is probably what interferes with the =iw= method, but we'll leave it alone and see if it works. Why don't we check on the interface.
-
-#+BEGIN_SRC bash :results raw
-iw dev
-#+END_SRC
-
-#+RESULTS:
-phy#0
-	Interface wlp2s0mon
-		ifindex 5
-		wdev 0x3
-		addr 7c:5c:f8:f7:f5:c6
-		type monitor
-		channel 10 (2457 MHz), width: 20 MHz (no HT), center1: 2457 MHz
-		txpower 0.00 dBm
-
-So you can see that running =airmon-ng start= killed our original =wlp2s0= interface and replaced it with =wlp2s0mo= which is in monitor mode on channel 10. Unforturnately I wanted channel 6 but forgot to specify it. Let's try that again.
-
-The first thing we have to do is to turn off monitor mode.
-
-#+BEGIN_EXAMPLE
-sudo airmon-ng stop wlp2s0mon
-&lt;/pre&gt;
-
-&lt;p&gt;
-Note that we are stopping the new monitor-mode interface, not our original wireless interface. Now we can start the monitor-mode interface set to channel 6. The syntax is &lt;code&gt;airmon-ng start &amp;lt;interface&amp;gt; &amp;lt;channel&amp;gt;&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo airmon-ng start wlp2s0 6
-#+END_SRC
-
-There's some output from the command, but we want to know what =iw= thinks is going on.
-
-#+BEGIN_SRC bash :results raw
-iw dev
-#+END_SRC
-
-#+RESULTS:
-phy#0
-	Interface wlp2s0mon
-		ifindex 7
-		wdev 0x6
-		addr 7c:5c:f8:f7:f5:c6
-		type monitor
-		channel 6 (2437 MHz), width: 20 MHz (no HT), center1: 2437 MHz
-		txpower 0.00 dBm
-
-So now we have an interface (=wlp2s0mon=) on channel 6 in monitor mode. We can make sure that it's working using [[https://tcpdump.org][tcpdump]].
-
-#+BEGIN_EXAMPLE
-sudo tcpdump -i wlp2s0mon -n
-&lt;/pre&gt;
-
-&lt;p&gt;
-Note that we need to use the new interface name. Also, if it wasn't obvious up to now, putting the interface into monitor mode will break any networking capabilities for that interface on your computer (so if it was your internet connection, don't expect to access the web when it's in monitor mode).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgd5a5a83" class="outline-2"&gt;
-&lt;h2 id="orgd5a5a83"&gt;Cleaning Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd5a5a83"&gt;
-&lt;p&gt;
-We already got a preview of turning off monitor mode earlier. The syntax is &lt;code&gt;airmon-ng stop &amp;lt;interface&amp;gt;&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo airmon-ng stop wlp2s0mon
-&lt;/pre&gt;
-
-&lt;p&gt;
-This will bring back the original wireless interface, but it won't (likely) re-establish your connection to your wireless access point. To get back onto the network you will probably need to open network manager and go through the setup process again.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgd8c57b1" class="outline-2"&gt;
-&lt;h2 id="orgd8c57b1"&gt;Summary&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd8c57b1"&gt;
-&lt;p&gt;
-These were my notes on setting up monitor mode using &lt;code&gt;airmon-ng&lt;/code&gt;. The main point I wanted to get across is how easy it is to do using &lt;code&gt;airmon-ng&lt;/code&gt; as opposed to the other methods. I didn't actually show how much harder it is to use iwconfig, but if you have tried you might know what it entails. In any case, hopefully these notes will help me in the future as I keep watching the packets.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>wireless packets</category><guid>https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/</guid><pubDate>Sun, 13 May 2018 01:00:48 GMT</pubDate></item><item><title>Pruning Large Files From Git with BFG</title><link>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</link><dc:creator>hades</dc:creator><description>&lt;div&gt;&lt;p&gt;These are my notes on removing large files from a git repository with the &lt;a class="reference external" href="https://rtyley.github.io/bfg-repo-cleaner/"&gt;BFG Repo-Cleaner&lt;/a&gt;. It assumes that you have already pushed it to a remote repository. If you've committed the changes but haven't pushed them, see &lt;a class="reference external" href="https://necromuralist.github.io/posts/removing-large-files-from-git-using-bfg-and-a-local-repository/"&gt;this post&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;</description><category>rapsberrypi wireless howto</category><guid>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</guid><pubDate>Sun, 03 Jun 2018 22:57:12 GMT</pubDate></item><item><title>Pruning Large Files From Git with BFG</title><link>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</link><dc:creator>hades</dc:creator><description>&lt;div&gt;&lt;p&gt;These are my notes on removing large files from a git repository with the &lt;a class="reference external" href="https://rtyley.github.io/bfg-repo-cleaner/"&gt;BFG Repo-Cleaner&lt;/a&gt;. It assumes that you have already pushed it to a remote repository. If you've committed the changes but haven't pushed them, see &lt;a class="reference external" href="https://necromuralist.github.io/posts/removing-large-files-from-git-using-bfg-and-a-local-repository/"&gt;this post&lt;/a&gt;.&lt;/p&gt;
 &lt;div class="section" id="background"&gt;
 &lt;h2&gt;1 Background&lt;/h2&gt;
 &lt;p&gt;I accidentally committed an 89 MB file to git and pushed it upstream to github. This is within the allowed file-size limit, but when I looked in the file it was filled with the same error message over and over again, so it wasn't useful to keep, anyway. I was just working with small log-files, so any large files indicated an error, anyway, so I decided to clean anything over 50 MB from the repository using &lt;em&gt;BFG&lt;/em&gt;. The instructions on the home page mostly work, but didn't exactly work so I'm making some notes here for the next time.&lt;/p&gt;
@@ -840,18 +656,18 @@ These were my notes on setting up monitor mode using &lt;code&gt;airmon-ng&lt;/c
 &lt;div class="section" id="the-process"&gt;
 &lt;h2&gt;2 The Process&lt;/h2&gt;
 &lt;p&gt;Assuming you've downloaded the BFG jar file, this is what you need to do.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_c02dfea4364e4de19cfb6e5eecb926bd-1"&gt;&lt;/a&gt;git clone --mirror &amp;lt;remote git address&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_34d764b8ce964bdfa433867ff744caaf-1"&gt;&lt;/a&gt;git clone --mirror &amp;lt;remote git address&amp;gt;
 &lt;/pre&gt;&lt;p&gt;The &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;--mirror&lt;/span&gt;&lt;/tt&gt; flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the &lt;tt class="docutils literal"&gt;.git&lt;/tt&gt; folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in &lt;a class="reference external" href="https://github.com/rtyley/bfg-repo-cleaner/issues/65"&gt;this bug-report&lt;/a&gt; the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.&lt;/p&gt;
 &lt;p&gt;Next run the BFG.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_5f7e41822c5e47249e8b863390ed9548-1"&gt;&lt;/a&gt;java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &amp;lt;path to cloned mirror&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_a79b26959a1643b0bd9631a6b81a7b04-1"&gt;&lt;/a&gt;java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &amp;lt;path to cloned mirror&amp;gt;
 &lt;/pre&gt;&lt;p&gt;Now you have to change into the cloned repository and execute some commands to update it.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_7a888467dbbd4d7ea000470fcc0e3c11-1"&gt;&lt;/a&gt;git reflog expire --expire-now --all
-&lt;a name="rest_code_7a888467dbbd4d7ea000470fcc0e3c11-2"&gt;&lt;/a&gt;git gc --prune&lt;span class="o"&gt;=&lt;/span&gt;now --aggressive
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_39bd1ac05a624ba085407f53862196c6-1"&gt;&lt;/a&gt;git reflog expire --expire-now --all
+&lt;a name="rest_code_39bd1ac05a624ba085407f53862196c6-2"&gt;&lt;/a&gt;git gc --prune&lt;span class="o"&gt;=&lt;/span&gt;now --aggressive
 &lt;/pre&gt;&lt;p&gt;Now push it back to github.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_1a72ce4317b34f8087d3b8a0ebbdaf3d-1"&gt;&lt;/a&gt;git push
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_e9c4b5d743174a91850f86200f3c96d7-1"&gt;&lt;/a&gt;git push
 &lt;/pre&gt;&lt;p&gt;At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.&lt;/p&gt;
-&lt;pre class="code sh"&gt;&lt;a name="rest_code_70f6ab11ae7d49a9913980ab43f21ff9-1"&gt;&lt;/a&gt;rm -r &amp;lt;original &lt;span class="nb"&gt;local&lt;/span&gt; repository&amp;gt;
-&lt;a name="rest_code_70f6ab11ae7d49a9913980ab43f21ff9-2"&gt;&lt;/a&gt;git clone &amp;lt;remote repository&amp;gt;
+&lt;pre class="code sh"&gt;&lt;a name="rest_code_1f0868d431664887890b480f26d9ae8a-1"&gt;&lt;/a&gt;rm -r &amp;lt;original &lt;span class="nb"&gt;local&lt;/span&gt; repository&amp;gt;
+&lt;a name="rest_code_1f0868d431664887890b480f26d9ae8a-2"&gt;&lt;/a&gt;git clone &amp;lt;remote repository&amp;gt;
 &lt;/pre&gt;&lt;p&gt;One thing that tripped me up a little was that I had removed the &lt;em&gt;master&lt;/em&gt; branch but the &lt;em&gt;BFG&lt;/em&gt; re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.&lt;/p&gt;
 &lt;/div&gt;&lt;/div&gt;</description><category>git bfg howto</category><guid>https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/</guid><pubDate>Sun, 14 Jan 2018 20:57:59 GMT</pubDate></item><item><title>Restructured Text Anonymous Links</title><link>https://necromuralist.github.io/posts/restructured-text-anonymous-links/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div&gt;&lt;div class="section" id="background"&gt;
 &lt;h2&gt;Background&lt;/h2&gt;
@@ -876,42 +692,42 @@ These were my notes on setting up monitor mode using &lt;code&gt;airmon-ng&lt;/c
 &lt;p&gt;This fixed it for me. Of course now the internal targets are gone as well, but they wouldn't have worked anyway.&lt;/p&gt;
 &lt;p&gt;See the &lt;a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references"&gt;Restructured Text Hyperlink Documentatation&lt;/a&gt; for more details.&lt;/p&gt;
 &lt;/div&gt;&lt;/div&gt;</description><category>restructuredtext</category><guid>https://necromuralist.github.io/posts/restructured-text-anonymous-links/</guid><pubDate>Tue, 09 Jan 2018 02:06:52 GMT</pubDate></item><item><title>Shell Output With Org-Babel Ipython</title><link>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the nice things about ipython is the ability to run shell commands with &lt;tt class="docutils literal"&gt;!&lt;/tt&gt;. When you use it in an &lt;a class="reference external" href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; block, though, it will dump the output into a popup rather than in the same emacs org-file. One alternative is to use a shell block instead. I wrote earlier that this requires you to put an echo command in the block to prevent the text going to a pop-up.&lt;/p&gt;
-&lt;pre class="code bash"&gt;&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-2"&gt;&lt;/a&gt;head Future_Connections.csv
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-5"&gt;&lt;/a&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;            &lt;span class="p"&gt;|&lt;/span&gt; Future Connection &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;, &lt;span class="m"&gt;840&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-9"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;, &lt;span class="m"&gt;197&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-10"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;620&lt;/span&gt;, &lt;span class="m"&gt;979&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-11"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;519&lt;/span&gt;, &lt;span class="m"&gt;872&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-12"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;382&lt;/span&gt;, &lt;span class="m"&gt;423&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-13"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;97&lt;/span&gt;, &lt;span class="m"&gt;226&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;  &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;1&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-14"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;349&lt;/span&gt;, &lt;span class="m"&gt;905&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-15"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;429&lt;/span&gt;, &lt;span class="m"&gt;860&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a name="rest_code_07c64419f0844d70b9e717faa5c38e18-16"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;309&lt;/span&gt;, &lt;span class="m"&gt;989&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;pre class="code bash"&gt;&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-2"&gt;&lt;/a&gt;head Future_Connections.csv
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-5"&gt;&lt;/a&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;            &lt;span class="p"&gt;|&lt;/span&gt; Future Connection &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;, &lt;span class="m"&gt;840&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-9"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;, &lt;span class="m"&gt;197&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-10"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;620&lt;/span&gt;, &lt;span class="m"&gt;979&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-11"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;519&lt;/span&gt;, &lt;span class="m"&gt;872&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-12"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;382&lt;/span&gt;, &lt;span class="m"&gt;423&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-13"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;97&lt;/span&gt;, &lt;span class="m"&gt;226&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;  &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;1&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-14"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;349&lt;/span&gt;, &lt;span class="m"&gt;905&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-15"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;429&lt;/span&gt;, &lt;span class="m"&gt;860&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a name="rest_code_07332ef398c14ef7a9b499f407e24395-16"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;309&lt;/span&gt;, &lt;span class="m"&gt;989&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;               &lt;span class="m"&gt;0&lt;/span&gt;.0 &lt;span class="p"&gt;|&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;It turns out that there's a similar solution to the ob-ipython popup, only since it's in python you have to use a print this time.&lt;/p&gt;
-&lt;pre class="code python"&gt;&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC ipython :session futures :results output&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-2"&gt;&lt;/a&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="n"&gt;Future_Connections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-3"&gt;&lt;/a&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-5"&gt;&lt;/a&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-7"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+begin_example&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Future&lt;/span&gt; &lt;span class="n"&gt;Connection&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-9"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(6, 840)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-10"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(4, 197)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-11"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(620, 979)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-12"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(519, 872)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-13"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(382, 423)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-14"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(97, 226)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-15"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(349, 905)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-16"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(429, 860)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-18"&gt;&lt;/a&gt;
-&lt;a name="rest_code_de61e3650c964f73975242e27ac38962-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
+&lt;pre class="code python"&gt;&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC ipython :session futures :results output&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-2"&gt;&lt;/a&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="n"&gt;Future_Connections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-3"&gt;&lt;/a&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-5"&gt;&lt;/a&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-7"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+begin_example&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Future&lt;/span&gt; &lt;span class="n"&gt;Connection&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-9"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(6, 840)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-10"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(4, 197)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-11"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(620, 979)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-12"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(519, 872)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-13"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(382, 423)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-14"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(97, 226)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-15"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(349, 905)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-16"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(429, 860)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-18"&gt;&lt;/a&gt;
+&lt;a name="rest_code_1f297e8b2e9c407ea003701bcde611ad-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
 &lt;/pre&gt;&lt;p&gt;I actually prefer the shell version, and since this is org-babel it makes more sense to use it, but I forgot about it just now and it took me a little while to figure out how to get the ob-ipython block to work so &lt;strong&gt;*note to future self:&lt;/strong&gt; &lt;em&gt;This is how to make it work, but use a shell block instead.&lt;/em&gt;&lt;/p&gt;&lt;/div&gt;</description><category>emacs</category><category>orgmode</category><category>Python</category><guid>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</guid><pubDate>Wed, 11 Oct 2017 19:49:19 GMT</pubDate></item><item><title>Org To Jupyter Notebook</title><link>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
 I've grown to really like &lt;a href="http://orgmode.org"&gt;org-mode&lt;/a&gt;, particularly with &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt;, but there are times when a real Jupyter notebook is better - if you want to render it on github or use the &lt;code&gt;%matplotlib notebook&lt;/code&gt; feature, for instance. I found a blog post the &lt;a href="http://kitchingroup.cheme.cmu.edu/blog/2017/01/21/Exporting-org-mode-to-Jupyter-notebooks/"&gt;Kitchin Research Group site&lt;/a&gt; announcing the creation of an exporter and this is some documentation about how to set it up.
 &lt;/p&gt;
