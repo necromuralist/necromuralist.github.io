@@ -1187,9 +1187,11 @@ SEARCH_FORM = """
 <div class="form-group">
 <input type="text" name="q" class="form-control" placeholder="Search">
 </div>
+<!-- 
 <button type="submit" class="btn btn-primary">
 	<span class="glyphicon glyphicon-search"></span>
 </button>
+-->
 <input type="hidden" name="sitesearch" value="%s">
 </form>
 <!-- End of custom search -->
