@@ -12,31 +12,40 @@
 #+OPTIONS: ^:{}
 #+TOC: headlines 1
 
-* The Problem
-** The trespasser
+* The Prowler
    I came home the other day to find some things from my garage outside on the driveway. The garage door was closed but the bolt wasn't in place, so I guess I forgot to secure it and someone went in while I was at work. I have two Arlo security cameras, one pointing at my front lawn and one at my back (I just took the ones I had set up to catch intruders and pointed them outside so they aren't really set up correctly) and they are supposed to send me notifications when motion is detected, but I didn't recall seeing any, but then I looked at my phone and I had missed one earlier in the day, and when I looked at it there was a video showing someone standing outside my back door, but that was all, but I have a Continuous Video Recording (CVR) subscription so I decided to poke around, that's when I found out how horrible Arlo's CVR really is.
 * The Problem with Arlo
-  The first problem with the Arlo's CVR system is that it's not always reliable. I've had cameras randomly stop recording videos on the server and the only "fix" that the help desk was able to give me was to deauthorize and reauthorize them (and in some cases completely remove them from the base-station and re-add them). This seems to work, but whenever you deauthorize a camera the server dumps all your recordings, so if you think you want to save something you'll have to do that first or it won't be there when the camera gets re-authorized. But then if you try to save something you'll find that the Arlo doesn't provide a way to download the video. The work-around you'll find on the forums is to do a screen capture while it plays - a pretty horrible system, especially since the flash interface is pretty flaky and doesn't always work on my PC. 
+  The first problem with the Arlo's CVR system is that it's not always reliable. I've had cameras randomly stop recording videos on the server and the only "fix" that the help desk was able to give me was to deauthorize and reauthorize them (and in some cases completely remove them from the base-station and re-add them). This seems to work, but whenever you deauthorize a camera the server dumps all your recordings, so if you think you want to save something you'll have to do that first or it won't be there when the camera gets re-authorized. But then if you try to save something you'll find that the Arlo doesn't provide a way to download the video. The work-around you'll find on the forums is to do a screen capture while it plays - a horrible system, especially since the flash interface is pretty flaky and doesn't always work on my PC. 
 
-  Then there's a secondary problem in that it's recording twenty-four hours a day - and they don't have a fast-forward button. They do have a timeline that you can click on to jump around, but not only does this mean you might be jumping past events you want, but they don't really have a 'streaming' interface in the sense that Netflix or some other streaming service does where they're downloading small chunks so you don't have to wait a long time for the play to resume, instead the Arlo seems to be downloading one minute at a time so you have these really long waits, and the precision of the timeline isn't very good so you'll probably have to search a little bit just to find what you want.
+  Then there's a secondary problem in that it's recording twenty-four hours a day - and they don't have a fast-forward button. They do have a timeline that you can click on to jump around, not only does this mean you might be jumping past events you want, but they don't really have a 'streaming' interface in the sense that Netflix or some other streaming service does where they're downloading small chunks so you don't have to wait a long time for the play to resume, instead the Arlo seems to be downloading one minute at a time so you have these really long waits, and the precision of the timeline isn't very good so you'll probably have to search a little bit just to find what you want.
 
-  There's also another problem, which is that the user-interface's timeline isn't accurate, so even if you know the time of an event, you can't use the time in the interface to find it. In my case the bit that was captured on my phone showing the trespasser gave me a time, and there was a little blue dot on the timeline showing that there was an event at that time, but there was nothing in the video. It turned out that the video for the back was shifted fifty-five minutes into the future, which was even more confusing because the time for the front wasn't shifted (that I know of) so when I looked at the video for the front around that time I was able to see the trespasser arriving. 
+  There's also another problem, which is that the user-interface's timeline isn't accurate, so even if you know the time of an event, you can't use the time in the interface to find it. In my case the bit that was captured on my phone showing the trespasser gave me a time, and there was a little blue dot on the timeline showing that there was an event at that time, but there was nothing in the video. It turned out that the video for the camera I had out back was shifted fifty-five minutes into the future, which was even more confusing because the time for the camera I had in front wasn't shifted (that I know of) so when I looked at the video for the front around that time I /was/ able to see the prowler arriving. 
 
-  But even once I found the places in the CVR that showed the trespasser (I didn't have it pointing at my garage so I didn't see him actually doing anything other than probing (knocking and then trying to open the doors)) I still had the problem of how to get the video before Netgear decided to break again and I lost it all. This is where python came in.
+  But even once I found the places in the CVR that showed the prowler (I didn't have it pointing at my garage so I didn't see him actually doing anything other than probing (knocking and then trying to open the doors)) I still had the problem of how to get the video before Netgear decided to break again and I lost it all. This is where python came in.
 * The Python Solution
-  It turns out that even though netgear hasn't published an official API for the Arlo, some people have [[http://www.robertogallea.com/blog/netgear-arlo-api][like this guy]] have reverse-engineered the API and there are several python-based libraries on github that help you talk to the arlo. This [[https://github.com/jeffreydwalter/arlo][one]], by /jeffreydwalter/ was the one that I saw that helped with downloading the CVR videos so it's the one that I went with. It's on pypi, but the commit that added CVR support was made a month ago so I decided to install it from the master branch, since I was going to use the example code to start my code anyway - by this I mean I had to pull the repository anyway, so I used the =setup.py= file to install it (in developer mode in case it changes).
+  It turns out that even though netgear hasn't published an official API for the Arlo, some people ([[http://www.robertogallea.com/blog/netgear-arlo-api][like this guy]]) have reverse-engineered the API and there are several python-based libraries on github that help you talk to the arlo. This [[https://github.com/jeffreydwalter/arlo][one]], by /jeffreydwalter/ was the one that I saw that helped with downloading the CVR videos so it's the one that I went with. It's on pypi, but the commit that added CVR support was made a month ago and I wasn't sure when the pypi code was uploaded so I decided to install it from the master branch, since I was going to use the example code to start my code anyway - by this I mean I had to pull the repository anyway, so I used the =setup.py= file to install it (in developer mode in case it changes).
 
-  The following code is basically what you can find in the example that comes with the repository called [[https://github.com/jeffreydwalter/arlo/blob/master/examples/arlo-cvrdownload.py][arlo-cvrdownload.py]].
-#+BEGIN_SRC :tangle arlo_cvr_download.py
+  The following code is basically what you can find in the example that comes with the repository called [[https://github.com/jeffreydwalter/arlo/blob/master/examples/arlo-cvrdownload.py][arlo-cvrdownload.py]] re-written to have a command-line interface and match my coding style more.
+#+BEGIN_SRC :tangle arlo_cvr_download.py :exports none
 <<python-imports>>
 
 <<pypi-imports>>
 
 <<credentials>>
 
+<<credentials-dotenv>>
+
+<<credentials-end>>
+
 <<paths>>
 
 <<downloader>>
+
+<<call>>
+
+<<main>>
+
+<<cli>>
 #+END_SRC
 ** The Imports
 #+BEGIN_SRC python :noweb-ref python-imports
@@ -48,15 +57,16 @@ import re
 import sys
 #+END_SRC
 
-#+BEGIN_SRC python :noweb-ref python-imports
+#+BEGIN_SRC python :noweb-ref pypi-imports
 # from pypi
+import dateparser
 import requests
 from Arlo import Arlo
 from dotenv import load_dotenv
 #+END_SRC
 
 ** Getting the User Name and Password
-   In order to use the API you need to have a Netgear account and you have to pass it to the server. To prevent putting the credentials in the code, I'll use [[https://github.com/theskumar/python-dotenv][python-dotenv]]. Before you can use it I created a file named =config.arlo= with the information so I can load it.
+   In order to use the API you need to have a Netgear account and you have to pass it to the server. To prevent putting the credentials in the code, I'll use [[https://github.com/theskumar/python-dotenv][python-dotenv]]. In order to use it I created a file named =config.arlo= with the information so I can load it.
 
 #+BEGIN_SRC python :noweb-ref credentials
 class Credentials:
@@ -66,14 +76,18 @@ class Credentials:
         self.config_path = config_path
         self._username = None
         self._password = None
-        self.loaded = False
         return
 
     @property
     def config_path(self):
         """the path to the configuration"""
         return self._config_path
+#+END_SRC
 
+*** Load the credentials
+    =dotenv= works by adding the values in the configuration file into the environment dictionary. Most of the convenience of it comes if you create a =.env= file at the base of your repository, in which case it will automatically find it for you, but even though I'm not doing that it still saves me from parsing the file myself, so I'll use it. Since the other properties (=username= and =password=) rely on the values already being in the dictionary I'm calling =load_dotenv= in the =config_path= setter so that it's there before they get used.
+
+#+BEGIN_SRC python :noweb-ref credentials-dotenv
     @config_path.setter
     def config_path(self, path):
         """Path to the credentials file
@@ -87,7 +101,12 @@ class Credentials:
         self._config_path = Path().expanduser()
         load_dotenv(dotenv_path=self.config_path)
         return
+#+END_SRC
 
+*** And The Rest
+    This is the rest of the methods for the =Credentials= class. Org-mode pushes it flush-left on export so it looks like it is missing whitespace, but it's there in the code.
+
+#+BEGIN_SRC python :noweb-ref credentials-end
     @property
     def username(self):
         """The netgear login username
@@ -115,7 +134,10 @@ class Credentials:
         return self._password
 #+END_SRC
 
-#+BEGIN_SRC python :noweb-ref python-imports
+** Output File Paths
+   Python 3.4 added a [[https://docs.python.org/3/library/pathlib.html][Path]] class to create an object-oriented version of what [[https://docs.python.org/3/library/os.path.html][os.path]] does (along with some other stuff). You don't need it but I like it. My command-line interface actually doesn't support the sub-folder so it mostly just makes sure the folder is there. The =Paths= class here is to help set up the directories for the video output files.
+
+#+BEGIN_SRC python :noweb-ref paths
 class Paths:
     """Paths for the output
 
@@ -135,8 +157,11 @@ class Paths:
     @root.setter
     def root(self, path):
         """path to put the files in"""
-        self._root = Path(path)
-        return
+        if self._root is None:
+            self._root = Path(path)
+            if not self._root.is_dir():
+                self._root.mkdir()
+        return self._root
 
     def add_subfolder(self, sub):
         """adds the root to the sub
@@ -154,8 +179,10 @@ class Paths:
             path.mkdir()
         return path
 #+END_SRC
+** Downloader
+   This is the class to actually do the downloading. It essentially does what the example does but I like it to be both smaller and more verbose so this matches my style more.
 
-#+BEGIN_SRC python :noweb-ref python-imports
+#+BEGIN_SRC python :noweb-ref downloader
 class Downloader:
     """Downloads the videos
 
@@ -163,17 +190,30 @@ class Downloader:
      camera (int): index of the camera to grab the files for
      start (str): date and time for the start of the videos
      end (str): date and time for the end of the videos
-      path: object with the path for folders to store
+     path: object with the path for folders to store
+     output_timestamp(str): how to timestamp the files saved
     """
-    def __init__(self, camera, start, end, path, time_format='%Y-%m-%d %H:%M:%S'):
+    date_format = "%Y%m%d"
+    video_url = re.compile("^http.+(?P<camera>[A-Z0-9]{13})"
+                           "_[0-9]{13}_"
+                           "(?P<timestamp>[0-9]{13})")
+    def __init__(self, camera, start, end, path,
+                 output_timestamp="%Y-%m-%d_%H_%M_%S"
+                 ):
         self.camera = camera
         self.start = start
         self.end = end
         self.path = path
-        self.time_format = time_format
+        self.output_timestamp = output_timestamp
         self._credentials = None
         self._start_time = None
         self._end_time = None
+        self._start_date = None
+        self._end_date = None
+        self._arlo = None
+        self._basestations = None
+        self._cameras = None
+        self._playlist = None
         return
 
     @property
@@ -191,7 +231,7 @@ class Downloader:
          time (datetime.datetime): the starting time of videos to pull
         """
         if self._start_time is None:
-            self._start_time = datetime.datetime.strptime(self.start, self.time_format)
+            self._start_time = dateparser.parse(self.start)
         return self._start_time
 
     @property
@@ -202,7 +242,165 @@ class Downloader:
          time (datetime.datetime): ending time of videos to pull
         """
         if self._end_time is None:
-            self._end_time = datetime.datetime.strptime(self.start, self.time_format)
+            self._end_time = dateparser.parse(self.end)
         return self._end_time
+
+    @property
+    def start_date(self):
+        """The start date for the playlist
+
+        Returns:
+         start-date (`string`): starting date for the recordings
+        """
+        if self._start_date is None:
+            self._start_date = self.start_time.strftime(self.date_format)
+        return self._start_date
+
+    @property
+    def end_date(self):
+        """end-date for the playlist
+
+        Returns:
+         end-date (`str`): end-date for the recordings
+        """
+        if self._end_date is None:
+            self._end_date = self.end_time.strftime(self.date_format)
+        return self._end_date
+
+    @property
+    def arlo(self):
+        """The Arlo object
+
+        Instantiating the Arlo object automatically calls Login(), which
+        returns an oAuth token that gets cached. Subsequent successful calls
+        to login will update the oAuth token.
+        
+        Returns:
+         Arlo: thing to talk to the arlo
+        """
+        if self._arlo is None:
+            self._arlo = Arlo(self.credentials.username,
+                              self.credentials.password)
+        return self._arlo
+
+    @property
+    def basestations(self):
+        """This next part was in the original code but not used
+
+        I'm leaving it in on the chance that it might be needed for the 
+        side-effects
+
+        Gets the list of devices and filter on device type to only get
+        the basestation.
+        This will return an array which includes all of the basestation's
+        associated metadata.
+
+        Returns:
+         list: list of basestations
+        """
+        if self._basestations is None:
+            self._basestations = self.arlo.GetDevices('basestation')
+        return self._basestations
+
+    @property
+    def cameras(self):
+        """Get the camera.
+
+        Returns:
+          array: the camera's metadata
+        """
+        if self._cameras is None:
+            self._cameras = arlo.GetDevices('camera')
+        return self._cameras
+
+    @property
+    def playlist(self):
+        """the recordings within our date-range
+
+        Raises:
+         SystemExit: no playlist for the dates was found
+        """
+        if self._playlist is None:
+            self._playlist = self.arlo.GetCvrPlaylist(self.cameras[self.camera],
+                                                      self.start_date,
+                                                      self.end_date)
+            self._playlist = self._playlist["playlist"]
+            if not self._playlist:
+            sys.exit("No playlist found for camera {} from {} through {}".format(
+                self.camera,
+                self.start_date,
+                self.end_date,
+            ))
+        return self._playlist
+#+END_SRC        
+
+*** The Call
+This does the actual downloading. It downloads some =m3u8= files and then pulls the files that they refer to. [[https://en.wikipedia.org/wiki/M3U#M3U8][m3u8]] (MP3 URL with UTF-8 encoding) is a format to list URLs or paths that point to media and is said to be popular (by Wikipedia) in Dynamic Adaptive Streaming over HTTP (although I don't think the arlo uses DASH).
+
+#+BEGIN_SRC python :noweb-ref call
+    def __call__(self):
+        """Downloads the videos"""
+        print("Downloading CVR videos from {} to {}".format(start, end))
+        try:
+            for recordings in self.playlist.values():
+                m3u8 = requests.get(recordings["url"]).text.split("\n")
+                for location in m3u8:
+                    match = self.video_url.match(location)
+                    if match:
+                        camera_id = match.group("camera")
+                        video_time = datetime.datetime.fromtimestamp(
+                            int(match.group("timestamp")) // 1000)
+        
+                        if self.start_time < video_time < self.end_time:
+                            filename = (
+                                camera_id
+                                + '-'
+                                + video_time.strftime(self.output_timestamp)
+                                + '.mp4')
+        
+                            file_path = self.path.joinpath(filename)
+                            if file_path.is_file():
+                                print(
+                                    ("Video {} already exists, "
+                                     "not downloading.").format(filename))
+                            else:
+                                print('Downloading {}'.format(filename))
+                                with file_path.open('wb') as writer:
+                                    # Get video as a chunked stream.
+                                    # StreamRecording returns a generator.
+                                    for chunk in self.arlo.StreamRecording(
+                                            location):
+                                        writer.write(chunk)
+            arlo.Logout()
+            print('Logged out')
+        except Exception as e:
+            print(e)
+            arlo.Logout()
+            print('Logged out')
+        return
 #+END_SRC
+
+* A Command-Line Interface
+#+BEGIN_SRC python :noweb-ref main
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("camera", type=int, "Index of the camera to use")
+    parser.add_argument("start", help="Time of earliest video to grab")
+    parser.add_argument("end", help="Time of latest video to grab")
+    parser.add_argument("--sub-folder", help="sub-folder to put the videos in", default=".")
+    arguments = parser.parse_args()
+    path = Paths(root=arguments.sub_folder)
+    download = Downloader(camera=arguments.camera,
+                          start=arguments.start,
+                          end=arguments.end,
+                          path=path)
+    download()
+    return
+#+END_SRC
+
+#+BEGIN_SRC python :noweb-ref cli
+if __name__ == "__main__":
+    main()
+#+END_SRC
+
 * Conclusion
