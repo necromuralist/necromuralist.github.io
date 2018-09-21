@@ -1,0 +1,208 @@
+#+BEGIN_COMMENT
+.. title: Downloading Video From the Arlo
+.. slug: downloading-video-from-the-arlo
+.. date: 2018-09-20 11:28:53 UTC-07:00
+.. tags: python arlo
+.. category: arlo
+.. link: 
+.. description: Downloading video from the arlo.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 1
+
+* The Problem
+** The trespasser
+   I came home the other day to find some things from my garage outside on the driveway. The garage door was closed but the bolt wasn't in place, so I guess I forgot to secure it and someone went in while I was at work. I have two Arlo security cameras, one pointing at my front lawn and one at my back (I just took the ones I had set up to catch intruders and pointed them outside so they aren't really set up correctly) and they are supposed to send me notifications when motion is detected, but I didn't recall seeing any, but then I looked at my phone and I had missed one earlier in the day, and when I looked at it there was a video showing someone standing outside my back door, but that was all, but I have a Continuous Video Recording (CVR) subscription so I decided to poke around, that's when I found out how horrible Arlo's CVR really is.
+* The Problem with Arlo
+  The first problem with the Arlo's CVR system is that it's not always reliable. I've had cameras randomly stop recording videos on the server and the only "fix" that the help desk was able to give me was to deauthorize and reauthorize them (and in some cases completely remove them from the base-station and re-add them). This seems to work, but whenever you deauthorize a camera the server dumps all your recordings, so if you think you want to save something you'll have to do that first or it won't be there when the camera gets re-authorized. But then if you try to save something you'll find that the Arlo doesn't provide a way to download the video. The work-around you'll find on the forums is to do a screen capture while it plays - a pretty horrible system, especially since the flash interface is pretty flaky and doesn't always work on my PC. 
+
+  Then there's a secondary problem in that it's recording twenty-four hours a day - and they don't have a fast-forward button. They do have a timeline that you can click on to jump around, but not only does this mean you might be jumping past events you want, but they don't really have a 'streaming' interface in the sense that Netflix or some other streaming service does where they're downloading small chunks so you don't have to wait a long time for the play to resume, instead the Arlo seems to be downloading one minute at a time so you have these really long waits, and the precision of the timeline isn't very good so you'll probably have to search a little bit just to find what you want.
+
+  There's also another problem, which is that the user-interface's timeline isn't accurate, so even if you know the time of an event, you can't use the time in the interface to find it. In my case the bit that was captured on my phone showing the trespasser gave me a time, and there was a little blue dot on the timeline showing that there was an event at that time, but there was nothing in the video. It turned out that the video for the back was shifted fifty-five minutes into the future, which was even more confusing because the time for the front wasn't shifted (that I know of) so when I looked at the video for the front around that time I was able to see the trespasser arriving. 
+
+  But even once I found the places in the CVR that showed the trespasser (I didn't have it pointing at my garage so I didn't see him actually doing anything other than probing (knocking and then trying to open the doors)) I still had the problem of how to get the video before Netgear decided to break again and I lost it all. This is where python came in.
+* The Python Solution
+  It turns out that even though netgear hasn't published an official API for the Arlo, some people have [[http://www.robertogallea.com/blog/netgear-arlo-api][like this guy]] have reverse-engineered the API and there are several python-based libraries on github that help you talk to the arlo. This [[https://github.com/jeffreydwalter/arlo][one]], by /jeffreydwalter/ was the one that I saw that helped with downloading the CVR videos so it's the one that I went with. It's on pypi, but the commit that added CVR support was made a month ago so I decided to install it from the master branch, since I was going to use the example code to start my code anyway - by this I mean I had to pull the repository anyway, so I used the =setup.py= file to install it (in developer mode in case it changes).
+
+  The following code is basically what you can find in the example that comes with the repository called [[https://github.com/jeffreydwalter/arlo/blob/master/examples/arlo-cvrdownload.py][arlo-cvrdownload.py]].
+#+BEGIN_SRC :tangle arlo_cvr_download.py
+<<python-imports>>
+
+<<pypi-imports>>
+
+<<credentials>>
+
+<<paths>>
+
+<<downloader>>
+#+END_SRC
+** The Imports
+#+BEGIN_SRC python :noweb-ref python-imports
+# python standard library
+from pathlib import Path
+import datetime
+import os
+import re
+import sys
+#+END_SRC
+
+#+BEGIN_SRC python :noweb-ref python-imports
+# from pypi
+import requests
+from Arlo import Arlo
+from dotenv import load_dotenv
+#+END_SRC
+
+** Getting the User Name and Password
+   In order to use the API you need to have a Netgear account and you have to pass it to the server. To prevent putting the credentials in the code, I'll use [[https://github.com/theskumar/python-dotenv][python-dotenv]]. Before you can use it I created a file named =config.arlo= with the information so I can load it.
+
+#+BEGIN_SRC python :noweb-ref credentials
+class Credentials:
+    """Loads the credentials for the Arlo"""
+    def __init__(self, config_path="~/.config/arlo/config.arlo"):
+        self._config_path = None
+        self.config_path = config_path
+        self._username = None
+        self._password = None
+        self.loaded = False
+        return
+
+    @property
+    def config_path(self):
+        """the path to the configuration"""
+        return self._config_path
+
+    @config_path.setter
+    def config_path(self, path):
+        """Path to the credentials file
+
+        Side-Effect:
+         loads the configuration into the environment
+
+        Args:
+         path(str): path to the file
+        """
+        self._config_path = Path().expanduser()
+        load_dotenv(dotenv_path=self.config_path)
+        return
+
+    @property
+    def username(self):
+        """The netgear login username
+
+        Raises:
+         Exception: no username found
+        """
+        if self._username is None:
+            self._username = os.getenv("username")
+            if not self._username:
+                raise Exception("Username not found")
+        return self._username
+
+    @property
+    def password(self):
+        """The netgear login password
+
+        Raises:
+         Exception: no password found
+        """
+        if self._password is None:
+            self._password  = os.getenv("password")
+            if not self._password:
+                raise Exception("Password not found")
+        return self._password
+#+END_SRC
+
+#+BEGIN_SRC python :noweb-ref python-imports
+class Paths:
+    """Paths for the output
+
+    Args:
+     root (str): path to the folder
+    """
+    def __init__(self, root="videos"):
+        self._root = None
+        self.root = root
+        return
+
+    @property
+    def root(self):
+        """path to the folder"""
+        return self._root
+
+    @root.setter
+    def root(self, path):
+        """path to put the files in"""
+        self._root = Path(path)
+        return
+
+    def add_subfolder(self, sub):
+        """adds the root to the sub
+
+        creates the sub-folder if it doesn't exist
+
+        Args:
+         sub(str): subfolder name
+
+        Returns:
+         path: path object for the sub-directory
+        """
+        path = self.root.joinpath(sub)
+        if not path.is_dir():
+            path.mkdir()
+        return path
+#+END_SRC
+
+#+BEGIN_SRC python :noweb-ref python-imports
+class Downloader:
+    """Downloads the videos
+
+    Args:
+     camera (int): index of the camera to grab the files for
+     start (str): date and time for the start of the videos
+     end (str): date and time for the end of the videos
+      path: object with the path for folders to store
+    """
+    def __init__(self, camera, start, end, path, time_format='%Y-%m-%d %H:%M:%S'):
+        self.camera = camera
+        self.start = start
+        self.end = end
+        self.path = path
+        self.time_format = time_format
+        self._credentials = None
+        self._start_time = None
+        self._end_time = None
+        return
+
+    @property
+    def credentials(self):
+        """Credentials for the arlo"""
+        if self._credentials is None:
+            self._credentials = Credentials()
+        return self._credentials
+
+    @property
+    def start_time(self):
+        """Starting time for the videos
+
+        Returns:
+         time (datetime.datetime): the starting time of videos to pull
+        """
+        if self._start_time is None:
+            self._start_time = datetime.datetime.strptime(self.start, self.time_format)
+        return self._start_time
+
+    @property
+    def end_time(self):
+        """ending time for the videos
+
+        Returns:
+         time (datetime.datetime): ending time of videos to pull
+        """
+        if self._end_time is None:
+            self._end_time = datetime.datetime.strptime(self.start, self.time_format)
+        return self._end_time
+#+END_SRC
+* Conclusion
