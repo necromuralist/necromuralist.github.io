@@ -75,8 +75,8 @@ from dotenv import load_dotenv
    In order to use the API you need to have a Netgear account and you have to pass it to the server. To prevent putting the credentials in the code, I'll use [[https://github.com/theskumar/python-dotenv][python-dotenv]]. In order to use it I created a file named =config.arlo= with the information so I can load it.
 
 #+BEGIN_SRC python :noweb-ref credentials
-class Credentials:
-    """Loads the credentials for the Arlo
+class Configuration:
+    """Loads the credentials and other info for the Arlo
 
     Args:
      config_path (str): path to the configuration for the arlo
@@ -89,6 +89,9 @@ class Credentials:
         self.config_path = config_path
         self._username = None
         self._password = None
+        self._front_camera = None
+        self._back_camera = None
+        self._kitchen_camra = None
         return
 
     @property
@@ -147,6 +150,45 @@ class Credentials:
             if not self._password:
                 raise Exception("Password not found")
         return self._password
+
+    @property
+    def front_camera(self):
+        """The index for the front camera
+
+        Returns:
+         index (int): the index for the front camera in the camera list
+
+        Raises:
+         Exception: something bad happened
+        """
+        if self._front_camera is None:
+            try:
+                self._front_camera = int(os.getenv("front_camera"))
+            except (TypeError, ValueError) as error:
+                raise Exception("Invalid front camera")
+        return self._front_camera
+
+    @property
+    def back_camera(self):
+        """the index for the back camera"""
+        if self._back_camera is None:
+            try:
+                self._back_camera = int(os.getenv("back_camera"))
+            except Exception:
+                print("invalid back camera")
+                raise
+        return self._back_camera
+
+    @property
+    def kitchen_camera(self):
+        """index for the kitchen"""
+        if self._kitchen_camera is None:
+            try:
+                self._kitchen_camera = int(os.getenv("kitchen_camera"))
+            except Exception:
+                print("invalid kitchen camera")
+                raise
+        return self._kitchen_camera
 #+END_SRC
 
 ** Output File Paths
@@ -212,6 +254,7 @@ class Downloader:
      start (str): date and time for the start of the videos
      end (str): date and time for the end of the videos
      path: object with the path for folders to store
+     configuration: object with configuration information about the arlo
      output_timestamp(str): how to timestamp the files saved
      verbose (bool): emit more messages
     """
@@ -221,6 +264,7 @@ class Downloader:
                            "(?P<timestamp>[0-9]{13})")
 
     def __init__(self, camera, start, end, path,
+                 configuration,
                  output_timestamp="%Y-%m-%d_%H_%M_%S",
                  verbose=False,
                  ):
@@ -230,7 +274,7 @@ class Downloader:
         self.path = path
         self.output_timestamp = output_timestamp
         self.verbose = verbose
-        self._credentials = None
+        self.configuration = configuration
         self._start_time = None
         self._end_time = None
         self._start_date = None
@@ -240,13 +284,6 @@ class Downloader:
         self._cameras = None
         self._playlist = None
         return
-
-    @property
-    def credentials(self):
-        """Credentials for the arlo"""
-        if self._credentials is None:
-            self._credentials = Credentials(verbose=self.verbose)
-        return self._credentials
 
     @property
     def start_time(self):
@@ -312,10 +349,10 @@ class Downloader:
          Arlo: thing to talk to the arlo
         """
         if self._arlo is None:
-            self._arlo = Arlo(self.credentials.username,
-                              self.credentials.password)
+            self._arlo = Arlo(self.configuration.username,
+                              self.configuration.password)
             if self.verbose:
-                print("Arlo creatde")
+                print("Arlo created")
         return self._arlo
 
     @property
@@ -348,7 +385,6 @@ class Downloader:
         """
         if self._cameras is None:
             self._cameras = self.arlo.GetDevices('camera')
-
             if self.verbose:
                 print("Cameras retrieved")
         return self._cameras
@@ -377,7 +413,7 @@ class Downloader:
                          self.end_date,
                      ))
         return self._playlist
-#+END_SRC        
+#+END_SRC
 
 *** The Call
 This does the actual downloading. It downloads some =m3u8= files and then pulls the files that they refer to. [[https://en.wikipedia.org/wiki/M3U#M3U8][m3u8]] (MP3 URL with UTF-8 encoding) is a format to list URLs or paths that point to media and is said to be popular (by Wikipedia) in Dynamic Adaptive Streaming over HTTP (although I don't think the arlo uses DASH).
@@ -388,44 +424,44 @@ This does the actual downloading. It downloads some =m3u8= files and then pulls 
         print("Downloading CVR videos from {} to {}".format(
             self.start, self.end))
         try:
-            for recordings in self.playlist.values():
-                m3u8 = requests.get(recordings[0]["url"]).text.split("\n")
-                for location in m3u8:
-                    match = self.video_url.match(location)
-                    if self.verbose:
-                        print("checking Match")
-                m3u8 = requests.get(recordings["url"]).text.split("\n")
-                for location in m3u8:
-                    match = self.video_url.match(location)
-                    if match:
-                        camera_id = match.group("camera")
-                        video_time = datetime.datetime.fromtimestamp(
-                            int(match.group("timestamp")) // 1000)
+            # the playlist values is a list of lists
+            for playlist in self.playlist.values():
+                # each 'playlist' is a list of dictionaries
+                for recordings in playlist:
+                    m3u8 = requests.get(recordings["url"]).text.split("\n")
+                    for location in m3u8:
+                        match = self.video_url.match(location)
+                        if match:
+                            camera_id = match.group("camera")
+                            video_time = datetime.datetime.fromtimestamp(
+                                int(match.group("timestamp")) // 1000)
+                            if self.verbose:
+                                print("Video Time: {}".format(video_time))
+                            if self.start_time < video_time < self.end_time:
+                                filename = (
+                                    camera_id
+                                    + '-'
+                                    + video_time.strftime(
+                                        self.output_timestamp)
+                                    + '.mp4')
 
-                        if self.start_time < video_time < self.end_time:
-                            filename = (
-                                camera_id
-                                + '-'
-                                + video_time.strftime(self.output_timestamp)
-                                + '.mp4')
-
-                            file_path = self.path.joinpath(filename)
-                            if file_path.is_file():
-                                print(
-                                    ("Video {} already exists, "
-                                     "not downloading.").format(filename))
-                            else:
-                                print('Downloading {}'.format(filename))
-                                with file_path.open('wb') as writer:
-                                    # Get video as a chunked stream.
-                                    # StreamRecording returns a generator.
-                                    for chunk in self.arlo.StreamRecording(
-                                            location):
-                                        writer.write(chunk)
-                    elif self.verbose:
-                        print("didn't match")
-            self.arlo.Logout()
-            print('Logged out')
+                                file_path = self.path.joinpath(filename)
+                                if file_path.is_file():
+                                    print(
+                                        ("Video {} already exists, "
+                                         "not downloading.").format(filename))
+                                else:
+                                    print('Downloading {}'.format(filename))
+                                    with file_path.open('wb') as writer:
+                                        # Get video as a chunked stream.
+                                        # StreamRecording returns a generator.
+                                        for chunk in self.arlo.StreamRecording(
+                                                location):
+                                            writer.write(chunk)
+                        elif self.verbose:
+                            print("didn't match")
+                self.arlo.Logout()
+                print('Logged out')
         except Exception as e:
             print(e)
             self.arlo.Logout()
@@ -437,7 +473,8 @@ This does the actual downloading. It downloads some =m3u8= files and then pulls 
 #+BEGIN_SRC python :noweb-ref main
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("camera", type=int, help="Index of the camera to use")
+    parser.add_argument("camera", help="location of the camera to use",
+                        choices=["front", "back", "kitchen"])
     parser.add_argument("start", help="Time of earliest video to grab")
     parser.add_argument("end", help="Time of latest video to grab")
     parser.add_argument("--sub-folder", help="sub-folder to put the videos in",
@@ -446,10 +483,14 @@ def main():
                         help="Emit more messages")
     arguments = parser.parse_args()
     path = Paths(root=arguments.sub_folder, verbose=arguments.verbose)
-    download = Downloader(camera=arguments.camera,
+    configuration = Configuration(verbose=arguments.verbose)
+    camera = getattr(configuration, "{}_camera".format(arguments.camera))
+    download = Downloader(camera=camera,
                           start=arguments.start,
                           end=arguments.end,
-                          path=path)
+                          configuration=configuration,
+                          path=path.root,
+                          verbose=arguments.verbose)
     download()
     return
 #+END_SRC
@@ -460,3 +501,4 @@ if __name__ == "__main__":
 #+END_SRC
 
 * Conclusion
+For a consumer product this seems like a lot of work to download videos, but I'm glad someone went to the trouble to build this to make up for Netgear's horrible user interface. The Arlo seems like some decent (although probably overpriced) hardware matched to some pretty bad software and nearly non-existent customer support or documentation and a not particularly robust web-service. I don't know that I would recommend it to anyone who wants more than a web-camera.
