@@ -26,7 +26,6 @@
   It turns out that even though netgear hasn't published an official API for the Arlo, some people ([[http://www.robertogallea.com/blog/netgear-arlo-api][like this guy]]) have reverse-engineered the API and there are several python-based libraries on github that help you talk to the arlo. This [[https://github.com/jeffreydwalter/arlo][one]], by /jeffreydwalter/ was the one that I saw that helped with downloading the CVR videos so it's the one that I went with. It's on pypi, but the commit that added CVR support was made a month ago and I wasn't sure when the pypi code was uploaded so I decided to install it from the master branch, since I was going to use the example code to start my code anyway - by this I mean I had to pull the repository anyway, so I used the =setup.py= file to install it (in developer mode in case it changes).
 
   The following code is basically what you can find in the example that comes with the repository called [[https://github.com/jeffreydwalter/arlo/blob/master/examples/arlo-cvrdownload.py][arlo-cvrdownload.py]] re-written to have a command-line interface and match my coding style more.
-
 #+BEGIN_SRC python :tangle arlo_cvr_download.py :exports-none
 <<python-imports>>
 
@@ -349,6 +348,7 @@ class Downloader:
         """
         if self._cameras is None:
             self._cameras = self.arlo.GetDevices('camera')
+
             if self.verbose:
                 print("Cameras retrieved")
         return self._cameras
@@ -394,6 +394,9 @@ This does the actual downloading. It downloads some =m3u8= files and then pulls 
                     match = self.video_url.match(location)
                     if self.verbose:
                         print("checking Match")
+                m3u8 = requests.get(recordings["url"]).text.split("\n")
+                for location in m3u8:
+                    match = self.video_url.match(location)
                     if match:
                         camera_id = match.group("camera")
                         video_time = datetime.datetime.fromtimestamp(
