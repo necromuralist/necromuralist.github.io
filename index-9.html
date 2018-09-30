@@ -88,7 +88,479 @@ navbar-light bg-light
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/wireless-bibliography/" class="u-url">Wireless Bibliography</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/pip-tools-and-pipdeptree/" class="u-url">pip-tools and pipdeptree</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="posts/pip-tools-and-pipdeptree/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-06-09T12:52:57-07:00" itemprop="datePublished" title="2018-06-09 12:52">2018-06-09 12:52</time></a>
+            </p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="outline-container-orgf79177a" class="outline-2">
+<h2 id="orgf79177a">Introduction</h2>
+<div class="outline-text-2" id="text-orgf79177a">
+<p>
+I was looking for a way to update python dependencies that I'd installed with <a href="https://pip.pypa.io/en/stable/">pip</a> when I stumbled upon <a href="https://github.com/jazzband/pip-tools/">pip-tools</a>. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
+</p>
+</div>
+</div>
+<div id="outline-container-org7581767" class="outline-2">
+<h2 id="org7581767">First pipdeptree</h2>
+<div class="outline-text-2" id="text-org7581767">
+<p>
+<code>pip-tools</code> installs a command named <code>pip-compile</code> which will use either the requirements you put in your <code>setup.py</code> file or a special file named <code>requirements.in</code> (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than <code>setup.py</code>, since it makes it clearer and more likely that I'll keep it up to date. The <code>requirements.in</code> file is a list of your dependencies but unlike the <code>requirements.txt</code> file, it doesn't have version numbers, the version numbers are added when you call the <code>pip-compile</code> command. 
+</p>
+
+<p>
+So where does the <code>requirements.in</code> file come from? You have to make it. <i>But if you're editing things by hand, doesn't this kind of make it less likely you'll maintain it?</i> Yes, which is where <a href="https://github.com/naiquevin/pipdeptree"><code>pipdeptree</code></a> comes in. <code>pipdeptree</code> will list all the python dependencies you installed as well as everything those dependencies pulled in as their dependencies. It's usefull to take a look at how a dependency you didn't directly install got into your virtual environment. You can install it from pypi.
+</p>
+
+<div class="highlight"><pre><span></span>pip install pipdeptree
+</pre></div>
+
+<p>
+Here's its help output.
+</p>
+
+<div class="highlight"><pre><span></span>pipdeptree -h
+</pre></div>
+
+<pre class="example">
+usage: pipdeptree [-h] [-v] [-f] [-a] [-l] [-u] [-w [{silence,suppress,fail}]]
+                  [-r] [-p PACKAGES] [-j] [--json-tree]
+                  [--graph-output OUTPUT_FORMAT]
+
+Dependency tree of the installed python packages
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -f, --freeze          Print names so as to write freeze files
+  -a, --all             list all deps at top level
+  -l, --local-only      If in a virtualenv that has global access do not show
+                        globally installed packages
+  -u, --user-only       Only show installations in the user site dir
+  -w [{silence,suppress,fail}], --warn [{silence,suppress,fail}]
+                        Warning control. "suppress" will show warnings but
+                        return 0 whether or not they are present. "silence"
+                        will not show warnings at all and always return 0.
+                        "fail" will show warnings and return 1 if any are
+                        present. The default is "suppress".
+  -r, --reverse         Shows the dependency tree in the reverse fashion ie.
+                        the sub-dependencies are listed with the list of
+                        packages that need them under them.
+  -p PACKAGES, --packages PACKAGES
+                        Comma separated list of select packages to show in the
+                        output. If set, --all will be ignored.
+  -j, --json            Display dependency tree as json. This will yield "raw"
+                        output that may be used by external tools. This option
+                        overrides all other options.
+  --json-tree           Display dependency tree as json which is nested the
+                        same way as the plain text output printed by default.
+                        This option overrides all other options (except
+                        --json).
+  --graph-output OUTPUT_FORMAT
+                        Print a dependency graph in the specified output
+                        format. Available are all formats supported by
+                        GraphViz, e.g.: dot, jpeg, pdf, png, svg
+</pre>
+
+<p>
+If you look at the options you can see that there's a <code>--freeze</code> option, that's what we'll be using. Let's look at some of what that looks like.
+</p>
+
+<div class="highlight"><pre><span></span>pipdeptree --freeze <span class="p">|</span> head
+</pre></div>
+
+
+<p>
+So it looks like the output of <code>pip freeze</code> except it puts the packages you installed flush-left and then uses indentation to indicate what that package installed. In the example above, I installed <a href="https://www.getnikola.com/handbook.html">Nikola</a>, then Nikola installed <a href="http://pydoit.org/">doit</a>, and doit installed <a href="https://github.com/cloudpipe/cloudpickle">cloudpickle</a> and <a href="https://github.com/seb-m/pyinotify">pyinotify</a>. I kind of remember needing to install <code>pyinotify</code> myself, but maybe <code>pydeptree</code> caught that it was a dependency that <code>doit</code> is using. Anyway.
+</p>
+
+<p>
+For our <code>requirements.in</code> file we only want the names, and although there might be a reason to keep the entire tree, I think it makes it easier to understand what I'm using if the file only holds the dependencies at the top-level (the ones that I'm using directly, rather than being a dependency of a dependency). So, we'll use a little <a href="https://en.wikipedia.org/wiki/Grep">grep</a>. First, since I'm a python-programmer I'm going to give it the <code>-P</code> flag to use perl escape codes. Next, we want to only match the lines that have alpha-numeric characters as the first character in the line.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left">grep</th>
+<th scope="col" class="org-left">Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="org-left">
+<code>-P</code>, <code>--perl-regexp</code>
+</td>
+<td class="org-left">Use perl regular expression syntax</td>
+</tr>
+<tr>
+<td class="org-left"><code>^</code></td>
+<td class="org-left">Match the beggining of a line</td>
+</tr>
+<tr>
+<td class="org-left"><code>\w</code></td>
+<td class="org-left">Match alpha-numeric character and underscores</td>
+</tr>
+<tr>
+<td class="org-left"><code>+</code></td>
+<td class="org-left">Match one or more</td>
+</tr>
+</tbody>
+</table>
+<p>
+First, let's see how many total dependencies there are.
+</p>
+
+<div class="highlight"><pre><span></span>pipdeptree --freeze <span class="p">|</span> wc -l
+</pre></div>
+
+<pre class="example">
+: 160
+</pre>
+
+<p>
+So there are 160 dependencies total. How many did I install?
+</p>
+
+<div class="highlight"><pre><span></span>pipdeptree --freeze <span class="p">|</span> grep --perl-regexp <span class="s2">"^\w+"</span> <span class="p">|</span> wc -l
+</pre></div>
+
+<p>
+Out of the 160 only 11 were directly installed by me.
+</p>
+
+<p>
+<i>So we're done, right?</i> Not yet, we need to get rid of the <code>==</code> and version numbers. I hadn't known that grep had this feature, since I normally use python instead of grep, but grep has an <code>--only-matching</code> option that will discard the parts of the line that don't match. 
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left"><code>grep</code></th>
+<th scope="col" class="org-left">Description</th>
+</tr></thead>
+<tbody><tr>
+<td class="org-left">
+<code>-o</code>, <code>--only-matching</code>
+</td>
+<td class="org-left">Only show the parts of the line that match</td>
+</tr></tbody>
+</table>
+<div class="highlight"><pre><span></span>pipdeptree --freeze <span class="p">|</span> grep --only-matching --perl-regexp <span class="s2">"^\w+"</span>
+</pre></div>
+
+<p>
+If you look at the first entry you'll notice it says <code>ghp</code>, but the actual name of the package is <code>ghp-import</code>, but the hyphen isn't part of the alpha-numeric set, so we'll have to add it.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left">grep</th>
+<th scope="col" class="org-left">Description</th>
+</tr></thead>
+<tbody><tr>
+<td class="org-left"><code>[]</code></td>
+<td class="org-left">Match one or the entries in the brackets</td>
+</tr></tbody>
+</table>
+<div class="highlight"><pre><span></span>pipdeptree --freeze <span class="p">|</span> grep -oP <span class="s2">"^[\w\-]+"</span>
+</pre></div>
+
+<p>
+This looks like what we want, but there's a couple of things that we should take care of that would happen if this were for an installed package.
+</p>
+
+<ul class="org-ul">
+<li>there's <a href="https://bugs.launchpad.net/ubuntu/+source/python-pip/+bug/1635463">a bug in ubuntu</a> that causes pip to include <code>pkg-resources</code>, which isn't something you can install.</li>
+<li>it will add an extra entry for your python egg, something like this:</li>
+</ul>
+<pre class="example">
+-e git+git@github.com:russell-n/iperflexer.git@65f4d3ca72670591f584efa6fa9bfd64c18a925b#egg=iperflexer
+</pre>
+
+<p>
+So we should filter those out.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left"><code>grep</code></th>
+<th scope="col" class="org-left">Description</th>
+</tr></thead>
+<tbody><tr>
+<td class="org-left">
+<code>-v</code>, <code>--invert-match</code>
+</td>
+<td class="org-left">Return lines that don't match</td>
+</tr></tbody>
+</table>
+<div class="highlight"><pre><span></span>pipdeptree --freeze <span class="p">|</span> grep --only-matching --perl-regexp <span class="s2">"^[\w\-]+"</span> <span class="p">|</span> grep --invert-match <span class="s2">"\-e\|pkg"</span>
+</pre></div>
+
+<pre class="example">
+ghp-import2
+graphviz
+Nikola
+notebook
+pip-tools
+pipdeptree
+virtualfish
+watchdog
+webassets
+wheel
+ws4py
+</pre>
+
+<p>
+There are probaby other exceptions that have to be added for other installations, but this looks like enough for us. Now we can redirect this to a <code>requirements.in</code> file and we're ready for <code>pip-tools</code>.
+</p>
+
+<pre class="example">
+pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" &gt; requirements.in
+</pre>
+</div>
+</div>
+<div id="outline-container-orgad1f813" class="outline-2">
+<h2 id="orgad1f813">pip-compile</h2>
+<div class="outline-text-2" id="text-orgad1f813">
+<p>
+<code>pip-compile</code> will read in the <code>requirements.in</code> file and add the version numbers and can create a <code>requirements.txt</code> file. It will automatically look for the <code>requirements.in</code> file or you can explicitly pass in the filename.
+</p>
+
+<div class="highlight"><pre><span></span>pip-compile <span class="p">|</span> head
+</pre></div>
+
+<pre class="example">
+#
+# This file is autogenerated by pip-compile
+# To update, run:
+#
+#    pip-compile --output-file requirements.txt requirements.in
+#
+argh==0.26.2              # via watchdog
+backcall==0.1.0           # via ipython
+bleach==2.1.3             # via nbconvert
+blinker==1.4              # via nikola
+</pre>
+
+<p>
+You'll notice it adds in the dependencies of the dependencies and shows what requries them.
+</p>
+</div>
+</div>
+<div id="outline-container-org86bd733" class="outline-2">
+<h2 id="org86bd733">Well, that was a lot of work just for that.</h2>
+<div class="outline-text-2" id="text-org86bd733">
+<p>
+If we stopped at this point we'd have:
+</p>
+<ul class="org-ul">
+<li>a way to check who installed what using <code>pipdeptree</code> (as well as a way to plot the dependencies as a graph)</li>
+<li>a way to separate out our dependencies into a separate file (<code>requirements.in</code>) to make it easier to read</li>
+<li>a way to create our <code>requirements.txt</code> file using our <code>requirements.in</code> file</li>
+</ul>
+<p>
+I think that's kind of nice already, especially if you end up with a lot of dependencies. Try working with <a href="http://www.sphinx-doc.org/en/master/">sphinx</a> and <a href="http://scikit-learn.org/stable/">scikit-learn</a> and you'll see things start to explode. But of course, there's always more. 
+</p>
+</div>
+
+<div id="outline-container-org9a90497" class="outline-3">
+<h3 id="org9a90497">Upgrade</h3>
+<div class="outline-text-3" id="text-org9a90497">
+<p>
+You can run  <code>pip-compile</code> with the <code>--upgrade</code> option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
+</p>
+
+<div class="highlight"><pre><span></span>pip-compile --upgrade <span class="p">|</span> head
+</pre></div>
+
+<pre class="example">
+#
+# This file is autogenerated by pip-compile
+# To update, run:
+#
+#    pip-compile --output-file requirements.txt requirements.in
+#
+argh==0.26.2              # via watchdog
+backcall==0.1.0           # via ipython
+bleach==2.1.3             # via nbconvert
+blinker==1.4              # via nikola
+</pre>
+
+<p>
+This will upgrade your installation but not update the <code>requirements.txt</code> file, so you can test it out and see if everything works before updating the <code>requirements.txt</code>. If things don't work out, you could reinstall from the <code>requirements.txt</code> file, but see the next section for another way. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf9e2c80" class="outline-3">
+<h3 id="orgf9e2c80">Sync</h3>
+<div class="outline-text-3" id="text-orgf9e2c80">
+<p>
+<code>pip-tools</code> also installed a command called <code>pip-sync</code> which will keep you in sync with what is in the requirements file, so as long as <code>requirements.txt</code> is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the <code>--upgrade</code> option in that it will only install the exact version in the requirements file.
+</p>
+
+<div class="highlight"><pre><span></span>pip-sync
+</pre></div>
+
+<pre class="example">
+Collecting backcall==0.1.0
+Collecting bleach==2.1.3
+  Using cached https://files.pythonhosted.org/packages/30/b6/a8cffbb9ab4b62b557c22703163735210e9cd857d533740c64e1467d228e/bleach-2.1.3-py2.py3-none-any.whl
+Collecting certifi==2018.4.16
+  Using cached https://files.pythonhosted.org/packages/7c/e6/92ad559b7192d846975fc916b65f667c7b8c3a32bea7372340bfe9a15fa5/certifi-2018.4.16-py2.py3-none-any.whl
+Collecting cloudpickle==0.5.3
+  Using cached https://files.pythonhosted.org/packages/e7/bf/60ae7ec1e8c6742d2abbb6819c39a48ee796793bcdb7e1d5e41a3e379ddd/cloudpickle-0.5.3-py2.py3-none-any.whl
+Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle-0.5.3 decorator-4.3.0 doit-0.31.1 ipykernel-4.8.2 ipython-6.4.0 jedi-0.12.0 jupyter-client-5.2.3 logbook-1.4.0 lxml-4.2.1 natsort-5.3.2 nikola-7.8.15 notebook-5.5.0 parso-0.2.1 pexpect-4.6.0 pillow-5.1.0 python-dateutil-2.7.3 send2trash-1.5.0 tornado-5.0.2 virtualenv-16.0.0 virtualfish-1.0.6 wheel-0.31.1 ws4py-0.5.1
+</pre>
+
+<p>
+Since I upgraded the installation the <code>requirements.txt</code> file is now behind the latests versions so by syncing I undid the upgrade. This time I'll upgrade again and save the output.
+</p>
+
+<div class="highlight"><pre><span></span>pip-compile --upgrade
+</pre></div>
+
+<p>
+So now the file and my installation should be in sync.
+</p>
+
+<div class="highlight"><pre><span></span>pip-sync
+</pre></div>
+
+<pre class="example">
+: Everything up-to-date
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf870239" class="outline-2">
+<h2 id="orgf870239">Conclusion</h2>
+<div class="outline-text-2" id="text-orgf870239">
+<p>
+So there you have it, how to keep dependencies synced. The <a href="https://pypi.org/project/pip-tools/">README</a> for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
+</p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/" class="u-url">Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-06-03T15:57:12-07:00" itemprop="datePublished" title="2018-06-03 15:57">2018-06-03 15:57</time></a>
+            </p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="outline-container-orgcca0b6f" class="outline-2">
+<h2 id="orgcca0b6f">Introduction</h2>
+<div class="outline-text-2" id="text-orgcca0b6f">
+<p>
+I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
+</p>
+
+<pre class="example">
+iwconfig wlan0 mode monitor
+Error for wireless request "Set Mode" (8B06) :
+    SET failed on device wlan0 ; Operation not supported.
+</pre>
+
+<p>
+Looking around on the web I found <a href="https://www.reddit.com/r/raspberry_pi/comments/4ah4oi/psa_the_raspberry_pi_3s_embedded_wifi_card_does/">this reddit post</a> as well as some Stack Overflow posts that said that monitor mode isn't supported on the Raspberry Pi. There is a project called <a href="https://github.com/seemoo-lab/nexmon">nexmon</a> that apparently lets up add a firmware patch to enable it, which I'll probably try later, but before I tried that I remembered that I have a Realtek 8812AU USB WiFi adapter that I bought a while ago for an old desktop I had that I wasn't using so I decided to try it.
+</p>
+</div>
+</div>
+<div id="outline-container-orgd5febf9" class="outline-2">
+<h2 id="orgd5febf9">What I tried</h2>
+<div class="outline-text-2" id="text-orgd5febf9">
+</div>
+<div id="outline-container-orgffe276d" class="outline-3">
+<h3 id="orgffe276d">Plug-and-Pray</h3>
+<div class="outline-text-3" id="text-orgffe276d">
+<p>
+The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although <code>lsusb</code> showed it, <code>iwconfig</code> didn't show it as an interface. Back to the internet. 
+</p>
+</div>
+</div>
+<div id="outline-container-org3363897" class="outline-3">
+<h3 id="org3363897">Github</h3>
+<div class="outline-text-3" id="text-org3363897">
+<p>
+Next I found <a href="https://github.com/diederikdehaas/rtl8812AU">a repository on github</a> that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
+</p>
+
+<pre class="example">
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_RPI = y
+</pre>
+
+<p>
+in the <code>Makefile</code> - but when I tried to build it I got this error.
+</p>
+
+<pre class="example">
+sudo dkms install -m $DRV_NAME -v $DRV_VERSION
+
+'make' KVER=4.4.38-v7+....(bad exit status: 2)
+ERROR (dkms apport): binary package for rtl8812AU: 4.3.20 not found
+Error! Bad return status for module build on kernel: 4.4.38-v7+ (armv7l)
+Consult /var/lib/dkms/rtl8812AU/4.3.20/build/make.log for more information.
+</pre>
+
+<p>
+There was also a message in the <code>make.log</code> file but I didn't remember to copy it. 
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org1e7b8d0" class="outline-2">
+<h2 id="org1e7b8d0">What fixed it</h2>
+<div class="outline-text-2" id="text-org1e7b8d0">
+<p>
+The solution was in <a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make">this StackOverflow post</a> - the <code>make</code> program is being pointed to a folder named <code>arm7l</code> (thats 'arm seven ell') but it should actually be pointed to one named <code>arm</code>. The simple solution is to create an alias with the correct name.
+</p>
+
+<pre class="example">
+sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.4.38-v7+/arch/armv7l
+</pre>
+
+<p>
+This turns out to fix the build problem and after a reboot the network interface showed up.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org43260d8" class="outline-2">
+<h2 id="org43260d8">Conclusion</h2>
+<div class="outline-text-2" id="text-org43260d8">
+<p>
+The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that <code>iwconfig</code> will put it in monitor mode but <code>airmon-ng</code> doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, <code>iw</code> always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
+</p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/wireless-bibliography/" class="u-url">Wireless Bibliography</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
