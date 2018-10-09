@@ -1,7 +1,7 @@
 .. title: Removing Large Files From git Using BFG and a Local Repository
 .. slug: removing-large-files-from-git-using-bfg-and-a-local-repository
 .. date: 2018-01-14 13:55:37 UTC-08:00
-.. tags: git bfg
+.. tags: git, bfg
 .. link: 
 .. description: Removing committed files that haven't been pushed to a remote repository.
 .. type: text
@@ -65,9 +65,7 @@ The `git gc <https://git-scm.com/docs/git-gc>`_ (garbage collection) command wil
 
 - Change it to have the correct path to the jar (e.g. ``java -jar /home/username/bin/bfg-1.12.7.jar``).
 
-- The tell it to remove files bigger than 50 Megabytes
-
-- In the ``big_files`` folder
+- Then tell it to remove files bigger than 50 Megabytes (or whatever size limit you want) in the ``big_files`` folder
 
 2.3 Clean Up the Git Repository Again
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
