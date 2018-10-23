@@ -15,7 +15,7 @@
 <link rel="canonical" href="https://necromuralist.github.io/">
 <link rel="next" href="index-10.html" type="text/html">
 <!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
-</script><link rel="prefetch" href="posts/note-on-the-analysis-of-ordered-categorical-data/" type="text/html">
+</script><link rel="prefetch" href="posts/date-mean-squared-error/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -88,7 +88,83 @@ navbar-light bg-light
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/note-on-the-analysis-of-ordered-categorical-data/" class="u-url">Note on the Analysis of Ordered Categorical Data</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/date-mean-squared-error/" class="u-url">Date Mean Squared Error</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="posts/date-mean-squared-error/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-10-22T16:46:21-07:00" itemprop="datePublished" title="2018-10-22 16:46">2018-10-22 16:46</time></a>
+            </p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/date-mean-squared-error/#org1ec4159">Imports</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1ec4159" class="outline-2">
+<h2 id="org1ec4159">Imports</h2>
+<div class="outline-text-2" id="text-org1ec4159">
+</div>
+<div id="outline-container-org5f204a6" class="outline-3">
+<h3 id="org5f204a6">From PyPi</h3>
+<div class="outline-text-3" id="text-org5f204a6">
+<div class="highlight"><pre><span></span>import pandas
+</pre></div>
+
+<div class="highlight"><pre><span></span>data = {"date": [pandas.Timestamp("2018-10-01"),
+		 pandas.Timestamp("2018-10-05"),
+		 pandas.Timestamp("2018-09-01"),
+		 pandas.Timestamp("2018-09-05"),
+		 pandas.Timestamp("2018-09-05"),
+		 ],
+	"value": [1, 2, 1, 2, 3]}
+frame = pandas.DataFrame.from_dict(data)
+date_frame = frame.set_index("date")
+</pre></div>
+
+<div class="highlight"><pre><span></span>monthly = date_frame.resample("M")
+means = monthly.mean()
+print(means)
+</pre></div>
+
+<div class="highlight"><pre><span></span>frame["year_month"] = frame.date.apply(lambda date: pandas.Timestamp(year=date.year,
+								     month=date.month, day=1))
+print(frame.head())
+</pre></div>
+
+<div class="highlight"><pre><span></span>mean_frame = means.reset_index()
+mean_frame["year_month"] = mean_frame.date.apply(
+    lambda date: pandas.Timestamp(year=date.year,
+				  month=date.month,
+				  day=1))
+print(mean_frame)
+</pre></div>
+
+<div class="highlight"><pre><span></span>mean_frame.rename(dict(value="mean"), axis="columns",
+		  inplace=True)
+print(mean_frame)
+</pre></div>
+
+<div class="highlight"><pre><span></span>merged = frame.merge(mean_frame, on="year_month")
+del(merged["date_y"])
+merged.rename(dict(date_x="date"), axis="columns", inplace=True)
+print(merged)
+</pre></div>
+
+<div class="highlight"><pre><span></span>merged["error"] = merged["value"] - merged["mean"]
+merged["error_squared"] = merged.error.pow(2)
+</pre></div>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/note-on-the-analysis-of-ordered-categorical-data/" class="u-url">Note on the Analysis of Ordered Categorical Data</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
@@ -1695,98 +1771,6 @@ Success comes from knowing what you're best at and being aligned with your conte
 <ul class="org-ul">
 <li>Barker, Eric. <i>Barking Up the Wrong Tree: The Surprising Science Behind Why Everything You Know About Success Is (Mostly) Wrong</i>. New York: HarperCollins Publishers Inc, 2017.</li>
 </ul>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/headless-firefox-with-karma/" class="u-url">Headless Firefox with Karma</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
-            </span></p>
-            <p class="dateline">
-            <a href="posts/headless-firefox-with-karma/" rel="bookmark">
-            <time class="published dt-published" datetime="2018-06-21T13:23:31-07:00" itemprop="datePublished" title="2018-06-21 13:23">2018-06-21 13:23</time></a>
-            </p>
-        </div>
-    </header><div class="e-content entry-content">
-    <div id="outline-container-orgbc2aaf5" class="outline-2">
-<h2 id="orgbc2aaf5">Introduction</h2>
-<div class="outline-text-2" id="text-orgbc2aaf5">
-<p>
-I recently started revisiting some <a href="https://vuejs.org/">vue.js</a> code that I was working on at work and when I ran the unit-tests all of them failed with pretty much the same error.
-</p>
-
-<pre class="example">
-actual.should.equal is not a function. (In 'actual.should.equal(expected)', 'actual.should.equal' is an instance of ProxyObject)
-</pre>
-
-<p>
-I'm using the <a href="http://www.chaijs.com/guide/styles/#should">chai BDD 'should'</a> style of testing, so this <i>should</i> have worked (because it was working before). To debug it I ran it with FireFox and when I did, all the tests mysteriously started working. It turns out I was using <a href="http://phantomjs.org/">PhantomJS</a>, which <a href="https://github.com/ariya/phantomjs/issues/15344">has been abandoned</a>, and somewhere along the line something in chai stopped working with it, so I decided to set up Firefox headless as my browser instead. This is how I did it.
-</p>
-</div>
-</div>
-<div id="outline-container-org026607e" class="outline-2">
-<h2 id="org026607e">Set Up</h2>
-<div class="outline-text-2" id="text-org026607e">
-</div>
-<div id="outline-container-orge5e616d" class="outline-3">
-<h3 id="orge5e616d">Install the plugin</h3>
-<div class="outline-text-3" id="text-orge5e616d">
-<p>
-I already had this installed for debugging, but I'll mention it anyway, for completeness.
-</p>
-
-<pre class="example">
-npm install karma-firefox-launcher --save-dev
-</pre>
-</div>
-</div>
-
-<div id="outline-container-orgbf0a4ce" class="outline-3">
-<h3 id="orgbf0a4ce">Set it up in Karma</h3>
-<div class="outline-text-3" id="text-orgbf0a4ce">
-<p>
-I'm running the tests using <a href="https://karma-runner.github.io/2.0/index.html">karma</a> and I had hoped that I would just have to change the name of the browser in the configuration, but it turns out to need a little setup in the <code>karma.conf.js</code> file. First get rid of the <code>PhantomJS</code> reference. Delete this:
-</p>
-
-<div class="highlight"><pre><span></span>browsers: ['PhantomJS'],
-</pre></div>
-
-<p>
-and replace it with this.
-</p>
-
-<pre class="example">
-browsers: ['FirefoxHeadless'],
-</pre>
-
-<p>
-The <code>FirefoxHeadless</code> browser isn't actually defined, so you have to add it (I put it right after the <code>browsers</code> declaration).
-</p>
-
-<pre class="example">
-customLaunchers: {
-      'FirefoxHeadless': {
-        base: 'Firefox',
-        flags: [
-          '-headless',
-        ],
-      }
-    },
-</pre>
-
-<p>
-This tells karma to run <code>firefox</code> and pass in the <code>-headless</code> flag, as shown in the Mozilla documentation about <a href="https://developer.mozilla.org/en-US/Firefox/Headless_mode#Using_headless_mode">firefox's headless mode</a>. I found out how to do it from <a href="https://stackoverflow.com/questions/46779498/running-karma-tests-in-headless-firefox-browser-not-working-on-jenkins">a question on Stack Overflow</a>.
-</p>
-</div>
-</div>
-</div>
-<div id="outline-container-orged080b5" class="outline-2">
-<h2 id="orged080b5">Conclusion</h2>
-<div class="outline-text-2" id="text-orged080b5">
-<p>
-<code>PhantomJS</code> breaks the Chai's BDD style of testing, but since both Firefox and <a href="https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md">Chrome</a> have headless modes, using them instead makes it work without actually needing to have the GUI launch.
-</p>
 </div>
 </div>
     </div>

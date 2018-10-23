@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about pandas)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/pandas.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2018 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 23 Oct 2018 01:39:39 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Date Mean Squared Error</title><link>https://necromuralist.github.io/posts/date-mean-squared-error/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/date-mean-squared-error/#org1ec4159"&gt;Imports&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org1ec4159" class="outline-2"&gt;
+&lt;h2 id="org1ec4159"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1ec4159"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org5f204a6" class="outline-3"&gt;
+&lt;h3 id="org5f204a6"&gt;From PyPi&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5f204a6"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;import pandas
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;data = {"date": [pandas.Timestamp("2018-10-01"),
+		 pandas.Timestamp("2018-10-05"),
+		 pandas.Timestamp("2018-09-01"),
+		 pandas.Timestamp("2018-09-05"),
+		 pandas.Timestamp("2018-09-05"),
+		 ],
+	"value": [1, 2, 1, 2, 3]}
+frame = pandas.DataFrame.from_dict(data)
+date_frame = frame.set_index("date")
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;monthly = date_frame.resample("M")
+means = monthly.mean()
+print(means)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;frame["year_month"] = frame.date.apply(lambda date: pandas.Timestamp(year=date.year,
+								     month=date.month, day=1))
+print(frame.head())
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mean_frame = means.reset_index()
+mean_frame["year_month"] = mean_frame.date.apply(
+    lambda date: pandas.Timestamp(year=date.year,
+				  month=date.month,
+				  day=1))
+print(mean_frame)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mean_frame.rename(dict(value="mean"), axis="columns",
+		  inplace=True)
+print(mean_frame)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;merged = frame.merge(mean_frame, on="year_month")
+del(merged["date_y"])
+merged.rename(dict(date_x="date"), axis="columns", inplace=True)
+print(merged)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;merged["error"] = merged["value"] - merged["mean"]
+merged["error_squared"] = merged.error.pow(2)
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>dates</category><category>errors</category><category>pandas</category><guid>https://necromuralist.github.io/posts/date-mean-squared-error/</guid><pubDate>Mon, 22 Oct 2018 23:46:21 GMT</pubDate></item></channel></rss>
