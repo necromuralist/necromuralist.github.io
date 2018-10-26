@@ -1,0 +1,161 @@
+#+BEGIN_COMMENT
+.. title: Categorical Plotting
+.. slug: categorical-plotting
+.. date: 2018-10-26 15:01:04 UTC-07:00
+.. tags: pandas,plotting,categorical data,groupby
+.. category: Pandas
+.. link: 
+.. description: Exploring plotting of categorical data with groupby.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 1
+* Imports
+** From Python
+#+BEGIN_SRC ipython :session plotting :results none
+from functools import partial
+#+END_SRC
+** From pypi
+#+BEGIN_SRC ipython :session plotting :results none
+from tabulate import tabulate
+import matplotlib.pyplot as pyplot
+import numpy
+import pandas
+import seaborn
+#+END_SRC
+* Set Up
+** The Plotting
+#+BEGIN_SRC ipython :session plotting :results none
+%matplotlib inline
+seaborn.set(style="whitegrid", color_codes=True)
+FIGURE_SIZE = (14, 12)
+#+END_SRC
+** The Tables
+#+BEGIN_SRC ipython :session plotting :results none
+table = partial(tabulate, headers="keys",
+                tablefmt="orgtbl")
+#+END_SRC
+* The Data
+  This is just some fake stuff to test it out. We're going to simulate how participants in a survey scored two products on a scale from -3 to 3.
+** Product One
+#+BEGIN_SRC ipython :session plotting :results none
+countries = ["china"] * 50 + ["india"] * 20 + ["japan"] * 2
+options = [-3, -2, -1, 0, 1, 2, 3]
+scores = pandas.Series(numpy.random.choice(options, size=len(countries)), dtype="category")
+one_hot = pandas.get_dummies(scores, "Alpha", " ")
+data = pandas.DataFrame.from_dict(dict(country=countries),
+                                  dtype="category")
+data = pandas.concat([data, one_hot], axis="columns")
+#+END_SRC
+
+#+BEGIN_SRC ipython :session plotting :results output raw :exports both
+print(table(data.head(), showindex=False))
+#+END_SRC
+
+#+RESULTS:
+| country | Alpha -3 | Alpha -2 | Alpha -1 | Alpha 0 | Alpha 1 | Alpha 2 | Alpha 3 |
+|---------+----------+----------+----------+---------+---------+---------+---------|
+| china   |        0 |        0 |        0 |       0 |       1 |       0 |       0 |
+| china   |        1 |        0 |        0 |       0 |       0 |       0 |       0 |
+| china   |        0 |        0 |        0 |       1 |       0 |       0 |       0 |
+| china   |        0 |        0 |        0 |       0 |       0 |       0 |       1 |
+| china   |        0 |        1 |        0 |       0 |       0 |       0 |       0 |
+
+** Product Two
+#+BEGIN_SRC ipython :session plotting :results none
+countries = ["china"] * 20 + ["india"] * 30 + ["japan"] * 25
+options = [-3, -2, -1, 0, 1, 2, 3]
+scores = pandas.Series(numpy.random.choice(options, size=len(countries)), dtype="category")
+one_hot = pandas.get_dummies(scores, "Beta", " ")
+data_2 = pandas.DataFrame.from_dict(dict(country=countries),
+                                    dtype="category")
+data_2 = pandas.concat([data_2, one_hot], axis="columns")
+#+END_SRC
+
+#+BEGIN_SRC ipython :session plotting :results output raw :exports both
+print(table(data_2.head()))
+#+END_SRC
+
+#+RESULTS:
+| country | Beta -3 | Beta -2 | Beta -1 | Beta 0 | Beta 1 | Beta 2 | Beta 3 |
+|---------+---------+---------+---------+--------+--------+--------+--------|
+| china   |       0 |       0 |       0 |      1 |      0 |      0 |      0 |
+| china   |       0 |       0 |       0 |      0 |      0 |      0 |      1 |
+| china   |       0 |       1 |       0 |      0 |      0 |      0 |      0 |
+| china   |       0 |       0 |       0 |      1 |      0 |      0 |      0 |
+| china   |       1 |       0 |       0 |      0 |      0 |      0 |      0 |
+
+* Grouping
+#+BEGIN_SRC ipython :session plotting :results none
+grouped = data.groupby("country").sum()
+#+END_SRC
+
+
+#+BEGIN_SRC ipython :session plotting :results output raw :exports both
+print(table(grouped))
+#+END_SRC
+
+#+RESULTS:
+| country | Alpha -3 | Alpha -2 | Alpha -1 | Alpha 0 | Alpha 1 | Alpha 2 | Alpha 3 |
+|---------+----------+----------+----------+---------+---------+---------+---------|
+| china   |        2 |        8 |        6 |       7 |       9 |       6 |      12 |
+| india   |        2 |        8 |        0 |       4 |       2 |       0 |       4 |
+| japan   |        1 |        0 |        0 |       0 |       1 |       0 |       0 |
+
+
+#+BEGIN_SRC ipython :session plotting :results none
+grouped_2 = data_2.groupby("country").sum()
+#+END_SRC
+
+
+#+BEGIN_SRC ipython :session plotting :results output raw :exports both
+print(table(grouped_2))
+#+END_SRC
+
+#+RESULTS:
+| country | Beta -3 | Beta -2 | Beta -1 | Beta 0 | Beta 1 | Beta 2 | Beta 3 |
+|---------+---------+---------+---------+--------+--------+--------+--------|
+| china   |       3 |       5 |       2 |      3 |      2 |      2 |      3 |
+| india   |       4 |       2 |       3 |      7 |      5 |      6 |      3 |
+| japan   |       2 |       4 |       5 |      2 |      7 |      2 |      3 |
+
+* Concatenate our data
+
+#+BEGIN_SRC ipython :session plotting :results raw drawer :ipyfile ../../files/posts/pandas/categorical-plotting/barplot.png
+figure, axe = pyplot.subplots(figsize=FIGURE_SIZE)
+axe.set_title("Country vs Score")
+axe.set_ylabel("Score")
+with seaborn.color_palette("Reds"):
+    axe = grouped_2.plot.bar(ax=axe)
+with seaborn.color_palette("Blues"):
+    axe = grouped.plot.bar(ax=axe)
+labels = axe.set_xticklabels(grouped.country.unique())
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[63]:
+[[file:../../files/posts/pandas/categorical-plotting/barplot.png]]
+:END:
+
+[[file:barplot.png]]
+
+#+BEGIN_SRC ipython :session plotting :results raw drawer :ipyfile ../../files/posts/pandas/categorical-plotting/barplot_2.png
+figure, axe = pyplot.subplots(figsize=FIGURE_SIZE)
+axe.set_title("Country vs Score")
+axe.set_ylabel("Score")
+with seaborn.color_palette("Reds"):
+    axe = grouped_2.plot.bar(ax=axe, stacked=True)
+with seaborn.color_palette("Blues"):
+    axe = grouped.plot.bar(ax=axe, stacked=True)
+labels = axe.set_xticklabels(grouped.country.unique())
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[64]:
+[[file:../../files/posts/pandas/categorical-plotting/barplot_2.png]]
+:END:
+
+[[file:barplot_2.png]]
