@@ -15,7 +15,7 @@
 <link rel="canonical" href="https://necromuralist.github.io/">
 <link rel="next" href="index-10.html" type="text/html">
 <!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML">
-</script><link rel="prefetch" href="posts/pandas/date-mean-squared-error/" type="text/html">
+</script><link rel="prefetch" href="posts/pandas/categorical-plotting/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -88,7 +88,430 @@ navbar-light bg-light
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/pandas/date-mean-squared-error/" class="u-url">Date Mean Squared Error</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/pandas/categorical-plotting/" class="u-url">Categorical Plotting</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="posts/pandas/categorical-plotting/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-10-26T15:01:04-07:00" itemprop="datePublished" title="2018-10-26 15:01">2018-10-26 15:01</time></a>
+            </p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/pandas/categorical-plotting/#orgbd23068">Imports</a></li>
+<li><a href="posts/pandas/categorical-plotting/#orgde6415c">Set Up</a></li>
+<li><a href="posts/pandas/categorical-plotting/#org73e12af">The Data</a></li>
+<li><a href="posts/pandas/categorical-plotting/#orga38a1fa">Grouping</a></li>
+<li><a href="posts/pandas/categorical-plotting/#org345d4f6">Concatenate our data</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgbd23068" class="outline-2">
+<h2 id="orgbd23068">Imports</h2>
+<div class="outline-text-2" id="text-orgbd23068">
+</div>
+<div id="outline-container-org86bd6bc" class="outline-3">
+<h3 id="org86bd6bc">From Python</h3>
+<div class="outline-text-3" id="text-org86bd6bc">
+<div class="highlight"><pre><span></span>from functools import partial
+</pre></div>
+</div>
+</div>
+<div id="outline-container-org8660c2c" class="outline-3">
+<h3 id="org8660c2c">From pypi</h3>
+<div class="outline-text-3" id="text-org8660c2c">
+<div class="highlight"><pre><span></span>from tabulate import tabulate
+import matplotlib.pyplot as pyplot
+import numpy
+import pandas
+import seaborn
+</pre></div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgde6415c" class="outline-2">
+<h2 id="orgde6415c">Set Up</h2>
+<div class="outline-text-2" id="text-orgde6415c">
+</div>
+<div id="outline-container-org05bb8b3" class="outline-3">
+<h3 id="org05bb8b3">The Plotting</h3>
+<div class="outline-text-3" id="text-org05bb8b3">
+<div class="highlight"><pre><span></span>%matplotlib inline
+seaborn.set(style="whitegrid", color_codes=True)
+FIGURE_SIZE = (14, 12)
+</pre></div>
+</div>
+</div>
+<div id="outline-container-org751a55c" class="outline-3">
+<h3 id="org751a55c">The Tables</h3>
+<div class="outline-text-3" id="text-org751a55c">
+<div class="highlight"><pre><span></span>table = partial(tabulate, headers="keys",
+		tablefmt="orgtbl")
+</pre></div>
+</div>
+</div>
+</div>
+<div id="outline-container-org73e12af" class="outline-2">
+<h2 id="org73e12af">The Data</h2>
+<div class="outline-text-2" id="text-org73e12af">
+<p>
+This is just some fake stuff to test it out. We're going to simulate how participants in a survey scored two products on a scale from -3 to 3.
+</p>
+</div>
+<div id="outline-container-org4b89782" class="outline-3">
+<h3 id="org4b89782">Product One</h3>
+<div class="outline-text-3" id="text-org4b89782">
+<div class="highlight"><pre><span></span>countries = ["china"] * 50 + ["india"] * 20 + ["japan"] * 2
+options = [-3, -2, -1, 0, 1, 2, 3]
+scores = pandas.Series(numpy.random.choice(options, size=len(countries)), dtype="category")
+one_hot = pandas.get_dummies(scores, "Alpha", " ")
+data = pandas.DataFrame.from_dict(dict(country=countries),
+				  dtype="category")
+data = pandas.concat([data, one_hot], axis="columns")
+</pre></div>
+
+<div class="highlight"><pre><span></span>print(table(data.head(), showindex=False))
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left">country</th>
+<th scope="col" class="org-right">Alpha -3</th>
+<th scope="col" class="org-right">Alpha -2</th>
+<th scope="col" class="org-right">Alpha -1</th>
+<th scope="col" class="org-right">Alpha 0</th>
+<th scope="col" class="org-right">Alpha 1</th>
+<th scope="col" class="org-right">Alpha 2</th>
+<th scope="col" class="org-right">Alpha 3</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org3f38716" class="outline-3">
+<h3 id="org3f38716">Product Two</h3>
+<div class="outline-text-3" id="text-org3f38716">
+<div class="highlight"><pre><span></span>countries = ["china"] * 20 + ["india"] * 30 + ["japan"] * 25
+options = [-3, -2, -1, 0, 1, 2, 3]
+scores = pandas.Series(numpy.random.choice(options, size=len(countries)), dtype="category")
+one_hot = pandas.get_dummies(scores, "Beta", " ")
+data_2 = pandas.DataFrame.from_dict(dict(country=countries),
+				    dtype="category")
+data_2 = pandas.concat([data_2, one_hot], axis="columns")
+</pre></div>
+
+<div class="highlight"><pre><span></span>print(table(data_2.head()))
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left">country</th>
+<th scope="col" class="org-right">Beta -3</th>
+<th scope="col" class="org-right">Beta -2</th>
+<th scope="col" class="org-right">Beta -1</th>
+<th scope="col" class="org-right">Beta 0</th>
+<th scope="col" class="org-right">Beta 1</th>
+<th scope="col" class="org-right">Beta 2</th>
+<th scope="col" class="org-right">Beta 3</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga38a1fa" class="outline-2">
+<h2 id="orga38a1fa">Grouping</h2>
+<div class="outline-text-2" id="text-orga38a1fa">
+<div class="highlight"><pre><span></span>grouped = data.groupby("country").sum()
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>print(table(grouped))
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left">country</th>
+<th scope="col" class="org-right">Alpha -3</th>
+<th scope="col" class="org-right">Alpha -2</th>
+<th scope="col" class="org-right">Alpha -1</th>
+<th scope="col" class="org-right">Alpha 0</th>
+<th scope="col" class="org-right">Alpha 1</th>
+<th scope="col" class="org-right">Alpha 2</th>
+<th scope="col" class="org-right">Alpha 3</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">2</td>
+<td class="org-right">8</td>
+<td class="org-right">6</td>
+<td class="org-right">7</td>
+<td class="org-right">9</td>
+<td class="org-right">6</td>
+<td class="org-right">12</td>
+</tr>
+<tr>
+<td class="org-left">india</td>
+<td class="org-right">2</td>
+<td class="org-right">8</td>
+<td class="org-right">0</td>
+<td class="org-right">4</td>
+<td class="org-right">2</td>
+<td class="org-right">0</td>
+<td class="org-right">4</td>
+</tr>
+<tr>
+<td class="org-left">japan</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span>grouped_2 = data_2.groupby("country").sum()
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>print(table(grouped_2))
+</pre></div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+</colgroup>
+<thead><tr>
+<th scope="col" class="org-left">country</th>
+<th scope="col" class="org-right">Beta -3</th>
+<th scope="col" class="org-right">Beta -2</th>
+<th scope="col" class="org-right">Beta -1</th>
+<th scope="col" class="org-right">Beta 0</th>
+<th scope="col" class="org-right">Beta 1</th>
+<th scope="col" class="org-right">Beta 2</th>
+<th scope="col" class="org-right">Beta 3</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">3</td>
+<td class="org-right">5</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+<td class="org-right">2</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+</tr>
+<tr>
+<td class="org-left">india</td>
+<td class="org-right">4</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+<td class="org-right">7</td>
+<td class="org-right">5</td>
+<td class="org-right">6</td>
+<td class="org-right">3</td>
+</tr>
+<tr>
+<td class="org-left">japan</td>
+<td class="org-right">2</td>
+<td class="org-right">4</td>
+<td class="org-right">5</td>
+<td class="org-right">2</td>
+<td class="org-right">7</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org345d4f6" class="outline-2">
+<h2 id="org345d4f6">Concatenate our data</h2>
+<div class="outline-text-2" id="text-org345d4f6">
+<div class="highlight"><pre><span></span>figure, axe = pyplot.subplots(figsize=FIGURE_SIZE)
+axe.set_title("Country vs Score")
+axe.set_ylabel("Score")
+with seaborn.color_palette("Reds"):
+    axe = grouped_2.plot.bar(ax=axe)
+with seaborn.color_palette("Blues"):
+    axe = grouped.plot.bar(ax=axe)
+labels = axe.set_xticklabels(grouped.country.unique())
+</pre></div>
+
+
+<div class="figure">
+<p><img src="posts/pandas/categorical-plotting/barplot.png" alt="barplot.png"></p>
+</div>
+
+<div class="highlight"><pre><span></span>figure, axe = pyplot.subplots(figsize=FIGURE_SIZE)
+axe.set_title("Country vs Score")
+axe.set_ylabel("Score")
+with seaborn.color_palette("Reds"):
+    axe = grouped_2.plot.bar(ax=axe, stacked=True)
+with seaborn.color_palette("Blues"):
+    axe = grouped.plot.bar(ax=axe, stacked=True)
+labels = axe.set_xticklabels(grouped.country.unique())
+</pre></div>
+
+
+<div class="figure">
+<p><img src="posts/pandas/categorical-plotting/barplot_2.png" alt="barplot_2.png"></p>
+</div>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/pandas/date-mean-squared-error/" class="u-url">Date Mean Squared Error</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
@@ -1832,55 +2255,6 @@ sudo chmod 777 /media/westerndigital
 <p>
 This is probably a security risk, but it works.
 </p>
-</div>
-</div>
-    </div>
-    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/barking-up-the-wrong-tree-notes/" class="u-url">Barking Up The Wrong Tree Notes</a></h1>
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
-            </span></p>
-            <p class="dateline">
-            <a href="posts/barking-up-the-wrong-tree-notes/" rel="bookmark">
-            <time class="published dt-published" datetime="2018-06-24T11:33:32-07:00" itemprop="datePublished" title="2018-06-24 11:33">2018-06-24 11:33</time></a>
-            </p>
-        </div>
-    </header><div class="e-content entry-content">
-    <div id="outline-container-orgd6c2795" class="outline-2">
-<h2 id="orgd6c2795">What Really Produces Success?</h2>
-<div class="outline-text-2" id="text-orgd6c2795">
-<p>
-Success comes from knowing what you're best at and being aligned with your context. Even insanity can be helpful given the right context.
-</p>
-</div>
-</div>
-<div id="outline-container-orgbb47ca5" class="outline-2">
-<h2 id="orgbb47ca5">Should We Play It Safe and Do What We're Told If We Want To Succeed?</h2>
-</div>
-<div id="outline-container-orga7cc122" class="outline-2">
-<h2 id="orga7cc122">Do Nice Guys Finish Last?</h2>
-</div>
-<div id="outline-container-orgceb3f9c" class="outline-2">
-<h2 id="orgceb3f9c">Do Quitters Never Win and Winners Never Quit?</h2>
-</div>
-<div id="outline-container-org0b439e9" class="outline-2">
-<h2 id="org0b439e9">It's Now What You Know It's Who You Know</h2>
-</div>
-<div id="outline-container-orgc207d48" class="outline-2">
-<h2 id="orgc207d48">Believe In Yourself… Sometimes</h2>
-</div>
-<div id="outline-container-org5cf97de" class="outline-2">
-<h2 id="org5cf97de">Work, Work, Work… Or Work-Life Balance?</h2>
-</div>
-<div id="outline-container-org5ef0134" class="outline-2">
-<h2 id="org5ef0134">What Makes a Successful Life?</h2>
-</div>
-<div id="outline-container-org2d1fd20" class="outline-2">
-<h2 id="org2d1fd20">Sources</h2>
-<div class="outline-text-2" id="text-org2d1fd20">
-<ul class="org-ul">
-<li>Barker, Eric. <i>Barking Up the Wrong Tree: The Surprising Science Behind Why Everything You Know About Success Is (Mostly) Wrong</i>. New York: HarperCollins Publishers Inc, 2017.</li>
-</ul>
 </div>
 </div>
     </div>
