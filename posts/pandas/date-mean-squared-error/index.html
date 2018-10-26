@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Calculating the (Root) Mean Squared Error in pandas.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Date Mean Squared Error | The Cloistered Monkey</title>
+<link href="../../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="../../../rss.xml">
+<link rel="canonical" href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/">
+<!--[if lt IE 9]><script src="../../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script><meta name="author" content="Cloistered Monkey">
+<link rel="prev" href="../../note-on-the-analysis-of-ordered-categorical-data/" title="Note on the Analysis of Ordered Categorical Data" type="text/html">
+<meta property="og:site_name" content="The Cloistered Monkey">
+<meta property="og:title" content="Date Mean Squared Error">
+<meta property="og:url" content="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/">
+<meta property="og:description" content="Calculating the (Root) Mean Squared Error in pandas.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2018-10-22T16:46:21-07:00">
+<meta property="article:tag" content="dates">
+<meta property="article:tag" content="errors">
+<meta property="article:tag" content="pandas">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-light bg-light
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="https://necromuralist.github.io/">
+
+            <span id="blog-title">The Cloistered Monkey</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../../rss.xml" class="nav-link">RSS feed</a>
+            </li>
+<li class="nav-item dropdown">
+<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects</a>
+            <div class="dropdown-menu">
+                    <a href="https://necromuralist.github.io/neural_networks/" class="dropdown-item">Neural Networks</a>
+                    <a href="../../../machine-learning-projects/" class="dropdown-item">Machine Learning</a>
+                    <a href="https://necromuralist.github.io/student_intervention/" class="dropdown-item">Student Intervention Project</a>
+                    <a href="https://necromuralist.github.io/boston_housing/" class="dropdown-item">Boston Housing Project</a>
+                    <a href="https://necromuralist.github.io/data_science/" class="dropdown-item">Data Science With Python</a>
+            </div>
+
+                
+            </li>
+</ul>
+<!-- Google custom search --><form method="get" action="https://www.google.com/search" class="navbar-form navbar-right" role="search">
+<div class="form-group">
+<input type="text" name="q" class="form-control" placeholder="Search">
+</div>
+<!-- 
+<button type="submit" class="btn btn-primary">
+	<span class="glyphicon glyphicon-search"></span>
+</button>
+-->
+<input type="hidden" name="sitesearch" value="https://necromuralist.github.io/">
+</form>
+<!-- End of custom search -->
+
+
+            <ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.org" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
+</div>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        
+        
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Date Mean Squared Error</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                    <a href="../../../authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2018-10-22T16:46:21-07:00" itemprop="datePublished" title="2018-10-22 16:46">2018-10-22 16:46</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.org" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org6e239a6">What is this?</a></li>
+<li><a href="#orgaf98198">Imports</a></li>
+<li><a href="#orgda5af6e">The Data</a></li>
+<li><a href="#org758e42f">The Mean</a></li>
+<li><a href="#org5f98fd4">Getting the Mean Back Into the Frame</a></li>
+<li><a href="#org8c978e5">Calculating the RMSE</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org6e239a6" class="outline-2">
+<h2 id="org6e239a6">What is this?</h2>
+<div class="outline-text-2" id="text-org6e239a6">
+<p>
+This is a short sketch to figure out how to group a bunch of values by month and calculate the <a href="https://en.wikipedia.org/wiki/Root-mean-square_deviation">Root-Mean-Squared-Error</a> (RMSE) for the mean for the values in that month. This probably isn't the most efficient way to do this, but I'm trying to double check everything as I go and doing the typical <a href="http://wiki.c2.com/?TrainWreck">Train Wreck</a> like you see in most examples on Stack Overflow.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgaf98198" class="outline-2">
+<h2 id="orgaf98198">Imports</h2>
+<div class="outline-text-2" id="text-orgaf98198">
+</div>
+<div id="outline-container-org41e5509" class="outline-3">
+<h3 id="org41e5509">From PyPi</h3>
+<div class="outline-text-3" id="text-org41e5509">
+<p>
+Just pandas.
+</p>
+<div class="highlight"><pre><span></span>import pandas
+</pre></div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgda5af6e" class="outline-2">
+<h2 id="orgda5af6e">The Data</h2>
+<div class="outline-text-2" id="text-orgda5af6e">
+<p>
+I'm going to create some simple values so that it's easy(ish) to do the math by hand and double-check what comes out. I'll use the pandas <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Timestamp.html">Timestamp</a> for the dates. I'm still not one-hundred percent sure why it's better than date-time, but hopefully it's optimized or something.
+</p>
+
+<div class="highlight"><pre><span></span>data = {"date": [
+    pandas.Timestamp("2018-09-01"),
+    pandas.Timestamp("2018-09-05"),
+    pandas.Timestamp("2018-09-05"),
+    pandas.Timestamp("2018-10-01"),
+    pandas.Timestamp("2018-10-05"),
+		 ],
+	"value": [1, 2, 3, 1, 2]}
+frame = pandas.DataFrame.from_dict(data)
+</pre></div>
+
+<p>
+I'm going to use <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.resample.html">pandas' resample method</a> to group the data by months. the <code>resample</code> method expets the data to have the dates as the index, so I'm going to create a new frame by <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.set_index.html">setting the index</a> to the date-column.
+</p>
+
+<div class="highlight"><pre><span></span>date_frame = frame.set_index("date")
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-org758e42f" class="outline-2">
+<h2 id="org758e42f">The Mean</h2>
+<div class="outline-text-2" id="text-org758e42f">
+<p>
+The value I'm going to use to estimate the values for each month is the mean.
+</p>
+<div class="highlight"><pre><span></span>monthly = date_frame.resample("M")
+means = monthly.mean()
+print(means)
+assert all(means.value == [2.0, 1.5])
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-org5f98fd4" class="outline-2">
+<h2 id="org5f98fd4">Getting the Mean Back Into the Frame</h2>
+<div class="outline-text-2" id="text-org5f98fd4">
+<p>
+Now that we have the monthly means, I want to re-add them to the original data-frame by giving them a common column named <code>year_month</code> (using <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.apply.html">apply</a>) so I can broadcast the means by merging the two data-frames.
+</p>
+<div class="highlight"><pre><span></span>frame["year_month"] = frame.date.apply(
+    lambda date: pandas.Timestamp(year=date.year,
+				  month=date.month, day=1))
+print(frame.head())
+</pre></div>
+
+<div class="highlight"><pre><span></span>mean_frame = means.reset_index()
+mean_frame["year_month"] = mean_frame.date.apply(
+    lambda date: pandas.Timestamp(year=date.year,
+				  month=date.month,
+				  day=1))
+print(mean_frame)
+</pre></div>
+
+<p>
+The <code>value</code> column in the <code>mean_frame</code> is actually the mean of the values for that month so I'll re-name it before I forget.
+</p>
+
+<div class="highlight"><pre><span></span>mean_frame.rename(dict(value="mean"), axis="columns",
+		  inplace=True)
+print(mean_frame)
+</pre></div>
+
+<p>
+Now I'll <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.merge.html">merge</a> the two data frames on the <code>year_month</code> column using the default <a href="https://en.wikipedia.org/wiki/Join_(SQL)#Inner_join">inner-join</a> (intersection) method.
+</p>
+<div class="highlight"><pre><span></span>merged = frame.merge(mean_frame, on="year_month")
+del(merged["date_y"])
+merged.rename(dict(date_x="date"), axis="columns", inplace=True)
+print(merged)
+assert all(merged["mean"] == [2, 2, 2, 1.5, 1.5])
+</pre></div>
+
+<p>
+Note that I had to use the <code>merged["mean"]</code> form because the data-frame has a <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.mean.html">mean</a> method which the dot-notation (<code>merged.mean</code>) would call instead of grabbing the column.
+</p>
+</div>
+</div>
+<div id="outline-container-org8c978e5" class="outline-2">
+<h2 id="org8c978e5">Calculating the RMSE</h2>
+<div class="outline-text-2" id="text-org8c978e5">
+</div>
+<div id="outline-container-org077c94b" class="outline-3">
+<h3 id="org077c94b">Error</h3>
+<div class="outline-text-3" id="text-org077c94b">
+<p>
+Since I'm estimating the values for each month using the mean the <i>error</i> is the difference between the <i>mean</i> and each of the <i>values</i>.
+</p>
+<div class="highlight"><pre><span></span>merged["error"] = merged["value"] - merged["mean"]
+print(merged)
+assert all(merged.error==[-1, 0, 1, -.5, .5])
+</pre></div>
+</div>
+</div>
+
+<div id="outline-container-org25cd5be" class="outline-3">
+<h3 id="org25cd5be">Error Squared</h3>
+<div class="outline-text-3" id="text-org25cd5be">
+<p>
+Now I'll square the error to get rid of the negative error values (which would cancel each other out when we take the mean errors) and to make the effect of the errors non-linear (the errors are exagerrated).
+</p>
+<div class="highlight"><pre><span></span>merged["error_squared"] = merged.error.pow(2)
+</pre></div>
+
+<div class="highlight"><pre><span></span>print(merged)
+</pre></div>
+</div>
+</div>
+<div id="outline-container-org7729dd0" class="outline-3">
+<h3 id="org7729dd0">Mean Squared Error</h3>
+<div class="outline-text-3" id="text-org7729dd0">
+<p>
+So now we take the mean of our squared errors to get an initial estimate of how much we are off each month.
+</p>
+<div class="highlight"><pre><span></span>mean_of = merged.groupby("year_month").mean()
+print(mean_of.error_squared)
+</pre></div>
+</div>
+</div>
+<div id="outline-container-orgf3933bb" class="outline-3">
+<h3 id="orgf3933bb">RMSE</h3>
+<div class="outline-text-3" id="text-orgf3933bb">
+<p>
+Since the squared error would have units squared, I'll take the root of it to get a more interpretable estimate of the error.
+</p>
+<div class="highlight"><pre><span></span>print(mean_of.error_squared.pow(.5))
+</pre></div>
+</div>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../../categories/dates/" rel="tag">dates</a></li>
+            <li><a class="tag p-category" href="../../../categories/errors/" rel="tag">errors</a></li>
+            <li><a class="tag p-category" href="../../../categories/pandas/" rel="tag">pandas</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="previous">
+                <a href="../../note-on-the-analysis-of-ordered-categorical-data/" rel="prev" title="Note on the Analysis of Ordered Categorical Data">Previous post</a>
+            </li>
+        </ul></nav></aside></article><!--End of body content--><footer id="footer">
+            Contents © 2018         <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+        </footer>
+</div>
+</div>
+
+
+        <script src="../../../assets/js/all-nocdn.js"></script><!-- fancy dates --><script>
+    moment.locale("en");
+    fancydates(0, "YYYY-MM-DD HH:mm");
+    </script><!-- end fancy dates --><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+    </script>
+</body>
+</html>
