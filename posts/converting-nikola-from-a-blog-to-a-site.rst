@@ -28,7 +28,7 @@ To make the pages you create the root of the site you need to change the ``PAGES
 .. code:: python
           
    PAGES = (
-       ("pages/*.rst", "pagse", "story.tmpl"),
+       ("pages/*.rst", "pages", "story.tmpl"),
    )
 
 You would change the second value in the tuple to an empty string:

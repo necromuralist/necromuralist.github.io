@@ -1,0 +1,177 @@
+#+BEGIN_COMMENT
+.. title: Date Mean Squared Error
+.. slug: date-mean-squared-error
+.. date: 2018-10-22 16:46:21 UTC-07:00
+.. tags: pandas,errors,dates
+.. category: Pandas
+.. link: 
+.. description: Calculating the (Root) Mean Squared Error in pandas.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 1
+* What is this?
+  This is a short sketch to figure out how to group a bunch of values by month and calculate the [[https://en.wikipedia.org/wiki/Root-mean-square_deviation][Root-Mean-Squared-Error]] (RMSE) for the mean for the values in that month. This probably isn't the most efficient way to do this, but I'm trying to double check everything as I go and doing the typical [[http://wiki.c2.com/?TrainWreck][Train Wreck]] like you see in most examples on Stack Overflow.
+
+* Imports
+** From PyPi
+   Just pandas.
+#+BEGIN_SRC ipython :session rmse :results none
+import pandas
+#+END_SRC
+* The Data
+  I'm going to create some simple values so that it's easy(ish) to do the math by hand and double-check what comes out. I'll use the pandas [[https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Timestamp.html][Timestamp]] for the dates. I'm still not one-hundred percent sure why it's better than date-time, but hopefully it's optimized or something.
+
+#+BEGIN_SRC ipython :session rmse :results none
+data = {"date": [
+    pandas.Timestamp("2018-09-01"),
+    pandas.Timestamp("2018-09-05"),
+    pandas.Timestamp("2018-09-05"),
+    pandas.Timestamp("2018-10-01"),
+    pandas.Timestamp("2018-10-05"),
+                 ],
+        "value": [1, 2, 3, 1, 2]}
+frame = pandas.DataFrame.from_dict(data)
+#+END_SRC
+
+I'm going to use [[https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.resample.html][pandas' resample method]] to group the data by months. the =resample= method expets the data to have the dates as the index, so I'm going to create a new frame by [[https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.set_index.html][setting the index]] to the date-column.
+
+#+BEGIN_SRC ipython :session rmse :results none
+date_frame = frame.set_index("date")
+#+END_SRC
+
+* The Mean
+  The value I'm going to use to estimate the values for each month is the mean.
+#+BEGIN_SRC ipython :session rmse :results output
+monthly = date_frame.resample("M")
+means = monthly.mean()
+print(means)
+assert all(means.value == [2.0, 1.5])
+#+END_SRC
+
+#+RESULTS:
+:             value
+: date             
+: 2018-09-30    2.0
+: 2018-10-31    1.5
+
+* Getting the Mean Back Into the Frame
+  Now that we have the monthly means, I want to re-add them to the original data-frame by giving them a common column named =year_month= (using [[https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.apply.html][apply]]) so I can broadcast the means by merging the two data-frames.
+#+BEGIN_SRC ipython :session rmse :results output
+frame["year_month"] = frame.date.apply(
+    lambda date: pandas.Timestamp(year=date.year,
+                                  month=date.month, day=1))
+print(frame.head())
+#+END_SRC
+
+#+RESULTS:
+:         date  value year_month
+: 0 2018-09-01      1 2018-09-01
+: 1 2018-09-05      2 2018-09-01
+: 2 2018-09-05      3 2018-09-01
+: 3 2018-10-01      1 2018-10-01
+: 4 2018-10-05      2 2018-10-01
+
+#+BEGIN_SRC ipython :session rmse :results output
+mean_frame = means.reset_index()
+mean_frame["year_month"] = mean_frame.date.apply(
+    lambda date: pandas.Timestamp(year=date.year,
+                                  month=date.month,
+                                  day=1))
+print(mean_frame)
+#+END_SRC
+
+#+RESULTS:
+:         date  value year_month
+: 0 2018-09-30    2.0 2018-09-01
+: 1 2018-10-31    1.5 2018-10-01
+
+The =value= column in the =mean_frame= is actually the mean of the values for that month so I'll re-name it before I forget.
+
+#+BEGIN_SRC ipython :session rmse :results output
+mean_frame.rename(dict(value="mean"), axis="columns",
+                  inplace=True)
+print(mean_frame)
+#+END_SRC
+
+#+RESULTS:
+:         date  mean year_month
+: 0 2018-09-30   2.0 2018-09-01
+: 1 2018-10-31   1.5 2018-10-01
+
+Now I'll [[https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.merge.html][merge]] the two data frames on the =year_month= column using the default [[https://en.wikipedia.org/wiki/Join_(SQL)#Inner_join][inner-join]] (intersection) method.
+#+BEGIN_SRC ipython :session rmse :results output
+merged = frame.merge(mean_frame, on="year_month")
+del(merged["date_y"])
+merged.rename(dict(date_x="date"), axis="columns", inplace=True)
+print(merged)
+assert all(merged["mean"] == [2, 2, 2, 1.5, 1.5])
+#+END_SRC
+
+#+RESULTS:
+:         date  value year_month  mean
+: 0 2018-09-01      1 2018-09-01   2.0
+: 1 2018-09-05      2 2018-09-01   2.0
+: 2 2018-09-05      3 2018-09-01   2.0
+: 3 2018-10-01      1 2018-10-01   1.5
+: 4 2018-10-05      2 2018-10-01   1.5
+
+Note that I had to use the =merged["mean"]= form because the data-frame has a [[https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.mean.html][mean]] method which the dot-notation (=merged.mean=) would call instead of grabbing the column.
+* Calculating the RMSE
+** Error
+   Since I'm estimating the values for each month using the mean the /error/ is the difference between the /mean/ and each of the /values/.
+#+BEGIN_SRC ipython :session rmse :results output
+merged["error"] = merged["value"] - merged["mean"]
+print(merged)
+assert all(merged.error==[-1, 0, 1, -.5, .5])
+#+END_SRC
+
+#+RESULTS:
+:         date  value year_month  mean  error
+: 0 2018-09-01      1 2018-09-01   2.0   -1.0
+: 1 2018-09-05      2 2018-09-01   2.0    0.0
+: 2 2018-09-05      3 2018-09-01   2.0    1.0
+: 3 2018-10-01      1 2018-10-01   1.5   -0.5
+: 4 2018-10-05      2 2018-10-01   1.5    0.5
+
+** Error Squared
+   Now I'll square the error to get rid of the negative error values (which would cancel each other out when we take the mean errors) and to make the effect of the errors non-linear (the errors are exagerrated).
+#+BEGIN_SRC ipython :session rmse :results none
+merged["error_squared"] = merged.error.pow(2)
+#+END_SRC
+
+#+BEGIN_SRC ipython :session rmse :results output
+print(merged)
+#+END_SRC
+
+#+RESULTS:
+:         date  value year_month  mean  error  error_squared
+: 0 2018-10-01      1 2018-10-01   1.5   -0.5           0.25
+: 1 2018-10-05      2 2018-10-01   1.5    0.5           0.25
+: 2 2018-09-01      1 2018-09-01   2.0   -1.0           1.00
+: 3 2018-09-05      2 2018-09-01   2.0    0.0           0.00
+: 4 2018-09-05      3 2018-09-01   2.0    1.0           1.00
+** Mean Squared Error
+   So now we take the mean of our squared errors to get an initial estimate of how much we are off each month.
+#+BEGIN_SRC ipython :session rmse :results output
+mean_of = merged.groupby("year_month").mean()
+print(mean_of.error_squared)
+#+END_SRC
+
+#+RESULTS:
+: year_month
+: 2018-09-01    0.666667
+: 2018-10-01    0.250000
+: Name: error_squared, dtype: float64
+** RMSE
+   Since the squared error would have units squared, I'll take the root of it to get a more interpretable estimate of the error.
+#+BEGIN_SRC ipython :session rmse :results output
+print(mean_of.error_squared.pow(.5))
+#+END_SRC
+
+#+RESULTS:
+: year_month
+: 2018-09-01    0.816497
+: 2018-10-01    0.500000
+: Name: error_squared, dtype: float64
