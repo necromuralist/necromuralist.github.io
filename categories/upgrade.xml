@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about upgrade)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/upgrade.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2018 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sat, 27 Oct 2018 18:51:10 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Recovering From the Ubuntu 18.10 Upgrade</title><link>https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#org40721db"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orgc4a1e36"&gt;What didn't work?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#org1e311e3"&gt;What did work?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orgc0ba567"&gt;Anything Else?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org40721db" class="outline-2"&gt;
+&lt;h2 id="org40721db"&gt;What is this about?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org40721db"&gt;
+&lt;p&gt;
+I updated from Ubuntu 18.04 to &lt;a href="https://blog.ubuntu.com/2018/10/19/welcome-ubuntu-desktop-18-10"&gt;Ubuntu 18.10&lt;/a&gt; (Cosmic Cuttlefish) last night and upon rebooting found that I couldn't (finish rebooting, that is). In order to write this I had to recover from the problem so I don't have a screen-grab of the error, but it was basically the same one given in &lt;a href="https://askubuntu.com/questions/837143/failed-to-connect-to-lvmetad"&gt;this Stack Overflow post&lt;/a&gt;:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+WARNING: Failed to connect to lvmetad. Falling back to device scanning.
+Volume group "ubuntu-vg" not found
+Cannot process volume group ubuntu-vg
+WARNING: Failed to connect to lvmetad. Falling back to device scanning.
+Reading all physical volumes.  This may take a while...
+Found volume group "ubuntu-vg" using metadata type lvm2
+WARNING: Failed to connect to lvmetad. Falling back to device scanning.
+2 logical volume(s) in volume group "ubuntu-vg" now active /dev/mapper/ubuntu--vg-root: clean, 1180656/30154752 files, 16007858/120604672 blocks
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgc4a1e36" class="outline-2"&gt;
+&lt;h2 id="orgc4a1e36"&gt;What didn't work?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc4a1e36"&gt;
+&lt;p&gt;
+If you read the Stack Overflow post I linked to above, the solution was to downgrade the kernel version using the grub loader so, following that advice, I brought up the Grub menu by holding down the shift key while the machine booted up, then tried to move the cursor down to &lt;i&gt;Advanced&lt;/i&gt; in the menu using the arrow keys but for some reason it wouldn't move. I thought maybe it was my &lt;a href="https://ultimatehackingkeyboard.com/"&gt;Ultimate Hacking Keyboard&lt;/a&gt; so I went and grabbed my &lt;a href="http://vortexgear.tw/vortex2_2.asp?kind=47&amp;amp;kind2=225&amp;amp;kind3=&amp;amp;kind4=1043"&gt;Vortex&lt;/a&gt; keyboard instead and it still wouldn't work, and at this point some people might think that it probably was not the keyboard, but nope, I went and grabbed my &lt;a href="http://redragonusa.com/products/keyboard/K552/47"&gt;Redragon&lt;/a&gt; keyboard and all of a sudden it worked. Why did my $30 keyboard work better than my $300 keyboard? And no, I don't think I paid that much when I bought the Ultimate Hacking Keyboard (but it took something like two years to ship so I probably spent more than that in lost time). Well, anyway, it turned out that I plugged the last keyboard in the left USB slot while my other keyboards were in the right USB slot and for some reason the right slot was disabled when I went into the Grub Menu. No mention of that on Stack Overflow, unfortunately.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org1e311e3" class="outline-2"&gt;
+&lt;h2 id="org1e311e3"&gt;What did work?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1e311e3"&gt;
+&lt;p&gt;
+While I was googling around I found &lt;a href="https://askubuntu.com/questions/969917/failed-to-connect-to-lvmetad-stuck-on-boot"&gt;this post&lt;/a&gt; on Stack Overflow where it was mentioned that the solution did mess with the kernel but it also mentions that he purged his nvidia drivers, which struck a chord with me because I've had problems with the nvidia drivers on my computer at work whenever I upgrade so I thought that maybe this might be something to check out first, before messing with the kernel. The post suggested using &lt;code&gt;ctrl-alt-f3&lt;/code&gt; to get into a terminal which didn't work for me for some reason so I used the Grub Menu instead. Here's the steps for my future self.
+&lt;/p&gt;
+
+&lt;ol class="org-ol"&gt;
+&lt;li&gt;Hold the shift key down while the machine boots up&lt;/li&gt;
+&lt;li&gt;In the Grub Menu use the arrow keys and return to choose the &lt;i&gt;Advanced&lt;/i&gt; option&lt;/li&gt;
+&lt;li&gt;Choose the &lt;code&gt;(recovery mode)&lt;/code&gt; version of the current kernel (4.18.0)&lt;/li&gt;
+&lt;li&gt;In the Recovery Menu choose the &lt;code&gt;root Drop to root shell prompt&lt;/code&gt; option (you have to hit enter again at the next prompt)&lt;/li&gt;
+&lt;li&gt;The file-system for Recovery Mode is in read-only mode so mount the drive with =mount –options remount,rw /" (you can do this from the Recovery Menu as well, but it's an extra step either way)&lt;/li&gt;
+&lt;li&gt;Purge the drivers with &lt;code&gt;apt purge nvidia-*&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Type &lt;code&gt;exit&lt;/code&gt; then back out of Recovery Mode and finish the startup&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;
+I got the stuff about removing the nvidia driver from &lt;a href="https://askubuntu.com/questions/899309/ubuntu-16-04-how-to-disable-nvidia-driver-from-grub"&gt;this Stack Overflow post&lt;/a&gt;. It took a longer time than I thought it would to start up, but I'm writing this from my machine so it seems to work.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgc0ba567" class="outline-2"&gt;
+&lt;h2 id="orgc0ba567"&gt;Anything Else?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc0ba567"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lspci | grep VGA
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This card actually tended to freeze when I used the open source video drivers that come with Ubuntu so not having the Nvidia drivers seemed like a bad idea. I'm hoping that re-installing them will fix whatever bad setup values were there so I did:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo ubuntu-drivers autoinstall
+&lt;/pre&gt;
+
+&lt;p&gt;
+Cross your fingers.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>nvidia</category><category>repair</category><category>ubuntu</category><category>upgrade</category><guid>https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/</guid><pubDate>Sat, 27 Oct 2018 17:40:09 GMT</pubDate></item></channel></rss>

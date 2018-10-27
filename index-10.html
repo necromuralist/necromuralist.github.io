@@ -89,7 +89,225 @@ navbar-light bg-light
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/barking-up-the-wrong-tree-notes/" class="u-url">Barking Up The Wrong Tree Notes</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/tcpdump-on-an-external-hard-drive/" class="u-url">TCPDump On an External Hard Drive</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="posts/tcpdump-on-an-external-hard-drive/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-06-26T11:32:20-07:00" itemprop="datePublished" title="2018-06-26 11:32">2018-06-26 11:32</time></a>
+            </p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="outline-container-orgf2160c2" class="outline-2">
+<h2 id="orgf2160c2">Introduction</h2>
+<div class="outline-text-2" id="text-orgf2160c2">
+<p>
+I'm using <a href="http://www.tcpdump.org/">tcpdump</a> to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga54eef5" class="outline-2">
+<h2 id="orga54eef5">Setting Up The Drive</h2>
+<div class="outline-text-2" id="text-orga54eef5">
+<p>
+The first thing I wanted to do was format the drive. First I needed to get the name.
+</p>
+
+<pre class="example">
+sudo lshw -C disk
+</pre>
+
+<p>
+Gave me this
+</p>
+
+<pre class="example">
+*-disk
+      description: SCSI Disk
+      product: Elements 25A1
+      vendor: WD
+      physical id: 0.0.0
+      bus info: scsi@1:0.0.0
+      logical name: /dev/sda
+      version: 1014
+      serial: WX71D186F83C
+      size: 3725GiB (4TB)
+      capabilities: gpt-1.00 partitioned partitioned:gpt
+      configuration: ansiversion=6 guid=7ff8067e-6905-4746-a8ec-f3a1f90f99d0 logicalsectorsize=512 sectorsize=4096
+</pre>
+
+<p>
+So it's named <code>/dev/sda</code>. Now let's see if it's mounted.
+</p>
+
+<pre class="example">
+lsblk -f
+</pre>
+
+<pre class="example">
+NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
+sda
+└─sda1      ntfs   Elements A4F2DF7DF2DF5262
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT  EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT  9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+</pre>
+
+<p>
+So you can see that there is a partition named <code>sda1</code> and it's formatted using <code>ntfs</code> and it isn't mounted. Since I'm running it with linux I'll reformant the drive using <code>ext4</code>. I'm also going to give it the label <code>westerndigital</code>.
+</p>
+
+<pre class="example">
+sudo mkfs -t ext4 -L westerndigital /dev/sda1
+</pre>
+
+<pre class="example">
+mke2fs 1.42.13 (17-May-2015)
+/dev/sda1 contains a ntfs file system labelled 'Elements'
+Proceed anyway? (y,n) y
+</pre>
+
+<p>
+Apparently Western Digital named the partition <code>Elements</code>. I entered <code>y</code> and continued.
+</p>
+
+<pre class="example">
+Creating filesystem with 976745728 4k blocks and 244187136 inodes
+Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+        4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968,
+        102400000, 214990848, 512000000, 550731776, 644972544
+</pre>
+
+<p>
+So checking it again.
+</p>
+
+<pre class="example">
+lsblk -f
+</pre>
+
+<pre class="example">
+NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
+sda
+└─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
+mmcblk0
+├─mmcblk0p1 vfat   PI_BOOT        EAD0-90DA                            /boot
+└─mmcblk0p2 ext4   PI_ROOT        9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
+
+</pre>
+
+<p>
+Shows that it's now <code>ext4</code> and it has the label <code>westerndigital</code>. According to <a href="https://help.ubuntu.com/community/UsingUUID">this page</a> the Hardware Abstraction Layer (HAL) will auto-mount drives that have labels, although I haven't tested this yet.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6cf59d7" class="outline-2">
+<h2 id="org6cf59d7">Mounting It</h2>
+<div class="outline-text-2" id="text-org6cf59d7">
+<p>
+First make a directory for it.
+</p>
+
+<pre class="example">
+sudo mkdir /media/westerndigital
+</pre>
+
+<p>
+Then mount it.
+</p>
+
+<pre class="example">
+sudo mount /dev/sda1 /media/westerndigital/
+</pre>
+
+<p>
+Now we can check on it.
+</p>
+
+<pre class="example">
+lsblk
+</pre>
+
+<pre class="example">
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda           8:0    0  3.7T  0 disk
+└─sda1        8:1    0  3.7T  0 part /media/westerndigital
+mmcblk0     179:0    0 29.8G  0 disk
+├─mmcblk0p1 179:1    0   63M  0 part /boot
+└─mmcblk0p2 179:2    0 29.8G  0 part /
+</pre>
+
+<p>
+So we can see that it's mounted at <code>/media/westerndigital/</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org58ac478" class="outline-2">
+<h2 id="org58ac478">Running TCP Dump with Rotating files</h2>
+<div class="outline-text-2" id="text-org58ac478">
+<p>
+First I needed to put the wireless interface into monitor mode.
+</p>
+
+<pre class="example">
+iwconfig wlx00c0ca967afb mode monitor
+</pre>
+
+<p>
+Then I ran tcpdump.
+</p>
+
+<pre class="example">
+sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
+</pre>
+
+<p>
+Which gave me this.
+</p>
+
+<pre class="example">
+tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
+</pre>
+
+<p>
+On my desktop the solution was in the comments of this <a href="https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied">StackOverflow post</a>.
+</p>
+
+<pre class="example">
+sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
+</pre>
+
+<p>
+But on my raspberry pi this raised an error.
+</p>
+
+<pre class="example">
+Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
+Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
+Use --subdomainfs to override.
+</pre>
+
+<p>
+The solution was in the same post. I just made the permissions wide open.
+</p>
+
+<pre class="example">
+sudo chmod 777 /media/westerndigital
+</pre>
+
+<p>
+This is probably a security risk, but it works.
+</p>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/barking-up-the-wrong-tree-notes/" class="u-url">Barking Up The Wrong Tree Notes</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
@@ -100,38 +318,38 @@ navbar-light bg-light
             </p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgd6c2795" class="outline-2">
-<h2 id="orgd6c2795">What Really Produces Success?</h2>
-<div class="outline-text-2" id="text-orgd6c2795">
+    <div id="outline-container-org22677ed" class="outline-2">
+<h2 id="org22677ed">What Really Produces Success?</h2>
+<div class="outline-text-2" id="text-org22677ed">
 <p>
 Success comes from knowing what you're best at and being aligned with your context. Even insanity can be helpful given the right context.
 </p>
 </div>
 </div>
-<div id="outline-container-orgbb47ca5" class="outline-2">
-<h2 id="orgbb47ca5">Should We Play It Safe and Do What We're Told If We Want To Succeed?</h2>
+<div id="outline-container-org8409b6e" class="outline-2">
+<h2 id="org8409b6e">Should We Play It Safe and Do What We're Told If We Want To Succeed?</h2>
 </div>
-<div id="outline-container-orga7cc122" class="outline-2">
-<h2 id="orga7cc122">Do Nice Guys Finish Last?</h2>
+<div id="outline-container-org678f504" class="outline-2">
+<h2 id="org678f504">Do Nice Guys Finish Last?</h2>
 </div>
-<div id="outline-container-orgceb3f9c" class="outline-2">
-<h2 id="orgceb3f9c">Do Quitters Never Win and Winners Never Quit?</h2>
+<div id="outline-container-org0a90f09" class="outline-2">
+<h2 id="org0a90f09">Do Quitters Never Win and Winners Never Quit?</h2>
 </div>
-<div id="outline-container-org0b439e9" class="outline-2">
-<h2 id="org0b439e9">It's Now What You Know It's Who You Know</h2>
+<div id="outline-container-orgce38458" class="outline-2">
+<h2 id="orgce38458">It's Now What You Know It's Who You Know</h2>
 </div>
-<div id="outline-container-orgc207d48" class="outline-2">
-<h2 id="orgc207d48">Believe In Yourself… Sometimes</h2>
+<div id="outline-container-org3ed3ed4" class="outline-2">
+<h2 id="org3ed3ed4">Believe In Yourself… Sometimes</h2>
 </div>
-<div id="outline-container-org5cf97de" class="outline-2">
-<h2 id="org5cf97de">Work, Work, Work… Or Work-Life Balance?</h2>
+<div id="outline-container-org31573e9" class="outline-2">
+<h2 id="org31573e9">Work, Work, Work… Or Work-Life Balance?</h2>
 </div>
-<div id="outline-container-org5ef0134" class="outline-2">
-<h2 id="org5ef0134">What Makes a Successful Life?</h2>
+<div id="outline-container-org94ef2f1" class="outline-2">
+<h2 id="org94ef2f1">What Makes a Successful Life?</h2>
 </div>
-<div id="outline-container-org2d1fd20" class="outline-2">
-<h2 id="org2d1fd20">Sources</h2>
-<div class="outline-text-2" id="text-org2d1fd20">
+<div id="outline-container-org1cd88de" class="outline-2">
+<h2 id="org1cd88de">Sources</h2>
+<div class="outline-text-2" id="text-org1cd88de">
 <ul class="org-ul">
 <li>Barker, Eric. <i>Barking Up the Wrong Tree: The Surprising Science Behind Why Everything You Know About Success Is (Mostly) Wrong</i>. New York: HarperCollins Publishers Inc, 2017.</li>
 </ul>
@@ -149,9 +367,9 @@ Success comes from knowing what you're best at and being aligned with your conte
             </p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgbc2aaf5" class="outline-2">
-<h2 id="orgbc2aaf5">Introduction</h2>
-<div class="outline-text-2" id="text-orgbc2aaf5">
+    <div id="outline-container-org9d25fc6" class="outline-2">
+<h2 id="org9d25fc6">Introduction</h2>
+<div class="outline-text-2" id="text-org9d25fc6">
 <p>
 I recently started revisiting some <a href="https://vuejs.org/">vue.js</a> code that I was working on at work and when I ran the unit-tests all of them failed with pretty much the same error.
 </p>
@@ -165,13 +383,13 @@ I'm using the <a href="http://www.chaijs.com/guide/styles/#should">chai BDD 'sho
 </p>
 </div>
 </div>
-<div id="outline-container-org026607e" class="outline-2">
-<h2 id="org026607e">Set Up</h2>
-<div class="outline-text-2" id="text-org026607e">
+<div id="outline-container-orgba55b9a" class="outline-2">
+<h2 id="orgba55b9a">Set Up</h2>
+<div class="outline-text-2" id="text-orgba55b9a">
 </div>
-<div id="outline-container-orge5e616d" class="outline-3">
-<h3 id="orge5e616d">Install the plugin</h3>
-<div class="outline-text-3" id="text-orge5e616d">
+<div id="outline-container-orgbdb119e" class="outline-3">
+<h3 id="orgbdb119e">Install the plugin</h3>
+<div class="outline-text-3" id="text-orgbdb119e">
 <p>
 I already had this installed for debugging, but I'll mention it anyway, for completeness.
 </p>
@@ -182,9 +400,9 @@ npm install karma-firefox-launcher --save-dev
 </div>
 </div>
 
-<div id="outline-container-orgbf0a4ce" class="outline-3">
-<h3 id="orgbf0a4ce">Set it up in Karma</h3>
-<div class="outline-text-3" id="text-orgbf0a4ce">
+<div id="outline-container-org1da3d2f" class="outline-3">
+<h3 id="org1da3d2f">Set it up in Karma</h3>
+<div class="outline-text-3" id="text-org1da3d2f">
 <p>
 I'm running the tests using <a href="https://karma-runner.github.io/2.0/index.html">karma</a> and I had hoped that I would just have to change the name of the browser in the configuration, but it turns out to need a little setup in the <code>karma.conf.js</code> file. First get rid of the <code>PhantomJS</code> reference. Delete this:
 </p>
@@ -221,9 +439,9 @@ This tells karma to run <code>firefox</code> and pass in the <code>-headless</co
 </div>
 </div>
 </div>
-<div id="outline-container-orged080b5" class="outline-2">
-<h2 id="orged080b5">Conclusion</h2>
-<div class="outline-text-2" id="text-orged080b5">
+<div id="outline-container-orgfea729a" class="outline-2">
+<h2 id="orgfea729a">Conclusion</h2>
+<div class="outline-text-2" id="text-orgfea729a">
 <p>
 <code>PhantomJS</code> breaks the Chai's BDD style of testing, but since both Firefox and <a href="https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md">Chrome</a> have headless modes, using them instead makes it work without actually needing to have the GUI launch.
 </p>
@@ -241,9 +459,9 @@ This tells karma to run <code>firefox</code> and pass in the <code>-headless</co
             </p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orga091b95" class="outline-2">
-<h2 id="orga091b95">Github</h2>
-<div class="outline-text-2" id="text-orga091b95">
+    <div id="outline-container-orge494970" class="outline-2">
+<h2 id="orge494970">Github</h2>
+<div class="outline-text-2" id="text-orge494970">
 <p>
 These are tutorials I found on github.
 </p>
