@@ -1,0 +1,59 @@
+#+BEGIN_COMMENT
+.. title: Using Nvidia Drivers in Ubuntu 18.10
+.. slug: using-nvidia-drivers-in-ubuntu-1810
+.. date: 2018-10-28 12:20:38 UTC-07:00
+.. tags: ubuntu,setup,drivers
+.. category: Ubuntu
+.. link: 
+.. description: Using the Nvidia drivers with Ubuntu 18.10.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 1
+* What is this about?
+  I had previously found that after upgrading from Ubuntu 18.04 to 18.10 my computer would hang whenever I re-booted. I originally "solved" it by purging the nvidia drivers, but I had actually set out to try and get cuda running this weekend (figuring out the nvidia problem took a day and a half so maybe next weekend) so I wanted a way to get the drivers working. Here's how I did it.
+* What didn't work?
+** Disabling the initial login
+   Since I have disk-encrpytion set up there's an initial login screen to enter the decryption passphrase. This never seemed to hang, but if you google 'disable login screen' or something similar this is what you get. Disabling it basically confirmed that it wasn't the problem. For the record, you do this by editing =/etc/default/grub= and changing the line:
+
+#+BEGIN_EXAMPLE
+GRUB_CMDLINE_LINUX_DEFAULT = "quiet splash"
+#+END_EXAMPLE
+
+To:
+
+#+BEGIN_EXAMPLE
+GRUB_CMDLINE_LINUX_DEFAULT = ""
+#+END_EXAMPLE
+** Revert the kernel and driver version
+   Since I had the nvidia drivers working before I upgraded to Ubuntu 18.10 I decided to try using the same driver version that I had used and running the previous kernel using the Grub Menu. No go the bogeyman.
+
+* So what did work?
+  I don't know why other people do it, but [[https://askubuntu.com/questions/800239/how-to-disable-lightdmdisplay-manager-on-ubuntu-16-0-4-lts][this Stack Overflow post]] tells you how to disable the GUI. It's basically a one-liner.
+
+#+BEGIN_EXAMPLE
+sudo systemctl set-default multi-user.target
+#+END_EXAMPLE
+
+This will cause the machine to boot up without the GUI running so you can bypass the user-login screen (which seems to be what is causing the problem for me) and login at the command-prompt. The post suggested using =systemctl= to start the GUI, but that didn't work for me (Ubuntu might not be using =lightdm= anymore, which is what the post refers to). Instead I entered =startx= and here I am.
+
+#+BEGIN_SRC bash :results verbatim :exports both
+lshw -c video
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+  ,*-display
+       description: VGA compatible controller
+       product: GM206 [GeForce GTX 950]
+       vendor: NVIDIA Corporation
+       physical id: 0
+       bus info: pci@0000:01:00.0
+       version: a1
+       width: 64 bits
+       clock: 33MHz
+       capabilities: vga_controller bus_master cap_list rom
+       configuration: driver=nvidia latency=0
+       resources: irq:41 memory:fd000000-fdffffff memory:d0000000-dfffffff memory:ce000000-cfffffff ioport:dc00(size=128) memory:c0000-dffff
+#+end_example
