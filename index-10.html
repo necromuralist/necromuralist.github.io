@@ -89,7 +89,186 @@ navbar-light bg-light
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/tcpdump-on-an-external-hard-drive/" class="u-url">TCPDump On an External Hard Drive</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/openvpn-on-ubuntu-1804/" class="u-url">OpenVPN on Ubuntu 18.04</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="posts/openvpn-on-ubuntu-1804/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-07-10T18:11:39-07:00" itemprop="datePublished" title="2018-07-10 18:11">2018-07-10 18:11</time></a>
+            </p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="outline-container-orgc512a18" class="outline-2">
+<h2 id="orgc512a18">Introduction</h2>
+<div class="outline-text-2" id="text-orgc512a18">
+<p>
+I'm connecting to a remote network using <a href="https://openvpn.net/">OpenVPN</a> served by an ASUS access point. I originally did it at the command line.
+</p>
+
+<pre class="example">
+sudo openvpn --config client.ovpn
+</pre>
+
+<p>
+It turns out that this doesn't allow me to access anything outside of the network that I was connecting to. From what I can tell it's a DNS problem, but nothing I found about fixing DNS problems with OpenVPN from the command line worked. Luckily the Network Settings GUI works, but even then, it didn't work out of the box.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2ebba23" class="outline-2">
+<h2 id="org2ebba23">Initial Configuration</h2>
+<div class="outline-text-2" id="text-org2ebba23">
+<p>
+First, not everything you need is installed. Besides the openvpn client itself (which I had installed before trying to run it at the command line) you need some things for the network settings as well.
+</p>
+
+<pre class="example">
+apt install openvpn network-manager-openvpn network-manager-openvpn-gnome
+</pre>
+
+<p>
+Now open the network settings.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/network_settings_menu.png" alt=" network_settings_menu.png"></p>
+</div>
+
+
+<p>
+In the window that pops up click on the + sign to add a connection.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/network_settings.png" alt=" network_settings.png"></p>
+</div>
+
+<p>
+In the window that then pops up click on <code>Import from file...</code> (I'm assuming you are using a config file).
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/import_from_file.png" alt=" import_from_file.png"></p>
+</div>
+
+<p>
+Navigate to the config file, and double-click on it. In the dialog that pops up enter whatever extra information you need. In my case it was the username and password.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/vpn_dialog.png" alt=" vpn_dialog.png"></p>
+</div>
+
+<p>
+Click on the green 'Add' button and you should now have an entry for your VPN connection in the network settings. Click on the on switch (initially labeled 'Off') and if you're lucky it will connect.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/start_vpn.png" alt=" start_vpn.png"></p>
+</div>
+
+<p>
+After you click on the switch it will look like this, but read on just in case it didn't.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/opened_vpn.png" alt=" opened_vpn.png"></p>
+</div>
+</div>
+</div>
+<div id="outline-container-org28946ca" class="outline-2">
+<h2 id="org28946ca">Fixing the Password Problem</h2>
+<div class="outline-text-2" id="text-org28946ca">
+<p>
+Unfortunately for me it didn't connect. In <code>/var/log/syslog</code> I could see entries like this:
+</p>
+
+<pre class="example">
+gnome-shell[2805]: Invalid VPN service type (cannot find authentication binary)
+</pre>
+
+<p>
+I don't know if the message is directly telling you this (it doesn't seem to), but it turns out that for some reason the Network Settings doesn't save your password. Look in <code>/etc/NetworkManager/system-connections/</code> for a file that matches the name you gave your vpn in the settings. In my case it was just called 'client'. Open it as root in an editor.
+</p>
+
+<pre class="example">
+sudo emacs /etc/NetworkManager/system-connections/client
+</pre>
+
+<p>
+Then change this line in the <code>[vpn]</code> section:
+</p>
+
+<pre class="example">
+password-flags=1
+</pre>
+
+<p>
+to
+</p>
+
+<pre class="example">
+password-flags=0
+</pre>
+
+<p>
+Then add this section.
+</p>
+
+<pre class="example">
+[vpn-secrets]
+password="your-password"
+</pre>
+
+<p>
+Where <code>"your-password"</code> is your vpn password. <i>The quotation marks around your password are required.</i>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgea5d832" class="outline-2">
+<h2 id="orgea5d832">Now Really Connect</h2>
+<div class="outline-text-2" id="text-orgea5d832">
+<p>
+First restart the network manager.
+</p>
+
+<pre class="example">
+sudo service network-manager restart
+</pre>
+
+<p>
+Now re-open the network settings and click on the switch again. With any luck this time it will stay on and you can check by going to one of the devices on your VPN network.
+</p>
+
+
+<div class="figure">
+<p><img src="posts/openvpn-on-ubuntu-1804/switch_on.png" alt=" switch_on.png"></p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5130688" class="outline-2">
+<h2 id="org5130688">Sources</h2>
+<div class="outline-text-2" id="text-org5130688">
+<ul class="org-ul">
+<li>Network Manager Dependencies: <a href="https://askubuntu.com/questions/579159/unable-to-load-vpn-connection-editor-in-ubuntu-14-04-lts">https://askubuntu.com/questions/579159/unable-to-load-vpn-connection-editor-in-ubuntu-14-04-lts</a>
+</li>
+<li>Add VPN Password: <a href="https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10">https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10</a>
+</li>
+</ul>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/tcpdump-on-an-external-hard-drive/" class="u-url">TCPDump On an External Hard Drive</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
