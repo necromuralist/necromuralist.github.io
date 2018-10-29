@@ -141,7 +141,7 @@ NAVIGATION_LINKS = {
         ("/rss.xml", "RSS feed"),
         (
             (
-                ("https://necromuralist.github.io/neural_networks/", "Neural Networks"),
+                ("https://necromuralist.github.io/In-Too-Deep/", "In Too Deep (Neural Networks)"),
                 ("/machine-learning-projects/", "Machine Learning"),
                 ("https://necromuralist.github.io/student_intervention/",
                  "Student Intervention Project"),
