@@ -119,29 +119,29 @@ navbar-light bg-light
 <div class="section" id="the-dockerfile">
 <h2>The Dockerfile</h2>
 <p>This is the configuration for building the docker image.</p>
-<pre class="code dockerfile"><a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-1"></a><span class="k">FROM</span><span class="s"> ubuntu:latest</span>
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-2"></a><span class="k">WORKDIR</span><span class="s"> /code</span>
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-3"></a><span class="k">RUN</span> apt-get update <span class="o">&amp;&amp;</span> apt-get -y upgrade
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-4"></a><span class="k">RUN</span> apt-get install -y build-essential python-dev
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-5"></a><span class="k">RUN</span> apt-get install -y python python-distribute python-pip
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-6"></a><span class="k">RUN</span> pip install pip --upgrade
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-7"></a><span class="k">ADD</span><span class="s"> requirements.txt /code</span>
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-8"></a><span class="k">RUN</span> pip install -r requirements.txt
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-9"></a><span class="k">RUN</span> mkdir /notebooks
-<a name="rest_code_afa675df1cda42ddaf0a38c791df69eb-10"></a><span class="k">CMD</span><span class="s"> jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 /notebooks</span>
+<pre class="code dockerfile"><a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-1"></a><span class="k">FROM</span><span class="s"> ubuntu:latest</span>
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-2"></a><span class="k">WORKDIR</span><span class="s"> /code</span>
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-3"></a><span class="k">RUN</span> apt-get update <span class="o">&amp;&amp;</span> apt-get -y upgrade
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-4"></a><span class="k">RUN</span> apt-get install -y build-essential python-dev
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-5"></a><span class="k">RUN</span> apt-get install -y python python-distribute python-pip
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-6"></a><span class="k">RUN</span> pip install pip --upgrade
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-7"></a><span class="k">ADD</span><span class="s"> requirements.txt /code</span>
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-8"></a><span class="k">RUN</span> pip install -r requirements.txt
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-9"></a><span class="k">RUN</span> mkdir /notebooks
+<a name="rest_code_6ea18bf9dc704795b04f2bc0c01a19b1-10"></a><span class="k">CMD</span><span class="s"> jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 /notebooks</span>
 </pre>
 <p>The <tt class="docutils literal">FROM</tt> line shows that I'm building my container using an ubuntu image (the latest image). The <tt class="docutils literal">WORKDIR</tt> sets the current working directory so commands that are run will look there for files. The next set of <tt class="docutils literal">RUN</tt> lines just say to update <tt class="docutils literal"><span class="pre">apt-get</span></tt> and install some basic python packages. The <tt class="docutils literal">ADD</tt> line takes the <tt class="docutils literal">requirements.txt</tt> file in the directory where I'm going to run this and put it in <tt class="docutils literal">/CODE</tt> which I pointed to with the <tt class="docutils literal">WORKDIR</tt> line. The next <tt class="docutils literal">RUN</tt> commands install my python dependencies and make a folder called <tt class="docutils literal">/notebooks</tt> to put the jupyter notebooks in. The last line (<tt class="docutils literal">CMD</tt>) is what will be executed when the container is run.</p>
 </div>
 <div class="section" id="building-the-image">
 <h2>Building the Image</h2>
 <p>If the docker-file is stored in a file named <tt class="docutils literal">jupyter.dockerfile</tt> next to the <tt class="docutils literal">requirements.txt</tt> file, both of which are in the directory where I run the build command. To build it (and name the image <tt class="docutils literal">jupyter</tt>) I'd run the command:</p>
-<pre class="code bash"><a name="rest_code_c986991de8e34c0ca58730197664ba79-1"></a>docker -f jupyter.dockerfile -t jupyter:latest .
+<pre class="code bash"><a name="rest_code_e6d6e26ca4234a05a97572cd961eeaba-1"></a>docker -f jupyter.dockerfile -t jupyter:latest .
 </pre>
 </div>
 <div class="section" id="running-the-server">
 <h2>Running the Server</h2>
 <p>To run the server in the same directory where the notebooks should be stored and using the default port of 8888:</p>
-<pre class="code bash"><a name="rest_code_277e9c27136a4db5aa5c2614c2814e66-1"></a>docker --name jupyter -p <span class="m">8888</span>:8888 -v <span class="nv">$PWD</span>:/notebooks -d jupyter
+<pre class="code bash"><a name="rest_code_6f705f70bd9740f8b7be3aeb790cbd84-1"></a>docker --name jupyter -p <span class="m">8888</span>:8888 -v <span class="nv">$PWD</span>:/notebooks -d jupyter
 </pre>
 <p>Now the server should be reachable at <tt class="docutils literal"><span class="pre">http://localhost:8888</span></tt>.</p>
 </div>
