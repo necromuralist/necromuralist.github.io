@@ -89,7 +89,218 @@ navbar-light bg-light
 
     
 <div class="postindex">
-    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/openvpn-on-ubuntu-1804/" class="u-url">OpenVPN on Ubuntu 18.04</a></h1>
+    <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/the-linux-ipv6-router-advertisement-daemon-radvd/" class="u-url">The Linux IPv6 Router Advertisement Daemon (radvd)</a></h1>
+        <div class="metadata">
+            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="posts/the-linux-ipv6-router-advertisement-daemon-radvd/" rel="bookmark">
+            <time class="published dt-published" datetime="2018-07-20T11:12:11-07:00" itemprop="datePublished" title="2018-07-20 11:12">2018-07-20 11:12</time></a>
+            </p>
+        </div>
+    </header><div class="e-content entry-content">
+    <div id="outline-container-org2fa353c" class="outline-2">
+<h2 id="org2fa353c">Background</h2>
+<div class="outline-text-2" id="text-org2fa353c">
+<p>
+<a href="http://www.litech.org/radvd/">radvd</a> (the router advertisement daemon) sends IPv6 advertisements and responds to node IPv6 requests. Here's the description from the man page.
+</p>
+
+<blockquote>
+<p>
+<b>radvd</b> is the router advertisement daemon for IPv6. It listens to router solicitations and sends router advertisements as described in "Neighbor Discovery for IP Version 6 (IPv6)" (RFC 4861). With these advertisements hosts can automatically configure their addresses and some other parameters. They also can choose a default router based on these advertisements. 
+</p>
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-orgb8edca3" class="outline-2">
+<h2 id="orgb8edca3">Installation and Setup</h2>
+<div class="outline-text-2" id="text-orgb8edca3">
+<p>
+Setting <b>radvd</b> is suspiciously easy compared to other linux services. First you install it.
+</p>
+
+<pre class="example">
+sudo apt install radvd
+</pre>
+
+<p>
+Installing it will also start the service so we can use <code>systemctl</code> to check how it's doing.
+</p>
+
+<pre class="example">
+systemctl status radvd
+</pre>
+
+<pre class="example">
+systemctl status radvd
+● radvd.service - LSB: Router Advertising Daemon
+   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
+   Active: active (exited) since Fri 2018-07-20 12:39:19 PDT; 36s ago
+     Docs: man:systemd-sysv-generator(8)
+
+Jul 20 12:39:18 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
+Jul 20 12:39:19 asgaard radvd[8532]: Starting radvd:
+Jul 20 12:39:19 asgaard radvd[8532]: * /etc/radvd.conf does not exist or is empty.
+Jul 20 12:39:19 asgaard radvd[8532]: * See /usr/share/doc/radvd/README.Debian
+Jul 20 12:39:19 asgaard radvd[8532]: * radvd will *not* be started.
+Jul 20 12:39:19 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
+</pre>
+
+<p>
+You can see in the output that there's a line with <code>/etc/radvd.conf does not exist or is empty.</code>. To fix this we're going to create the configuration file.
+</p>
+</div>
+
+<div id="outline-container-org1898615" class="outline-3">
+<h3 id="org1898615">The Configuration File</h3>
+<div class="outline-text-3" id="text-org1898615">
+<p>
+Now create a configuration file (named <code>radvd.conf</code>). Here's an example.
+</p>
+
+<pre class="example">
+interface eth0
+{
+MinRtrAdvInterval 3;
+MaxRtrAdvInterval 4;
+AdvSendAdvert on;
+AdvManagedFlag on;
+prefix 2001:db7::/64
+{ AdvValidLifetime 14300; AdvPreferredLifetime 14200; }
+;
+};
+</pre>
+
+<p>
+Note that the interface name depends on your system. Most linux systems don't use the <code>eth0</code> convention anymore. On my desktop the ethernet inteface is called <code>enp1s0</code> and on my raspberry pi it's <code>enxb827eb6c9129</code> so make sure you check what your interface name is using <code>ifconfig</code>.
+</p>
+
+<p>
+Now move (or copy) the config file into <code>/etc/</code>
+</p>
+
+<pre class="example">
+sudo mv radvd.conf /etc/
+</pre>
+
+<p>
+And then restart <code>radvd</code> and check its state.
+</p>
+
+<pre class="example">
+sudo service radvd restart
+systemctl status radvd
+</pre>
+
+<pre class="example">
+● radvd.service - LSB: Router Advertising Daemon
+   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
+   Active: active (exited) since Fri 2018-07-20 12:41:36 PDT; 2s ago
+     Docs: man:systemd-sysv-generator(8)
+  Process: 10008 ExecStop=/etc/init.d/radvd stop (code=exited, status=0/SUCCESS)
+  Process: 10017 ExecStart=/etc/init.d/radvd start (code=exited, status=0/SUCCESS)
+
+Jul 20 12:41:36 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
+Jul 20 12:41:36 asgaard radvd[10017]: Starting radvd:
+Jul 20 12:41:36 asgaard radvd[10017]: * IPv6 forwarding seems to be disabled.
+Jul 20 12:41:36 asgaard radvd[10017]: * See /usr/share/doc/radvd/README.Debian
+Jul 20 12:41:36 asgaard radvd[10017]: * radvd will *not* be started.
+Jul 20 12:41:36 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
+</pre>
+
+<p>
+So the warning about the configuration file went away, now we have to fix the <code>IPv6 forwarding seems to be disabled.</code> error.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb27ee4b" class="outline-3">
+<h3 id="orgb27ee4b">Enable IPv6 Forwarding</h3>
+<div class="outline-text-3" id="text-orgb27ee4b">
+<p>
+For now you can enable it at the command line.
+</p>
+
+<pre class="example">
+sudo sysctl -w net.ipv6.conf.all.forwarding=1
+</pre>
+
+<p>
+And restart and check <code>radvd</code> again.
+</p>
+
+<pre class="example">
+sudo service radvd restart
+systemctl status radvd
+</pre>
+
+<pre class="example">
+● radvd.service - LSB: Router Advertising Daemon
+   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
+   Active: active (running) since Fri 2018-07-20 12:45:02 PDT; 20s ago
+     Docs: man:systemd-sysv-generator(8)
+  Process: 12255 ExecStop=/etc/init.d/radvd stop (code=exited, status=0/SUCCESS)
+  Process: 12264 ExecStart=/etc/init.d/radvd start (code=exited, status=0/SUCCESS)
+   CGroup: /system.slice/radvd.service
+           ├─12275 /usr/sbin/radvd -u radvd -p /var/run/radvd/radvd.pid
+           └─12276 /usr/sbin/radvd -u radvd -p /var/run/radvd/radvd.pid
+
+Jul 20 12:45:01 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
+Jul 20 12:45:02 asgaard radvd[12274]: version 2.11 started
+Jul 20 12:45:02 asgaard radvd[12264]: Starting radvd: radvd.
+Jul 20 12:45:02 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
+</pre>
+
+<p>
+So it looks like our daemon is working. If you restart the server, though, the IPv6 port forwarding won't be enabled so open up <code>/etc/sysctl.conf</code> and un-comment out the following line.
+</p>
+
+<pre class="example">
+net.ipv6.conf.all.forwarding=1
+</pre>
+
+<p>
+Now the next time you power on the computer it should be enabled.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org357079e" class="outline-2">
+<h2 id="org357079e">Checking</h2>
+<div class="outline-text-2" id="text-org357079e">
+<p>
+To check if it's working you can put another device on the LAN and check <code>ifconfig</code>. In our <code>radvd.conf</code> file we defined the prefix for the address:
+</p>
+
+<pre class="example">
+prefix 2001:db7::/64
+</pre>
+
+<p>
+So in the <code>ifconfig</code> output  we should see an entry for an IPv6 address that starts with <code>2001:db7::</code>. In fact I ended up with two.
+</p>
+
+<pre class="example">
+inet6 2001:db7::b8b4:6adf:6267:5571  prefixlen 64  scopeid 0x0&lt;global&gt;
+inet6 2001:db7::a80c:1a05:eaac:c1e8  prefixlen 64  scopeid 0x0&lt;global&gt;
+</pre>
+</div>
+</div>
+<div id="outline-container-org5e9f744" class="outline-2">
+<h2 id="org5e9f744">Sources</h2>
+<div class="outline-text-2" id="text-org5e9f744">
+<ul class="org-ul">
+<li>
+<a href="https://www.linux.com/learn/intro-to-linux/2017/12/ipv6-auto-configuration-linux">IPv6 auto-configuration</a> - how to setup <b>radvd</b> (from linux.com)</li>
+</ul>
+</div>
+</div>
+    </div>
+    </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/openvpn-on-ubuntu-1804/" class="u-url">OpenVPN on Ubuntu 18.04</a></h1>
         <div class="metadata">
             <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                 <a href="authors/cloistered-monkey/">Cloistered Monkey</a>
@@ -100,9 +311,9 @@ navbar-light bg-light
             </p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-org7f966e7" class="outline-2">
-<h2 id="org7f966e7">Introduction</h2>
-<div class="outline-text-2" id="text-org7f966e7">
+    <div id="outline-container-org2cb24f9" class="outline-2">
+<h2 id="org2cb24f9">Introduction</h2>
+<div class="outline-text-2" id="text-org2cb24f9">
 <p>
 I'm connecting to a remote network using <a href="https://openvpn.net/">OpenVPN</a> served by an ASUS access point. I originally did it at the command line.
 </p>
@@ -117,9 +328,9 @@ It turns out that this doesn't allow me to access anything outside of the networ
 </div>
 </div>
 
-<div id="outline-container-orge9d36bf" class="outline-2">
-<h2 id="orge9d36bf">Initial Configuration</h2>
-<div class="outline-text-2" id="text-orge9d36bf">
+<div id="outline-container-org7baa1ac" class="outline-2">
+<h2 id="org7baa1ac">Initial Configuration</h2>
+<div class="outline-text-2" id="text-org7baa1ac">
 <p>
 First, not everything you need is installed. Besides the openvpn client itself (which I had installed before trying to run it at the command line) you need some things for the network settings as well.
 </p>
@@ -184,9 +395,9 @@ After you click on the switch it will look like this, but read on just in case i
 </div>
 </div>
 </div>
-<div id="outline-container-org693cbac" class="outline-2">
-<h2 id="org693cbac">Fixing the Password Problem</h2>
-<div class="outline-text-2" id="text-org693cbac">
+<div id="outline-container-orgde408b9" class="outline-2">
+<h2 id="orgde408b9">Fixing the Password Problem</h2>
+<div class="outline-text-2" id="text-orgde408b9">
 <p>
 Unfortunately for me it didn't connect. In <code>/var/log/syslog</code> I could see entries like this:
 </p>
@@ -234,9 +445,9 @@ Where <code>"your-password"</code> is your vpn password. <i>The quotation marks 
 </div>
 </div>
 
-<div id="outline-container-org471ae08" class="outline-2">
-<h2 id="org471ae08">Now Really Connect</h2>
-<div class="outline-text-2" id="text-org471ae08">
+<div id="outline-container-org4bbfca7" class="outline-2">
+<h2 id="org4bbfca7">Now Really Connect</h2>
+<div class="outline-text-2" id="text-org4bbfca7">
 <p>
 First restart the network manager.
 </p>
@@ -256,9 +467,9 @@ Now re-open the network settings and click on the switch again. With any luck th
 </div>
 </div>
 
-<div id="outline-container-org0ac5402" class="outline-2">
-<h2 id="org0ac5402">Sources</h2>
-<div class="outline-text-2" id="text-org0ac5402">
+<div id="outline-container-org4f1b0c5" class="outline-2">
+<h2 id="org4f1b0c5">Sources</h2>
+<div class="outline-text-2" id="text-org4f1b0c5">
 <ul class="org-ul">
 <li>Network Manager Dependencies: <a href="https://askubuntu.com/questions/579159/unable-to-load-vpn-connection-editor-in-ubuntu-14-04-lts">https://askubuntu.com/questions/579159/unable-to-load-vpn-connection-editor-in-ubuntu-14-04-lts</a>
 </li>
@@ -279,18 +490,18 @@ Now re-open the network settings and click on the switch again. With any luck th
             </p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-org26d2b0d" class="outline-2">
-<h2 id="org26d2b0d">Introduction</h2>
-<div class="outline-text-2" id="text-org26d2b0d">
+    <div id="outline-container-orgcee964a" class="outline-2">
+<h2 id="orgcee964a">Introduction</h2>
+<div class="outline-text-2" id="text-orgcee964a">
 <p>
 I'm using <a href="http://www.tcpdump.org/">tcpdump</a> to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org343b4cd" class="outline-2">
-<h2 id="org343b4cd">Setting Up The Drive</h2>
-<div class="outline-text-2" id="text-org343b4cd">
+<div id="outline-container-org29c3aa5" class="outline-2">
+<h2 id="org29c3aa5">Setting Up The Drive</h2>
+<div class="outline-text-2" id="text-org29c3aa5">
 <p>
 The first thing I wanted to do was format the drive. First I needed to get the name.
 </p>
@@ -386,9 +597,9 @@ Shows that it's now <code>ext4</code> and it has the label <code>westerndigital<
 </div>
 </div>
 
-<div id="outline-container-orgf51846b" class="outline-2">
-<h2 id="orgf51846b">Mounting It</h2>
-<div class="outline-text-2" id="text-orgf51846b">
+<div id="outline-container-org7a7faf6" class="outline-2">
+<h2 id="org7a7faf6">Mounting It</h2>
+<div class="outline-text-2" id="text-org7a7faf6">
 <p>
 First make a directory for it.
 </p>
@@ -427,9 +638,9 @@ So we can see that it's mounted at <code>/media/westerndigital/</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-orgbac36b6" class="outline-2">
-<h2 id="orgbac36b6">Running TCP Dump with Rotating files</h2>
-<div class="outline-text-2" id="text-orgbac36b6">
+<div id="outline-container-org670e58b" class="outline-2">
+<h2 id="org670e58b">Running TCP Dump with Rotating files</h2>
+<div class="outline-text-2" id="text-org670e58b">
 <p>
 First I needed to put the wireless interface into monitor mode.
 </p>
@@ -497,38 +708,38 @@ This is probably a security risk, but it works.
             </p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgd6c2795" class="outline-2">
-<h2 id="orgd6c2795">What Really Produces Success?</h2>
-<div class="outline-text-2" id="text-orgd6c2795">
+    <div id="outline-container-orgda38cb9" class="outline-2">
+<h2 id="orgda38cb9">What Really Produces Success?</h2>
+<div class="outline-text-2" id="text-orgda38cb9">
 <p>
 Success comes from knowing what you're best at and being aligned with your context. Even insanity can be helpful given the right context.
 </p>
 </div>
 </div>
-<div id="outline-container-orgbb47ca5" class="outline-2">
-<h2 id="orgbb47ca5">Should We Play It Safe and Do What We're Told If We Want To Succeed?</h2>
+<div id="outline-container-org69c5fbd" class="outline-2">
+<h2 id="org69c5fbd">Should We Play It Safe and Do What We're Told If We Want To Succeed?</h2>
 </div>
-<div id="outline-container-orga7cc122" class="outline-2">
-<h2 id="orga7cc122">Do Nice Guys Finish Last?</h2>
+<div id="outline-container-orga31fae8" class="outline-2">
+<h2 id="orga31fae8">Do Nice Guys Finish Last?</h2>
 </div>
-<div id="outline-container-orgceb3f9c" class="outline-2">
-<h2 id="orgceb3f9c">Do Quitters Never Win and Winners Never Quit?</h2>
+<div id="outline-container-org0b7dd61" class="outline-2">
+<h2 id="org0b7dd61">Do Quitters Never Win and Winners Never Quit?</h2>
 </div>
-<div id="outline-container-org0b439e9" class="outline-2">
-<h2 id="org0b439e9">It's Now What You Know It's Who You Know</h2>
+<div id="outline-container-orgbd1299d" class="outline-2">
+<h2 id="orgbd1299d">It's Now What You Know It's Who You Know</h2>
 </div>
-<div id="outline-container-orgc207d48" class="outline-2">
-<h2 id="orgc207d48">Believe In Yourself… Sometimes</h2>
+<div id="outline-container-org7e4b3b1" class="outline-2">
+<h2 id="org7e4b3b1">Believe In Yourself… Sometimes</h2>
 </div>
-<div id="outline-container-org5cf97de" class="outline-2">
-<h2 id="org5cf97de">Work, Work, Work… Or Work-Life Balance?</h2>
+<div id="outline-container-org2e3499a" class="outline-2">
+<h2 id="org2e3499a">Work, Work, Work… Or Work-Life Balance?</h2>
 </div>
-<div id="outline-container-org5ef0134" class="outline-2">
-<h2 id="org5ef0134">What Makes a Successful Life?</h2>
+<div id="outline-container-orgd2af8c0" class="outline-2">
+<h2 id="orgd2af8c0">What Makes a Successful Life?</h2>
 </div>
-<div id="outline-container-org2d1fd20" class="outline-2">
-<h2 id="org2d1fd20">Sources</h2>
-<div class="outline-text-2" id="text-org2d1fd20">
+<div id="outline-container-orgf65d8ee" class="outline-2">
+<h2 id="orgf65d8ee">Sources</h2>
+<div class="outline-text-2" id="text-orgf65d8ee">
 <ul class="org-ul">
 <li>Barker, Eric. <i>Barking Up the Wrong Tree: The Surprising Science Behind Why Everything You Know About Success Is (Mostly) Wrong</i>. New York: HarperCollins Publishers Inc, 2017.</li>
 </ul>
@@ -546,9 +757,9 @@ Success comes from knowing what you're best at and being aligned with your conte
             </p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orgbc2aaf5" class="outline-2">
-<h2 id="orgbc2aaf5">Introduction</h2>
-<div class="outline-text-2" id="text-orgbc2aaf5">
+    <div id="outline-container-org3cb0282" class="outline-2">
+<h2 id="org3cb0282">Introduction</h2>
+<div class="outline-text-2" id="text-org3cb0282">
 <p>
 I recently started revisiting some <a href="https://vuejs.org/">vue.js</a> code that I was working on at work and when I ran the unit-tests all of them failed with pretty much the same error.
 </p>
@@ -562,13 +773,13 @@ I'm using the <a href="http://www.chaijs.com/guide/styles/#should">chai BDD 'sho
 </p>
 </div>
 </div>
-<div id="outline-container-org026607e" class="outline-2">
-<h2 id="org026607e">Set Up</h2>
-<div class="outline-text-2" id="text-org026607e">
+<div id="outline-container-org05843ca" class="outline-2">
+<h2 id="org05843ca">Set Up</h2>
+<div class="outline-text-2" id="text-org05843ca">
 </div>
-<div id="outline-container-orge5e616d" class="outline-3">
-<h3 id="orge5e616d">Install the plugin</h3>
-<div class="outline-text-3" id="text-orge5e616d">
+<div id="outline-container-orge4bc74b" class="outline-3">
+<h3 id="orge4bc74b">Install the plugin</h3>
+<div class="outline-text-3" id="text-orge4bc74b">
 <p>
 I already had this installed for debugging, but I'll mention it anyway, for completeness.
 </p>
@@ -579,9 +790,9 @@ npm install karma-firefox-launcher --save-dev
 </div>
 </div>
 
-<div id="outline-container-orgbf0a4ce" class="outline-3">
-<h3 id="orgbf0a4ce">Set it up in Karma</h3>
-<div class="outline-text-3" id="text-orgbf0a4ce">
+<div id="outline-container-orgae600ea" class="outline-3">
+<h3 id="orgae600ea">Set it up in Karma</h3>
+<div class="outline-text-3" id="text-orgae600ea">
 <p>
 I'm running the tests using <a href="https://karma-runner.github.io/2.0/index.html">karma</a> and I had hoped that I would just have to change the name of the browser in the configuration, but it turns out to need a little setup in the <code>karma.conf.js</code> file. First get rid of the <code>PhantomJS</code> reference. Delete this:
 </p>
@@ -618,9 +829,9 @@ This tells karma to run <code>firefox</code> and pass in the <code>-headless</co
 </div>
 </div>
 </div>
-<div id="outline-container-orged080b5" class="outline-2">
-<h2 id="orged080b5">Conclusion</h2>
-<div class="outline-text-2" id="text-orged080b5">
+<div id="outline-container-orgf6cf266" class="outline-2">
+<h2 id="orgf6cf266">Conclusion</h2>
+<div class="outline-text-2" id="text-orgf6cf266">
 <p>
 <code>PhantomJS</code> breaks the Chai's BDD style of testing, but since both Firefox and <a href="https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md">Chrome</a> have headless modes, using them instead makes it work without actually needing to have the GUI launch.
 </p>
@@ -638,9 +849,9 @@ This tells karma to run <code>firefox</code> and pass in the <code>-headless</co
             </p>
         </div>
     </header><div class="e-content entry-content">
-    <div id="outline-container-orga091b95" class="outline-2">
-<h2 id="orga091b95">Github</h2>
-<div class="outline-text-2" id="text-orga091b95">
+    <div id="outline-container-org5898419" class="outline-2">
+<h2 id="org5898419">Github</h2>
+<div class="outline-text-2" id="text-org5898419">
 <p>
 These are tutorials I found on github.
 </p>

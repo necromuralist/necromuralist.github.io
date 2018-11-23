@@ -1,29 +1,282 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2018 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 30 Oct 2018 00:11:41 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Using Nvidia Drivers in Ubuntu 18.10</title><link>https://necromuralist.github.io/posts/ubuntu/using-nvidia-drivers-in-ubuntu-1810/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2018 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Fri, 23 Nov 2018 22:36:27 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Remote jupyter Sessions With ob-ipython</title><link>https://necromuralist.github.io/posts/programming/remote-jupyter-sessions-with-ob-ipython/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/using-nvidia-drivers-in-ubuntu-1810/#orga6f4267"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/using-nvidia-drivers-in-ubuntu-1810/#org6ec40ff"&gt;What didn't work?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/using-nvidia-drivers-in-ubuntu-1810/#org25fbeb8"&gt;So what did work?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/programming/remote-jupyter-sessions-with-ob-ipython/#org23d0e67"&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/programming/remote-jupyter-sessions-with-ob-ipython/#org9066670"&gt;The Layout&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/programming/remote-jupyter-sessions-with-ob-ipython/#orga146227"&gt;Setting up the Session&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/programming/remote-jupyter-sessions-with-ob-ipython/#orga2ee10f"&gt;A Plot&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga6f4267" class="outline-2"&gt;
-&lt;h2 id="orga6f4267"&gt;What is this about?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga6f4267"&gt;
+&lt;div id="outline-container-org23d0e67" class="outline-2"&gt;
+&lt;h2 id="org23d0e67"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org23d0e67"&gt;
+&lt;p&gt;
+These are my notes about trying to use a remote jupyter session in org-mode (with ob-ipython). My main source was &lt;a href="https://vxlabs.com/2017/11/30/run-code-on-remote-ipython-kernels-with-emacs-and-orgmode/"&gt;this blog post&lt;/a&gt; from vxlabs, and also the &lt;a href="https://github.com/ipython/ipython/wiki/Cookbook:-Connecting-to-a-remote-kernel-via-ssh"&gt;ipython&lt;/a&gt; instructions for setting up a remote-session. I also referred to the &lt;a href="https://github.com/gregsexton/ob-ipython#working-with-a-remote-session"&gt;ob-ipython notes&lt;/a&gt; on setting up a remote session, although I didn't really understand everything it said until after I had done it once.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org9066670" class="outline-2"&gt;
+&lt;h2 id="org9066670"&gt;The Layout&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9066670"&gt;
+&lt;p&gt;
+Both this post and the jupyter server are running on my desktop (Hades) while I'm editing them in emacs on my laptop.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orga146227" class="outline-2"&gt;
+&lt;h2 id="orga146227"&gt;Setting up the Session&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga146227"&gt;
+&lt;p&gt;
+The steps are:
+&lt;/p&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Find out where the JSON file you will need is going to be put on the server&lt;/li&gt;
+&lt;li&gt;Start the server&lt;/li&gt;
+&lt;li&gt;Copy the json file that was created to your client&lt;/li&gt;
+&lt;li&gt;Start an ipython session to connect to the remote session&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orge6d52c6" class="outline-3"&gt;
+&lt;h3 id="orge6d52c6"&gt;Find Out Where the JSON File Will Be&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge6d52c6"&gt;
+&lt;p&gt;
+While ssh'd into the server (and with the appropriate virtual environment running if you need it), enter the command to show the folder where the JSON file will be.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;jupyter --runtime-dir
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+In my case this is what came out.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+/run/user/1000/jupyter
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7464b15" class="outline-3"&gt;
+&lt;h3 id="org7464b15"&gt;Start the Server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7464b15"&gt;
+&lt;p&gt;
+Change into the directory where you want the jupyter server to run and start the ipython kernel.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ipython kernel
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This is what came out for me.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+NOTE: When using the `ipython kernel` entry point, Ctrl-C will not work.
+
+To exit, you will have to explicitly quit this process, by either sending
+"quit" from a client, or using Ctrl-\ in UNIX-like environments.
+
+To read more about this, see https://github.com/ipython/ipython/issues/2049
+
+
+To connect another client to this kernel, use:
+    --existing kernel-10181.json
+
+&lt;/pre&gt;
+&lt;p&gt;
+That last line refers to the JSON file that we're going to need on the client side (&lt;code&gt;kernel-10181.json&lt;/code&gt;).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org843220f" class="outline-3"&gt;
+&lt;h3 id="org843220f"&gt;Copy the File From the Server To the Client&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org843220f"&gt;
+&lt;p&gt;
+Go back to your client (my laptop in this case) and check where your jupyter installation is.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;jupyter --runtime-dir
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+/run/user/1000/jupyter
+&lt;/pre&gt;
+
+&lt;p&gt;
+Both my laptop and desktop had the same location, so it's probably the default. Now change into that directory on the client and copy the file from the server.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cd /run/user/1000/jupyter
+scp Hades:/run/user/1000/jupyter/kernel-10181.json .
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgca88430" class="outline-3"&gt;
+&lt;h3 id="orgca88430"&gt;Start the Client&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgca88430"&gt;
+&lt;p&gt;
+You can run this next command anywhere on the client where you can run jupyter.
+&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;jupyter console --existing kernel-10181.json --ssh Hades
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Where &lt;code&gt;kernel-10181.json&lt;/code&gt; is the files copied from the server and &lt;code&gt;Hades&lt;/code&gt; is the ssh alias for my server (so it would be &lt;code&gt;hades@erebus&lt;/code&gt; without the alias).
+&lt;/p&gt;
+
+&lt;p&gt;
+When you run this command it will open up an ipython prompt that will be connected to the server. This turns out to be more useful than I thought it would be because the prompt that ob-ipython normally opens seems to be broken when I'm connected to the remote client. Maybe there's something else to configure. Anyway, whatever you add to your emacs ob-ipython namespace will be accessible to you in the ipython prompt so you can fiddle with things live in there.
+&lt;/p&gt;
+
+&lt;p&gt;
+Once you open this it will add another file (&lt;code&gt;kernel-10181-ssh.json&lt;/code&gt; in this case) that you can use to connect if you want to open up more than ipython prompt for some reason:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;jupyter console --existing kernel-10181-ssh.json
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+You don't pass in the &lt;code&gt;--ssh&lt;/code&gt; flag this time. Note that you're still sharing the same jupyter session so all the variables and stuff will show up in the second console as well.
+&lt;/p&gt;
+
+&lt;p&gt;
+But, more importantly, this second json file is how we can connect while in emacs.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org1750a45" class="outline-3"&gt;
+&lt;h3 id="org1750a45"&gt;Use The Session&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org1750a45"&gt;
+&lt;p&gt;
+To make use of the session you need to pass in the name of the ssh kernel file as the name of the ipython session.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC ipython :session kernel-10181-ssh.json :results none
+
+#+END_SRC
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Anything you do in a block with that session ID will send the commands to the remote server to be interpreted.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orga2ee10f" class="outline-2"&gt;
+&lt;h2 id="orga2ee10f"&gt;A Plot&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga2ee10f"&gt;
+&lt;p&gt;
+I'm going to use this example from the &lt;a href="https://seaborn.pydata.org/examples/structured_heatmap.html"&gt;seaborn gallery&lt;/a&gt; to test out the setup. It might not be obvious from the post itself but the web-server for this post is also on my remote machine so I can tell if it worked by checking the page in a browser (because if it was using an ipython session on my laptop the page wouldn't get the image).
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org3d0172e" class="outline-3"&gt;
+&lt;h3 id="org3d0172e"&gt;Imports From PyPi&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3d0172e"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;import pandas
+import seaborn
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org8b9d408" class="outline-3"&gt;
+&lt;h3 id="org8b9d408"&gt;Plotting Setup&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8b9d408"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;%matplotlib inline
+seaborn.set(style="whitegrid",
+	    rc={"axes.grid": False,
+		"font.family": ["sans-serif"],
+		"font.sans-serif": ["Latin Modern Sans", "Lato"],
+		"figure.figsize": (13, 13)},
+	    font_scale=1)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Load the brain networks example dataset
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;data = seaborn.load_dataset("brain_networks", header=[0, 1, 2], index_col=0)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Select a subset of the networks.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;used_networks = [1, 5, 6, 7, 8, 12, 13, 17]
+used_columns = (data.columns.get_level_values("network")
+		.astype(int)
+		.isin(used_networks))
+data = data.loc[:, used_columns]
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Create a categorical palette to identify the networks.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;network_palette = seaborn.husl_palette(8, s=.45)
+# I have no idea what the network_lut is.
+network_lut = dict(zip(map(str, used_networks), network_palette))
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Convert the palette to vectors that will be drawn on the side of the matrix.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;networks = data.columns.get_level_values("network")
+network_colors = pandas.Series(networks, index=data.columns).map(network_lut)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Plot.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cluster = seaborn.clustermap(data.corr(), center=0, cmap="vlag",
+			     row_colors=network_colors,
+			     col_colors=network_colors,
+			     linewidths=.75)
+title = cluster.fig.suptitle("Brain Networks")
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="figure"&gt;
+&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/programming/remote-jupyter-sessions-with-ob-ipython/cluster_map.png" alt="cluster_map.png"&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+Besides the ipython shell not working in emacs I also couldn't get it to render images directly in emacs, but they did render on the remote side so I could see the plot in my web-browser.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>emacs</category><category>jupyter</category><category>org-mode</category><category>programming</category><category>python</category><guid>https://necromuralist.github.io/posts/programming/remote-jupyter-sessions-with-ob-ipython/</guid><pubDate>Fri, 23 Nov 2018 20:24:49 GMT</pubDate></item><item><title>Using Nvidia Drivers in Ubuntu 18.10</title><link>https://necromuralist.github.io/posts/ubuntu/using-nvidia-drivers-in-ubuntu-1810/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/using-nvidia-drivers-in-ubuntu-1810/#org7461919"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/using-nvidia-drivers-in-ubuntu-1810/#org018913a"&gt;What didn't work?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/using-nvidia-drivers-in-ubuntu-1810/#org88ed03a"&gt;So what did work?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7461919" class="outline-2"&gt;
+&lt;h2 id="org7461919"&gt;What is this about?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7461919"&gt;
 &lt;p&gt;
 I had previously found that after upgrading from Ubuntu 18.04 to 18.10 my computer would hang whenever I re-booted. I originally "solved" it by purging the nvidia drivers, but I had actually set out to try and get cuda running this weekend (figuring out the nvidia problem took a day and a half so maybe next weekend) so I wanted a way to get the drivers working. Here's how I did it.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6ec40ff" class="outline-2"&gt;
-&lt;h2 id="org6ec40ff"&gt;What didn't work?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6ec40ff"&gt;
+&lt;div id="outline-container-org018913a" class="outline-2"&gt;
+&lt;h2 id="org018913a"&gt;What didn't work?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org018913a"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org33382ff" class="outline-3"&gt;
-&lt;h3 id="org33382ff"&gt;Disabling the initial login&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org33382ff"&gt;
+&lt;div id="outline-container-org500e9bc" class="outline-3"&gt;
+&lt;h3 id="org500e9bc"&gt;Disabling the initial login&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org500e9bc"&gt;
 &lt;p&gt;
 Since I have disk-encrpytion set up there's an initial login screen to enter the decryption passphrase. This never seemed to hang, but if you google 'disable login screen' or something similar this is what you get. Disabling it basically confirmed that it wasn't the problem. For the record, you do this by editing &lt;code&gt;/etc/default/grub&lt;/code&gt; and changing the line:
 &lt;/p&gt;
@@ -41,9 +294,9 @@ GRUB_CMDLINE_LINUX_DEFAULT = ""
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc0ed0cc" class="outline-3"&gt;
-&lt;h3 id="orgc0ed0cc"&gt;Revert the kernel and driver version&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc0ed0cc"&gt;
+&lt;div id="outline-container-org95d461c" class="outline-3"&gt;
+&lt;h3 id="org95d461c"&gt;Revert the kernel and driver version&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org95d461c"&gt;
 &lt;p&gt;
 Since I had the nvidia drivers working before I upgraded to Ubuntu 18.10 I decided to try using the same driver version that I had used and running the previous kernel using the Grub Menu. No go the bogeyman.
 &lt;/p&gt;
@@ -51,9 +304,9 @@ Since I had the nvidia drivers working before I upgraded to Ubuntu 18.10 I decid
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org25fbeb8" class="outline-2"&gt;
-&lt;h2 id="org25fbeb8"&gt;So what did work?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org25fbeb8"&gt;
+&lt;div id="outline-container-org88ed03a" class="outline-2"&gt;
+&lt;h2 id="org88ed03a"&gt;So what did work?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org88ed03a"&gt;
 &lt;p&gt;
 I don't know why other people do it, but &lt;a href="https://askubuntu.com/questions/800239/how-to-disable-lightdmdisplay-manager-on-ubuntu-16-0-4-lts"&gt;this Stack Overflow post&lt;/a&gt; tells you how to disable the GUI. It's basically a one-liner.
 &lt;/p&gt;
@@ -88,20 +341,20 @@ This will cause the machine to boot up without the GUI running so you can bypass
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orgf8739f6"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orge26a9b8"&gt;What didn't work?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#org5f38d2d"&gt;What did work?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orgdd55d21"&gt;Anything Else?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orgb970c73"&gt;Update&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orgd96b430"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orgec779ed"&gt;What didn't work?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#org51fe9ff"&gt;What did work?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#org3f94a47"&gt;Anything Else?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/ubuntu/recovering-from-the-ubuntu-1810-upgrade/#orgd27b44d"&gt;Update&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;p&gt;
 &lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; I had it hang again on rebooting so there's an update at the end.
 &lt;/p&gt;
-&lt;div id="outline-container-orgf8739f6" class="outline-2"&gt;
-&lt;h2 id="orgf8739f6"&gt;What is this about?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf8739f6"&gt;
+&lt;div id="outline-container-orgd96b430" class="outline-2"&gt;
+&lt;h2 id="orgd96b430"&gt;What is this about?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd96b430"&gt;
 &lt;p&gt;
 I updated from Ubuntu 18.04 to &lt;a href="https://blog.ubuntu.com/2018/10/19/welcome-ubuntu-desktop-18-10"&gt;Ubuntu 18.10&lt;/a&gt; (Cosmic Cuttlefish) last night and upon rebooting found that I couldn't (finish rebooting, that is). In order to write this I had to recover from the problem so I don't have a screen-grab of the error, but it was basically the same one given in &lt;a href="https://askubuntu.com/questions/837143/failed-to-connect-to-lvmetad"&gt;this Stack Overflow post&lt;/a&gt;:
 &lt;/p&gt;
@@ -119,17 +372,17 @@ WARNING: Failed to connect to lvmetad. Falling back to device scanning.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orge26a9b8" class="outline-2"&gt;
-&lt;h2 id="orge26a9b8"&gt;What didn't work?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge26a9b8"&gt;
+&lt;div id="outline-container-orgec779ed" class="outline-2"&gt;
+&lt;h2 id="orgec779ed"&gt;What didn't work?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgec779ed"&gt;
 &lt;p&gt;
 If you read the Stack Overflow post I linked to above, the solution was to downgrade the kernel version using the grub loader so, following that advice, I brought up the Grub menu by holding down the shift key while the machine booted up, then tried to move the cursor down to &lt;i&gt;Advanced&lt;/i&gt; in the menu using the arrow keys but for some reason it wouldn't move. I thought maybe it was my &lt;a href="https://ultimatehackingkeyboard.com/"&gt;Ultimate Hacking Keyboard&lt;/a&gt; so I went and grabbed my &lt;a href="http://vortexgear.tw/vortex2_2.asp?kind=47&amp;amp;kind2=225&amp;amp;kind3=&amp;amp;kind4=1043"&gt;Vortex&lt;/a&gt; keyboard instead and it still wouldn't work, and at this point some people might think that it probably was not the keyboard, but nope, I went and grabbed my &lt;a href="http://redragonusa.com/products/keyboard/K552/47"&gt;Redragon&lt;/a&gt; keyboard and all of a sudden it worked. Why did my $30 keyboard work better than my $300 keyboard? And no, I don't think I paid that much when I bought the Ultimate Hacking Keyboard (but it took something like two years to ship so I probably spent more than that in lost time). Well, anyway, it turned out that I plugged the last keyboard in the left USB slot while my other keyboards were in the right USB slot and for some reason the right slot was disabled when I went into the Grub Menu. No mention of that on Stack Overflow, unfortunately.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5f38d2d" class="outline-2"&gt;
-&lt;h2 id="org5f38d2d"&gt;What did work?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5f38d2d"&gt;
+&lt;div id="outline-container-org51fe9ff" class="outline-2"&gt;
+&lt;h2 id="org51fe9ff"&gt;What did work?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org51fe9ff"&gt;
 &lt;p&gt;
 While I was googling around I found &lt;a href="https://askubuntu.com/questions/969917/failed-to-connect-to-lvmetad-stuck-on-boot"&gt;this post&lt;/a&gt; on Stack Overflow where it was mentioned that the solution did mess with the kernel but it also mentions that he purged his nvidia drivers, which struck a chord with me because I've had problems with the nvidia drivers on my computer at work whenever I upgrade so I thought that maybe this might be something to check out first, before messing with the kernel. The post suggested using &lt;code&gt;ctrl-alt-f3&lt;/code&gt; to get into a terminal which didn't work for me for some reason so I used the Grub Menu instead. Here's the steps for my future self.
 &lt;/p&gt;
@@ -149,9 +402,9 @@ I got the stuff about removing the nvidia driver from &lt;a href="https://askubu
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgdd55d21" class="outline-2"&gt;
-&lt;h2 id="orgdd55d21"&gt;Anything Else?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgdd55d21"&gt;
+&lt;div id="outline-container-org3f94a47" class="outline-2"&gt;
+&lt;h2 id="org3f94a47"&gt;Anything Else?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3f94a47"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ubuntu-drivers devices
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -179,9 +432,9 @@ Cross your fingers.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb970c73" class="outline-2"&gt;
-&lt;h2 id="orgb970c73"&gt;Update&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb970c73"&gt;
+&lt;div id="outline-container-orgd27b44d" class="outline-2"&gt;
+&lt;h2 id="orgd27b44d"&gt;Update&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd27b44d"&gt;
 &lt;p&gt;
 First, I didn't mention it above (because I hadn't noticed) but the bluetooth interface wouldn't start. The GUI actually let me click on the on-switch but nothing changed and when I looked in Journalctl I could see that it was raising errors. Even &lt;i&gt;hciconfig&lt;/i&gt; couldn't bring it up. Maddeningly, there are posts out there that showed the same errors that I saw (like &lt;a href="https://www.queryxchange.com/q/3_772706/bluetooth-problem-after-upgrade-from-ubuntu-14-to-16-04/"&gt;this one&lt;/a&gt;) but not only did none of the fixes they suggested work, but once I rebooted the problem went away, so I could have tried that before troubleshooting, and avoided all the hassle (maybe). 
 &lt;/p&gt;
@@ -194,79 +447,80 @@ Of course, every solution creates a problem, and while rebooting fixed my blueto
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#orgbd23068"&gt;Imports&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#orgde6415c"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org73e12af"&gt;The Data&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#orga38a1fa"&gt;Grouping&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org345d4f6"&gt;Concatenate our data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#orgebd68a0"&gt;Imports&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org0b488cd"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org06dc9e6"&gt;The Data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#orgeb20647"&gt;Grouping&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org0d63b43"&gt;Concatenate our data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org56c384a"&gt;Scaled&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgbd23068" class="outline-2"&gt;
-&lt;h2 id="orgbd23068"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbd23068"&gt;
+&lt;div id="outline-container-orgebd68a0" class="outline-2"&gt;
+&lt;h2 id="orgebd68a0"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgebd68a0"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org86bd6bc" class="outline-3"&gt;
-&lt;h3 id="org86bd6bc"&gt;From Python&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org86bd6bc"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;from functools import partial
+&lt;div id="outline-container-org8024747" class="outline-3"&gt;
+&lt;h3 id="org8024747"&gt;From Python&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8024747"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org8660c2c" class="outline-3"&gt;
-&lt;h3 id="org8660c2c"&gt;From pypi&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8660c2c"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;from tabulate import tabulate
-import matplotlib.pyplot as pyplot
-import numpy
-import pandas
-import seaborn
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgde6415c" class="outline-2"&gt;
-&lt;h2 id="orgde6415c"&gt;Set Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgde6415c"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org05bb8b3" class="outline-3"&gt;
-&lt;h3 id="org05bb8b3"&gt;The Plotting&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org05bb8b3"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;%matplotlib inline
-seaborn.set(style="whitegrid", color_codes=True)
-FIGURE_SIZE = (14, 12)
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org751a55c" class="outline-3"&gt;
-&lt;h3 id="org751a55c"&gt;The Tables&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org751a55c"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;table = partial(tabulate, headers="keys",
-		tablefmt="orgtbl")
+&lt;div id="outline-container-orga9d8e4d" class="outline-3"&gt;
+&lt;h3 id="orga9d8e4d"&gt;From pypi&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga9d8e4d"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;tabulate&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;tabulate&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;matplotlib.pyplot&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pyplot&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;seaborn&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org73e12af" class="outline-2"&gt;
-&lt;h2 id="org73e12af"&gt;The Data&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org73e12af"&gt;
+&lt;div id="outline-container-org0b488cd" class="outline-2"&gt;
+&lt;h2 id="org0b488cd"&gt;Set Up&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0b488cd"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org428a97c" class="outline-3"&gt;
+&lt;h3 id="org428a97c"&gt;The Plotting&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org428a97c"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;matplotlib&lt;/span&gt; &lt;span class="n"&gt;inline&lt;/span&gt;
+&lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;style&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"whitegrid"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;color_codes&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;FIGURE_SIZE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgb5bdee5" class="outline-3"&gt;
+&lt;h3 id="orgb5bdee5"&gt;The Tables&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb5bdee5"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tabulate&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;headers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"keys"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+		&lt;span class="n"&gt;tablefmt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"orgtbl"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org06dc9e6" class="outline-2"&gt;
+&lt;h2 id="org06dc9e6"&gt;The Data&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org06dc9e6"&gt;
 &lt;p&gt;
 This is just some fake stuff to test it out. We're going to simulate how participants in a survey scored two products on a scale from -3 to 3.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4b89782" class="outline-3"&gt;
-&lt;h3 id="org4b89782"&gt;Product One&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org4b89782"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;countries = ["china"] * 50 + ["india"] * 20 + ["japan"] * 2
-options = [-3, -2, -1, 0, 1, 2, 3]
-scores = pandas.Series(numpy.random.choice(options, size=len(countries)), dtype="category")
-one_hot = pandas.get_dummies(scores, "Alpha", " ")
-data = pandas.DataFrame.from_dict(dict(country=countries),
-				  dtype="category")
-data = pandas.concat([data, one_hot], axis="columns")
+&lt;div id="outline-container-org5913643" class="outline-3"&gt;
+&lt;h3 id="org5913643"&gt;Product One&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5913643"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"china"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"india"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"japan"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;scores&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Series&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;choice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt; &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"category"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;one_hot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_dummies&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Alpha"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;" "&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DataFrame&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;from_dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;country&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+				  &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"category"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concat&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;one_hot&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"columns"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;print(table(data.head(), showindex=False))
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;showindex&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;False&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
@@ -308,7 +562,18 @@ data = pandas.concat([data, one_hot], axis="columns")
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;china&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;1&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;/tr&gt;
@@ -327,9 +592,9 @@ data = pandas.concat([data, one_hot], axis="columns")
 &lt;tr&gt;
 &lt;td class="org-left"&gt;china&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;1&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
@@ -340,18 +605,7 @@ data = pandas.concat([data, one_hot], axis="columns")
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;1&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td class="org-left"&gt;china&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;1&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
@@ -361,19 +615,19 @@ data = pandas.concat([data, one_hot], axis="columns")
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org3f38716" class="outline-3"&gt;
-&lt;h3 id="org3f38716"&gt;Product Two&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3f38716"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;countries = ["china"] * 20 + ["india"] * 30 + ["japan"] * 25
-options = [-3, -2, -1, 0, 1, 2, 3]
-scores = pandas.Series(numpy.random.choice(options, size=len(countries)), dtype="category")
-one_hot = pandas.get_dummies(scores, "Beta", " ")
-data_2 = pandas.DataFrame.from_dict(dict(country=countries),
-				    dtype="category")
-data_2 = pandas.concat([data_2, one_hot], axis="columns")
+&lt;div id="outline-container-org4d79040" class="outline-3"&gt;
+&lt;h3 id="org4d79040"&gt;Product Two&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4d79040"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"china"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"india"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;30&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"japan"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;25&lt;/span&gt;
+&lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;scores&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Series&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;choice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt; &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"category"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;one_hot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_dummies&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scores&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Beta"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;" "&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;data_2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DataFrame&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;from_dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;country&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+				    &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"category"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;data_2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;concat&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;data_2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;one_hot&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"columns"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;print(table(data_2.head()))
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data_2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="p"&gt;()))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
@@ -469,14 +723,14 @@ data_2 = pandas.concat([data_2, one_hot], axis="columns")
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orga38a1fa" class="outline-2"&gt;
-&lt;h2 id="orga38a1fa"&gt;Grouping&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga38a1fa"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;grouped = data.groupby("country").sum()
+&lt;div id="outline-container-orgeb20647" class="outline-2"&gt;
+&lt;h2 id="orgeb20647"&gt;Grouping&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgeb20647"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;groupby&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"country"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;print(table(grouped))
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
@@ -514,45 +768,45 @@ data_2 = pandas.concat([data_2, one_hot], axis="columns")
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td class="org-left"&gt;china&lt;/td&gt;
-&lt;td class="org-right"&gt;2&lt;/td&gt;
-&lt;td class="org-right"&gt;8&lt;/td&gt;
 &lt;td class="org-right"&gt;6&lt;/td&gt;
-&lt;td class="org-right"&gt;7&lt;/td&gt;
+&lt;td class="org-right"&gt;8&lt;/td&gt;
+&lt;td class="org-right"&gt;3&lt;/td&gt;
 &lt;td class="org-right"&gt;9&lt;/td&gt;
-&lt;td class="org-right"&gt;6&lt;/td&gt;
-&lt;td class="org-right"&gt;12&lt;/td&gt;
+&lt;td class="org-right"&gt;4&lt;/td&gt;
+&lt;td class="org-right"&gt;11&lt;/td&gt;
+&lt;td class="org-right"&gt;9&lt;/td&gt;
 &lt;/tr&gt;
 
 &lt;tr&gt;
 &lt;td class="org-left"&gt;india&lt;/td&gt;
-&lt;td class="org-right"&gt;2&lt;/td&gt;
-&lt;td class="org-right"&gt;8&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;3&lt;/td&gt;
+&lt;td class="org-right"&gt;3&lt;/td&gt;
+&lt;td class="org-right"&gt;3&lt;/td&gt;
+&lt;td class="org-right"&gt;3&lt;/td&gt;
 &lt;td class="org-right"&gt;4&lt;/td&gt;
-&lt;td class="org-right"&gt;2&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;4&lt;/td&gt;
+&lt;td class="org-right"&gt;1&lt;/td&gt;
+&lt;td class="org-right"&gt;3&lt;/td&gt;
 &lt;/tr&gt;
 
 &lt;tr&gt;
 &lt;td class="org-left"&gt;japan&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;1&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;td class="org-right"&gt;1&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
-&lt;td class="org-right"&gt;0&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;grouped_2 = data_2.groupby("country").sum()
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;grouped_2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data_2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;groupby&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"country"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;print(table(grouped_2))
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped_2&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
@@ -590,52 +844,55 @@ data_2 = pandas.concat([data_2, one_hot], axis="columns")
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td class="org-left"&gt;china&lt;/td&gt;
-&lt;td class="org-right"&gt;3&lt;/td&gt;
+&lt;td class="org-right"&gt;1&lt;/td&gt;
 &lt;td class="org-right"&gt;5&lt;/td&gt;
+&lt;td class="org-right"&gt;4&lt;/td&gt;
 &lt;td class="org-right"&gt;2&lt;/td&gt;
 &lt;td class="org-right"&gt;3&lt;/td&gt;
-&lt;td class="org-right"&gt;2&lt;/td&gt;
-&lt;td class="org-right"&gt;2&lt;/td&gt;
-&lt;td class="org-right"&gt;3&lt;/td&gt;
+&lt;td class="org-right"&gt;1&lt;/td&gt;
+&lt;td class="org-right"&gt;4&lt;/td&gt;
 &lt;/tr&gt;
 
 &lt;tr&gt;
 &lt;td class="org-left"&gt;india&lt;/td&gt;
-&lt;td class="org-right"&gt;4&lt;/td&gt;
+&lt;td class="org-right"&gt;5&lt;/td&gt;
+&lt;td class="org-right"&gt;2&lt;/td&gt;
+&lt;td class="org-right"&gt;10&lt;/td&gt;
 &lt;td class="org-right"&gt;2&lt;/td&gt;
 &lt;td class="org-right"&gt;3&lt;/td&gt;
-&lt;td class="org-right"&gt;7&lt;/td&gt;
-&lt;td class="org-right"&gt;5&lt;/td&gt;
-&lt;td class="org-right"&gt;6&lt;/td&gt;
-&lt;td class="org-right"&gt;3&lt;/td&gt;
+&lt;td class="org-right"&gt;4&lt;/td&gt;
+&lt;td class="org-right"&gt;4&lt;/td&gt;
 &lt;/tr&gt;
 
 &lt;tr&gt;
 &lt;td class="org-left"&gt;japan&lt;/td&gt;
-&lt;td class="org-right"&gt;2&lt;/td&gt;
-&lt;td class="org-right"&gt;4&lt;/td&gt;
 &lt;td class="org-right"&gt;5&lt;/td&gt;
+&lt;td class="org-right"&gt;4&lt;/td&gt;
 &lt;td class="org-right"&gt;2&lt;/td&gt;
-&lt;td class="org-right"&gt;7&lt;/td&gt;
-&lt;td class="org-right"&gt;2&lt;/td&gt;
+&lt;td class="org-right"&gt;3&lt;/td&gt;
+&lt;td class="org-right"&gt;3&lt;/td&gt;
+&lt;td class="org-right"&gt;5&lt;/td&gt;
 &lt;td class="org-right"&gt;3&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org345d4f6" class="outline-2"&gt;
-&lt;h2 id="org345d4f6"&gt;Concatenate our data&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org345d4f6"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;figure, axe = pyplot.subplots(figsize=FIGURE_SIZE)
-axe.set_title("Country vs Score")
-axe.set_ylabel("Score")
-with seaborn.color_palette("Reds"):
-    axe = grouped_2.plot.bar(ax=axe)
-with seaborn.color_palette("Blues"):
-    axe = grouped.plot.bar(ax=axe)
-labels = axe.set_xticklabels(grouped.country.unique())
+&lt;div id="outline-container-org0d63b43" class="outline-2"&gt;
+&lt;h2 id="org0d63b43"&gt;Concatenate our data&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0d63b43"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pyplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subplots&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;figsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;FIGURE_SIZE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_title&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Country vs Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_ylabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_palette&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Reds"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;grouped_2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_palette&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Blues"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;labels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_xticklabels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;unique&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -644,14 +901,14 @@ labels = axe.set_xticklabels(grouped.country.unique())
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;figure, axe = pyplot.subplots(figsize=FIGURE_SIZE)
-axe.set_title("Country vs Score")
-axe.set_ylabel("Score")
-with seaborn.color_palette("Reds"):
-    axe = grouped_2.plot.bar(ax=axe, stacked=True)
-with seaborn.color_palette("Blues"):
-    axe = grouped.plot.bar(ax=axe, stacked=True)
-labels = axe.set_xticklabels(grouped.country.unique())
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pyplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subplots&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;figsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;FIGURE_SIZE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_title&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Country vs Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_ylabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_palette&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Reds"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;grouped_2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;stacked&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_palette&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Blues"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;stacked&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;labels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_xticklabels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;unique&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -660,35 +917,220 @@ labels = axe.set_xticklabels(grouped.country.unique())
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org56c384a" class="outline-2"&gt;
+&lt;h2 id="org56c384a"&gt;Scaled&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org56c384a"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;alpha_scaled&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"columns"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;alpha_scaled&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;country&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Alpha -3&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Alpha -2&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Alpha -1&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Alpha 0&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Alpha 1&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Alpha 2&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Alpha 3&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;china&lt;/td&gt;
+&lt;td class="org-right"&gt;0.12&lt;/td&gt;
+&lt;td class="org-right"&gt;0.16&lt;/td&gt;
+&lt;td class="org-right"&gt;0.06&lt;/td&gt;
+&lt;td class="org-right"&gt;0.18&lt;/td&gt;
+&lt;td class="org-right"&gt;0.08&lt;/td&gt;
+&lt;td class="org-right"&gt;0.22&lt;/td&gt;
+&lt;td class="org-right"&gt;0.18&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;india&lt;/td&gt;
+&lt;td class="org-right"&gt;0.15&lt;/td&gt;
+&lt;td class="org-right"&gt;0.15&lt;/td&gt;
+&lt;td class="org-right"&gt;0.15&lt;/td&gt;
+&lt;td class="org-right"&gt;0.15&lt;/td&gt;
+&lt;td class="org-right"&gt;0.2&lt;/td&gt;
+&lt;td class="org-right"&gt;0.05&lt;/td&gt;
+&lt;td class="org-right"&gt;0.15&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;japan&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0.5&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;0.5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;beta_scaled&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped_2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;grouped_2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"columns"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;beta_scaled&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;country&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Beta -3&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Beta -2&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Beta -1&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Beta 0&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Beta 1&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Beta 2&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Beta 3&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;china&lt;/td&gt;
+&lt;td class="org-right"&gt;0.05&lt;/td&gt;
+&lt;td class="org-right"&gt;0.25&lt;/td&gt;
+&lt;td class="org-right"&gt;0.2&lt;/td&gt;
+&lt;td class="org-right"&gt;0.1&lt;/td&gt;
+&lt;td class="org-right"&gt;0.15&lt;/td&gt;
+&lt;td class="org-right"&gt;0.05&lt;/td&gt;
+&lt;td class="org-right"&gt;0.2&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;india&lt;/td&gt;
+&lt;td class="org-right"&gt;0.166667&lt;/td&gt;
+&lt;td class="org-right"&gt;0.0666667&lt;/td&gt;
+&lt;td class="org-right"&gt;0.333333&lt;/td&gt;
+&lt;td class="org-right"&gt;0.0666667&lt;/td&gt;
+&lt;td class="org-right"&gt;0.1&lt;/td&gt;
+&lt;td class="org-right"&gt;0.133333&lt;/td&gt;
+&lt;td class="org-right"&gt;0.133333&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;japan&lt;/td&gt;
+&lt;td class="org-right"&gt;0.2&lt;/td&gt;
+&lt;td class="org-right"&gt;0.16&lt;/td&gt;
+&lt;td class="org-right"&gt;0.08&lt;/td&gt;
+&lt;td class="org-right"&gt;0.12&lt;/td&gt;
+&lt;td class="org-right"&gt;0.12&lt;/td&gt;
+&lt;td class="org-right"&gt;0.2&lt;/td&gt;
+&lt;td class="org-right"&gt;0.12&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pyplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subplots&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;figsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;FIGURE_SIZE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_title&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Country vs Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_ylabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_palette&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Reds"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;alpha_scaled&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_palette&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Blues"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;beta_scaled&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;labels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_xticklabels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;unique&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="figure"&gt;
+&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/pandas/categorical-plotting/alpha_scaled.png" alt="alpha_scaled.png"&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pyplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subplots&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;figsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;FIGURE_SIZE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_title&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Country vs Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_ylabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_palette&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Reds"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;alpha_scaled&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;stacked&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_palette&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Blues"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;beta_scaled&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ax&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;stacked&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;labels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_xticklabels&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;unique&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="figure"&gt;
+&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/pandas/categorical-plotting/stacked_scaled.png" alt="stacked_scaled.png"&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+Well, I guess I need to work on making the reds visible, but I'm out of time.
+&lt;/p&gt;
+&lt;/div&gt;
 &lt;/div&gt;</description><category>categorical data</category><category>groupby</category><category>pandas</category><category>plotting</category><guid>https://necromuralist.github.io/posts/pandas/categorical-plotting/</guid><pubDate>Fri, 26 Oct 2018 22:01:04 GMT</pubDate></item><item><title>Date Mean Squared Error</title><link>https://necromuralist.github.io/posts/pandas/date-mean-squared-error/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgad0cf81"&gt;What is this?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgb7013d0"&gt;Imports&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orge3f4134"&gt;The Data&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgcce3107"&gt;The Mean&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#org6e8a863"&gt;Getting the Mean Back Into the Frame&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgdb3c661"&gt;Calculating the RMSE&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgf79131c"&gt;What is this?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#org0f0e9e8"&gt;Imports&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgf3de71d"&gt;The Data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#org0bbb246"&gt;The Mean&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#org7873978"&gt;Getting the Mean Back Into the Frame&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orga9cdca1"&gt;Calculating the RMSE&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgad0cf81" class="outline-2"&gt;
-&lt;h2 id="orgad0cf81"&gt;What is this?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgad0cf81"&gt;
+&lt;div id="outline-container-orgf79131c" class="outline-2"&gt;
+&lt;h2 id="orgf79131c"&gt;What is this?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf79131c"&gt;
 &lt;p&gt;
 This is a short sketch to figure out how to group a bunch of values by month and calculate the &lt;a href="https://en.wikipedia.org/wiki/Root-mean-square_deviation"&gt;Root-Mean-Squared-Error&lt;/a&gt; (RMSE) for the mean for the values in that month. This probably isn't the most efficient way to do this, but I'm trying to double check everything as I go and doing the typical &lt;a href="http://wiki.c2.com/?TrainWreck"&gt;Train Wreck&lt;/a&gt; like you see in most examples on Stack Overflow.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgb7013d0" class="outline-2"&gt;
-&lt;h2 id="orgb7013d0"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb7013d0"&gt;
+&lt;div id="outline-container-org0f0e9e8" class="outline-2"&gt;
+&lt;h2 id="org0f0e9e8"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0f0e9e8"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgecb3f3a" class="outline-3"&gt;
-&lt;h3 id="orgecb3f3a"&gt;From PyPi&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgecb3f3a"&gt;
+&lt;div id="outline-container-org7563cd9" class="outline-3"&gt;
+&lt;h3 id="org7563cd9"&gt;From PyPi&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7563cd9"&gt;
 &lt;p&gt;
 Just pandas.
 &lt;/p&gt;
@@ -697,9 +1139,9 @@ Just pandas.
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge3f4134" class="outline-2"&gt;
-&lt;h2 id="orge3f4134"&gt;The Data&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge3f4134"&gt;
+&lt;div id="outline-container-orgf3de71d" class="outline-2"&gt;
+&lt;h2 id="orgf3de71d"&gt;The Data&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf3de71d"&gt;
 &lt;p&gt;
 I'm going to create some simple values so that it's easy(ish) to do the math by hand and double-check what comes out. I'll use the pandas &lt;a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Timestamp.html"&gt;Timestamp&lt;/a&gt; for the dates. I'm still not one-hundred percent sure why it's better than date-time, but hopefully it's optimized or something.
 &lt;/p&gt;
@@ -724,9 +1166,9 @@ I'm going to use &lt;a href="https://pandas.pydata.org/pandas-docs/stable/genera
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgcce3107" class="outline-2"&gt;
-&lt;h2 id="orgcce3107"&gt;The Mean&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcce3107"&gt;
+&lt;div id="outline-container-org0bbb246" class="outline-2"&gt;
+&lt;h2 id="org0bbb246"&gt;The Mean&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0bbb246"&gt;
 &lt;p&gt;
 The value I'm going to use to estimate the values for each month is the mean.
 &lt;/p&gt;
@@ -746,9 +1188,9 @@ date
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org6e8a863" class="outline-2"&gt;
-&lt;h2 id="org6e8a863"&gt;Getting the Mean Back Into the Frame&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6e8a863"&gt;
+&lt;div id="outline-container-org7873978" class="outline-2"&gt;
+&lt;h2 id="org7873978"&gt;Getting the Mean Back Into the Frame&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7873978"&gt;
 &lt;p&gt;
 Now that we have the monthly means, I want to re-add them to the original data-frame by giving them a common column named &lt;code&gt;year_month&lt;/code&gt; (using &lt;a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.apply.html"&gt;apply&lt;/a&gt;) so I can broadcast the means by merging the two data-frames.
 &lt;/p&gt;
@@ -824,13 +1266,13 @@ Note that I had to use the &lt;code&gt;merged["mean"]&lt;/code&gt; form because 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgdb3c661" class="outline-2"&gt;
-&lt;h2 id="orgdb3c661"&gt;Calculating the RMSE&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgdb3c661"&gt;
+&lt;div id="outline-container-orga9cdca1" class="outline-2"&gt;
+&lt;h2 id="orga9cdca1"&gt;Calculating the RMSE&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga9cdca1"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org91fa12d" class="outline-3"&gt;
-&lt;h3 id="org91fa12d"&gt;Error&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org91fa12d"&gt;
+&lt;div id="outline-container-org252e2c2" class="outline-3"&gt;
+&lt;h3 id="org252e2c2"&gt;Error&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org252e2c2"&gt;
 &lt;p&gt;
 Since I'm estimating the values for each month using the mean the &lt;i&gt;error&lt;/i&gt; is the difference between the &lt;i&gt;mean&lt;/i&gt; and each of the &lt;i&gt;values&lt;/i&gt;.
 &lt;/p&gt;
@@ -851,9 +1293,9 @@ assert all(merged.error==[-1, 0, 1, -.5, .5])
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org9c84295" class="outline-3"&gt;
-&lt;h3 id="org9c84295"&gt;Error Squared&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9c84295"&gt;
+&lt;div id="outline-container-orgb1c28e9" class="outline-3"&gt;
+&lt;h3 id="orgb1c28e9"&gt;Error Squared&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb1c28e9"&gt;
 &lt;p&gt;
 Now I'll square the error to get rid of the negative error values (which would cancel each other out when we take the mean errors) and to make the effect of the errors non-linear (the errors are exagerrated).
 &lt;/p&gt;
@@ -874,9 +1316,9 @@ Now I'll square the error to get rid of the negative error values (which would c
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5507222" class="outline-3"&gt;
-&lt;h3 id="org5507222"&gt;Mean Squared Error&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org5507222"&gt;
+&lt;div id="outline-container-org6e19cd7" class="outline-3"&gt;
+&lt;h3 id="org6e19cd7"&gt;Mean Squared Error&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6e19cd7"&gt;
 &lt;p&gt;
 So now we take the mean of our squared errors to get an initial estimate of how much we are off each month.
 &lt;/p&gt;
@@ -893,9 +1335,9 @@ Name: error_squared, dtype: float64
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org829ee2e" class="outline-3"&gt;
-&lt;h3 id="org829ee2e"&gt;RMSE&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org829ee2e"&gt;
+&lt;div id="outline-container-orgbddb417" class="outline-3"&gt;
+&lt;h3 id="orgbddb417"&gt;RMSE&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbddb417"&gt;
 &lt;p&gt;
 Since the squared error would have units squared, I'll take the root of it to get a more interpretable estimate of the error.
 &lt;/p&gt;
@@ -916,91 +1358,91 @@ Write your post here.&lt;/p&gt;</description><guid>https://necromuralist.github.
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/python-from-g-to-whatever/#org2cd3d5c"&gt;Introduction&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/python-from-g-to-whatever/#orga8b9cae"&gt;Links&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/python-from-g-to-whatever/#org5eea303"&gt;Introduction&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/python-from-g-to-whatever/#orgb883bf1"&gt;Links&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org2cd3d5c" class="outline-2"&gt;
-&lt;h2 id="org2cd3d5c"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2cd3d5c"&gt;
+&lt;div id="outline-container-org5eea303" class="outline-2"&gt;
+&lt;h2 id="org5eea303"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5eea303"&gt;
 &lt;p&gt;
 This &lt;a href="https://medium.freecodecamp.org/an-a-z-of-useful-python-tricks-b467524ee747?mkt_tok=eyJpIjoiTkRVM1pUbGpNemt4WTJJMCIsInQiOiJFZGVnb1FibHI4NHpJNW1ISHRyM0tNV2hYY2xRcWtud2ZaOHJ0cHR2YXlKc3BmWjFEdjczVDdCbnBsY0FEckhXXC9PSFJwbGJvWTBNNmFBSlwvTVwvV1g3ZWhCVGtCQ3ZNNXoyeWxTdlM4SENWZU1GUWVFRWZZMU15YlwvRzhVNktyMnMifQ=="&gt;freecodecamp&lt;/a&gt; article has some references to python stuff the author likes. Not all of it is of interest to me, but some of it is, so this is just my dump of the links I like.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga8b9cae" class="outline-2"&gt;
-&lt;h2 id="orga8b9cae"&gt;Links&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga8b9cae"&gt;
+&lt;div id="outline-container-orgb883bf1" class="outline-2"&gt;
+&lt;h2 id="orgb883bf1"&gt;Links&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb883bf1"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org626cfe6" class="outline-3"&gt;
-&lt;h3 id="org626cfe6"&gt;Geopy&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org626cfe6"&gt;
+&lt;div id="outline-container-org0970874" class="outline-3"&gt;
+&lt;h3 id="org0970874"&gt;Geopy&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org0970874"&gt;
 &lt;p&gt;
 &lt;a href="https://geopy.readthedocs.io/en/stable/#"&gt;geopy&lt;/a&gt; allows you to use python to find out geographic information for locations. It provides a common front end for different services like Google Maps, Bing, etc.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfb3827e" class="outline-3"&gt;
-&lt;h3 id="orgfb3827e"&gt;Inspect&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgfb3827e"&gt;
+&lt;div id="outline-container-org94c2325" class="outline-3"&gt;
+&lt;h3 id="org94c2325"&gt;Inspect&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org94c2325"&gt;
 &lt;p&gt;
 &lt;a href="https://docs.python.org/3.5/library/inspect.html"&gt;inspect&lt;/a&gt; is a python built-in that helps you take advantage of python's introspection features. Besides looking at other people's code, it shows you how well (or not) you are providing information for other coders using your code.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgab6ad9c" class="outline-3"&gt;
-&lt;h3 id="orgab6ad9c"&gt;Newspaper&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgab6ad9c"&gt;
+&lt;div id="outline-container-org5f47229" class="outline-3"&gt;
+&lt;h3 id="org5f47229"&gt;Newspaper&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5f47229"&gt;
 &lt;p&gt;
 I haven't actually used &lt;a href="https://newspaper.readthedocs.io/en/latest/"&gt;newspaper&lt;/a&gt; but it looks interesting.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6fa786a" class="outline-3"&gt;
-&lt;h3 id="org6fa786a"&gt;sh&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6fa786a"&gt;
+&lt;div id="outline-container-orgb7dcdbc" class="outline-3"&gt;
+&lt;h3 id="orgb7dcdbc"&gt;sh&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb7dcdbc"&gt;
 &lt;p&gt;
 &lt;a href="https://amoffat.github.io/sh/"&gt;sh&lt;/a&gt; is a subprocess replacement. I've always been kind of leery about using python to run shell commands, but this at least makes it look nicer.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgbffba51" class="outline-3"&gt;
-&lt;h3 id="orgbffba51"&gt;Wikipedia&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbffba51"&gt;
+&lt;div id="outline-container-org79368f3" class="outline-3"&gt;
+&lt;h3 id="org79368f3"&gt;Wikipedia&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org79368f3"&gt;
 &lt;p&gt;
 Although wikipedia is one of the classic web-scraping examples, there's actually a &lt;a href="https://wikipedia.readthedocs.io/en/latest/quickstart.html"&gt;python library&lt;/a&gt; to pull articles more directly.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>python links</category><guid>https://necromuralist.github.io/posts/python-from-g-to-whatever/</guid><pubDate>Sun, 30 Sep 2018 04:14:41 GMT</pubDate></item><item><title>Ubertooth 2018</title><link>https://necromuralist.github.io/posts/ubertooth-2018/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org831bc70" class="outline-2"&gt;
-&lt;h2 id="org831bc70"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org831bc70"&gt;
+&lt;/div&gt;</description><category>python links</category><guid>https://necromuralist.github.io/posts/python-from-g-to-whatever/</guid><pubDate>Sun, 30 Sep 2018 04:14:41 GMT</pubDate></item><item><title>Ubertooth 2018</title><link>https://necromuralist.github.io/posts/ubertooth-2018/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orge8c4df6" class="outline-2"&gt;
+&lt;h2 id="orge8c4df6"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge8c4df6"&gt;
 &lt;p&gt;
 One of the problems of relying on search engines is that the more obscure the subject you are interested in, the greater the chance that what you'll get will be either unlocatable or outdated.  These are my notes on setting up the &lt;a href="https://github.com/greatscottgadgets/ubertooth"&gt;ubertooth&lt;/a&gt; on an ubuntu system in September of 2018, which turned out to be a slightly different experience from what I went through earlier in this year so I thought I should try and make a record of it somewhere.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orga491769" class="outline-2"&gt;
-&lt;h2 id="orga491769"&gt;The Current Release&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga491769"&gt;
+&lt;div id="outline-container-orgf6852e7" class="outline-2"&gt;
+&lt;h2 id="orgf6852e7"&gt;The Current Release&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf6852e7"&gt;
 &lt;p&gt;
 The current release for the Ubertooth firmware and code is &lt;a href="https://github.com/greatscottgadgets/ubertooth/releases/tag/2018-08-R1"&gt;2018-08-R1&lt;/a&gt;. Download the &lt;a href="https://github.com/greatscottgadgets/ubertooth/releases/download/2018-08-R1/ubertooth-2018-08-R1.tar.xz"&gt;ubertooth-2018-08-R1.tar.xz&lt;/a&gt; file from that page and untar it. You will also want the matching &lt;a href="https://github.com/greatscottgadgets/libbtbb/releases/tag/2018-08-R1"&gt;libbtb&lt;/a&gt; code.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org336f994" class="outline-2"&gt;
-&lt;h2 id="org336f994"&gt;Building and Installing the Code&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org336f994"&gt;
+&lt;div id="outline-container-orgd9a1139" class="outline-2"&gt;
+&lt;h2 id="orgd9a1139"&gt;Building and Installing the Code&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd9a1139"&gt;
 &lt;p&gt;
 For some reason the instructions on the home page assume you already have the code built and installed, but there's &lt;a href="https://github.com/greatscottgadgets/ubertooth/wiki/Build-Guide"&gt;actually some previous steps you need to do&lt;/a&gt;. 
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org0e7ffa1" class="outline-3"&gt;
-&lt;h3 id="org0e7ffa1"&gt;Install the Dependencies&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org0e7ffa1"&gt;
+&lt;div id="outline-container-org53b7dff" class="outline-3"&gt;
+&lt;h3 id="org53b7dff"&gt;Install the Dependencies&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org53b7dff"&gt;
 &lt;pre class="example"&gt;
 sudo apt install cmake libusb-1.0-0-dev make gcc g++ libbluetooth-dev \
 pkg-config libpcap-dev python-numpy python-pyside python-qt4
@@ -1012,9 +1454,9 @@ The &lt;code&gt;python-&amp;lt;packages&amp;gt;&lt;/code&gt; can be downloaded f
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org4693110" class="outline-3"&gt;
-&lt;h3 id="org4693110"&gt;Build libbtbb&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org4693110"&gt;
+&lt;div id="outline-container-org4cb400f" class="outline-3"&gt;
+&lt;h3 id="org4cb400f"&gt;Build libbtbb&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4cb400f"&gt;
 &lt;p&gt;
 &lt;code&gt;libbtb&lt;/code&gt; is the Bluetooth Baseband Library which you need for ubertooth to decode bluetooth packets. Change into the folder you downloaded earlier and build and install it.
 &lt;/p&gt;
@@ -1062,9 +1504,9 @@ sudo ldconfig
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org0da6b8b" class="outline-3"&gt;
-&lt;h3 id="org0da6b8b"&gt;Ubertooth Tools&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org0da6b8b"&gt;
+&lt;div id="outline-container-org3ca9e05" class="outline-3"&gt;
+&lt;h3 id="org3ca9e05"&gt;Ubertooth Tools&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3ca9e05"&gt;
 &lt;p&gt;
 Do the same thing to build the tools. First untar the file you downloaded, change into the &lt;code&gt;host&lt;/code&gt; folder (&lt;code&gt;ubertooth-2018-08-R1/host&lt;/code&gt;) and build and install the code.
 &lt;/p&gt;
@@ -1084,9 +1526,9 @@ You should now have some command-line tools that start with &lt;code&gt;ubertoot
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgcda3a6c" class="outline-3"&gt;
-&lt;h3 id="orgcda3a6c"&gt;Privileges&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgcda3a6c"&gt;
+&lt;div id="outline-container-org03dfede" class="outline-3"&gt;
+&lt;h3 id="org03dfede"&gt;Privileges&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org03dfede"&gt;
 &lt;p&gt;
 You can use &lt;code&gt;setcap&lt;/code&gt; to make it so that you don't need to run things as root. This is how to make it so you can run &lt;code&gt;ubertooth-scan&lt;/code&gt;.
 &lt;/p&gt;
@@ -1098,9 +1540,9 @@ sudo setcap 'CAP_NET_RAW+eip CAP_NET_ADMIN+eip' (which ubertooth-scan)
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org1fd20b5" class="outline-2"&gt;
-&lt;h2 id="org1fd20b5"&gt;Update the Firmware&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1fd20b5"&gt;
+&lt;div id="outline-container-orgf982c94" class="outline-2"&gt;
+&lt;h2 id="orgf982c94"&gt;Update the Firmware&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf982c94"&gt;
 &lt;p&gt;
 One of the commands installed in the previous step was &lt;code&gt;ubertooth-dfu&lt;/code&gt; which is the &lt;b&gt;&lt;b&gt;Do Firmware Update&lt;/b&gt;&lt;/b&gt; command that we need to update the firmware. First insert the ubertooth USB dongle, then change into the &lt;code&gt;ubertooth-2018-08-R1/ubertooth-one-firmware-bin&lt;/code&gt; folder and run the update command.
 &lt;/p&gt;
@@ -1127,9 +1569,9 @@ This should send a timestamp, frequency, RSSI CSV to stdout as the ubertooth swe
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org31f3276" class="outline-2"&gt;
-&lt;h2 id="org31f3276"&gt;Spectools&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org31f3276"&gt;
+&lt;div id="outline-container-org2a276d5" class="outline-2"&gt;
+&lt;h2 id="org2a276d5"&gt;Spectools&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2a276d5"&gt;
 &lt;p&gt;
 Since we can't run the python spectrum analyzer, we should turn to a better alternative, &lt;a href="https://www.kismetwireless.net/spectools/"&gt;spectools&lt;/a&gt;. This was a project to mostly re-create the &lt;a href="https://www.metageek.com/products/wi-spy/"&gt;metageek wi-spy GUI&lt;/a&gt; but it supports the ubertooth. It actually looks like a dead project (the last &lt;i&gt;News&lt;/i&gt; item on their site was from 2012), but it works for now. Luckily ubuntu has this in the repositories so you should be able to just install it with apt.
 &lt;/p&gt;
@@ -1143,9 +1585,9 @@ Once you install it you can either run &lt;code&gt;spectool_curses&lt;/code&gt; 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org839baa7" class="outline-2"&gt;
-&lt;h2 id="org839baa7"&gt;Kismet&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org839baa7"&gt;
+&lt;div id="outline-container-orgf7dcac8" class="outline-2"&gt;
+&lt;h2 id="orgf7dcac8"&gt;Kismet&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf7dcac8"&gt;
 &lt;p&gt;
 Now we come to the interesting installation. At this point you probably have all the command-line utilities you need, but kismet provides a convenient interface to start capturing packets. Unfortunately it is going through a major upgrade which makes it incompatible with the ubertooth plugin for it (maybe, there's two plugins and one of them might work, but they don't seem to document it (or much else, for that matter)).
 &lt;/p&gt;
@@ -1154,26 +1596,26 @@ Now we come to the interesting installation. At this point you probably have all
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#org96cde19"&gt;The Prowler&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#orga63fe01"&gt;The Problem with Arlo&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#org9972834"&gt;The Python Solution&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#org5432985"&gt;A Command-Line Interface&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#org8e71a31"&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#orge1aa5a3"&gt;The Prowler&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#org3678f69"&gt;The Problem with Arlo&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#org1f71198"&gt;The Python Solution&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#org6128583"&gt;A Command-Line Interface&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/#orga9849b1"&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org96cde19" class="outline-2"&gt;
-&lt;h2 id="org96cde19"&gt;The Prowler&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org96cde19"&gt;
+&lt;div id="outline-container-orge1aa5a3" class="outline-2"&gt;
+&lt;h2 id="orge1aa5a3"&gt;The Prowler&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge1aa5a3"&gt;
 &lt;p&gt;
 I came home the other day to find some things from my garage outside on the driveway. The garage door was closed but the bolt wasn't in place, so I guess I forgot to secure it and someone went in while I was at work. I have two Arlo security cameras, one pointing at my front lawn and one at my back (I just took the ones I had set up to catch intruders and pointed them outside so they aren't really set up correctly) and they are supposed to send me notifications when motion is detected, but I didn't recall seeing any, but then I looked at my phone and I had missed one earlier in the day, and when I looked at it there was a video showing someone standing outside my back door, but that was all, but I have a Continuous Video Recording (CVR) subscription so I decided to poke around, that's when I found out how horrible Arlo's CVR really is.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga63fe01" class="outline-2"&gt;
-&lt;h2 id="orga63fe01"&gt;The Problem with Arlo&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga63fe01"&gt;
+&lt;div id="outline-container-org3678f69" class="outline-2"&gt;
+&lt;h2 id="org3678f69"&gt;The Problem with Arlo&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3678f69"&gt;
 &lt;p&gt;
 The first problem with the Arlo's CVR system is that it's not always reliable. I've had cameras randomly stop recording videos on the server and the only "fix" that the help desk was able to give me was to deauthorize and reauthorize them (and in some cases completely remove them from the base-station and re-add them). This seems to work, but whenever you deauthorize a camera the server dumps all your recordings, so if you think you want to save something you'll have to do that first or it won't be there when the camera gets re-authorized. But then if you try to save something you'll find that the Arlo doesn't provide a way to download the video. The work-around you'll find on the forums is to do a screen capture while it plays - a horrible system, especially since the flash interface is pretty flaky and doesn't always work on my PC. 
 &lt;/p&gt;
@@ -1191,9 +1633,9 @@ But even once I found the places in the CVR that showed the prowler (I didn't ha
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9972834" class="outline-2"&gt;
-&lt;h2 id="org9972834"&gt;The Python Solution&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9972834"&gt;
+&lt;div id="outline-container-org1f71198" class="outline-2"&gt;
+&lt;h2 id="org1f71198"&gt;The Python Solution&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1f71198"&gt;
 &lt;p&gt;
 It turns out that even though netgear hasn't published an official API for the Arlo, some people (&lt;a href="http://www.robertogallea.com/blog/netgear-arlo-api"&gt;like this guy&lt;/a&gt;) have reverse-engineered the API and there are several python-based libraries on github that help you talk to the arlo. This &lt;a href="https://github.com/jeffreydwalter/arlo"&gt;one&lt;/a&gt;, by &lt;i&gt;jeffreydwalter&lt;/i&gt; was the one that I saw that helped with downloading the CVR videos so it's the one that I went with. It's on pypi, but the commit that added CVR support was made a month ago and I wasn't sure when the pypi code was uploaded so I decided to install it from the master branch, since I was going to use the example code to start my code anyway - by this I mean I had to pull the repository anyway, so I used the &lt;code&gt;setup.py&lt;/code&gt; file to install it (in developer mode in case it changes).
 &lt;/p&gt;
@@ -1227,9 +1669,9 @@ The following code is basically what you can find in the example that comes with
 &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;cli&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfeb6549" class="outline-3"&gt;
-&lt;h3 id="orgfeb6549"&gt;The Imports&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgfeb6549"&gt;
+&lt;div id="outline-container-orgc0022fe" class="outline-3"&gt;
+&lt;h3 id="orgc0022fe"&gt;The Imports&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc0022fe"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# python standard library&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pathlib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;argparse&lt;/span&gt;
@@ -1248,9 +1690,9 @@ The following code is basically what you can find in the example that comes with
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orge869f67" class="outline-3"&gt;
-&lt;h3 id="orge869f67"&gt;Getting the User Name and Password&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge869f67"&gt;
+&lt;div id="outline-container-orgbbd3e86" class="outline-3"&gt;
+&lt;h3 id="orgbbd3e86"&gt;Getting the User Name and Password&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbbd3e86"&gt;
 &lt;p&gt;
 In order to use the API you need to have a Netgear account and you have to pass it to the server. To prevent putting the credentials in the code, I'll use &lt;a href="https://github.com/theskumar/python-dotenv"&gt;python-dotenv&lt;/a&gt;. In order to use it I created a file named &lt;code&gt;config.arlo&lt;/code&gt; with the information so I can load it.
 &lt;/p&gt;
@@ -1281,9 +1723,9 @@ In order to use the API you need to have a Netgear account and you have to pass 
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org95107f1" class="outline-4"&gt;
-&lt;h4 id="org95107f1"&gt;Load the credentials&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org95107f1"&gt;
+&lt;div id="outline-container-orge2e6ff6" class="outline-4"&gt;
+&lt;h4 id="orge2e6ff6"&gt;Load the credentials&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orge2e6ff6"&gt;
 &lt;p&gt;
 &lt;code&gt;dotenv&lt;/code&gt; works by adding the values in the configuration file into the environment dictionary. Most of the convenience of it comes if you create a &lt;code&gt;.env&lt;/code&gt; file at the base of your repository, in which case it will automatically find it for you, but even though I'm not doing that it still saves me from parsing the file myself, so I'll use it. Since the other properties (&lt;code&gt;username&lt;/code&gt; and &lt;code&gt;password&lt;/code&gt;) rely on the values already being in the dictionary I'm calling &lt;code&gt;load_dotenv&lt;/code&gt; in the &lt;code&gt;config_path&lt;/code&gt; setter so that it's there before they get used.
 &lt;/p&gt;
@@ -1307,9 +1749,9 @@ In order to use the API you need to have a Netgear account and you have to pass 
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org95b81ad" class="outline-4"&gt;
-&lt;h4 id="org95b81ad"&gt;And The Rest&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org95b81ad"&gt;
+&lt;div id="outline-container-org94fb74e" class="outline-4"&gt;
+&lt;h4 id="org94fb74e"&gt;And The Rest&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org94fb74e"&gt;
 &lt;p&gt;
 This is the rest of the methods for the &lt;code&gt;Credentials&lt;/code&gt; class. Org-mode pushes it flush-left on export so it looks like it is missing whitespace, but it's there in the code.
 &lt;/p&gt;
@@ -1383,9 +1825,9 @@ This is the rest of the methods for the &lt;code&gt;Credentials&lt;/code&gt; cla
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org244c503" class="outline-3"&gt;
-&lt;h3 id="org244c503"&gt;Output File Paths&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org244c503"&gt;
+&lt;div id="outline-container-org490f6ef" class="outline-3"&gt;
+&lt;h3 id="org490f6ef"&gt;Output File Paths&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org490f6ef"&gt;
 &lt;p&gt;
 Python 3.4 added a &lt;a href="https://docs.python.org/3/library/pathlib.html"&gt;Path&lt;/a&gt; class to create an object-oriented version of what &lt;a href="https://docs.python.org/3/library/os.path.html"&gt;os.path&lt;/a&gt; does (along with some other stuff). You don't need it but I like it. My command-line interface actually doesn't support the sub-folder so it mostly just makes sure the folder is there. The &lt;code&gt;Paths&lt;/code&gt; class here is to help set up the directories for the video output files.
 &lt;/p&gt;
@@ -1439,9 +1881,9 @@ Python 3.4 added a &lt;a href="https://docs.python.org/3/library/pathlib.html"&g
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org259c015" class="outline-3"&gt;
-&lt;h3 id="org259c015"&gt;Downloader&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org259c015"&gt;
+&lt;div id="outline-container-org3fec671" class="outline-3"&gt;
+&lt;h3 id="org3fec671"&gt;Downloader&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3fec671"&gt;
 &lt;p&gt;
 This is the class to actually do the downloading. It essentially does what the example does but I like it to be both smaller and more verbose so this matches my style more.
 &lt;/p&gt;
@@ -1616,9 +2058,9 @@ This is the class to actually do the downloading. It essentially does what the e
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgcab2ab2" class="outline-4"&gt;
-&lt;h4 id="orgcab2ab2"&gt;The Call&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgcab2ab2"&gt;
+&lt;div id="outline-container-orgc9de22f" class="outline-4"&gt;
+&lt;h4 id="orgc9de22f"&gt;The Call&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgc9de22f"&gt;
 &lt;p&gt;
 This does the actual downloading. It downloads some &lt;code&gt;m3u8&lt;/code&gt; files and then pulls the files that they refer to. &lt;a href="https://en.wikipedia.org/wiki/M3U#M3U8"&gt;m3u8&lt;/a&gt; (MP3 URL with UTF-8 encoding) is a format to list URLs or paths that point to media and is said to be popular (by Wikipedia) in Dynamic Adaptive Streaming over HTTP (although I don't think the arlo uses DASH).
 &lt;/p&gt;
@@ -1677,9 +2119,9 @@ This does the actual downloading. It downloads some &lt;code&gt;m3u8&lt;/code&gt
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org5432985" class="outline-2"&gt;
-&lt;h2 id="org5432985"&gt;A Command-Line Interface&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5432985"&gt;
+&lt;div id="outline-container-org6128583" class="outline-2"&gt;
+&lt;h2 id="org6128583"&gt;A Command-Line Interface&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6128583"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
     &lt;span class="n"&gt;parser&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;argparse&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ArgumentParser&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
     &lt;span class="n"&gt;parser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add_argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"camera"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"location of the camera to use"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
@@ -1710,16 +2152,16 @@ This does the actual downloading. It downloads some &lt;code&gt;m3u8&lt;/code&gt
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8e71a31" class="outline-2"&gt;
-&lt;h2 id="org8e71a31"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8e71a31"&gt;
+&lt;div id="outline-container-orga9849b1" class="outline-2"&gt;
+&lt;h2 id="orga9849b1"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga9849b1"&gt;
 &lt;p&gt;
 For a consumer product this seems like a lot of work to download videos, but I'm glad someone went to the trouble to build this to make up for Netgear's horrible user interface. The Arlo seems like some decent (although probably overpriced) hardware matched to some pretty bad software and nearly non-existent customer support or documentation and a not particularly robust web-service. I don't know that I would recommend it to anyone who wants more than a web-camera.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>python arlo</category><guid>https://necromuralist.github.io/posts/downloading-video-from-the-arlo/</guid><pubDate>Thu, 20 Sep 2018 18:28:53 GMT</pubDate></item><item><title>Disabling Sub-scripting in Org-Mode</title><link>https://necromuralist.github.io/posts/disabling-subscripting-in-org-mode/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgb8fc63f" class="outline-2"&gt;
-&lt;h2 id="orgb8fc63f"&gt;The Problem&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb8fc63f"&gt;
+&lt;/div&gt;</description><category>python arlo</category><guid>https://necromuralist.github.io/posts/downloading-video-from-the-arlo/</guid><pubDate>Thu, 20 Sep 2018 18:28:53 GMT</pubDate></item><item><title>Disabling Sub-scripting in Org-Mode</title><link>https://necromuralist.github.io/posts/disabling-subscripting-in-org-mode/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org300f429" class="outline-2"&gt;
+&lt;h2 id="org300f429"&gt;The Problem&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org300f429"&gt;
 &lt;p&gt;
 If you use underscores in org-mode it will treat them almost the way &lt;a href="https://en.wikipedia.org/wiki/LaTeX#Versions"&gt;latex&lt;/a&gt; does, changing the text that immediately follows the underscore as a sub-string.
 &lt;/p&gt;
@@ -1746,9 +2188,9 @@ But sometimes you just want an underscore (especially if you are writing about p
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orge7a1849" class="outline-2"&gt;
-&lt;h2 id="orge7a1849"&gt;Stack Overflow to the Rescue (Again)&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge7a1849"&gt;
+&lt;div id="outline-container-org3608d90" class="outline-2"&gt;
+&lt;h2 id="org3608d90"&gt;Stack Overflow to the Rescue (Again)&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3608d90"&gt;
 &lt;p&gt;
 I found the answer &lt;a href="https://stackoverflow.com/questions/698562/disabling-underscore-to-subscript-in-emacs-org-mode-export"&gt;on Stack Overflow&lt;/a&gt; (of course) - you can add an &lt;code&gt;#+OPTIONS&lt;/code&gt; directive to the file to disable this behavior. I originally went with the accepted answer which was to add &lt;code&gt;#+OPTIONS: ^:nil&lt;/code&gt;, and it works in most cases, but then I couldn't figure out how to write this post, since the underscores stopped working and I didn't want to have to use MathJax to show what I meant (although maybe that wouldn't be so bad), so now I think the better answer is the one given by &lt;a href="https://stackoverflow.com/users/60183/danielpoe"&gt;danielpoe&lt;/a&gt; in the comments - use &lt;code&gt;#+OPTIONS: ^:{}&lt;/code&gt; instead. This disables the sub-scripting behavior of the underscore in most cases but allows you to add sub-scripting by putting the text following the underscore in curly-braces.
 &lt;/p&gt;
@@ -1763,9 +2205,9 @@ before-the-underscore_{aftertheunderscore}
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org0181db8" class="outline-2"&gt;
-&lt;h2 id="org0181db8"&gt;A Final Note&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0181db8"&gt;
+&lt;div id="outline-container-orgca31271" class="outline-2"&gt;
+&lt;h2 id="orgca31271"&gt;A Final Note&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgca31271"&gt;
 &lt;p&gt;
 This solution doesn't replicate the original org-mode behavior completely when you use the curly-braces. Without the directive if you have multiple underscores org-mode puts everything after the first underscore in the sub-string and removes all subsequent underscores, smashing the words together.
 &lt;/p&gt;
@@ -1802,201 +2244,4 @@ Which seems like an improvement anyway.
 The only problem now is that I keep forgetting what to type in every time I want to use an underscore, which is why I'm making this post.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>emacs orgmode howto</category><guid>https://necromuralist.github.io/posts/disabling-subscripting-in-org-mode/</guid><pubDate>Fri, 03 Aug 2018 15:12:01 GMT</pubDate></item><item><title>The Linux IPv6 Router Advertisement Daemon (radvd)</title><link>https://necromuralist.github.io/posts/the-linux-ipv6-router-advertisement-daemon-radvd/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org615b6fa" class="outline-2"&gt;
-&lt;h2 id="org615b6fa"&gt;Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org615b6fa"&gt;
-&lt;p&gt;
-&lt;a href="http://www.litech.org/radvd/"&gt;radvd&lt;/a&gt; (the router advertisement daemon) sends IPv6 advertisements and responds to node IPv6 requests. Here's the description from the man page.
-&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;
-&lt;b&gt;radvd&lt;/b&gt; is the router advertisement daemon for IPv6. It listens to router solicitations and sends router advertisements as described in "Neighbor Discovery for IP Version 6 (IPv6)" (RFC 4861). With these advertisements hosts can automatically configure their addresses and some other parameters. They also can choose a default router based on these advertisements. 
-&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org0b61d83" class="outline-2"&gt;
-&lt;h2 id="org0b61d83"&gt;Installation and Setup&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0b61d83"&gt;
-&lt;p&gt;
-Setting &lt;b&gt;radvd&lt;/b&gt; is suspiciously easy compared to other linux services. First you install it.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo apt install radvd
-&lt;/pre&gt;
-
-&lt;p&gt;
-Installing it will also start the service so we can use &lt;code&gt;systemctl&lt;/code&gt; to check how it's doing.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-systemctl status radvd
-&lt;/pre&gt;
-
-&lt;pre class="example"&gt;
-systemctl status radvd
-● radvd.service - LSB: Router Advertising Daemon
-   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
-   Active: active (exited) since Fri 2018-07-20 12:39:19 PDT; 36s ago
-     Docs: man:systemd-sysv-generator(8)
-
-Jul 20 12:39:18 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
-Jul 20 12:39:19 asgaard radvd[8532]: Starting radvd:
-Jul 20 12:39:19 asgaard radvd[8532]: * /etc/radvd.conf does not exist or is empty.
-Jul 20 12:39:19 asgaard radvd[8532]: * See /usr/share/doc/radvd/README.Debian
-Jul 20 12:39:19 asgaard radvd[8532]: * radvd will *not* be started.
-Jul 20 12:39:19 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
-&lt;/pre&gt;
-
-&lt;p&gt;
-You can see in the output that there's a line with &lt;code&gt;/etc/radvd.conf does not exist or is empty.&lt;/code&gt;. To fix this we're going to create the configuration file.
-&lt;/p&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org0d63786" class="outline-3"&gt;
-&lt;h3 id="org0d63786"&gt;The Configuration File&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org0d63786"&gt;
-&lt;p&gt;
-Now create a configuration file (named &lt;code&gt;radvd.conf&lt;/code&gt;). Here's an example.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-interface eth0
-{
-MinRtrAdvInterval 3;
-MaxRtrAdvInterval 4;
-AdvSendAdvert on;
-AdvManagedFlag on;
-prefix 2001:db7::/64
-{ AdvValidLifetime 14300; AdvPreferredLifetime 14200; }
-;
-};
-&lt;/pre&gt;
-
-&lt;p&gt;
-Note that the interface name depends on your system. Most linux systems don't use the &lt;code&gt;eth0&lt;/code&gt; convention anymore. On my desktop the ethernet inteface is called &lt;code&gt;enp1s0&lt;/code&gt; and on my raspberry pi it's &lt;code&gt;enxb827eb6c9129&lt;/code&gt; so make sure you check what your interface name is using &lt;code&gt;ifconfig&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;p&gt;
-Now move (or copy) the config file into &lt;code&gt;/etc/&lt;/code&gt;
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo mv radvd.conf /etc/
-&lt;/pre&gt;
-
-&lt;p&gt;
-And then restart &lt;code&gt;radvd&lt;/code&gt; and check its state.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo service radvd restart
-systemctl status radvd
-&lt;/pre&gt;
-
-&lt;pre class="example"&gt;
-● radvd.service - LSB: Router Advertising Daemon
-   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
-   Active: active (exited) since Fri 2018-07-20 12:41:36 PDT; 2s ago
-     Docs: man:systemd-sysv-generator(8)
-  Process: 10008 ExecStop=/etc/init.d/radvd stop (code=exited, status=0/SUCCESS)
-  Process: 10017 ExecStart=/etc/init.d/radvd start (code=exited, status=0/SUCCESS)
-
-Jul 20 12:41:36 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
-Jul 20 12:41:36 asgaard radvd[10017]: Starting radvd:
-Jul 20 12:41:36 asgaard radvd[10017]: * IPv6 forwarding seems to be disabled.
-Jul 20 12:41:36 asgaard radvd[10017]: * See /usr/share/doc/radvd/README.Debian
-Jul 20 12:41:36 asgaard radvd[10017]: * radvd will *not* be started.
-Jul 20 12:41:36 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
-&lt;/pre&gt;
-
-&lt;p&gt;
-So the warning about the configuration file went away, now we have to fix the &lt;code&gt;IPv6 forwarding seems to be disabled.&lt;/code&gt; error.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org44bb2a3" class="outline-3"&gt;
-&lt;h3 id="org44bb2a3"&gt;Enable IPv6 Forwarding&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org44bb2a3"&gt;
-&lt;p&gt;
-For now you can enable it at the command line.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo sysctl -w net.ipv6.conf.all.forwarding=1
-&lt;/pre&gt;
-
-&lt;p&gt;
-And restart and check &lt;code&gt;radvd&lt;/code&gt; again.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-sudo service radvd restart
-systemctl status radvd
-&lt;/pre&gt;
-
-&lt;pre class="example"&gt;
-● radvd.service - LSB: Router Advertising Daemon
-   Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
-   Active: active (running) since Fri 2018-07-20 12:45:02 PDT; 20s ago
-     Docs: man:systemd-sysv-generator(8)
-  Process: 12255 ExecStop=/etc/init.d/radvd stop (code=exited, status=0/SUCCESS)
-  Process: 12264 ExecStart=/etc/init.d/radvd start (code=exited, status=0/SUCCESS)
-   CGroup: /system.slice/radvd.service
-           ├─12275 /usr/sbin/radvd -u radvd -p /var/run/radvd/radvd.pid
-           └─12276 /usr/sbin/radvd -u radvd -p /var/run/radvd/radvd.pid
-
-Jul 20 12:45:01 asgaard systemd[1]: Starting LSB: Router Advertising Daemon...
-Jul 20 12:45:02 asgaard radvd[12274]: version 2.11 started
-Jul 20 12:45:02 asgaard radvd[12264]: Starting radvd: radvd.
-Jul 20 12:45:02 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
-&lt;/pre&gt;
-
-&lt;p&gt;
-So it looks like our daemon is working. If you restart the server, though, the IPv6 port forwarding won't be enabled so open up &lt;code&gt;/etc/sysctl.conf&lt;/code&gt; and un-comment out the following line.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-net.ipv6.conf.all.forwarding=1
-&lt;/pre&gt;
-
-&lt;p&gt;
-Now the next time you power on the computer it should be enabled.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org922233a" class="outline-2"&gt;
-&lt;h2 id="org922233a"&gt;Checking&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org922233a"&gt;
-&lt;p&gt;
-To check if it's working you can put another device on the LAN and check &lt;code&gt;ifconfig&lt;/code&gt;. In our &lt;code&gt;radvd.conf&lt;/code&gt; file we defined the prefix for the address:
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-prefix 2001:db7::/64
-&lt;/pre&gt;
-
-&lt;p&gt;
-So in the &lt;code&gt;ifconfig&lt;/code&gt; output  we should see an entry for an IPv6 address that starts with &lt;code&gt;2001:db7::&lt;/code&gt;. In fact I ended up with two.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-inet6 2001:db7::b8b4:6adf:6267:5571  prefixlen 64  scopeid 0x0&amp;lt;global&amp;gt;
-inet6 2001:db7::a80c:1a05:eaac:c1e8  prefixlen 64  scopeid 0x0&amp;lt;global&amp;gt;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org4d7563f" class="outline-2"&gt;
-&lt;h2 id="org4d7563f"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4d7563f"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://www.linux.com/learn/intro-to-linux/2017/12/ipv6-auto-configuration-linux"&gt;IPv6 auto-configuration&lt;/a&gt; - how to setup &lt;b&gt;radvd&lt;/b&gt; (from linux.com)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>howto networking</category><guid>https://necromuralist.github.io/posts/the-linux-ipv6-router-advertisement-daemon-radvd/</guid><pubDate>Fri, 20 Jul 2018 18:12:11 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>emacs orgmode howto</category><guid>https://necromuralist.github.io/posts/disabling-subscripting-in-org-mode/</guid><pubDate>Fri, 03 Aug 2018 15:12:01 GMT</pubDate></item></channel></rss>
