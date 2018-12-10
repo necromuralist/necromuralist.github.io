@@ -1,0 +1,37 @@
+#+BEGIN_COMMENT
+.. title: Encrypt Dropbox Folders on Ubuntu
+.. slug: encrypt-dropbox-folders-on-ubuntu
+.. date: 2018-12-10 12:41:05 UTC-08:00
+.. tags: encryption,dropbox,linux,ubuntu
+.. category: Ubuntu
+.. link: 
+.. description: Encrypting folders for cloud synchronization.
+.. type: text
+
+#+END_COMMENT
+* Introduction
+  This is one way to encrypt the contents for cloud-synchronized folders using [[https://www.cryfs.org/][CryFS]]. I'm going to illustrate it using the =Dropbox= folder that the [[https://www.dropbox.com/][dropbox client]] creates.
+* Encrypt the Folders
+** Install It
+   Ubuntu currently (November 10, 2018) has =CryFS= as part of its packages so you can install it with apt.
+
+#+BEGIN_SRC bash
+sudo apt install cryfs
+#+END_SRC
+** Create the Target and Source Folders
+   The =cryfs= command will create the two folders and set them up for you. The syntax is =cryfs <target> <source>=. The =target= will contain the encrypted folders so it will go in the Dropbox folder, while the =source= will hold the unencrypted files.
+#+BEGIN_SRC bash
+cryfs Dropbox/encrypted dropbox_source
+#+END_SRC
+
+This is the same command you would use on another computer to set-up the existing encrypted folder on your new computer. The =source= folder can be named differently, but the =target= folder and the password need to be the same one you used when you created it.
+** Unmount It
+   If you need to unmount it you can use [[http://manpages.ubuntu.com/manpages/cosmic/man1/fusermount.1.html][fusermount]].
+
+#+BEGIN_SRC bash
+fusermount -u dropbox_source
+#+END_SRC
+
+Since you are doing all this within your home directory you don't need root privileges (except to install =cryfs= with apt).
+* References
+  - I got this from [[https://www.linuxbabe.com/ubuntu/encrypt-dropbox-ubuntu-16-04-17-10-desktop-server][Linux Babe]].
