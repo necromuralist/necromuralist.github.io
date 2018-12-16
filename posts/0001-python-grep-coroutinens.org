@@ -1,0 +1,129 @@
+#+BEGIN_COMMENT
+.. title: Grep Coroutines
+.. slug: grep-coroutines
+.. date: 2018-12-09 14:55:48 UTC-08:00
+.. tags: python,coroutines,asynchronous
+.. category: Python
+.. link: 
+.. description: Using coroutines to grep words.
+.. type: text
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* Set Up
+** Imports
+*** Python
+#+BEGIN_SRC python :session coroutines :results none
+from io import StringIO
+#+END_SRC
+*** PyPi
+#+BEGIN_SRC python :session coroutines :results none
+import requests
+#+END_SRC
+** Constants
+#+BEGIN_SRC python :session coroutines :results none
+PRIDE_AND_PREJUDICE = "https://www.gutenberg.org/files/1342/1342-0.txt"
+#+END_SRC
+** Grab the Source
+#+BEGIN_SRC python :session coroutines :results none
+response = requests.get(PRIDE_AND_PREJUDICE)
+assert response.ok
+#+END_SRC
+
+* Functions
+** Coroutine
+#+BEGIN_SRC python :session coroutines :results none
+def coroutine(function):
+    """Sets up the co-routine
+
+    Args:
+     function: coroutine function
+
+    Returns:
+     wrapper futnction that starts the co-routine
+    """
+    def wrapper(*args, **kwargs):
+        co_routine = function(*args, **kwargs)
+        next(co_routine)
+        return co_routine
+    return wrapper
+#+END_SRC
+** A Cat
+#+BEGIN_SRC python :session coroutines :results none
+def process(lines, receiver, case_insensitive: bool=True):
+    """Sends the lines in the text to the receiver
+
+    Args:
+     text: iterable text lines
+     receiver: thing to send lines to
+     case_insensitive: whether to lowercase the lines
+    """
+    lines = StringIO(lines)
+    if case_insensitive:
+        processor = lambda line: line.lower()
+    else:
+        processor = lambda line: line
+
+    for line in lines:
+        receiver.send(processor(line))
+#+END_SRC
+** GREP
+#+BEGIN_SRC python :session coroutines :results none
+@coroutine
+def tokens(token, case_insensitive, receiver):
+    """count tokens in the line"""
+    if case_insensitive:
+        token = token.lower()
+    while True:
+        text = (yield)
+        receiver.send(text.count(token))
+#+END_SRC
+** Count
+#+BEGIN_SRC python :session coroutines :results none
+@coroutine
+def count(token):
+    counter = 0
+    try:
+        while True:
+            counter += (yield)
+    except GeneratorExit:
+        print(token, counter)
+    return
+#+END_SRC
+** Fanout
+#+BEGIN_SRC python :session coroutines :results output :exports both
+@coroutine
+def fork(children):
+    while True:
+        data = (yield)
+        for child in children:
+            child.send(data)
+    return
+#+END_SRC
+
+#+RESULTS:
+
+* Try It
+#+BEGIN_SRC python :session coroutines :results output :exports both
+text = StringIO(response.content.decode("utf-8"))
+process(text, tokens("feelings", True, count("feelings")))
+#+END_SRC
+
+#+RESULTS:
+: feelings 86
+
+#+BEGIN_SRC python :session coroutines :results output :exports both
+text = StringIO(response.content.decode("utf-8"))
+process(text, tokens("beauty", True, count("beauty")))
+#+END_SRC
+
+#+RESULTS:
+: beauty 27
+
+#+BEGIN_SRC python :session coroutines :results output :exports both
+text = response.content.decode("utf-8")
+process(text, tokens("cried", True, count("cried")))
+#+END_SRC
+
+#+RESULTS:
+: cried 91
