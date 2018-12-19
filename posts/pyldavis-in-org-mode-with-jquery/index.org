@@ -1,0 +1,143 @@
+#+BEGIN_COMMENT
+.. title: pyLDAvis In org-mode With JQuery
+.. slug: pyldavis-in-org-mode-with-jquery
+.. date: 2018-12-19 11:27:01 UTC-08:00
+.. tags: pyldavis,visualization,nikola
+.. category: Visualization
+.. link: 
+.. description: Using JQuery to load the pyLDAvis HTML.
+.. type: text
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* Introduction
+  In my [[https://necromuralist.github.io/posts/pyldavis-in-org-mode/][last post]] I loaded the pyLDAvis widget by dumping the HTML/Javascript right into the org-mode document. The problem with doing this is that the document has a lot of lines of text in it, which slows down emacs a noticeable amount, making it hard to display one widget, and pretty much impractical to show more than one. So, since [[https://www.getnikola.com/][Nikola]] (or maybe bootstrap or one of the other plugins I'm using) is loading [[https://jquery.com/][JQuery]] anyway, I'm going to use javascript to add the HTML after it loads from a file.
+* Imports
+** Python
+   =datetime= is just to show how long things take. In this case the data-set is fairly small so it doesn't take very long, but in other cases it might take a very long time to build the LDA model so I like to time it so I know the next time about how long I should wait.
+#+BEGIN_SRC python :session pyldavis :results none
+from datetime import datetime
+from pathlib import Path
+#+END_SRC
+** From PyPi
+#+BEGIN_SRC python :session pyldavis :results none
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import CountVectorizer
+import pyLDAvis
+import pyLDAvis.sklearn
+#+END_SRC
+* The Data
+  I'm going to use the [[https://archive.ics.uci.edu/ml/datasets/Twenty+Newsgroups][Twenty Newsgroups]] data-set, not because of anything significant, but because sklearn has a downloader for it so I figured it'd be easiest.
+
+#+BEGIN_SRC python :session pyldavis :results none
+path = Path("~/datasets/newsgroups/").expanduser()
+newsgroups = fetch_20newsgroups(data_home=path, subset="train")
+#+END_SRC
+
+#+BEGIN_SRC python :session pyldavis :results output :exports both
+print(path)
+#+END_SRC
+
+#+RESULTS:
+: /home/brunhilde/datasets/newsgroups
+
+The =newsgroups.data= is a list, so it doesn't have a shape attribute like it would it it were a numpy array.
+
+#+BEGIN_SRC python :session pyldavis :results output :exports both
+print("{:,}".format(len(newsgroups.data)))
+print("{:.2f}".format(len(newsgroups.data)/18000))
+#+END_SRC
+
+#+RESULTS:
+: 11,314
+: 0.63
+
+The [[https://sklearn.org/datasets/twenty_newsgroups.html#newsgroups][documentation for the =fetch_20newsgroups= function]] says that the full dataset has 18,000 entries, so we have about 63% of the full set.
+
+* The Vectorizer
+  I'm going to use sklearn's [[https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html][CountVectorizer]] to convert the newsgroups documents to arrays of token counts. This is about the visualization, not making an accurate model so I'm going to use the built-in tokenizer. I'm not sure what the =fit= method is for, but the [[https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html#sklearn.feature_extraction.text.CountVectorizer.fit_transform][fit_transform]] method returns the document-term matrix that we need (each row represents a document, the columns are the tokens, and the cells hold the counts for each token in the document).
+
+#+BEGIN_SRC python :session pyldavis :results output :exports both
+started = datetime.now()
+vectorizer = CountVectorizer(stop_words="english")
+document_term_matrix = vectorizer.fit_transform(newsgroups.data)
+print("Elapsed: {}".format(datetime.now() - started))
+#+END_SRC
+
+#+RESULTS:
+: Elapsed: 0:00:03.033235
+
+* The LDA
+  Now we'll build the [[https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html][Latent Dirichlet Allocation Model]].
+#+BEGIN_SRC python :session pyldavis :results output :exports both
+start = datetime.now()
+topics = len(newsgroups.target_names)
+lda = LatentDirichletAllocation(topics)
+lda.fit(document_term_matrix)
+print("Elapsed: {}".format(datetime.now() - start))
+#+END_SRC
+
+#+RESULTS:
+: Elapsed: 0:02:37.479097
+* PyLDAvis
+  Okay so here's where we try and get [[https://pyldavis.readthedocs.io/en/latest/readme.html#][pyLDAvis]] into this thing.
+** Prepare the Data for the Visualization
+*** The Prepared Data
+    The first step in using pyLDAvis is to create a =PreparedData= named-tuple using the [[https://pyldavis.readthedocs.io/en/latest/modules/API.html#pyLDAvis.prepare][prepare]] function.
+    
+#+BEGIN_SRC python :session pyldavis :results output :exports both
+start = datetime.now()
+prepared_data = pyLDAvis.sklearn.prepare(lda, document_term_matrix, vectorizer)
+print("Elapsed: {}".format(datetime.now() - start))
+#+END_SRC
+
+#+RESULTS:
+: Elapsed: 0:00:34.293668
+
+*** Build the HTML
+    Now we can create an HTML fragment using the [[https://pyldavis.readthedocs.io/en/latest/modules/API.html#pyLDAvis.prepared_data_to_html][prepared_data]] function. The output is a string of HTML script, style, and div tags. It adds the entire data-set as a javascript object so the more data you have, the longer the string will be.
+#+BEGIN_SRC python :session pyldavis :results none
+div_id = "pyldavis-in-org-mode"
+html = pyLDAvis.prepared_data_to_html(prepared_data,
+                                      template_type="simple",
+                                      visid=div_id)
+#+END_SRC
+*** Export the HTML
+    Now I'm going to save the html to a file so we can load it later.
+
+#+BEGIN_SRC python :session pyldavis :results none
+slug = "pyldavis-in-org-mode-with-jquery"
+posts = Path("../files/posts/")
+folder = posts.joinpath(slug)
+filename = "pyldavis_fragment.html"
+if not folder.is_dir():
+    folder.mkdir()
+
+output = folder.joinpath(filename)
+output.write_text(html)
+assert output.is_file()
+#+END_SRC
+
+So here's where we create the HTML that will be embedded in this post. The [[https://api.jquery.com/load/][JQuery load]] function puts the content of our saved file into the div. I added the [[https://api.jquery.com/css/][css]] call because I have my site's font-size set to extra-large, since the Goudy Bookstyle looks too small to me otherwise (I think nice fonts look better when they're big), which causes the buttons in the pyLDAvis widget to overflow out of the header. Under normal circumstances you wouldn't need to do this, but if you do want to do any one-off styling, here's an example of how to do it. Otherwise maybe an update to the style-sheet would be better. 
+
+The right-hand box is still messed up, but it's good enough for this example.
+
+#+BEGIN_SRC python :session pyldavis :results output raw :exports both
+print('''#+BEGIN_EXPORT html
+<div id="{0}"></div>
+<script>
+$("#{0}").load("{1}")
+$("#{0}-top").css("font-size", "large")
+</script>
+#+END_EXPORT'''.format(div_id, filename))
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT html
+<div id="pyldavis-in-org-mode"></div>
+<script>
+$("#pyldavis-in-org-mode").load("pyldavis_fragment.html")
+$("#pyldavis-in-org-mode-top").css("font-size", "large")
+</script>
+#+END_EXPORT

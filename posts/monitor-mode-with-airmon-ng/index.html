@@ -1,199 +1,124 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
-" lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 <head>
 <meta charset="utf-8">
-<meta name="description" content="Putting your device into monitor mode with airmon-ng.">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta content="Putting your device into monitor mode with airmon-ng." name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
 <title>Monitor Mode With airmon-ng | The Cloistered Monkey</title>
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
-<meta name="theme-color" content="#5670d4">
-<meta name="generator" content="Nikola (getnikola.com)">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
-<link rel="canonical" href="https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML">
-</script><meta name="author" content="Cloistered Monkey">
-<meta name="robots" content="noindex">
-<meta property="og:site_name" content="The Cloistered Monkey">
-<meta property="og:title" content="Monitor Mode With airmon-ng">
-<meta property="og:url" content="https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/">
-<meta property="og:description" content="Putting your device into monitor mode with airmon-ng.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2018-05-12T18:00:48-07:00">
-<meta property="article:tag" content="wireless packets">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
+</script>
+<meta content="Cloistered Monkey" name="author">
+<meta content="noindex" name="robots">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="Monitor Mode With airmon-ng" property="og:title">
+<meta content="https://necromuralist.github.io/posts/monitor-mode-with-airmon-ng/" property="og:url">
+<meta content="Putting your device into monitor mode with airmon-ng." property="og:description">
+<meta content="article" property="og:type">
+<meta content="2018-05-12T18:00:48-07:00" property="article:published_time">
+<meta content="wireless packets" property="article:tag">
 </head>
 <body>
-<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
-
-<!-- Menubar -->
-
-<nav class="navbar navbar-expand-md static-top mb-4
-navbar-light bg-light
-"><div class="container">
-<!-- This keeps the margins nice -->
-        <a class="navbar-brand" href="https://necromuralist.github.io/">
-
-            <span id="blog-title">The Cloistered Monkey</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="bs-navbar">
-            <ul class="navbar-nav mr-auto">
-<li class="nav-item">
-<a href="../../archive.html" class="nav-link">Archive</a>
-                </li>
-<li class="nav-item">
-<a href="../../categories/" class="nav-link">Tags</a>
-                </li>
-<li class="nav-item">
-<a href="../../rss.xml" class="nav-link">RSS feed</a>
-            </li>
-<li class="nav-item dropdown">
-<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects</a>
-            <div class="dropdown-menu">
-                    <a href="https://necromuralist.github.io/In-Too-Deep/" class="dropdown-item">In Too Deep (Neural Networks)</a>
-                    <a href="../../machine-learning-projects/" class="dropdown-item">Machine Learning</a>
-                    <a href="https://necromuralist.github.io/student_intervention/" class="dropdown-item">Student Intervention Project</a>
-                    <a href="https://necromuralist.github.io/boston_housing/" class="dropdown-item">Boston Housing Project</a>
-                    <a href="https://necromuralist.github.io/data_science/" class="dropdown-item">Data Science With Python</a>
-            </div>
-
-                
-            </li>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="https://necromuralist.github.io/"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/In-Too-Deep/">In Too Deep (Neural Networks)</a> <a class="dropdown-item" href="../../machine-learning-projects/">Machine Learning</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a></div>
+</li>
 </ul>
-<!-- Google custom search --><form method="get" action="https://www.google.com/search" class="navbar-form navbar-right" role="search">
-<div class="form-group">
-<input type="text" name="q" class="form-control" placeholder="Search">
-</div>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
 <!-- 
 <button type="submit" class="btn btn-primary">
-	<span class="glyphicon glyphicon-search"></span>
+        <span class="glyphicon glyphicon-search"></span>
 </button>
 -->
-<input type="hidden" name="sitesearch" value="https://necromuralist.github.io/">
-</form>
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
 <!-- End of custom search -->
-
-
-            <ul class="navbar-nav navbar-right">
-<li class="nav-item">
-    <a href="index.org" id="sourcelink" class="nav-link">Source</a>
-    </li>
-
-
-                
-            </ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
+</ul>
 </div>
-<!-- /.navbar-collapse -->
-    </div>
-<!-- /.container -->
-</nav><!-- End of Menubar --><div class="container" id="content" role="main">
-    <div class="body-content">
-        <!--Body content-->
-        
-        
-<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Monitor Mode With airmon-ng</a></h1>
-
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                    <a href="../../authors/cloistered-monkey/">Cloistered Monkey</a>
-            </span></p>
-            <p class="dateline">
-            <a href="." rel="bookmark">
-            <time class="published dt-published" datetime="2018-05-12T18:00:48-07:00" itemprop="datePublished" title="2018-05-12 18:00">2018-05-12 18:00</time></a>
-            </p>
-            
-        <p class="sourceline"><a href="index.org" class="sourcelink">Source</a></p>
-
-        </div>
-        
-
-    </header><div class="e-content entry-content" itemprop="articleBody text">
-    <div id="outline-container-org44ee553" class="outline-2">
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">Monitor Mode With airmon-ng</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-05-12T18:00:48-07:00" itemprop="datePublished" title="2018-05-12 18:00">2018-05-12 18:00</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
+</div>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<div class="outline-2" id="outline-container-org44ee553">
 <h2 id="org44ee553">Introduction</h2>
 <div class="outline-text-2" id="text-org44ee553">
-<p>
-I'm looking into setting up a wireless (WiFi and bluetooth) monitoring station to collect data that correlates with how my network is performing and what the state of the network is and I thought that, as a first step, I'd get some <a href="https://en.wikipedia.org/wiki/Packet_analyzer">packet capturing</a> logs going. I'm primarily a python programmer who's kept my toe in the Linux command-line world but it's been a little while since I really dove into the wireless networking world. I had some vague notion about doing it with <a href="https://en.wikipedia.org/wiki/Wireless_tools_for_Linux">iwconfig</a> or <a href="https://wireless.wiki.kernel.org/en/users/documentation/iw">iw</a>, but then I found <a href="https://www.aircrack-ng.org/doku.php?id=airmon-ng">airmon-ng</a> and realized that it was what I was really looking for.
-Why is it better? Well, to be honest, I'm not informed enough to say that it's better, but when I tried to use <code>iw</code> it failed without really telling me why, while <code>airmon-ng</code> not only didn't fail, but it told me that there were other processes already using my wireless interface which is likely why <code>iw</code> failed and it told me how to fix it. On the one hand, since it's hiding so much from you <code>airmon-ng</code> lets you be a little ignorant and still do stuff, on the other - <b>what's wrong with that?</b>
-</p>
+<p>I'm looking into setting up a wireless (WiFi and bluetooth) monitoring station to collect data that correlates with how my network is performing and what the state of the network is and I thought that, as a first step, I'd get some <a href="https://en.wikipedia.org/wiki/Packet_analyzer">packet capturing</a> logs going. I'm primarily a python programmer who's kept my toe in the Linux command-line world but it's been a little while since I really dove into the wireless networking world. I had some vague notion about doing it with <a href="https://en.wikipedia.org/wiki/Wireless_tools_for_Linux">iwconfig</a> or <a href="https://wireless.wiki.kernel.org/en/users/documentation/iw">iw</a>, but then I found <a href="https://www.aircrack-ng.org/doku.php?id=airmon-ng">airmon-ng</a> and realized that it was what I was really looking for. Why is it better? Well, to be honest, I'm not informed enough to say that it's better, but when I tried to use <code>iw</code> it failed without really telling me why, while <code>airmon-ng</code> not only didn't fail, but it told me that there were other processes already using my wireless interface which is likely why <code>iw</code> failed and it told me how to fix it. On the one hand, since it's hiding so much from you <code>airmon-ng</code> lets you be a little ignorant and still do stuff, on the other - <b>what's wrong with that?</b></p>
 </div>
 </div>
-<div id="outline-container-orgdb270d3" class="outline-2">
+<div class="outline-2" id="outline-container-orgdb270d3">
 <h2 id="orgdb270d3">Setting Up</h2>
 <div class="outline-text-2" id="text-orgdb270d3">
-<p>
-I'm using Ubuntu <a href="http://releases.ubuntu.com/18.04/">18.04 (Bionic Beaver)</a> - which seems to have both fixed and broken a surprising amount of stuff (nice that you let me log in with Dvorak now, but maybe you should let me know the keyboard layout has changed ahead of time) - so these instructions are based on that. First, <code>airmon-ng</code> is part of the <code>aircrack-ng</code> package so you need to install it to get what we want.
-</p>
-
+<p>I'm using Ubuntu <a href="http://releases.ubuntu.com/18.04/">18.04 (Bionic Beaver)</a> - which seems to have both fixed and broken a surprising amount of stuff (nice that you let me log in with Dvorak now, but maybe you should let me know the keyboard layout has changed ahead of time) - so these instructions are based on that. First, <code>airmon-ng</code> is part of the <code>aircrack-ng</code> package so you need to install it to get what we want.</p>
 <pre class="example">
 sudo apt install aircrack-ng
 </pre>
-
-<p>
-Once you do this you'll see that <code>airmon-ng</code> is installed.
-</p>
-
-<div class="highlight"><pre><span></span>which airmon-ng
+<p>Once you do this you'll see that <code>airmon-ng</code> is installed.</p>
+<div class="highlight">
+<pre><span></span>which airmon-ng
 </pre></div>
-
-<p>
-Interestingly, if you check it out, you'll see that all it is is a bash script.
-</p>
-
-<div class="highlight"><pre><span></span>file `which airmon-ng`
+<p>Interestingly, if you check it out, you'll see that all it is is a bash script.</p>
+<div class="highlight">
+<pre><span></span>file `which airmon-ng`
 </pre></div>
-
-<p>
-The file is kind of long.
-</p>
-
-<div class="highlight"><pre><span></span>wc -l `which airmon-ng`
+<p>The file is kind of long.</p>
+<div class="highlight">
+<pre><span></span>wc -l `which airmon-ng`
 </pre></div>
-
-<p>
-So I won't list it here - you can check it out if you're interested. It's actually very informative if you want to learn how to do this kind of stuff, but for this case, we just need to know it works.
-</p>
+<p>So I won't list it here - you can check it out if you're interested. It's actually very informative if you want to learn how to do this kind of stuff, but for this case, we just need to know it works.</p>
 </div>
 </div>
-<div id="outline-container-org6ecc4ff" class="outline-2">
+<div class="outline-2" id="outline-container-org6ecc4ff">
 <h2 id="org6ecc4ff">Monitor Mode</h2>
-<div class="outline-text-2" id="text-org6ecc4ff">
-</div>
-<div id="outline-container-org48cefa7" class="outline-3">
+<div class="outline-text-2" id="text-org6ecc4ff"></div>
+<div class="outline-3" id="outline-container-org48cefa7">
 <h3 id="org48cefa7">Starting Up Monitor Mode</h3>
-<div class="outline-text-3" id="text-org48cefa7">
-</div>
-<div id="outline-container-org8375c47" class="outline-4">
+<div class="outline-text-3" id="text-org48cefa7"></div>
+<div class="outline-4" id="outline-container-org8375c47">
 <h4 id="org8375c47">Finding your interface</h4>
 <div class="outline-text-4" id="text-org8375c47">
-<p>
-In the good old days you could be pretty sure that your wireless interface was <code>wlan0</code> (assuming you only had one) but then ubuntu/freedesktop went and <a href="https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/">changed things</a> so now you should probably check what your interface name is using <code>iw</code>.
-</p>
-
-<div class="highlight"><pre><span></span>iw dev
+<p>In the good old days you could be pretty sure that your wireless interface was <code>wlan0</code> (assuming you only had one) but then ubuntu/freedesktop went and <a href="https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/">changed things</a> so now you should probably check what your interface name is using <code>iw</code>.</p>
+<div class="highlight">
+<pre><span></span>iw dev
 </pre></div>
-
-<p>
-So it looks like we have a wireless interface named <code>wlp2s0</code> that we want to change from <b>managed</b> to <b>monitor</b> mode.
-</p>
+<p>So it looks like we have a wireless interface named <code>wlp2s0</code> that we want to change from <b>managed</b> to <b>monitor</b> mode.</p>
 </div>
 </div>
 </div>
-<div id="outline-container-orgc6389aa" class="outline-3">
+<div class="outline-3" id="outline-container-orgc6389aa">
 <h3 id="orgc6389aa">Okay, now monitor it</h3>
 <div class="outline-text-3" id="text-orgc6389aa">
-<p>
-The syntax to start monitor mode is <code>airmon-ng start &lt;interface&gt;</code>.
-</p>
-
+<p>The syntax to start monitor mode is <code>airmon-ng start &lt;interface&gt;</code>.</p>
 <pre class="example">
 sudo airmon-ng start wlp2s0
 </pre>
-
 <pre class="example">
 Found 5 processes that could cause trouble.
 If airodump-ng, aireplay-ng or airtun-ng stops working after
@@ -222,13 +147,13 @@ iw dev
 
 #+RESULTS:
 phy#0
-	Interface wlp2s0mon
-		ifindex 5
-		wdev 0x3
-		addr 7c:5c:f8:f7:f5:c6
-		type monitor
-		channel 10 (2457 MHz), width: 20 MHz (no HT), center1: 2457 MHz
-		txpower 0.00 dBm
+        Interface wlp2s0mon
+                ifindex 5
+                wdev 0x3
+                addr 7c:5c:f8:f7:f5:c6
+                type monitor
+                channel 10 (2457 MHz), width: 20 MHz (no HT), center1: 2457 MHz
+                txpower 0.00 dBm
 
 So you can see that running =airmon-ng start= killed our original =wlp2s0= interface and replaced it with =wlp2s0mo= which is in monitor mode on channel 10. Unforturnately I wanted channel 6 but forgot to specify it. Let's try that again.
 
@@ -237,11 +162,7 @@ The first thing we have to do is to turn off monitor mode.
 #+BEGIN_EXAMPLE
 sudo airmon-ng stop wlp2s0mon
 </pre>
-
-<p>
-Note that we are stopping the new monitor-mode interface, not our original wireless interface. Now we can start the monitor-mode interface set to channel 6. The syntax is <code>airmon-ng start &lt;interface&gt; &lt;channel&gt;</code>.
-</p>
-
+<p>Note that we are stopping the new monitor-mode interface, not our original wireless interface. Now we can start the monitor-mode interface set to channel 6. The syntax is <code>airmon-ng start &lt;interface&gt; &lt;channel&gt;</code>.</p>
 <pre class="example">
 sudo airmon-ng start wlp2s0 6
 #+END_SRC
@@ -254,70 +175,64 @@ iw dev
 
 #+RESULTS:
 phy#0
-	Interface wlp2s0mon
-		ifindex 7
-		wdev 0x6
-		addr 7c:5c:f8:f7:f5:c6
-		type monitor
-		channel 6 (2437 MHz), width: 20 MHz (no HT), center1: 2437 MHz
-		txpower 0.00 dBm
+        Interface wlp2s0mon
+                ifindex 7
+                wdev 0x6
+                addr 7c:5c:f8:f7:f5:c6
+                type monitor
+                channel 6 (2437 MHz), width: 20 MHz (no HT), center1: 2437 MHz
+                txpower 0.00 dBm
 
 So now we have an interface (=wlp2s0mon=) on channel 6 in monitor mode. We can make sure that it's working using [[https://tcpdump.org][tcpdump]].
 
 #+BEGIN_EXAMPLE
 sudo tcpdump -i wlp2s0mon -n
 </pre>
-
-<p>
-Note that we need to use the new interface name. Also, if it wasn't obvious up to now, putting the interface into monitor mode will break any networking capabilities for that interface on your computer (so if it was your internet connection, don't expect to access the web when it's in monitor mode).
-</p>
+<p>Note that we need to use the new interface name. Also, if it wasn't obvious up to now, putting the interface into monitor mode will break any networking capabilities for that interface on your computer (so if it was your internet connection, don't expect to access the web when it's in monitor mode).</p>
 </div>
 </div>
 </div>
-<div id="outline-container-orgce5122c" class="outline-2">
+<div class="outline-2" id="outline-container-orgce5122c">
 <h2 id="orgce5122c">Cleaning Up</h2>
 <div class="outline-text-2" id="text-orgce5122c">
-<p>
-We already got a preview of turning off monitor mode earlier. The syntax is <code>airmon-ng stop &lt;interface&gt;</code>.
-</p>
-
+<p>We already got a preview of turning off monitor mode earlier. The syntax is <code>airmon-ng stop &lt;interface&gt;</code>.</p>
 <pre class="example">
 sudo airmon-ng stop wlp2s0mon
 </pre>
-
-<p>
-This will bring back the original wireless interface, but it won't (likely) re-establish your connection to your wireless access point. To get back onto the network you will probably need to open network manager and go through the setup process again.
-</p>
+<p>This will bring back the original wireless interface, but it won't (likely) re-establish your connection to your wireless access point. To get back onto the network you will probably need to open network manager and go through the setup process again.</p>
 </div>
 </div>
-<div id="outline-container-org5372e5c" class="outline-2">
+<div class="outline-2" id="outline-container-org5372e5c">
 <h2 id="org5372e5c">Summary</h2>
 <div class="outline-text-2" id="text-org5372e5c">
-<p>
-These were my notes on setting up monitor mode using <code>airmon-ng</code>. The main point I wanted to get across is how easy it is to do using <code>airmon-ng</code> as opposed to the other methods. I didn't actually show how much harder it is to use iwconfig, but if you have tried you might know what it entails. In any case, hopefully these notes will help me in the future as I keep watching the packets.
-</p>
+<p>These were my notes on setting up monitor mode using <code>airmon-ng</code>. The main point I wanted to get across is how easy it is to do using <code>airmon-ng</code> as opposed to the other methods. I didn't actually show how much harder it is to use iwconfig, but if you have tried you might know what it entails. In any case, hopefully these notes will help me in the future as I keep watching the packets.</p>
 </div>
 </div>
-    </div>
-    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+</div>
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
 <li><a class="tag p-category" href="../../categories/wireless-packets/" rel="tag">wireless packets</a></li>
-        </ul></nav></aside></article><!--End of body content--><footer id="footer">
-            Contents © 2018         <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
-            
-        </footer>
+</ul>
+</nav>
+</aside>
+</article>
+<!--End of body content-->
+<footer id="footer">Contents © 2018 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-
-
-        <script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates --><script>
+<script src="../../assets/js/all-nocdn.js">
+</script><!-- fancy dates -->
+<script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
-    </script><!-- end fancy dates --><script>
+</script><!-- end fancy dates -->
+<script>
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {
             return element.getElementsByTagName('img')[0].alt;
     }});
-    </script>
+</script>
 </body>
 </html>

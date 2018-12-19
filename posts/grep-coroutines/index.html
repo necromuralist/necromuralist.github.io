@@ -1,195 +1,148 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
-" lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 <head>
 <meta charset="utf-8">
-<meta name="description" content="Using coroutines to grep words.">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta content="Using coroutines to grep words." name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
 <title>Grep Coroutines | The Cloistered Monkey</title>
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
-<meta name="theme-color" content="#5670d4">
-<meta name="generator" content="Nikola (getnikola.com)">
-<link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.xml">
-<link rel="canonical" href="https://necromuralist.github.io/posts/grep-coroutines/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML">
-</script><meta name="author" content="Cloistered Monkey">
-<link rel="prev" href="../data/data-source-links/" title="Data Source Links" type="text/html">
-<link rel="next" href="../ubuntu/encrypt-dropbox-folders-on-ubuntu/" title="Encrypt Dropbox Folders on Ubuntu" type="text/html">
-<meta property="og:site_name" content="The Cloistered Monkey">
-<meta property="og:title" content="Grep Coroutines">
-<meta property="og:url" content="https://necromuralist.github.io/posts/grep-coroutines/">
-<meta property="og:description" content="Using coroutines to grep words.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2018-12-09T14:55:48-08:00">
-<meta property="article:tag" content="asynchronous">
-<meta property="article:tag" content="coroutines">
-<meta property="article:tag" content="python">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/grep-coroutines/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
+</script>
+<meta content="Cloistered Monkey" name="author">
+<link href="../data/data-source-links/" rel="prev" title="Data Source Links" type="text/html">
+<link href="../ubuntu/encrypt-dropbox-folders-on-ubuntu/" rel="next" title="Encrypt Dropbox Folders on Ubuntu" type="text/html">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="Grep Coroutines" property="og:title">
+<meta content="https://necromuralist.github.io/posts/grep-coroutines/" property="og:url">
+<meta content="Using coroutines to grep words." property="og:description">
+<meta content="article" property="og:type">
+<meta content="2018-12-09T14:55:48-08:00" property="article:published_time">
+<meta content="asynchronous" property="article:tag">
+<meta content="coroutines" property="article:tag">
+<meta content="python" property="article:tag">
 </head>
 <body>
-<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
-
-<!-- Menubar -->
-
-<nav class="navbar navbar-expand-md static-top mb-4
-navbar-light bg-light
-"><div class="container">
-<!-- This keeps the margins nice -->
-        <a class="navbar-brand" href="https://necromuralist.github.io/">
-
-            <span id="blog-title">The Cloistered Monkey</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="bs-navbar">
-            <ul class="navbar-nav mr-auto">
-<li class="nav-item">
-<a href="../../archive.html" class="nav-link">Archive</a>
-                </li>
-<li class="nav-item">
-<a href="../../categories/" class="nav-link">Tags</a>
-                </li>
-<li class="nav-item">
-<a href="../../rss.xml" class="nav-link">RSS feed</a>
-            </li>
-<li class="nav-item dropdown">
-<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects</a>
-            <div class="dropdown-menu">
-                    <a href="https://necromuralist.github.io/In-Too-Deep/" class="dropdown-item">In Too Deep (Neural Networks)</a>
-                    <a href="../../machine-learning-projects/" class="dropdown-item">Machine Learning</a>
-                    <a href="https://necromuralist.github.io/student_intervention/" class="dropdown-item">Student Intervention Project</a>
-                    <a href="https://necromuralist.github.io/boston_housing/" class="dropdown-item">Boston Housing Project</a>
-                    <a href="https://necromuralist.github.io/data_science/" class="dropdown-item">Data Science With Python</a>
-            </div>
-
-                
-            </li>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="https://necromuralist.github.io/"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/In-Too-Deep/">In Too Deep (Neural Networks)</a> <a class="dropdown-item" href="../../machine-learning-projects/">Machine Learning</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a></div>
+</li>
 </ul>
-<!-- Google custom search --><form method="get" action="https://www.google.com/search" class="navbar-form navbar-right" role="search">
-<div class="form-group">
-<input type="text" name="q" class="form-control" placeholder="Search">
-</div>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
 <!-- 
 <button type="submit" class="btn btn-primary">
-	<span class="glyphicon glyphicon-search"></span>
+        <span class="glyphicon glyphicon-search"></span>
 </button>
 -->
-<input type="hidden" name="sitesearch" value="https://necromuralist.github.io/">
-</form>
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
 <!-- End of custom search -->
-
-
-            <ul class="navbar-nav navbar-right">
-<li class="nav-item">
-    <a href="index.org" id="sourcelink" class="nav-link">Source</a>
-    </li>
-
-
-                
-            </ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
+</ul>
 </div>
-<!-- /.navbar-collapse -->
-    </div>
-<!-- /.container -->
-</nav><!-- End of Menubar --><div class="container" id="content" role="main">
-    <div class="body-content">
-        <!--Body content-->
-        
-        
-<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Grep Coroutines</a></h1>
-
-        <div class="metadata">
-            <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                    <a href="../../authors/cloistered-monkey/">Cloistered Monkey</a>
-            </span></p>
-            <p class="dateline">
-            <a href="." rel="bookmark">
-            <time class="published dt-published" datetime="2018-12-09T14:55:48-08:00" itemprop="datePublished" title="2018-12-09 14:55">2018-12-09 14:55</time></a>
-            </p>
-            
-        <p class="sourceline"><a href="index.org" class="sourcelink">Source</a></p>
-
-        </div>
-        
-
-    </header><div class="e-content entry-content" itemprop="articleBody text">
-    <div id="table-of-contents">
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">Grep Coroutines</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-12-09T14:55:48-08:00" itemprop="datePublished" title="2018-12-09 14:55">2018-12-09 14:55</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
+</div>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li>
-<a href="#org5f231fc">Set Up</a>
+<li><a href="#org50f1ef0">Set Up</a>
 <ul>
-<li><a href="#orgbc4b405">Imports</a></li>
-<li><a href="#orgfb94563">Constants</a></li>
-<li><a href="#orgefe54b8">Grab the Source</a></li>
+<li><a href="#org15197ad">Imports</a></li>
+<li><a href="#org7036144">Constants</a></li>
+<li><a href="#org13c1995">Grab the Source</a></li>
 </ul>
 </li>
-<li>
-<a href="#orgd4649e1">Functions</a>
+<li><a href="#orgd347b7e">Functions</a>
 <ul>
-<li><a href="#org5d00729">Coroutine</a></li>
-<li><a href="#orgdcbcb95">A Cat</a></li>
-<li><a href="#orgd02d11d">GREP</a></li>
-<li><a href="#org15ab0b9">Count</a></li>
-<li><a href="#orgfea0e87">Fanout</a></li>
+<li><a href="#org120cd87">Coroutine</a></li>
+<li><a href="#org10ea798">A Cat</a></li>
+<li><a href="#org7a5e44b">GREP</a></li>
+<li><a href="#orge71f550">Count</a></li>
+<li><a href="#orgb64636b">Fanout</a></li>
 </ul>
 </li>
-<li><a href="#orgde2804e">Try It</a></li>
+<li><a href="#org0f0b729">Try It</a></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org5f231fc" class="outline-2">
-<h2 id="org5f231fc">Set Up</h2>
-<div class="outline-text-2" id="text-org5f231fc">
-</div>
-<div id="outline-container-orgbc4b405" class="outline-3">
-<h3 id="orgbc4b405">Imports</h3>
-<div class="outline-text-3" id="text-orgbc4b405">
-</div>
-<div id="outline-container-org13b252f" class="outline-4">
-<h4 id="org13b252f">Python</h4>
-<div class="outline-text-4" id="text-org13b252f">
-<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<div class="outline-2" id="outline-container-org50f1ef0">
+<h2 id="org50f1ef0">Set Up</h2>
+<div class="outline-text-2" id="text-org50f1ef0"></div>
+<div class="outline-3" id="outline-container-org15197ad">
+<h3 id="org15197ad">Imports</h3>
+<div class="outline-text-3" id="text-org15197ad"></div>
+<div class="outline-4" id="outline-container-org9716d46">
+<h4 id="org9716d46">Python</h4>
+<div class="outline-text-4" id="text-org9716d46">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
 </pre></div>
 </div>
 </div>
-<div id="outline-container-org99f28b3" class="outline-4">
-<h4 id="org99f28b3">PyPi</h4>
-<div class="outline-text-4" id="text-org99f28b3">
-<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<div class="outline-4" id="outline-container-orgd5ebc0a">
+<h4 id="orgd5ebc0a">PyPi</h4>
+<div class="outline-text-4" id="text-orgd5ebc0a">
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
 </pre></div>
 </div>
 </div>
 </div>
-<div id="outline-container-orgfb94563" class="outline-3">
-<h3 id="orgfb94563">Constants</h3>
-<div class="outline-text-3" id="text-orgfb94563">
-<div class="highlight"><pre><span></span><span class="n">PRIDE_AND_PREJUDICE</span> <span class="o">=</span> <span class="s2">"https://www.gutenberg.org/files/1342/1342-0.txt"</span>
+<div class="outline-3" id="outline-container-org7036144">
+<h3 id="org7036144">Constants</h3>
+<div class="outline-text-3" id="text-org7036144">
+<div class="highlight">
+<pre><span></span><span class="n">PRIDE_AND_PREJUDICE</span> <span class="o">=</span> <span class="s2">"https://www.gutenberg.org/files/1342/1342-0.txt"</span>
 </pre></div>
 </div>
 </div>
-<div id="outline-container-orgefe54b8" class="outline-3">
-<h3 id="orgefe54b8">Grab the Source</h3>
-<div class="outline-text-3" id="text-orgefe54b8">
-<div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PRIDE_AND_PREJUDICE</span><span class="p">)</span>
+<div class="outline-3" id="outline-container-org13c1995">
+<h3 id="org13c1995">Grab the Source</h3>
+<div class="outline-text-3" id="text-org13c1995">
+<div class="highlight">
+<pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PRIDE_AND_PREJUDICE</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span>
 </pre></div>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgd4649e1" class="outline-2">
-<h2 id="orgd4649e1">Functions</h2>
-<div class="outline-text-2" id="text-orgd4649e1">
-</div>
-<div id="outline-container-org5d00729" class="outline-3">
-<h3 id="org5d00729">Coroutine</h3>
-<div class="outline-text-3" id="text-org5d00729">
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">coroutine</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+<div class="outline-2" id="outline-container-orgd347b7e">
+<h2 id="orgd347b7e">Functions</h2>
+<div class="outline-text-2" id="text-orgd347b7e"></div>
+<div class="outline-3" id="outline-container-org120cd87">
+<h3 id="org120cd87">Coroutine</h3>
+<div class="outline-text-3" id="text-org120cd87">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">coroutine</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
     <span class="sd">"""Sets up the co-routine</span>
 
 <span class="sd">    Args:</span>
@@ -199,17 +152,18 @@ navbar-light bg-light
 <span class="sd">     wrapper futnction that starts the co-routine</span>
 <span class="sd">    """</span>
     <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-	<span class="n">co_routine</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-	<span class="nb">next</span><span class="p">(</span><span class="n">co_routine</span><span class="p">)</span>
-	<span class="k">return</span> <span class="n">co_routine</span>
+        <span class="n">co_routine</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">next</span><span class="p">(</span><span class="n">co_routine</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">co_routine</span>
     <span class="k">return</span> <span class="n">wrapper</span>
 </pre></div>
 </div>
 </div>
-<div id="outline-container-orgdcbcb95" class="outline-3">
-<h3 id="orgdcbcb95">A Cat</h3>
-<div class="outline-text-3" id="text-orgdcbcb95">
-<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">case_insensitive</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="outline-3" id="outline-container-org10ea798">
+<h3 id="org10ea798">A Cat</h3>
+<div class="outline-text-3" id="text-org10ea798">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">case_insensitive</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">"""Sends the lines in the text to the receiver</span>
 
 <span class="sd">    Args:</span>
@@ -219,120 +173,120 @@ navbar-light bg-light
 <span class="sd">    """</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">case_insensitive</span><span class="p">:</span>
-	<span class="n">processor</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">processor</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-	<span class="n">processor</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span>
+        <span class="n">processor</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span>
 
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-	<span class="n">receiver</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">processor</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="n">receiver</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">processor</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
-<div id="outline-container-orgd02d11d" class="outline-3">
-<h3 id="orgd02d11d">GREP</h3>
-<div class="outline-text-3" id="text-orgd02d11d">
-<div class="highlight"><pre><span></span><span class="nd">@coroutine</span>
+<div class="outline-3" id="outline-container-org7a5e44b">
+<h3 id="org7a5e44b">GREP</h3>
+<div class="outline-text-3" id="text-org7a5e44b">
+<div class="highlight">
+<pre><span></span><span class="nd">@coroutine</span>
 <span class="k">def</span> <span class="nf">tokens</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">case_insensitive</span><span class="p">,</span> <span class="n">receiver</span><span class="p">):</span>
     <span class="sd">"""count tokens in the line"""</span>
     <span class="k">if</span> <span class="n">case_insensitive</span><span class="p">:</span>
-	<span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-	<span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
-	<span class="n">receiver</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+        <span class="n">receiver</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
-<div id="outline-container-org15ab0b9" class="outline-3">
-<h3 id="org15ab0b9">Count</h3>
-<div class="outline-text-3" id="text-org15ab0b9">
-<div class="highlight"><pre><span></span><span class="nd">@coroutine</span>
+<div class="outline-3" id="outline-container-orge71f550">
+<h3 id="orge71f550">Count</h3>
+<div class="outline-text-3" id="text-orge71f550">
+<div class="highlight">
+<pre><span></span><span class="nd">@coroutine</span>
 <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
     <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">try</span><span class="p">:</span>
-	<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-	    <span class="n">counter</span> <span class="o">+=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">GeneratorExit</span><span class="p">:</span>
-	<span class="k">print</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">counter</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">counter</span><span class="p">)</span>
     <span class="k">return</span>
 </pre></div>
 </div>
 </div>
-<div id="outline-container-orgfea0e87" class="outline-3">
-<h3 id="orgfea0e87">Fanout</h3>
-<div class="outline-text-3" id="text-orgfea0e87">
-<div class="highlight"><pre><span></span><span class="nd">@coroutine</span>
+<div class="outline-3" id="outline-container-orgb64636b">
+<h3 id="orgb64636b">Fanout</h3>
+<div class="outline-text-3" id="text-orgb64636b">
+<div class="highlight">
+<pre><span></span><span class="nd">@coroutine</span>
 <span class="k">def</span> <span class="nf">fork</span><span class="p">(</span><span class="n">children</span><span class="p">):</span>
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-	<span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
-	<span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
-	    <span class="n">child</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+            <span class="n">child</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">return</span>
 </pre></div>
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgde2804e" class="outline-2">
-<h2 id="orgde2804e">Try It</h2>
-<div class="outline-text-2" id="text-orgde2804e">
-<div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
+<div class="outline-2" id="outline-container-org0f0b729">
+<h2 id="org0f0b729">Try It</h2>
+<div class="outline-text-2" id="text-org0f0b729">
+<div class="highlight">
+<pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
 <span class="n">process</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">tokens</span><span class="p">(</span><span class="s2">"feelings"</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="s2">"feelings"</span><span class="p">)))</span>
 </pre></div>
-
 <pre class="example">
 feelings 86
 
 </pre>
-
-<div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
+<div class="highlight">
+<pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
 <span class="n">process</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">tokens</span><span class="p">(</span><span class="s2">"beauty"</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="s2">"beauty"</span><span class="p">)))</span>
 </pre></div>
-
 <pre class="example">
 beauty 27
 
 </pre>
-
-<div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
+<div class="highlight">
+<pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
 <span class="n">process</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">tokens</span><span class="p">(</span><span class="s2">"cried"</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="s2">"cried"</span><span class="p">)))</span>
 </pre></div>
-
 <pre class="example">
 cried 91
 
-</pre>
+</pre></div>
 </div>
 </div>
-    </div>
-    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
 <li><a class="tag p-category" href="../../categories/asynchronous/" rel="tag">asynchronous</a></li>
-            <li><a class="tag p-category" href="../../categories/coroutines/" rel="tag">coroutines</a></li>
-            <li><a class="tag p-category" href="../../categories/python/" rel="tag">python</a></li>
-        </ul>
+<li><a class="tag p-category" href="../../categories/coroutines/" rel="tag">coroutines</a></li>
+<li><a class="tag p-category" href="../../categories/python/" rel="tag">python</a></li>
+</ul>
 <ul class="pager hidden-print">
-<li class="previous">
-                <a href="../data/data-source-links/" rel="prev" title="Data Source Links">Previous post</a>
-            </li>
-            <li class="next">
-                <a href="../ubuntu/encrypt-dropbox-folders-on-ubuntu/" rel="next" title="Encrypt Dropbox Folders on Ubuntu">Next post</a>
-            </li>
-        </ul></nav></aside></article><!--End of body content--><footer id="footer">
-            Contents © 2018         <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
-            
-        </footer>
+<li class="previous"><a href="../data/data-source-links/" rel="prev" title="Data Source Links">Previous post</a></li>
+<li class="next"><a href="../ubuntu/encrypt-dropbox-folders-on-ubuntu/" rel="next" title="Encrypt Dropbox Folders on Ubuntu">Next post</a></li>
+</ul>
+</nav>
+</aside>
+</article>
+<!--End of body content-->
+<footer id="footer">Contents © 2018 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-
-
-        <script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates --><script>
+<script src="../../assets/js/all-nocdn.js">
+</script><!-- fancy dates -->
+<script>
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
-    </script><!-- end fancy dates --><script>
+</script><!-- end fancy dates -->
+<script>
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {
             return element.getElementsByTagName('img')[0].alt;
     }});
-    </script>
+</script>
 </body>
 </html>
