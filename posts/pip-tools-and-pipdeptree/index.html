@@ -12,8 +12,7 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
-</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
 <meta content="Cloistered Monkey" name="author">
 <link href="../setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/" rel="prev" title="Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3" type="text/html">
 <link href="../tensorflow-tutorials/" rel="next" title="TensorFlow Tutorials" type="text/html">
@@ -68,15 +67,15 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-orgc4bab5a">
-<h2 id="orgc4bab5a">Introduction</h2>
-<div class="outline-text-2" id="text-orgc4bab5a">
+<div class="outline-2" id="outline-container-orga004d28">
+<h2 id="orga004d28">Introduction</h2>
+<div class="outline-text-2" id="text-orga004d28">
 <p>I was looking for a way to update python dependencies that I'd installed with <a href="https://pip.pypa.io/en/stable/">pip</a> when I stumbled upon <a href="https://github.com/jazzband/pip-tools/">pip-tools</a>. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf9fa2cd">
-<h2 id="orgf9fa2cd">First pipdeptree</h2>
-<div class="outline-text-2" id="text-orgf9fa2cd">
+<div class="outline-2" id="outline-container-org5592a36">
+<h2 id="org5592a36">First pipdeptree</h2>
+<div class="outline-text-2" id="text-org5592a36">
 <p><code>pip-tools</code> installs a command named <code>pip-compile</code> which will use either the requirements you put in your <code>setup.py</code> file or a special file named <code>requirements.in</code> (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than <code>setup.py</code>, since it makes it clearer and more likely that I'll keep it up to date. The <code>requirements.in</code> file is a list of your dependencies but unlike the <code>requirements.txt</code> file, it doesn't have version numbers, the version numbers are added when you call the <code>pip-compile</code> command.</p>
 <p>So where does the <code>requirements.in</code> file come from? You have to make it. <i>But if you're editing things by hand, doesn't this kind of make it less likely you'll maintain it?</i> Yes, which is where <a href="https://github.com/naiquevin/pipdeptree"><code>pipdeptree</code></a> comes in. <code>pipdeptree</code> will list all the python dependencies you installed as well as everything those dependencies pulled in as their dependencies. It's usefull to take a look at how a dependency you didn't directly install got into your virtual environment. You can install it from pypi.</p>
 <div class="highlight">
@@ -261,9 +260,9 @@ ws4py
 pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" &gt; requirements.in
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-org4a588d2">
-<h2 id="org4a588d2">pip-compile</h2>
-<div class="outline-text-2" id="text-org4a588d2">
+<div class="outline-2" id="outline-container-org7170611">
+<h2 id="org7170611">pip-compile</h2>
+<div class="outline-text-2" id="text-org7170611">
 <p><code>pip-compile</code> will read in the <code>requirements.in</code> file and add the version numbers and can create a <code>requirements.txt</code> file. It will automatically look for the <code>requirements.in</code> file or you can explicitly pass in the filename.</p>
 <div class="highlight">
 <pre><span></span>pip-compile <span class="p">|</span> head
@@ -283,9 +282,9 @@ blinker==1.4              # via nikola
 <p>You'll notice it adds in the dependencies of the dependencies and shows what requries them.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org8f607ce">
-<h2 id="org8f607ce">Well, that was a lot of work just for that.</h2>
-<div class="outline-text-2" id="text-org8f607ce">
+<div class="outline-2" id="outline-container-orgb2f7377">
+<h2 id="orgb2f7377">Well, that was a lot of work just for that.</h2>
+<div class="outline-text-2" id="text-orgb2f7377">
 <p>If we stopped at this point we'd have:</p>
 <ul class="org-ul">
 <li>a way to check who installed what using <code>pipdeptree</code> (as well as a way to plot the dependencies as a graph)</li>
@@ -294,9 +293,9 @@ blinker==1.4              # via nikola
 </ul>
 <p>I think that's kind of nice already, especially if you end up with a lot of dependencies. Try working with <a href="http://www.sphinx-doc.org/en/master/">sphinx</a> and <a href="http://scikit-learn.org/stable/">scikit-learn</a> and you'll see things start to explode. But of course, there's always more.</p>
 </div>
-<div class="outline-3" id="outline-container-org1812629">
-<h3 id="org1812629">Upgrade</h3>
-<div class="outline-text-3" id="text-org1812629">
+<div class="outline-3" id="outline-container-org28f94c5">
+<h3 id="org28f94c5">Upgrade</h3>
+<div class="outline-text-3" id="text-org28f94c5">
 <p>You can run <code>pip-compile</code> with the <code>--upgrade</code> option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).</p>
 <div class="highlight">
 <pre><span></span>pip-compile --upgrade <span class="p">|</span> head
@@ -316,9 +315,9 @@ blinker==1.4              # via nikola
 <p>This will upgrade your installation but not update the <code>requirements.txt</code> file, so you can test it out and see if everything works before updating the <code>requirements.txt</code>. If things don't work out, you could reinstall from the <code>requirements.txt</code> file, but see the next section for another way.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org427ac06">
-<h3 id="org427ac06">Sync</h3>
-<div class="outline-text-3" id="text-org427ac06">
+<div class="outline-3" id="outline-container-org97d51de">
+<h3 id="org97d51de">Sync</h3>
+<div class="outline-text-3" id="text-org97d51de">
 <p><code>pip-tools</code> also installed a command called <code>pip-sync</code> which will keep you in sync with what is in the requirements file, so as long as <code>requirements.txt</code> is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the <code>--upgrade</code> option in that it will only install the exact version in the requirements file.</p>
 <div class="highlight">
 <pre><span></span>pip-sync
@@ -346,9 +345,9 @@ Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org1b9ad3d">
-<h2 id="org1b9ad3d">Conclusion</h2>
-<div class="outline-text-2" id="text-org1b9ad3d">
+<div class="outline-2" id="outline-container-org0fe38d0">
+<h2 id="org0fe38d0">Conclusion</h2>
+<div class="outline-text-2" id="text-org0fe38d0">
 <p>So there you have it, how to keep dependencies synced. The <a href="https://pypi.org/project/pip-tools/">README</a> for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.</p>
 </div>
 </div>
@@ -366,16 +365,17 @@ Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle
 </aside>
 </article>
 <!--End of body content-->
-<footer id="footer">Contents © 2018 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="../../assets/js/all-nocdn.js">
-</script><!-- fancy dates -->
+<script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates -->
 <script>
+
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
 </script><!-- end fancy dates -->
 <script>
+
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {

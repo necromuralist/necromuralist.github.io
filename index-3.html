@@ -14,8 +14,7 @@
 <link href="https://necromuralist.github.io/index-3.html" rel="canonical">
 <link href="index-4.html" rel="prev" type="text/html">
 <link href="index-2.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
-</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -58,99 +57,134 @@
 </div>
 </header>
 <div class="e-content entry-content">
-<div class="document" id="tuning-a-tcp-connection">
-<div class="section" id="tcp-background">
-<h4>TCP Background</h4>
-<div class="section" id="the-tcp-congestion-window">
-<h5>The TCP Congestion Window</h5>
-<ul class="simple">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/201209tuning-tcp-connection/#org7d63147">TCP Background</a>
+<ul>
+<li><a href="posts/201209tuning-tcp-connection/#org3f3d91f">The TCP Congestion Window</a></li>
+<li><a href="posts/201209tuning-tcp-connection/#orgaaa8fc8">Optimal Buffer Size</a></li>
+</ul>
+</li>
+<li><a href="posts/201209tuning-tcp-connection/#org310b224">Changing the Buffer Size</a></li>
+<li><a href="posts/201209tuning-tcp-connection/#org75477cf">Picking a Buffer Size</a>
+<ul>
+<li><a href="posts/201209tuning-tcp-connection/#org1b2f1e8">The Maximum Throughput</a></li>
+<li><a href="posts/201209tuning-tcp-connection/#org4238d3f">Bandwidth Delay Product</a></li>
+</ul>
+</li>
+<li><a href="posts/201209tuning-tcp-connection/#org8c66bee">Iperf Tuning</a>
+<ul>
+<li><a href="posts/201209tuning-tcp-connection/#orga7065a1">Iperf Warnings</a></li>
+<li><a href="posts/201209tuning-tcp-connection/#orgc1a4dbf">Parallel Streams</a></li>
+<li><a href="posts/201209tuning-tcp-connection/#org4de1216">Maximum Transmission Unit (MTU)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>I wrote this a long time ago so I don't remember the source or really the intent. I think it was about trying to maximize the throughput when running iperf over TCP.</p>
+<div class="outline-2" id="outline-container-org7d63147">
+<h2 id="org7d63147">TCP Background</h2>
+<div class="outline-text-2" id="text-org7d63147"></div>
+<div class="outline-3" id="outline-container-org3f3d91f">
+<h3 id="org3f3d91f">The TCP Congestion Window</h3>
+<div class="outline-text-3" id="text-org3f3d91f">
+<ul class="org-ul">
 <li>Larger window implies higher throughput</li>
 <li>The max allowed is based on the buffer space the kernel allocates for each socket</li>
 <li>Each socket has a default buffer size</li>
 <li>Sender and receiver can both adjust the size</li>
 </ul>
 </div>
-<div class="section" id="optimal-buffer-size">
-<h5>Optimal Buffer Size</h5>
-<ul>
-<li>
-<div class="first">Too small -- Sender will be throttled</div>
-</li>
-<li>
-<div class="first">Too big -- receiver might be overloaded and packets will be dropped</div>
-<blockquote>
-<ul class="simple">
+</div>
+<div class="outline-3" id="outline-container-orgaaa8fc8">
+<h3 id="orgaaa8fc8">Optimal Buffer Size</h3>
+<div class="outline-text-3" id="text-orgaaa8fc8">
+<ul class="org-ul">
+<li>Too small - Sender will be throttled
+<ul class="org-ul">
 <li>More likely if the Sender is faster than the receiver</li>
+</ul>
+</li>
+<li>Too big - Receiver might be overloaded and packets will be dropped
+<ul class="org-ul">
 <li>If the receiver has lots of memory, less likely to happen</li>
 </ul>
-</blockquote>
 </li>
 </ul>
 </div>
 </div>
-<div class="section" id="changing-the-buffer-size">
-<h4>Changing the Buffer Size</h4>
-<ul class="simple">
+</div>
+<div class="outline-2" id="outline-container-org310b224">
+<h2 id="org310b224">Changing the Buffer Size</h2>
+<div class="outline-text-2" id="text-org310b224">
+<ul class="org-ul">
 <li>TCP chooses the smaller of both sides of the transaction.</li>
 <li>Set the receiver high and let the sender negotiate</li>
 </ul>
 </div>
-<div class="section" id="picking-a-buffer-size">
-<h4>Picking a Buffer Size</h4>
-<div class="section" id="the-maximum-throughput">
-<h5>The Maximum Throughput</h5>
-If the network isn't congested the throughput is characterized by TCP buffer size and network latency.<br>
-<div class="math">\begin{equation*} max \; throughput \gets \frac{buffer \; size}{latency} \end{equation*}</div>
 </div>
-<div class="section" id="bandwidth-delay-product">
-<h5>Bandwidth Delay Product</h5>
-This is a rule of thumb to calculate the optimal buffer size.<br>
-<div class="math">\begin{equation*} bdp \gets bottleneck \; bandwidth \times round \; trip \; time \end{equation*}</div>
-<div class="math">\begin{equation*} * Get the *rtt* from *ping* \end{equation*}</div>
-<div class="math">\begin{equation*} * Get *bottleneck bandwidth* from the theoretical maximum rate of the slowest link. \end{equation*}</div>
+<div class="outline-2" id="outline-container-org75477cf">
+<h2 id="org75477cf">Picking a Buffer Size</h2>
+<div class="outline-text-2" id="text-org75477cf"></div>
+<div class="outline-3" id="outline-container-org1b2f1e8">
+<h3 id="org1b2f1e8">The Maximum Throughput</h3>
+<div class="outline-text-3" id="text-org1b2f1e8">
+<p>If the network isn't congested the throughput is characterized by TCP buffer size and network latency.</p>
+\begin{equation*} max \; throughput \gets \frac{buffer \; size}{latency} \end{equation*}</div>
+</div>
+<div class="outline-3" id="outline-container-org4238d3f">
+<h3 id="org4238d3f">Bandwidth Delay Product</h3>
+<div class="outline-text-3" id="text-org4238d3f">
+<p>This is a rule of thumb to calculate the optimal buffer size.</p>
+\begin{equation*} bdp \gets bottleneck \; bandwidth \times round \; trip \; time \end{equation*}
+<ul class="org-ul">
+<li>Get the <b>rtt</b> from <b>ping</b>.</li>
+<li>Get <b>bottleneck bandwidth</b> from the theoretical maximum rate of the slowest link.</li>
+</ul>
 </div>
 </div>
-<div class="section" id="iperf-tuning">
-<h4>Iperf Tuning</h4>
-<div class="section" id="iperf-warnings">
-<h5>Iperf Warnings</h5>
-<ul class="simple">
-<li>Iperf can set the buffer size up to a point -- but the OS sets the upper limit on window sizes.</li>
+</div>
+<div class="outline-2" id="outline-container-org8c66bee">
+<h2 id="org8c66bee">Iperf Tuning</h2>
+<div class="outline-text-2" id="text-org8c66bee"></div>
+<div class="outline-3" id="outline-container-orga7065a1">
+<h3 id="orga7065a1">Iperf Warnings</h3>
+<div class="outline-text-3" id="text-orga7065a1">
+<ul class="org-ul">
+<li>Iperf can set the buffer size up to a point – but the OS sets the upper limit on window sizes.</li>
 <li>If the request is too high, iperf will use the maximum allowed and gives a warning.</li>
 </ul>
 </div>
-<div class="section" id="parallel-streams">
-<h5>Parallel Streams</h5>
-<ul>
-<li>
-<div class="first">Iperf lets you run multiple parallel sessions using the <cite>-P</cite> flag.</div>
-</li>
-<li>
-<div class="first">If the aggregate (SUM) is greater than a single stream, this is an indication that something is wrong -- most likely one of:</div>
-<blockquote>
-<ul class="simple">
+</div>
+<div class="outline-3" id="outline-container-orgc1a4dbf">
+<h3 id="orgc1a4dbf">Parallel Streams</h3>
+<div class="outline-text-3" id="text-orgc1a4dbf">
+<ul class="org-ul">
+<li>Iperf lets you run multiple parallel sessions using the -P flag.</li>
+<li>If the aggregate (SUM) is greater than a single stream, this is an indication that something is wrong – most likely one of:
+<ul class="org-ul">
 <li>The TCP window is too small</li>
 <li>The OS implementation has bugs</li>
 <li>The network has problems</li>
 </ul>
-</blockquote>
 </li>
 </ul>
 </div>
-<div class="section" id="maximum-transmission-unit-mtu">
-<h5>Maximum Transmission Unit (MTU)</h5>
-<div class="system-message">
-<div class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;string&gt;</tt>, line 85)</div>
-Title underline too short.<br>
-<pre class="literal-block">Maximum Transmission Unit (MTU)<br>------------------------------<br></pre></div>
-<ul class="simple">
-<li>the most effective way to set it is if both hosts support <cite>Path MTU Discovery</cite> and set it themselves.</li>
-<li>iperf's <cite>-m</cite> flag displays what <cite>mss</cite> is being used</li>
-<li><strong>mss</strong>: <em>Maximum Segment Size</em> -- the maximum TCP segment size</li>
+</div>
+<div class="outline-3" id="outline-container-org4de1216">
+<h3 id="org4de1216">Maximum Transmission Unit (MTU)</h3>
+<div class="outline-text-3" id="text-org4de1216">
+<ul class="org-ul">
+<li>the most effective way to set it is if both hosts support Path MTU Discovery and set it themselves.</li>
+<li>iperf's -m flag displays what mss is being used</li>
+<li><b>mss</b>: <i>Maximum Segment Size</i> – the maximum TCP segment size</li>
 </ul>
-<div class="math">\begin{equation*} mss \gets MTU - protocol \; headers \end{equation*}</div>
-<ul class="simple">
-<li>Using <cite>-m</cite> is mainly to watch for the warning that the node lacks <cite>path mtu discovery</cite></li>
+\begin{equation*} mss \gets MTU - protocol \; headers \end{equation*}
+<ul class="org-ul">
+<li>Using -m is mainly to watch for the warning that the node lacks path mtu discovery</li>
 </ul>
 </div>
 </div>
@@ -507,16 +541,17 @@ From <a class="reference external" href="http://www.udacity.com/">Udacity's</a> 
 <li class="next"><a href="index-2.html" rel="next">Older posts</a></li>
 </ul>
 <!--End of body content-->
-<footer id="footer">Contents © 2018 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="assets/js/all-nocdn.js">
-</script><!-- fancy dates -->
+<script src="assets/js/all-nocdn.js"></script><!-- fancy dates -->
 <script>
+
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
 </script><!-- end fancy dates -->
 <script>
+
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {
