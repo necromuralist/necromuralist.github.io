@@ -695,7 +695,7 @@ GITHUB_COMMIT_SOURCE = True
 # from nikola import filters
 FILTERS = {
     ".html": ["filters.html_tidy_mini"],
-#    ".js": ["filters.yui_compressor"],
+#    ".js": ["filters.closure_compiler"],
 #    ".css": ["filter.yui_compressor"],
     ".png": ["filters.optipng"],
  }
