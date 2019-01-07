@@ -12,10 +12,11 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/posts/grep-coroutines/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
+</script>
 <meta content="Cloistered Monkey" name="author">
 <link href="../data/data-source-links/" rel="prev" title="Data Source Links" type="text/html">
-<link href="../ubuntu/encrypt-dropbox-folders-on-ubuntu/" rel="next" title="Encrypt Dropbox Folders on Ubuntu" type="text/html">
+<link href="../encrypt-dropbox-folders-on-ubuntu/" rel="next" title="Encrypt Dropbox Folders on Ubuntu" type="text/html">
 <meta content="The Cloistered Monkey" property="og:site_name">
 <meta content="Grep Coroutines" property="og:title">
 <meta content="https://necromuralist.github.io/posts/grep-coroutines/" property="og:url">
@@ -73,60 +74,60 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org9aa8ad2">Set Up</a>
+<li><a href="#org0a976d1">Set Up</a>
 <ul>
-<li><a href="#org70af236">Imports</a></li>
-<li><a href="#org02a3a1c">Constants</a></li>
-<li><a href="#orge62e2df">Grab the Source</a></li>
+<li><a href="#org854d849">Imports</a></li>
+<li><a href="#orgaf9b648">Constants</a></li>
+<li><a href="#orgddc31a1">Grab the Source</a></li>
 </ul>
 </li>
-<li><a href="#orgd033834">Functions</a>
+<li><a href="#org525d427">Functions</a>
 <ul>
-<li><a href="#orgfa42f9d">Coroutine</a></li>
-<li><a href="#org089d74e">A Cat</a></li>
-<li><a href="#org488d22c">GREP</a></li>
-<li><a href="#org806897e">Count</a></li>
-<li><a href="#org4407c27">Fanout</a></li>
+<li><a href="#org0f05bbd">Coroutine</a></li>
+<li><a href="#org0f34749">A Cat</a></li>
+<li><a href="#org37f8da0">GREP</a></li>
+<li><a href="#orgc35f6ca">Count</a></li>
+<li><a href="#orge66e30f">Fanout</a></li>
 </ul>
 </li>
-<li><a href="#orga17269d">Try It</a></li>
+<li><a href="#org45c4c56">Try It</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9aa8ad2">
-<h2 id="org9aa8ad2">Set Up</h2>
-<div class="outline-text-2" id="text-org9aa8ad2"></div>
-<div class="outline-3" id="outline-container-org70af236">
-<h3 id="org70af236">Imports</h3>
-<div class="outline-text-3" id="text-org70af236"></div>
-<div class="outline-4" id="outline-container-org7dd6be3">
-<h4 id="org7dd6be3">Python</h4>
-<div class="outline-text-4" id="text-org7dd6be3">
+<div class="outline-2" id="outline-container-org0a976d1">
+<h2 id="org0a976d1">Set Up</h2>
+<div class="outline-text-2" id="text-org0a976d1"></div>
+<div class="outline-3" id="outline-container-org854d849">
+<h3 id="org854d849">Imports</h3>
+<div class="outline-text-3" id="text-org854d849"></div>
+<div class="outline-4" id="outline-container-orge3b0074">
+<h4 id="orge3b0074">Python</h4>
+<div class="outline-text-4" id="text-orge3b0074">
 <div class="highlight">
 <pre><span></span><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgefccffb">
-<h4 id="orgefccffb">PyPi</h4>
-<div class="outline-text-4" id="text-orgefccffb">
+<div class="outline-4" id="outline-container-org63cf83d">
+<h4 id="org63cf83d">PyPi</h4>
+<div class="outline-text-4" id="text-org63cf83d">
 <div class="highlight">
 <pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
 </pre></div>
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org02a3a1c">
-<h3 id="org02a3a1c">Constants</h3>
-<div class="outline-text-3" id="text-org02a3a1c">
+<div class="outline-3" id="outline-container-orgaf9b648">
+<h3 id="orgaf9b648">Constants</h3>
+<div class="outline-text-3" id="text-orgaf9b648">
 <div class="highlight">
 <pre><span></span><span class="n">PRIDE_AND_PREJUDICE</span> <span class="o">=</span> <span class="s2">"https://www.gutenberg.org/files/1342/1342-0.txt"</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orge62e2df">
-<h3 id="orge62e2df">Grab the Source</h3>
-<div class="outline-text-3" id="text-orge62e2df">
+<div class="outline-3" id="outline-container-orgddc31a1">
+<h3 id="orgddc31a1">Grab the Source</h3>
+<div class="outline-text-3" id="text-orgddc31a1">
 <div class="highlight">
 <pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PRIDE_AND_PREJUDICE</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span>
@@ -134,12 +135,12 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgd033834">
-<h2 id="orgd033834">Functions</h2>
-<div class="outline-text-2" id="text-orgd033834"></div>
-<div class="outline-3" id="outline-container-orgfa42f9d">
-<h3 id="orgfa42f9d">Coroutine</h3>
-<div class="outline-text-3" id="text-orgfa42f9d">
+<div class="outline-2" id="outline-container-org525d427">
+<h2 id="org525d427">Functions</h2>
+<div class="outline-text-2" id="text-org525d427"></div>
+<div class="outline-3" id="outline-container-org0f05bbd">
+<h3 id="org0f05bbd">Coroutine</h3>
+<div class="outline-text-3" id="text-org0f05bbd">
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">coroutine</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
     <span class="sd">"""Sets up the co-routine</span>
@@ -158,9 +159,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org089d74e">
-<h3 id="org089d74e">A Cat</h3>
-<div class="outline-text-3" id="text-org089d74e">
+<div class="outline-3" id="outline-container-org0f34749">
+<h3 id="org0f34749">A Cat</h3>
+<div class="outline-text-3" id="text-org0f34749">
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">receiver</span><span class="p">,</span> <span class="n">case_insensitive</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">"""Sends the lines in the text to the receiver</span>
@@ -181,9 +182,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org488d22c">
-<h3 id="org488d22c">GREP</h3>
-<div class="outline-text-3" id="text-org488d22c">
+<div class="outline-3" id="outline-container-org37f8da0">
+<h3 id="org37f8da0">GREP</h3>
+<div class="outline-text-3" id="text-org37f8da0">
 <div class="highlight">
 <pre><span></span><span class="nd">@coroutine</span>
 <span class="k">def</span> <span class="nf">tokens</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">case_insensitive</span><span class="p">,</span> <span class="n">receiver</span><span class="p">):</span>
@@ -196,9 +197,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org806897e">
-<h3 id="org806897e">Count</h3>
-<div class="outline-text-3" id="text-org806897e">
+<div class="outline-3" id="outline-container-orgc35f6ca">
+<h3 id="orgc35f6ca">Count</h3>
+<div class="outline-text-3" id="text-orgc35f6ca">
 <div class="highlight">
 <pre><span></span><span class="nd">@coroutine</span>
 <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
@@ -212,9 +213,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4407c27">
-<h3 id="org4407c27">Fanout</h3>
-<div class="outline-text-3" id="text-org4407c27">
+<div class="outline-3" id="outline-container-orge66e30f">
+<h3 id="orge66e30f">Fanout</h3>
+<div class="outline-text-3" id="text-orge66e30f">
 <div class="highlight">
 <pre><span></span><span class="nd">@coroutine</span>
 <span class="k">def</span> <span class="nf">fork</span><span class="p">(</span><span class="n">children</span><span class="p">):</span>
@@ -227,9 +228,9 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga17269d">
-<h2 id="orga17269d">Try It</h2>
-<div class="outline-text-2" id="text-orga17269d">
+<div class="outline-2" id="outline-container-org45c4c56">
+<h2 id="org45c4c56">Try It</h2>
+<div class="outline-text-2" id="text-org45c4c56">
 <div class="highlight">
 <pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
 <span class="n">process</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">tokens</span><span class="p">(</span><span class="s2">"feelings"</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">count</span><span class="p">(</span><span class="s2">"feelings"</span><span class="p">)))</span>
@@ -265,7 +266,7 @@ cried 91
 </ul>
 <ul class="pager hidden-print">
 <li class="previous"><a href="../data/data-source-links/" rel="prev" title="Data Source Links">Previous post</a></li>
-<li class="next"><a href="../ubuntu/encrypt-dropbox-folders-on-ubuntu/" rel="next" title="Encrypt Dropbox Folders on Ubuntu">Next post</a></li>
+<li class="next"><a href="../encrypt-dropbox-folders-on-ubuntu/" rel="next" title="Encrypt Dropbox Folders on Ubuntu">Next post</a></li>
 </ul>
 </nav>
 </aside>
@@ -274,14 +275,13 @@ cried 91
 <footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates -->
+<script src="../../assets/js/all-nocdn.js">
+</script><!-- fancy dates -->
 <script>
-
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
 </script><!-- end fancy dates -->
 <script>
-
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {

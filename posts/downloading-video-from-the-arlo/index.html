@@ -12,7 +12,8 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/posts/downloading-video-from-the-arlo/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
+</script>
 <meta content="Cloistered Monkey" name="author">
 <link href="../disabling-subscripting-in-org-mode/" rel="prev" title="Disabling Sub-scripting in Org-Mode" type="text/html">
 <link href="../ubertooth-2018/" rel="next" title="Ubertooth 2018" type="text/html">
@@ -72,32 +73,32 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org0a0cf85">The Prowler</a></li>
-<li><a href="#org26ea658">The Problem with Arlo</a></li>
-<li><a href="#org2de6065">The Python Solution</a></li>
-<li><a href="#orgf89496a">A Command-Line Interface</a></li>
-<li><a href="#org8c54bb5">Conclusion</a></li>
+<li><a href="#org1624480">The Prowler</a></li>
+<li><a href="#org67bee88">The Problem with Arlo</a></li>
+<li><a href="#orgcf25747">The Python Solution</a></li>
+<li><a href="#org72a0f55">A Command-Line Interface</a></li>
+<li><a href="#org4341a17">Conclusion</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0a0cf85">
-<h2 id="org0a0cf85">The Prowler</h2>
-<div class="outline-text-2" id="text-org0a0cf85">
+<div class="outline-2" id="outline-container-org1624480">
+<h2 id="org1624480">The Prowler</h2>
+<div class="outline-text-2" id="text-org1624480">
 <p>I came home the other day to find some things from my garage outside on the driveway. The garage door was closed but the bolt wasn't in place, so I guess I forgot to secure it and someone went in while I was at work. I have two Arlo security cameras, one pointing at my front lawn and one at my back (I just took the ones I had set up to catch intruders and pointed them outside so they aren't really set up correctly) and they are supposed to send me notifications when motion is detected, but I didn't recall seeing any, but then I looked at my phone and I had missed one earlier in the day, and when I looked at it there was a video showing someone standing outside my back door, but that was all, but I have a Continuous Video Recording (CVR) subscription so I decided to poke around, that's when I found out how horrible Arlo's CVR really is.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org26ea658">
-<h2 id="org26ea658">The Problem with Arlo</h2>
-<div class="outline-text-2" id="text-org26ea658">
+<div class="outline-2" id="outline-container-org67bee88">
+<h2 id="org67bee88">The Problem with Arlo</h2>
+<div class="outline-text-2" id="text-org67bee88">
 <p>The first problem with the Arlo's CVR system is that it's not always reliable. I've had cameras randomly stop recording videos on the server and the only "fix" that the help desk was able to give me was to deauthorize and reauthorize them (and in some cases completely remove them from the base-station and re-add them). This seems to work, but whenever you deauthorize a camera the server dumps all your recordings, so if you think you want to save something you'll have to do that first or it won't be there when the camera gets re-authorized. But then if you try to save something you'll find that the Arlo doesn't provide a way to download the video. The work-around you'll find on the forums is to do a screen capture while it plays - a horrible system, especially since the flash interface is pretty flaky and doesn't always work on my PC.</p>
 <p>Then there's a secondary problem in that it's recording twenty-four hours a day - and they don't have a fast-forward button. They do have a timeline that you can click on to jump around, not only does this mean you might be jumping past events you want, but they don't really have a 'streaming' interface in the sense that Netflix or some other streaming service does where they're downloading small chunks so you don't have to wait a long time for the play to resume, instead the Arlo seems to be downloading one minute at a time so you have these really long waits, and the precision of the timeline isn't very good so you'll probably have to search a little bit just to find what you want.</p>
 <p>There's also another problem, which is that the user-interface's timeline isn't accurate, so even if you know the time of an event, you can't use the time in the interface to find it. In my case the bit that was captured on my phone showing the trespasser gave me a time, and there was a little blue dot on the timeline showing that there was an event at that time, but there was nothing in the video. It turned out that the video for the camera I had out back was shifted fifty-five minutes into the future, which was even more confusing because the time for the camera I had in front wasn't shifted (that I know of) so when I looked at the video for the front around that time I <i>was</i> able to see the prowler arriving.</p>
 <p>But even once I found the places in the CVR that showed the prowler (I didn't have it pointing at my garage so I didn't see him actually doing anything other than probing (knocking and then trying to open the doors)) I still had the problem of how to get the video before Netgear decided to break again and I lost it all. This is where python came in.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2de6065">
-<h2 id="org2de6065">The Python Solution</h2>
-<div class="outline-text-2" id="text-org2de6065">
+<div class="outline-2" id="outline-container-orgcf25747">
+<h2 id="orgcf25747">The Python Solution</h2>
+<div class="outline-text-2" id="text-orgcf25747">
 <p>It turns out that even though netgear hasn't published an official API for the Arlo, some people (<a href="http://www.robertogallea.com/blog/netgear-arlo-api">like this guy</a>) have reverse-engineered the API and there are several python-based libraries on github that help you talk to the arlo. This <a href="https://github.com/jeffreydwalter/arlo">one</a>, by <i>jeffreydwalter</i> was the one that I saw that helped with downloading the CVR videos so it's the one that I went with. It's on pypi, but the commit that added CVR support was made a month ago and I wasn't sure when the pypi code was uploaded so I decided to install it from the master branch, since I was going to use the example code to start my code anyway - by this I mean I had to pull the repository anyway, so I used the <code>setup.py</code> file to install it (in developer mode in case it changes).</p>
 <p>The following code is basically what you can find in the example that comes with the repository called <a href="https://github.com/jeffreydwalter/arlo/blob/master/examples/arlo-cvrdownload.py">arlo-cvrdownload.py</a> re-written to have a command-line interface and match my coding style more.</p>
 <div class="highlight">
@@ -127,9 +128,9 @@
 <span class="o">&lt;&lt;</span><span class="n">cli</span><span class="o">&gt;&gt;</span>
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgb12be08">
-<h3 id="orgb12be08">The Imports</h3>
-<div class="outline-text-3" id="text-orgb12be08">
+<div class="outline-3" id="outline-container-orgcf51b73">
+<h3 id="orgcf51b73">The Imports</h3>
+<div class="outline-text-3" id="text-orgcf51b73">
 <div class="highlight">
 <pre><span></span><span class="c1"># python standard library</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
@@ -148,9 +149,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4094180">
-<h3 id="org4094180">Getting the User Name and Password</h3>
-<div class="outline-text-3" id="text-org4094180">
+<div class="outline-3" id="outline-container-org59a84df">
+<h3 id="org59a84df">Getting the User Name and Password</h3>
+<div class="outline-text-3" id="text-org59a84df">
 <p>In order to use the API you need to have a Netgear account and you have to pass it to the server. To prevent putting the credentials in the code, I'll use <a href="https://github.com/theskumar/python-dotenv">python-dotenv</a>. In order to use it I created a file named <code>config.arlo</code> with the information so I can load it.</p>
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">Configuration</span><span class="p">:</span>
@@ -178,9 +179,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_path</span>
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orgc448bd2">
-<h4 id="orgc448bd2">Load the credentials</h4>
-<div class="outline-text-4" id="text-orgc448bd2">
+<div class="outline-4" id="outline-container-orgcbeecb6">
+<h4 id="orgcbeecb6">Load the credentials</h4>
+<div class="outline-text-4" id="text-orgcbeecb6">
 <p><code>dotenv</code> works by adding the values in the configuration file into the environment dictionary. Most of the convenience of it comes if you create a <code>.env</code> file at the base of your repository, in which case it will automatically find it for you, but even though I'm not doing that it still saves me from parsing the file myself, so I'll use it. Since the other properties (<code>username</code> and <code>password</code>) rely on the values already being in the dictionary I'm calling <code>load_dotenv</code> in the <code>config_path</code> setter so that it's there before they get used.</p>
 <div class="highlight">
 <pre><span></span><span class="nd">@config_path.setter</span>
@@ -201,9 +202,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org0f272fe">
-<h4 id="org0f272fe">And The Rest</h4>
-<div class="outline-text-4" id="text-org0f272fe">
+<div class="outline-4" id="outline-container-org6dfb6ec">
+<h4 id="org6dfb6ec">And The Rest</h4>
+<div class="outline-text-4" id="text-org6dfb6ec">
 <p>This is the rest of the methods for the <code>Credentials</code> class. Org-mode pushes it flush-left on export so it looks like it is missing whitespace, but it's there in the code.</p>
 <div class="highlight">
 <pre><span></span><span class="nd">@property</span>
@@ -274,9 +275,9 @@
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org8ad341c">
-<h3 id="org8ad341c">Output File Paths</h3>
-<div class="outline-text-3" id="text-org8ad341c">
+<div class="outline-3" id="outline-container-orgd8bfab9">
+<h3 id="orgd8bfab9">Output File Paths</h3>
+<div class="outline-text-3" id="text-orgd8bfab9">
 <p>Python 3.4 added a <a href="https://docs.python.org/3/library/pathlib.html">Path</a> class to create an object-oriented version of what <a href="https://docs.python.org/3/library/os.path.html">os.path</a> does (along with some other stuff). You don't need it but I like it. My command-line interface actually doesn't support the sub-folder so it mostly just makes sure the folder is there. The <code>Paths</code> class here is to help set up the directories for the video output files.</p>
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">Paths</span><span class="p">:</span>
@@ -328,9 +329,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org669f804">
-<h3 id="org669f804">Downloader</h3>
-<div class="outline-text-3" id="text-org669f804">
+<div class="outline-3" id="outline-container-org94a33f0">
+<h3 id="org94a33f0">Downloader</h3>
+<div class="outline-text-3" id="text-org94a33f0">
 <p>This is the class to actually do the downloading. It essentially does what the example does but I like it to be both smaller and more verbose so this matches my style more.</p>
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">Downloader</span><span class="p">:</span>
@@ -502,9 +503,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_playlist</span>
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orgc03ebcb">
-<h4 id="orgc03ebcb">The Call</h4>
-<div class="outline-text-4" id="text-orgc03ebcb">
+<div class="outline-4" id="outline-container-org163a6bc">
+<h4 id="org163a6bc">The Call</h4>
+<div class="outline-text-4" id="text-org163a6bc">
 <p>This does the actual downloading. It downloads some <code>m3u8</code> files and then pulls the files that they refer to. <a href="https://en.wikipedia.org/wiki/M3U#M3U8">m3u8</a> (MP3 URL with UTF-8 encoding) is a format to list URLs or paths that point to media and is said to be popular (by Wikipedia) in Dynamic Adaptive Streaming over HTTP (although I don't think the arlo uses DASH).</p>
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -560,9 +561,9 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf89496a">
-<h2 id="orgf89496a">A Command-Line Interface</h2>
-<div class="outline-text-2" id="text-orgf89496a">
+<div class="outline-2" id="outline-container-org72a0f55">
+<h2 id="org72a0f55">A Command-Line Interface</h2>
+<div class="outline-text-2" id="text-org72a0f55">
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
@@ -593,9 +594,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org8c54bb5">
-<h2 id="org8c54bb5">Conclusion</h2>
-<div class="outline-text-2" id="text-org8c54bb5">
+<div class="outline-2" id="outline-container-org4341a17">
+<h2 id="org4341a17">Conclusion</h2>
+<div class="outline-text-2" id="text-org4341a17">
 <p>For a consumer product this seems like a lot of work to download videos, but I'm glad someone went to the trouble to build this to make up for Netgear's horrible user interface. The Arlo seems like some decent (although probably overpriced) hardware matched to some pretty bad software and nearly non-existent customer support or documentation and a not particularly robust web-service. I don't know that I would recommend it to anyone who wants more than a web-camera.</p>
 </div>
 </div>
@@ -617,14 +618,13 @@
 <footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates -->
+<script src="../../assets/js/all-nocdn.js">
+</script><!-- fancy dates -->
 <script>
-
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
 </script><!-- end fancy dates -->
 <script>
-
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {
