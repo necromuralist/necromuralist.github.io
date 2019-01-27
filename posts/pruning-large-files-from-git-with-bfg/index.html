@@ -12,8 +12,7 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/posts/pruning-large-files-from-git-with-bfg/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
-</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
 <meta content="hades" name="author">
 <link href="../restructured-text-anonymous-links/" rel="prev" title="Restructured Text Anonymous Links" type="text/html">
 <link href="../removing-large-files-from-git-using-bfg-and-a-local-repository/" rel="next" title="Removing Large Files From git Using BFG and a Local Repository" type="text/html">
@@ -77,22 +76,22 @@
 <div class="section" id="the-process">
 <h2>2 The Process</h2>
 <p>Assuming you've downloaded the BFG jar file, this is what you need to do.</p>
-<pre class="code sh"><a id="rest_code_a819a6735ffa465b922a986943493603-1" name="rest_code_a819a6735ffa465b922a986943493603-1"></a>git clone --mirror &lt;remote git address&gt;
+<pre class="code sh"><a id="rest_code_43b0ed6af28f42f38aacb11491851cb2-1" name="rest_code_43b0ed6af28f42f38aacb11491851cb2-1"></a>git clone --mirror &lt;remote git address&gt;
 </pre>
 <p>The <tt class="docutils literal"><span class="pre">--mirror</span></tt> flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the <tt class="docutils literal">.git</tt> folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in <a class="reference external" href="https://github.com/rtyley/bfg-repo-cleaner/issues/65">this bug-report</a> the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.</p>
 <p>Next run the BFG.</p>
-<pre class="code sh"><a id="rest_code_7cbf8d8789cf4d558baafdc64a472b39-1" name="rest_code_7cbf8d8789cf4d558baafdc64a472b39-1"></a>java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &lt;path to cloned mirror&gt;
+<pre class="code sh"><a id="rest_code_b25d5f2fc3774972b3b5c8b3152c334a-1" name="rest_code_b25d5f2fc3774972b3b5c8b3152c334a-1"></a>java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &lt;path to cloned mirror&gt;
 </pre>
 <p>Now you have to change into the cloned repository and execute some commands to update it.</p>
-<pre class="code sh"><a id="rest_code_f1e925b58c324927b632f219e999bcb7-1" name="rest_code_f1e925b58c324927b632f219e999bcb7-1"></a>git reflog expire --expire-now --all
-<a id="rest_code_f1e925b58c324927b632f219e999bcb7-2" name="rest_code_f1e925b58c324927b632f219e999bcb7-2"></a>git gc --prune<span class="o">=</span>now --aggressive
+<pre class="code sh"><a id="rest_code_ec0db408162d48689987add70d6c1c9c-1" name="rest_code_ec0db408162d48689987add70d6c1c9c-1"></a>git reflog expire --expire-now --all
+<a id="rest_code_ec0db408162d48689987add70d6c1c9c-2" name="rest_code_ec0db408162d48689987add70d6c1c9c-2"></a>git gc --prune<span class="o">=</span>now --aggressive
 </pre>
 <p>Now push it back to github.</p>
-<pre class="code sh"><a id="rest_code_cb1cf316524041fc9fc4ad888c6274d9-1" name="rest_code_cb1cf316524041fc9fc4ad888c6274d9-1"></a>git push
+<pre class="code sh"><a id="rest_code_5b8935b3b1db4c2389dc7ce52eed570f-1" name="rest_code_5b8935b3b1db4c2389dc7ce52eed570f-1"></a>git push
 </pre>
 <p>At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.</p>
-<pre class="code sh"><a id="rest_code_cd6a2429629441d6a30e6b165957cdc8-1" name="rest_code_cd6a2429629441d6a30e6b165957cdc8-1"></a>rm -r &lt;original <span class="nb">local</span> repository&gt;
-<a id="rest_code_cd6a2429629441d6a30e6b165957cdc8-2" name="rest_code_cd6a2429629441d6a30e6b165957cdc8-2"></a>git clone &lt;remote repository&gt;
+<pre class="code sh"><a id="rest_code_094c7c3dc4fd427cb25ac30ca7087f38-1" name="rest_code_094c7c3dc4fd427cb25ac30ca7087f38-1"></a>rm -r &lt;original <span class="nb">local</span> repository&gt;
+<a id="rest_code_094c7c3dc4fd427cb25ac30ca7087f38-2" name="rest_code_094c7c3dc4fd427cb25ac30ca7087f38-2"></a>git clone &lt;remote repository&gt;
 </pre>
 <p>One thing that tripped me up a little was that I had removed the <em>master</em> branch but the <em>BFG</em> re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.</p>
 </div>
@@ -114,13 +113,14 @@
 <footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="../../assets/js/all-nocdn.js">
-</script><!-- fancy dates -->
+<script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates -->
 <script>
+
     moment.locale("en");
     fancydates(0, "YYYY-MM-DD HH:mm");
 </script><!-- end fancy dates -->
 <script>
+
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {
