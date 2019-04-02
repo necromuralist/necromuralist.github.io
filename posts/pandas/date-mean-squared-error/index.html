@@ -12,7 +12,8 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="../../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/" rel="canonical"><!--[if lt IE 9]><script src="../../../assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
+</script>
 <meta content="Cloistered Monkey" name="author">
 <link href="../../note-on-the-analysis-of-ordered-categorical-data/" rel="prev" title="Note on the Analysis of Ordered Categorical Data" type="text/html">
 <link href="../categorical-plotting/" rel="next" title="Categorical Plotting" type="text/html">
@@ -73,38 +74,40 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgf79131c">What is this?</a></li>
-<li><a href="#org0f0e9e8">Imports</a></li>
-<li><a href="#orgf3de71d">The Data</a></li>
-<li><a href="#org0bbb246">The Mean</a></li>
-<li><a href="#org7873978">Getting the Mean Back Into the Frame</a></li>
-<li><a href="#orga9cdca1">Calculating the RMSE</a></li>
+<li><a href="#org9d808a4">What is this?</a></li>
+<li><a href="#org2c7e9a5">Imports</a></li>
+<li><a href="#orga144637">The Data</a></li>
+<li><a href="#orgeab898f">The Mean</a></li>
+<li><a href="#org75376e5">Getting the Mean Back Into the Frame</a></li>
+<li><a href="#org844e67f">Calculating the RMSE</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf79131c">
-<h2 id="orgf79131c">What is this?</h2>
-<div class="outline-text-2" id="text-orgf79131c">
+<div class="outline-2" id="outline-container-org9d808a4">
+<h2 id="org9d808a4">What is this?</h2>
+<div class="outline-text-2" id="text-org9d808a4">
 <p>This is a short sketch to figure out how to group a bunch of values by month and calculate the <a href="https://en.wikipedia.org/wiki/Root-mean-square_deviation">Root-Mean-Squared-Error</a> (RMSE) for the mean for the values in that month. This probably isn't the most efficient way to do this, but I'm trying to double check everything as I go and doing the typical <a href="http://wiki.c2.com/?TrainWreck">Train Wreck</a> like you see in most examples on Stack Overflow.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0f0e9e8">
-<h2 id="org0f0e9e8">Imports</h2>
-<div class="outline-text-2" id="text-org0f0e9e8"></div>
-<div class="outline-3" id="outline-container-org7563cd9">
-<h3 id="org7563cd9">From PyPi</h3>
-<div class="outline-text-3" id="text-org7563cd9">
+<div class="outline-2" id="outline-container-org2c7e9a5">
+<h2 id="org2c7e9a5">Imports</h2>
+<div class="outline-text-2" id="text-org2c7e9a5"></div>
+<div class="outline-3" id="outline-container-orgd005dc3">
+<h3 id="orgd005dc3">From PyPi</h3>
+<div class="outline-text-3" id="text-orgd005dc3">
 <p>Just pandas.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>import pandas
 </pre></div>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf3de71d">
-<h2 id="orgf3de71d">The Data</h2>
-<div class="outline-text-2" id="text-orgf3de71d">
+<div class="outline-2" id="outline-container-orga144637">
+<h2 id="orga144637">The Data</h2>
+<div class="outline-text-2" id="text-orga144637">
 <p>I'm going to create some simple values so that it's easy(ish) to do the math by hand and double-check what comes out. I'll use the pandas <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Timestamp.html">Timestamp</a> for the dates. I'm still not one-hundred percent sure why it's better than date-time, but hopefully it's optimized or something.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>data = {"date": [
     pandas.Timestamp("2018-09-01"),
@@ -117,15 +120,17 @@
 frame = pandas.DataFrame.from_dict(data)
 </pre></div>
 <p>I'm going to use <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.resample.html">pandas' resample method</a> to group the data by months. the <code>resample</code> method expets the data to have the dates as the index, so I'm going to create a new frame by <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.set_index.html">setting the index</a> to the date-column.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>date_frame = frame.set_index("date")
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0bbb246">
-<h2 id="org0bbb246">The Mean</h2>
-<div class="outline-text-2" id="text-org0bbb246">
+<div class="outline-2" id="outline-container-orgeab898f">
+<h2 id="orgeab898f">The Mean</h2>
+<div class="outline-text-2" id="text-orgeab898f">
 <p>The value I'm going to use to estimate the values for each month is the mean.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>monthly = date_frame.resample("M")
 means = monthly.mean()
@@ -140,10 +145,11 @@ date
 
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-org7873978">
-<h2 id="org7873978">Getting the Mean Back Into the Frame</h2>
-<div class="outline-text-2" id="text-org7873978">
+<div class="outline-2" id="outline-container-org75376e5">
+<h2 id="org75376e5">Getting the Mean Back Into the Frame</h2>
+<div class="outline-text-2" id="text-org75376e5">
 <p>Now that we have the monthly means, I want to re-add them to the original data-frame by giving them a common column named <code>year_month</code> (using <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.apply.html">apply</a>) so I can broadcast the means by merging the two data-frames.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>frame["year_month"] = frame.date.apply(
     lambda date: pandas.Timestamp(year=date.year,
@@ -159,6 +165,7 @@ print(frame.head())
 4 2018-10-05      2 2018-10-01
 
 </pre>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>mean_frame = means.reset_index()
 mean_frame["year_month"] = mean_frame.date.apply(
@@ -174,6 +181,7 @@ print(mean_frame)
 
 </pre>
 <p>The <code>value</code> column in the <code>mean_frame</code> is actually the mean of the values for that month so I'll re-name it before I forget.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>mean_frame.rename(dict(value="mean"), axis="columns",
                   inplace=True)
@@ -186,6 +194,7 @@ print(mean_frame)
 
 </pre>
 <p>Now I'll <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.merge.html">merge</a> the two data frames on the <code>year_month</code> column using the default <a href="https://en.wikipedia.org/wiki/Join_(SQL)#Inner_join">inner-join</a> (intersection) method.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>merged = frame.merge(mean_frame, on="year_month")
 del(merged["date_y"])
@@ -205,13 +214,14 @@ assert all(merged["mean"] == [2, 2, 2, 1.5, 1.5])
 <p>Note that I had to use the <code>merged["mean"]</code> form because the data-frame has a <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.mean.html">mean</a> method which the dot-notation (<code>merged.mean</code>) would call instead of grabbing the column.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga9cdca1">
-<h2 id="orga9cdca1">Calculating the RMSE</h2>
-<div class="outline-text-2" id="text-orga9cdca1"></div>
-<div class="outline-3" id="outline-container-org252e2c2">
-<h3 id="org252e2c2">Error</h3>
-<div class="outline-text-3" id="text-org252e2c2">
+<div class="outline-2" id="outline-container-org844e67f">
+<h2 id="org844e67f">Calculating the RMSE</h2>
+<div class="outline-text-2" id="text-org844e67f"></div>
+<div class="outline-3" id="outline-container-org172604a">
+<h3 id="org172604a">Error</h3>
+<div class="outline-text-3" id="text-org172604a">
 <p>Since I'm estimating the values for each month using the mean the <i>error</i> is the difference between the <i>mean</i> and each of the <i>values</i>.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>merged["error"] = merged["value"] - merged["mean"]
 print(merged)
@@ -227,13 +237,15 @@ assert all(merged.error==[-1, 0, 1, -.5, .5])
 
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgb1c28e9">
-<h3 id="orgb1c28e9">Error Squared</h3>
-<div class="outline-text-3" id="text-orgb1c28e9">
+<div class="outline-3" id="outline-container-org19aabf1">
+<h3 id="org19aabf1">Error Squared</h3>
+<div class="outline-text-3" id="text-org19aabf1">
 <p>Now I'll square the error to get rid of the negative error values (which would cancel each other out when we take the mean errors) and to make the effect of the errors non-linear (the errors are exagerrated).</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>merged["error_squared"] = merged.error.pow(2)
 </pre></div>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>print(merged)
 </pre></div>
@@ -247,10 +259,11 @@ assert all(merged.error==[-1, 0, 1, -.5, .5])
 
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org6e19cd7">
-<h3 id="org6e19cd7">Mean Squared Error</h3>
-<div class="outline-text-3" id="text-org6e19cd7">
+<div class="outline-3" id="outline-container-orgf3538f0">
+<h3 id="orgf3538f0">Mean Squared Error</h3>
+<div class="outline-text-3" id="text-orgf3538f0">
 <p>So now we take the mean of our squared errors to get an initial estimate of how much we are off each month.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>mean_of = merged.groupby("year_month").mean()
 print(mean_of.error_squared)
@@ -263,10 +276,11 @@ Name: error_squared, dtype: float64
 
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgbddb417">
-<h3 id="orgbddb417">RMSE</h3>
-<div class="outline-text-3" id="text-orgbddb417">
+<div class="outline-3" id="outline-container-org483388b">
+<h3 id="org483388b">RMSE</h3>
+<div class="outline-text-3" id="text-org483388b">
 <p>Since the squared error would have units squared, I'll take the root of it to get a more interpretable estimate of the error.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>print(mean_of.error_squared.pow(.5))
 </pre></div>
@@ -298,14 +312,9 @@ Name: error_squared, dtype: float64
 <footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="../../../assets/js/all-nocdn.js"></script><!-- fancy dates -->
+<script src="../../../assets/js/all-nocdn.js">
+</script>
 <script>
-
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-</script><!-- end fancy dates -->
-<script>
-
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {

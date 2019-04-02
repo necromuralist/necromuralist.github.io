@@ -12,7 +12,8 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
+</script>
 <meta content="Cloistered Monkey" name="author">
 <link href="../setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/" rel="prev" title="Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3" type="text/html">
 <link href="../tensorflow-tutorials/" rel="next" title="TensorFlow Tutorials" type="text/html">
@@ -67,21 +68,23 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-orga004d28">
-<h2 id="orga004d28">Introduction</h2>
-<div class="outline-text-2" id="text-orga004d28">
+<div class="outline-2" id="outline-container-org3ca2a8f">
+<h2 id="org3ca2a8f">Introduction</h2>
+<div class="outline-text-2" id="text-org3ca2a8f">
 <p>I was looking for a way to update python dependencies that I'd installed with <a href="https://pip.pypa.io/en/stable/">pip</a> when I stumbled upon <a href="https://github.com/jazzband/pip-tools/">pip-tools</a>. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5592a36">
-<h2 id="org5592a36">First pipdeptree</h2>
-<div class="outline-text-2" id="text-org5592a36">
+<div class="outline-2" id="outline-container-org988f5cb">
+<h2 id="org988f5cb">First pipdeptree</h2>
+<div class="outline-text-2" id="text-org988f5cb">
 <p><code>pip-tools</code> installs a command named <code>pip-compile</code> which will use either the requirements you put in your <code>setup.py</code> file or a special file named <code>requirements.in</code> (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than <code>setup.py</code>, since it makes it clearer and more likely that I'll keep it up to date. The <code>requirements.in</code> file is a list of your dependencies but unlike the <code>requirements.txt</code> file, it doesn't have version numbers, the version numbers are added when you call the <code>pip-compile</code> command.</p>
 <p>So where does the <code>requirements.in</code> file come from? You have to make it. <i>But if you're editing things by hand, doesn't this kind of make it less likely you'll maintain it?</i> Yes, which is where <a href="https://github.com/naiquevin/pipdeptree"><code>pipdeptree</code></a> comes in. <code>pipdeptree</code> will list all the python dependencies you installed as well as everything those dependencies pulled in as their dependencies. It's usefull to take a look at how a dependency you didn't directly install got into your virtual environment. You can install it from pypi.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pip install pipdeptree
 </pre></div>
 <p>Here's its help output.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pipdeptree -h
 </pre></div>
@@ -125,6 +128,7 @@ optional arguments:
                         GraphViz, e.g.: dot, jpeg, pdf, png, svg
 </pre>
 <p>If you look at the options you can see that there's a <code>--freeze</code> option, that's what we'll be using. Let's look at some of what that looks like.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pipdeptree --freeze <span class="p">|</span> head
 </pre></div>
@@ -160,6 +164,7 @@ optional arguments:
 </tbody>
 </table>
 <p>First, let's see how many total dependencies there are.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pipdeptree --freeze <span class="p">|</span> wc -l
 </pre></div>
@@ -167,6 +172,7 @@ optional arguments:
 : 160
 </pre>
 <p>So there are 160 dependencies total. How many did I install?</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pipdeptree --freeze <span class="p">|</span> grep --perl-regexp <span class="s2">"^\w+"</span> <span class="p">|</span> wc -l
 </pre></div>
@@ -189,6 +195,7 @@ optional arguments:
 </tr>
 </tbody>
 </table>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pipdeptree --freeze <span class="p">|</span> grep --only-matching --perl-regexp <span class="s2">"^\w+"</span>
 </pre></div>
@@ -210,6 +217,7 @@ optional arguments:
 </tr>
 </tbody>
 </table>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pipdeptree --freeze <span class="p">|</span> grep -oP <span class="s2">"^[\w\-]+"</span>
 </pre></div>
@@ -239,6 +247,7 @@ optional arguments:
 </tr>
 </tbody>
 </table>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pipdeptree --freeze <span class="p">|</span> grep --only-matching --perl-regexp <span class="s2">"^[\w\-]+"</span> <span class="p">|</span> grep --invert-match <span class="s2">"\-e\|pkg"</span>
 </pre></div>
@@ -260,10 +269,11 @@ ws4py
 pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" &gt; requirements.in
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-org7170611">
-<h2 id="org7170611">pip-compile</h2>
-<div class="outline-text-2" id="text-org7170611">
+<div class="outline-2" id="outline-container-org841f022">
+<h2 id="org841f022">pip-compile</h2>
+<div class="outline-text-2" id="text-org841f022">
 <p><code>pip-compile</code> will read in the <code>requirements.in</code> file and add the version numbers and can create a <code>requirements.txt</code> file. It will automatically look for the <code>requirements.in</code> file or you can explicitly pass in the filename.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pip-compile <span class="p">|</span> head
 </pre></div>
@@ -282,9 +292,9 @@ blinker==1.4              # via nikola
 <p>You'll notice it adds in the dependencies of the dependencies and shows what requries them.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgb2f7377">
-<h2 id="orgb2f7377">Well, that was a lot of work just for that.</h2>
-<div class="outline-text-2" id="text-orgb2f7377">
+<div class="outline-2" id="outline-container-orgd3acbf9">
+<h2 id="orgd3acbf9">Well, that was a lot of work just for that.</h2>
+<div class="outline-text-2" id="text-orgd3acbf9">
 <p>If we stopped at this point we'd have:</p>
 <ul class="org-ul">
 <li>a way to check who installed what using <code>pipdeptree</code> (as well as a way to plot the dependencies as a graph)</li>
@@ -293,10 +303,11 @@ blinker==1.4              # via nikola
 </ul>
 <p>I think that's kind of nice already, especially if you end up with a lot of dependencies. Try working with <a href="http://www.sphinx-doc.org/en/master/">sphinx</a> and <a href="http://scikit-learn.org/stable/">scikit-learn</a> and you'll see things start to explode. But of course, there's always more.</p>
 </div>
-<div class="outline-3" id="outline-container-org28f94c5">
-<h3 id="org28f94c5">Upgrade</h3>
-<div class="outline-text-3" id="text-org28f94c5">
+<div class="outline-3" id="outline-container-orga001273">
+<h3 id="orga001273">Upgrade</h3>
+<div class="outline-text-3" id="text-orga001273">
 <p>You can run <code>pip-compile</code> with the <code>--upgrade</code> option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pip-compile --upgrade <span class="p">|</span> head
 </pre></div>
@@ -315,10 +326,11 @@ blinker==1.4              # via nikola
 <p>This will upgrade your installation but not update the <code>requirements.txt</code> file, so you can test it out and see if everything works before updating the <code>requirements.txt</code>. If things don't work out, you could reinstall from the <code>requirements.txt</code> file, but see the next section for another way.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org97d51de">
-<h3 id="org97d51de">Sync</h3>
-<div class="outline-text-3" id="text-org97d51de">
+<div class="outline-3" id="outline-container-org2545fea">
+<h3 id="org2545fea">Sync</h3>
+<div class="outline-text-3" id="text-org2545fea">
 <p><code>pip-tools</code> also installed a command called <code>pip-sync</code> which will keep you in sync with what is in the requirements file, so as long as <code>requirements.txt</code> is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the <code>--upgrade</code> option in that it will only install the exact version in the requirements file.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pip-sync
 </pre></div>
@@ -333,10 +345,12 @@ Collecting cloudpickle==0.5.3
 Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle-0.5.3 decorator-4.3.0 doit-0.31.1 ipykernel-4.8.2 ipython-6.4.0 jedi-0.12.0 jupyter-client-5.2.3 logbook-1.4.0 lxml-4.2.1 natsort-5.3.2 nikola-7.8.15 notebook-5.5.0 parso-0.2.1 pexpect-4.6.0 pillow-5.1.0 python-dateutil-2.7.3 send2trash-1.5.0 tornado-5.0.2 virtualenv-16.0.0 virtualfish-1.0.6 wheel-0.31.1 ws4py-0.5.1
 </pre>
 <p>Since I upgraded the installation the <code>requirements.txt</code> file is now behind the latests versions so by syncing I undid the upgrade. This time I'll upgrade again and save the output.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pip-compile --upgrade
 </pre></div>
 <p>So now the file and my installation should be in sync.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>pip-sync
 </pre></div>
@@ -345,9 +359,9 @@ Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0fe38d0">
-<h2 id="org0fe38d0">Conclusion</h2>
-<div class="outline-text-2" id="text-org0fe38d0">
+<div class="outline-2" id="outline-container-org9ed35ac">
+<h2 id="org9ed35ac">Conclusion</h2>
+<div class="outline-text-2" id="text-org9ed35ac">
 <p>So there you have it, how to keep dependencies synced. The <a href="https://pypi.org/project/pip-tools/">README</a> for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.</p>
 </div>
 </div>
@@ -368,14 +382,9 @@ Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle
 <footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates -->
+<script src="../../assets/js/all-nocdn.js">
+</script>
 <script>
-
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-</script><!-- end fancy dates -->
-<script>
-
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {

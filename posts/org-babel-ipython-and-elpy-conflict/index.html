@@ -12,7 +12,8 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/posts/org-babel-ipython-and-elpy-conflict/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
+</script>
 <meta content="Cloistered Monkey" name="author">
 <link href="../reference/flask-bibliography/" rel="prev" title="Flask-Bibliography" type="text/html">
 <link href="../reference/data-visualization-bibliography/" rel="next" title="Data Visualization Bibliography" type="text/html">
@@ -67,27 +68,29 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-orgbe0e4b6">
-<h2 id="orgbe0e4b6">Short-take</h2>
-<div class="outline-text-2" id="text-orgbe0e4b6">
+<div class="outline-2" id="outline-container-org58beb95">
+<h2 id="org58beb95">Short-take</h2>
+<div class="outline-text-2" id="text-org58beb95">
 <p>If you use <a href="https://elpy.readthedocs.io/en/latest/">elpy</a> and <a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> together and use the <code>jupyter</code> option when configuring the <code>elpy</code> interpreter settings it will break the execution of <code>ob-ipython</code> code blocks, so use the <code>ipython</code> version instead. In other words use this in your <code>init.el</code> file:</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span><span class="p">(</span><span class="k">setq</span> <span class="nv">python-shell-interpreter</span> <span class="s">"ipython"</span>
       <span class="nv">python-shell-interpreter-args</span> <span class="s">"-i --simple-prompt"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9ade8ac">
-<h2 id="org9ade8ac">Background</h2>
-<div class="outline-text-2" id="text-org9ade8ac">
+<div class="outline-2" id="outline-container-orgd43f2d2">
+<h2 id="orgd43f2d2">Background</h2>
+<div class="outline-text-2" id="text-orgd43f2d2">
 <p>I've become quite reliant on <a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> for emacs (it lets you use ipython with org-babel to create literate programming documents). I used to use <a href="http://mpastell.com/pweave/">pweave</a>, and if I weren't an emacs user I probably would still use it, and of course there's <a href="http://jupyter.org">jupyter notebooks</a>, and the attendant <a href="https://github.com/millejoh/emacs-ipython-notebook">emacs-ipython-notebook</a> that I've used as well (and sometimes still use - as when I need to hand in a Coursera assignment, for instance), but org-mode and ipython seems to hit the sweet spot for me (at least this week).</p>
 <p>So I was more than a little disturbed when I tried to execute a code block on my new laptop and found that nothing would run. This is a description of what happened and the fix, in case I forget the next time.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org7a3efba">
-<h2 id="org7a3efba">The Problem</h2>
-<div class="outline-text-2" id="text-org7a3efba">
+<div class="outline-2" id="outline-container-org73b7b97">
+<h2 id="org73b7b97">The Problem</h2>
+<div class="outline-text-2" id="text-org73b7b97">
 <p>I tried executing some python code in an ipython code block but I kept getting an error. This is a toy example of what an ob-ipython block looks like:</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>#+BEGIN_SRC ipython :session test :results output
 print("tester")
@@ -106,21 +109,24 @@ Error executing Jupyter command '/home/dogen/.emacs.d/elpa/ob-ipython-20180113.9
 <p>So, I jumped on my desktop to test it out (I ran into the org-mode problem on my laptop, but I was home so I figured I'd switch), but first I brought up emacs and tried executing the same code-block that failed on my laptop, and of course it ran perfectly. So then I went into a long death-spiral of trying to download the ob-ipython git repository and going back in the git-history to see if I could find the place where it might work (my desktop version of ob-ipython was from October of 2017, my laptop's version is from January 2018), and of course none of them worked. Then I tried copying my <code>init.el</code> file from my desktop to my laptop, and suddenly things worked - so it was a configuration problem, but what was it?</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org886af10">
-<h2 id="org886af10">The Fix</h2>
-<div class="outline-text-2" id="text-org886af10">
+<div class="outline-2" id="outline-container-org52f6339">
+<h2 id="org52f6339">The Fix</h2>
+<div class="outline-text-2" id="text-org52f6339">
 <p>If you go to the <a href="https://github.com/jorgenschaefer/elpy">elpy</a> documentation (elpy is a mode for emacs that makes editing python much easier), there is a <a href="https://elpy.readthedocs.io/en/latest/ide.html#interactive-python">section on setting up which interpreter to use</a> - and if you're wondering why I'm suddenly talking about <code>elpy</code> instead of <code>ob-ipython</code>, well, it's because it was the problem (or at least using them together was the problem).</p>
 <p>The documentation gives you three options for setting the interpreter - python, ipython, or jupyter. This is what my laptop had:</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span><span class="p">(</span><span class="k">setq</span> <span class="nv">python-shell-interpreter</span> <span class="s">"jupyter"</span>
       <span class="nv">python-shell-interpreter-args</span> <span class="s">"console --simple-prompt"</span><span class="p">)</span>
 </pre></div>
 <p>This is what my desktop had:</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span><span class="p">(</span><span class="k">setq</span> <span class="nv">python-shell-interpreter</span> <span class="s">"ipython"</span>
       <span class="nv">python-shell-interpreter-args</span> <span class="s">"-i --simple-prompt"</span><span class="p">)</span>
 </pre></div>
 <p>I don't know why I configured them differently, but I tried using the <code>ipython</code> setting instead of the <code>jupyter</code> setting and all of a sudden - it worked. Maybe I've now broken something else, but it's fixed for now.</p>
+/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 <div class="highlight">
 <pre><span></span>#+BEGIN_SRC ipython :session test :results output
 print("tester")
@@ -131,9 +137,9 @@ print("tester")
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9f81701">
-<h2 id="org9f81701">Summary</h2>
-<div class="outline-text-2" id="text-org9f81701">
+<div class="outline-2" id="outline-container-org0e69901">
+<h2 id="org0e69901">Summary</h2>
+<div class="outline-text-2" id="text-org0e69901">
 <p>This documents a problem that I ran into wherein the <code>elpy</code> settings I used broke the execution of code blocks by <code>ob-ipython</code> . Just remember to use <code>ipython</code> instead of <code>jupyter</code> and it should be okay. Another day of my life lost to troubleshooting (well, not a <i>whole</i> day, but too much).</p>
 </div>
 </div>
@@ -154,14 +160,9 @@ print("tester")
 <footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates -->
+<script src="../../assets/js/all-nocdn.js">
+</script>
 <script>
-
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-</script><!-- end fancy dates -->
-<script>
-
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {

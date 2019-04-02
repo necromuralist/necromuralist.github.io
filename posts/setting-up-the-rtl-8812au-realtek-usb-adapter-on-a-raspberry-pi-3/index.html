@@ -12,7 +12,8 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="../../rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript">
+</script>
 <meta content="Cloistered Monkey" name="author">
 <link href="../reference/wireless-bibliography/" rel="prev" title="Wireless Bibliography" type="text/html">
 <link href="../pip-tools-and-pipdeptree/" rel="next" title="pip-tools and pipdeptree" type="text/html">
@@ -67,9 +68,9 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-orgfa9d8ec">
-<h2 id="orgfa9d8ec">Introduction</h2>
-<div class="outline-text-2" id="text-orgfa9d8ec">
+<div class="outline-2" id="outline-container-org6d9abdf">
+<h2 id="org6d9abdf">Introduction</h2>
+<div class="outline-text-2" id="text-org6d9abdf">
 <p>I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.</p>
 <pre class="example">
 iwconfig wlan0 mode monitor
@@ -79,18 +80,18 @@ Error for wireless request "Set Mode" (8B06) :
 <p>Looking around on the web I found <a href="https://www.reddit.com/r/raspberry_pi/comments/4ah4oi/psa_the_raspberry_pi_3s_embedded_wifi_card_does/">this reddit post</a> as well as some Stack Overflow posts that said that monitor mode isn't supported on the Raspberry Pi. There is a project called <a href="https://github.com/seemoo-lab/nexmon">nexmon</a> that apparently lets up add a firmware patch to enable it, which I'll probably try later, but before I tried that I remembered that I have a Realtek 8812AU USB WiFi adapter that I bought a while ago for an old desktop I had that I wasn't using so I decided to try it.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org89d0fa5">
-<h2 id="org89d0fa5">What I tried</h2>
-<div class="outline-text-2" id="text-org89d0fa5"></div>
-<div class="outline-3" id="outline-container-org05c8e90">
-<h3 id="org05c8e90">Plug-and-Pray</h3>
-<div class="outline-text-3" id="text-org05c8e90">
+<div class="outline-2" id="outline-container-org45cc426">
+<h2 id="org45cc426">What I tried</h2>
+<div class="outline-text-2" id="text-org45cc426"></div>
+<div class="outline-3" id="outline-container-org3ada2a7">
+<h3 id="org3ada2a7">Plug-and-Pray</h3>
+<div class="outline-text-3" id="text-org3ada2a7">
 <p>The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although <code>lsusb</code> showed it, <code>iwconfig</code> didn't show it as an interface. Back to the internet.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org2e070b2">
-<h3 id="org2e070b2">Github</h3>
-<div class="outline-text-3" id="text-org2e070b2">
+<div class="outline-3" id="outline-container-org748b11a">
+<h3 id="org748b11a">Github</h3>
+<div class="outline-text-3" id="text-org748b11a">
 <p>Next I found <a href="https://github.com/diederikdehaas/rtl8812AU">a repository on github</a> that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:</p>
 <pre class="example">
 CONFIG_PLATFORM_I386_PC = n
@@ -109,9 +110,9 @@ Consult /var/lib/dkms/rtl8812AU/4.3.20/build/make.log for more information.
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org645555a">
-<h2 id="org645555a">What fixed it</h2>
-<div class="outline-text-2" id="text-org645555a">
+<div class="outline-2" id="outline-container-org501a018">
+<h2 id="org501a018">What fixed it</h2>
+<div class="outline-text-2" id="text-org501a018">
 <p>The solution was in <a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make">this StackOverflow post</a> - the <code>make</code> program is being pointed to a folder named <code>arm7l</code> (thats 'arm seven ell') but it should actually be pointed to one named <code>arm</code>. The simple solution is to create an alias with the correct name.</p>
 <pre class="example">
 sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.4.38-v7+/arch/armv7l
@@ -119,9 +120,9 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 <p>This turns out to fix the build problem and after a reboot the network interface showed up.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfc51a5d">
-<h2 id="orgfc51a5d">Conclusion</h2>
-<div class="outline-text-2" id="text-orgfc51a5d">
+<div class="outline-2" id="outline-container-org2945c98">
+<h2 id="org2945c98">Conclusion</h2>
+<div class="outline-text-2" id="text-org2945c98">
 <p>The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that <code>iwconfig</code> will put it in monitor mode but <code>airmon-ng</code> doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, <code>iw</code> always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.</p>
 </div>
 </div>
@@ -142,14 +143,9 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 <footer id="footer">Contents © 2019 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
-<script src="../../assets/js/all-nocdn.js"></script><!-- fancy dates -->
+<script src="../../assets/js/all-nocdn.js">
+</script>
 <script>
-
-    moment.locale("en");
-    fancydates(0, "YYYY-MM-DD HH:mm");
-</script><!-- end fancy dates -->
-<script>
-
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element) {
