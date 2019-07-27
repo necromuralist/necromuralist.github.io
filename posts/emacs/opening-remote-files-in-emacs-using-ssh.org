@@ -1,0 +1,42 @@
+#+BEGIN_COMMENT
+.. title: Opening Remote Files In Emacs Using SSH
+.. slug: opening-remote-files-in-emacs-using-ssh
+.. date: 2019-07-27 12:58:44 UTC-07:00
+.. tags: emacs,ssh,howto
+.. category: emacs
+.. link: 
+.. description: How to open files on remote machines in emacs using SSH.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+* Beginning
+  For some strange reason, [[https://www.emacswiki.org/emacs/TrampMode][the emacs wiki page on tramp mode]] doesn't have instructions on how to open a file on a remote machine using tramp in its main section. You instead have to go down to the /Tips and Tricks/ and try and pick out a version that works. So I'm writing this here so I maybe won't have to do all the searching I did the next time. This is the version that worked for me (Emacs 27.0.50, Ubuntu 19.04).
+* Middle
+** Editing a Remote User File
+   You start by opening the file like you would a local file (=C-x C-f=) and then in when the minibuffer opens up you use this syntax for the path:
+#+begin_src example
+/ssh:<username>@<hostname>>:<path to file>
+#+end_src
+
+So, for example, I have an SSH alias to =hades@erebus= named =Hades= and if I wanted to edit the emacs init file on that machine I would use this:
+
+#+begin_example
+/ssh:Hades:.emacs.d/init.el
+#+end_example
+
+** Editing a Remote File As Root
+   To open a file as root you stick an extra pipe (=|sudo=) into the previous path syntax.
+
+#+begin_example
+/ssh:<username>@<hostname>|sudo:<hostname>:<path to file>
+#+end_example
+
+This syntax doesn't work with SSH aliases (or didn't seem to when I tried), so editing the =/etc/apt/sources.list= file the same machine as before would use this:
+
+#+begin_example
+/ssh:hades@erebus|sudo:erebus:/etc/apt/sources.list
+#+end_example
+* End
+I got the =sudo= version from [[https://stackoverflow.com/questions/20624024/what-is-the-best-way-to-open-remote-files-with-emacs-and-ssh][Stack Overflow]] (of course).
