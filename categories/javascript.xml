@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about javascript)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/javascript.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2019 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sat, 27 Jul 2019 17:00:37 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>A Random Walk(er)</title><link>https://necromuralist.github.io/posts/processing/a-random-walker/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/processing/a-random-walker/#orgc944584"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/processing/a-random-walker/#orgca60ab2"&gt;Middle&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/processing/a-random-walker/#orgccd94f0"&gt;A Div to Locate the Sketch&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/processing/a-random-walker/#org5953a40"&gt;The Javascript&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/processing/a-random-walker/#org7be973b"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgc944584" class="outline-2"&gt;
+&lt;h2 id="orgc944584"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc944584"&gt;
+&lt;p&gt;
+This is another post to see if I understand how to get &lt;a href="https://p5js.org/"&gt;p5.js&lt;/a&gt; working in nikola. It's been a while since I tried and I just want to see if I remember how. This uses the random walk example from Daniel Schiffman's book &lt;i&gt;the Nature of Code&lt;/i&gt;.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgca60ab2" class="outline-2"&gt;
+&lt;h2 id="orgca60ab2"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgca60ab2"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgccd94f0" class="outline-3"&gt;
+&lt;h3 id="orgccd94f0"&gt;A Div to Locate the Sketch&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgccd94f0"&gt;
+&lt;p&gt;
+The id of this div is set in the &lt;code&gt;p5.js&lt;/code&gt; &lt;code&gt;setup&lt;/code&gt; function as the parent of the sketch.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;lt;script language="javascript" type="text/javascript" src="walker.js"&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;div id="random-walk-container"&amp;gt;
+&amp;lt;/div&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;script language="javascript" type="text/javascript" src="https://necromuralist.github.io/posts/processing/a-random-walker/walker.js"&gt;&lt;/script&gt;
+&lt;div id="random-walk-container"&gt;
+&lt;/div&gt;
+
+&lt;p&gt;
+&lt;b&gt;Note:&lt;/b&gt; Originally this wasn't working, because I had the line to include the javascript inside the &lt;code&gt;div&lt;/code&gt; to hold the canvas. Make sure that &lt;code&gt;div&lt;/code&gt; is always empty.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org5953a40" class="outline-3"&gt;
+&lt;h3 id="org5953a40"&gt;The Javascript&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5953a40"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;let sketch = function(p) {
+    p.setup = function() {
+	let parent_div_id = "random-walk-container";
+	this.canvas = p.createCanvas($("#" + parent_div_id).outerWidth(true), 300);
+	this.canvas.parent();
+	p.walker = new Walker(p);
+    }
+
+    p.draw = function() {
+	p.background(255);
+	p.walker.walk();
+	p.walker.display();
+    }
+};
+
+function Walker(p) {
+  this.x = p.width/2;
+  this.y = p.height/2;
+
+  this.walk = function() {
+    this.x = this.x + p.random(-1, 1) * 10;
+    this.y = this.y + p.random(-1, 1) * 10;
+  }
+
+  this.display = function() {
+    p.fill(0);
+    p.ellipse(this.x, this.y, 48, 48);
+  }
+}
+
+//let node = document.getElementById("random-walk")
+//window.document.getElementsByTagName("body")[0].appendChild(node);
+sketch_container = new p5(sketch, 'random-walk-container');
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org7be973b" class="outline-2"&gt;
+&lt;h2 id="org7be973b"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7be973b"&gt;
+&lt;p&gt;
+As always, this was way harder than it should have been.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>javascript</category><category>p5.js</category><category>processing</category><guid>https://necromuralist.github.io/posts/processing/a-random-walker/</guid><pubDate>Sun, 21 Jul 2019 19:29:09 GMT</pubDate></item></channel></rss>
