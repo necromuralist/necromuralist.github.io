@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about games cocos2d flocking emergence)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/games-cocos2d-flocking-emergence.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2019 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 02 Apr 2019 05:13:37 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Seek With Cocos2D</title><link>https://necromuralist.github.io/posts/seek-with-cocos2d/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about games cocos2d flocking emergence)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/games-cocos2d-flocking-emergence.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2019 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sat, 27 Jul 2019 17:00:37 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Seek With Cocos2D</title><link>https://necromuralist.github.io/posts/seek-with-cocos2d/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
 This is an implementation of Craig Reynold's flocking behavior based on the book &lt;a href="https://www.packtpub.com/game-development/python-game-programming-example"&gt;Python Game Programming By Example&lt;/a&gt;. Reynolds mentions many variations for flocking. This will implement a basic boid that flocks to the mouse pointer.
 &lt;/p&gt;
 
-&lt;div id="outline-container-orgf2fd3aa" class="outline-2"&gt;
-&lt;h2 id="orgf2fd3aa"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf2fd3aa"&gt;
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
+&lt;div id="outline-container-orgea77515" class="outline-2"&gt;
+&lt;h2 id="orgea77515"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgea77515"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# third party&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.cocosnode&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;CocosNode&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.euclid&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;
@@ -15,24 +14,22 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1e0e401" class="outline-2"&gt;
-&lt;h2 id="org1e0e401"&gt;Constants&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1e0e401"&gt;
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
+&lt;div id="outline-container-org1792643" class="outline-2"&gt;
+&lt;h2 id="org1792643"&gt;Constants&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1792643"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;CHASE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;span class="n"&gt;RUN_AWAY&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;span class="n"&gt;CHANGE_BEHAVIOR&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3ac3410" class="outline-2"&gt;
-&lt;h2 id="org3ac3410"&gt;The Boid&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3ac3410"&gt;
+&lt;div id="outline-container-org10e922d" class="outline-2"&gt;
+&lt;h2 id="org10e922d"&gt;The Boid&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org10e922d"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2ef9041" class="outline-3"&gt;
-&lt;h3 id="org2ef9041"&gt;Boid Settings&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2ef9041"&gt;
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
+&lt;div id="outline-container-org3500de9" class="outline-3"&gt;
+&lt;h3 id="org3500de9"&gt;Boid Settings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3500de9"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BoidSettings&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""a settings object"""&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -216,13 +213,12 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3c84e84" class="outline-3"&gt;
-&lt;h3 id="org3c84e84"&gt;Boid Node&lt;/h3&gt;
+&lt;div id="outline-container-orgb665c40" class="outline-3"&gt;
+&lt;h3 id="orgb665c40"&gt;Boid Node&lt;/h3&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org24761d8" class="outline-3"&gt;
-&lt;h3 id="org24761d8"&gt;the Constructor&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org24761d8"&gt;
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
+&lt;div id="outline-container-org4fb5853" class="outline-3"&gt;
+&lt;h3 id="org4fb5853"&gt;the Constructor&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4fb5853"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CocosNode&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""represents a boid&lt;/span&gt;
 &lt;span class="sd"&gt;    Parameters&lt;/span&gt;
@@ -247,7 +243,6 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 I'm not a fan of method calls in the constructor, but these next two lines help set up the node.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;particle_system&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Sun&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
 &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;schedule&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;update&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;return&lt;/span&gt;
@@ -259,14 +254,13 @@ The &lt;code&gt;add&lt;/code&gt; method sets the &lt;code&gt;Sun&lt;/code&gt; in
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org76cdb55" class="outline-3"&gt;
-&lt;h3 id="org76cdb55"&gt;The Current Position&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org76cdb55"&gt;
+&lt;div id="outline-container-orgbc27c2f" class="outline-3"&gt;
+&lt;h3 id="orgbc27c2f"&gt;The Current Position&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbc27c2f"&gt;
 &lt;p&gt;
 This is just a convenience attribute. It probably takes a performance hit, but the original code was a little obscure so I thought I'd pull it out to document it.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nd"&gt;@property&lt;/span&gt;
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;current_position&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""this node's position&lt;/span&gt;
@@ -285,10 +279,9 @@ I had to look it up, since there's no setting of &lt;code&gt;self.x&lt;/code&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgd58508d" class="outline-3"&gt;
-&lt;h3 id="orgd58508d"&gt;The Update Method&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgd58508d"&gt;
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
+&lt;div id="outline-container-org890a8b8" class="outline-3"&gt;
+&lt;h3 id="org890a8b8"&gt;The Update Method&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org890a8b8"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;update&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;delta&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""updates the current position&lt;/span&gt;
 
@@ -306,7 +299,6 @@ I had to look it up, since there's no setting of &lt;code&gt;self.x&lt;/code&gt;
 The target is going to be set when the mouse is move. Because of this it's initially not set, so we need to short circuit if that's the case.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;distance&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;current_position&lt;/span&gt;
 &lt;span class="n"&gt;ramp_down&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;distance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;steering_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;distance&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;ramp_down&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt;
@@ -325,7 +317,6 @@ In the snippet above, &lt;code&gt;distance&lt;/code&gt; is a vector with the tai
 This next method reduces a vector if its magnitude is above a given threshold.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;limit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;upper_bound&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""limits magnitude of vector&lt;/span&gt;
 
@@ -356,14 +347,13 @@ This next method reduces a vector if its magnitude is above a given threshold.
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3fd64ef" class="outline-2"&gt;
-&lt;h2 id="org3fd64ef"&gt;Main Layer&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3fd64ef"&gt;
+&lt;div id="outline-container-orgce55b1c" class="outline-2"&gt;
+&lt;h2 id="orgce55b1c"&gt;Main Layer&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgce55b1c"&gt;
 &lt;p&gt;
 This is the class to act as the event handler.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;MainLayer&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cocos&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;layer&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Layer&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""sets up the interaction&lt;/span&gt;
 
@@ -380,7 +370,6 @@ This is the class to act as the event handler.
 That value (&lt;code&gt;is_event_handler&lt;/code&gt;) has to be true or the &lt;code&gt;Layer&lt;/code&gt; class doesn't handle events.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;boids&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MainLayer&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
     &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;boids&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;boids&lt;/span&gt;
@@ -415,7 +404,6 @@ That value (&lt;code&gt;is_event_handler&lt;/code&gt;) has to be true or the &lt
 The &lt;code&gt;on_mouse_motion&lt;/code&gt; method is a pass through to &lt;code&gt;pyglet&lt;/code&gt; so the method is documented &lt;a href="https://pyglet.readthedocs.io/en/pyglet-1.2-maintenance/programming_guide/mouse.html"&gt;there&lt;/a&gt; more than on the &lt;i&gt;cocos2d&lt;/i&gt; site.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;"__main__"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;boid_settings&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;BoidSettings&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 		     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x_y&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="mi"&gt;300&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
@@ -438,10 +426,9 @@ The first thing to note is that the &lt;code&gt;cocos.director.init&lt;/code&gt;
 This is an implementation of Craig Reynold's flocking behavior based on the book &lt;a href="https://www.packtpub.com/game-development/python-game-programming-example"&gt;Python Game Programming By Example&lt;/a&gt;.
 &lt;/p&gt;
 
-&lt;div id="outline-container-org2dc8581" class="outline-2"&gt;
-&lt;h2 id="org2dc8581"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2dc8581"&gt;
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
+&lt;div id="outline-container-org6ffd781" class="outline-2"&gt;
+&lt;h2 id="org6ffd781"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6ffd781"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# third party&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.cocosnode&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;CocosNode&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;cocos&lt;/span&gt;
@@ -450,17 +437,16 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4206c0d" class="outline-2"&gt;
-&lt;h2 id="org4206c0d"&gt;Constants&lt;/h2&gt;
+&lt;div id="outline-container-org3ff7ad3" class="outline-2"&gt;
+&lt;h2 id="org3ff7ad3"&gt;Constants&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga8aa7cc" class="outline-2"&gt;
-&lt;h2 id="orga8aa7cc"&gt;The Boid&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga8aa7cc"&gt;
+&lt;div id="outline-container-org06edb2d" class="outline-2"&gt;
+&lt;h2 id="org06edb2d"&gt;The Boid&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org06edb2d"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgbbe3a42" class="outline-3"&gt;
-&lt;h3 id="orgbbe3a42"&gt;Boid Settings&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbbe3a42"&gt;
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
+&lt;div id="outline-container-orgb45f502" class="outline-3"&gt;
+&lt;h3 id="orgb45f502"&gt;Boid Settings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb45f502"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BoidSettings&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""a settings object"""&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -614,10 +600,9 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6d65d56" class="outline-3"&gt;
-&lt;h3 id="org6d65d56"&gt;Boid Node&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6d65d56"&gt;
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
+&lt;div id="outline-container-orgd156cd2" class="outline-3"&gt;
+&lt;h3 id="orgd156cd2"&gt;Boid Node&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgd156cd2"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CocosNode&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""represents a boid&lt;/span&gt;
 &lt;span class="sd"&gt;    Parameters&lt;/span&gt;
@@ -641,7 +626,6 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 I'm not a fan of method calls in the constructor, but these next two lines help set up the node.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;particle_system&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Sun&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
 &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;schedule&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;update&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="k"&gt;return&lt;/span&gt;
@@ -651,7 +635,6 @@ I'm not a fan of method calls in the constructor, but these next two lines help 
 The &lt;code&gt;add&lt;/code&gt; method sets the &lt;code&gt;Sun&lt;/code&gt; instance as a child of the &lt;code&gt;Boid&lt;/code&gt; node and the &lt;code&gt;schedule&lt;/code&gt; method sets the &lt;code&gt;Boid's&lt;/code&gt; &lt;code&gt;update&lt;/code&gt; method to be called once per frame.
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;update&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;delta&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;"""updates the current position&lt;/span&gt;
 
@@ -669,7 +652,6 @@ The &lt;code&gt;add&lt;/code&gt; method sets the &lt;code&gt;Sun&lt;/code&gt; in
 The target
 &lt;/p&gt;
 
-/home/athena/.virtualenvs/necromuralist.github.io/bin/python3: No module named virtualfish
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;distance&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;euclid&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;steering_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;distance&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt;
 &lt;span class="n"&gt;steering_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;truncate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;steering&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -679,6 +661,6 @@ The target
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org50d3fe8" class="outline-2"&gt;
-&lt;h2 id="org50d3fe8"&gt;Main&lt;/h2&gt;
+&lt;div id="outline-container-org686e26a" class="outline-2"&gt;
+&lt;h2 id="org686e26a"&gt;Main&lt;/h2&gt;
 &lt;/div&gt;</description><category>games cocos2d flocking emergence</category><guid>https://necromuralist.github.io/posts/flocking-with-cocos2d/</guid><pubDate>Mon, 20 Feb 2017 22:59:43 GMT</pubDate></item></channel></rss>
