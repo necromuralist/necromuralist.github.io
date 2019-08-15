@@ -1,0 +1,54 @@
+#+BEGIN_COMMENT
+.. title: emacs-jupyter
+.. slug: emacs-jupyter
+.. date: 2019-08-10 15:13:27 UTC-07:00
+.. tags: emacs,emacs-jupyter
+.. category: emacs
+.. link: 
+.. description: Installing emacs-jupyter on Ubuntu 19.04.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+* Beginning
+  [[https://github.com/gregsexton/ob-ipython][ob-ipython]] has become one of the most important tools in my workflow (along with [[https://getnikola.com/][Nikola]], and the [[https://plugins.getnikola.com/v8/orgmode/][org-mode plugin]]), but earlier this week I stumbled upon [[https://github.com/dzop/emacs-jupyter][emacs-jupyter]] and I thought maybe it'd be worth it to at least take a look. If the =readme= file is to be believed, it does everything =ob-ipython= does and more, so maybe my world would change once again. But then I ran into a little problem - trying to install it from [[https://melpa.org/#/][MELPA]] caused emacs to crash... with no messages, nothing. So is this thing ready for the world to use yet?
+* Middle
+** Finding the Problem
+   I tried different things based on the errors in the emacs-jupyter's [[https://github.com/dzop/emacs-jupyter/issues]["Issues"]] but it turned out that [[https://github.com/dzop/emacs-zmq/issues/14][this emacs-zmq bug]] had the answer - the [[https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa][emacs snapshot]] for Ubuntu wasn't built in a way that works with emacs-jupyter. The bug-report mentions an out of date gcc version, but I didn't confirm that.
+** Fixing the Problem
+   So, knowing that the version of emacs I was using was the problem I decided to build it myself. In the earlier days of Ubuntu this was something I did all the time, but it seems like it's been forever since I had to do this so I was a little worried that it might be a huge mess of Makefile debugging, but I found [[https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian][this page on the emacs wiki]] which made it pretty easy.
+*** First Clone the Repository
+#+begin_example
+git clone --depth 1 git://git.sv.gnu.org/emacs.git
+#+end_example
+*** Then Install the Dependencies
+#+begin_example
+sudo apt-fast install autoconf automake libtool texinfo build-essential xorg-dev libgtk2.0-dev libjpeg-dev libncurses5-dev libdbus-1-dev libgif-dev libtiff-dev libm17n-dev libpng-dev librsvg2-dev libotf-dev libgnutls28-dev libxml2-dev
+#+end_example
+*** Then Build It
+#+begin_example
+cd emacs
+./autogen.sh
+./configure --prefix=/home/athena/bin/emacs-jupyter/
+make bootstrap
+make install
+sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
+#+end_example
+
+That bit about installing it in my home directory and linking it isn't necessary, but I didn't want to let the Makefile clobber anything (and I was too lazy to read it too closely).
+** Fix the Other Problem
+   It turned out that the build went okay, and I could even install emacs-jupyter (yay), but when I tried to execute =M-x jupyter-run-repl= I got an error message saying that modules weren't supported (what?). So then I found [[http://diobla.info/blog-archive/modules-tut.html][this blog post]] that said you have to pass in the =--with-modules= argument when you run =configure=... So now the process became this:
+
+#+begin_example
+cd emacs
+./autogen.sh
+./configure --prefix=/home/athena/bin/emacs-jupyter/ --with-modules
+make bootstrap
+make install
+sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
+#+end_example
+
+And what do you know, it worked.
+* End
+emacs-jupyter looks like an improvement over =ob-ipython= in that it adds a lot of features (and claims to be faster), but getting it to work was way harder than I'm used to. I don't think it was "difficult" in a real sense, given what it used to be like to make and install things on Ubuntu, but I think I've gotten used to things just working. Anyway, now I can see if emacs-jupyter lives up to its own hype.
