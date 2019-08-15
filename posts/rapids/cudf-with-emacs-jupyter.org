@@ -1,0 +1,150 @@
+#+BEGIN_COMMENT
+.. title: cuDF With emacs-jupyter
+.. slug: cudf-with-emacs-jupyter
+.. date: 2019-08-10 14:12:42 UTC-07:00
+.. tags: cudf,emacs-jupyter,walk-through
+.. category: cuDF
+.. link: 
+.. description: A first trial of cuDF and emacs-jupyter.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+* Beginning
+  This is a first attempt to use [[https://rapids.ai/][RAPIDS]] using their docker container and [[https://github.com/dzop/emacs-jupyter#building-the-widget-support-experimental][emacs-jupyter]]. So there's multiple places where things can go wrong and I don't know why.
+** Problems Before I Even Started
+*** the **RAPIDS** instruction for starting the docker container is out of date
+    The instructions on the [[https://rapids.ai/start.html][getting started page]] say to start the docker container using this:
+#+begin_example
+docker run --runtime=nvidia --rm -it -p 8888:8888 -p 8787:8787 -p 8786:8786 \
+    rapidsai/rapidsai:0.8-cuda10.0-runtime-ubuntu18.04-gcc7-py3.7
+#+end_example
+
+But the ~--runtime=nvidia~ flag is for the now-deprecated =nvidia-docker2= package (which isn't compatible with Ubuntu Disco Dingo anyway) and it will cause it to fail with an =unknown runtime= error if you don't have that older package installed (which I don't). Removing the flag (and having the [[https://github.com/NVIDIA/nvidia-docker][NVIDIA Container Toolkit]] installed) fixes the error.
+*** The emacs-snapshot isn't compatible with emacs-jupyter
+    [[https://github.com/gregsexton/ob-ipython][ob-ipython]] has become such a center-piece for how I work I can't even remember how I did things before I discovered it, but now there's [[https://github.com/dzop/emacs-jupyter][Emacs Jupyter]] which claims to have even more features, so I thought I'd try it out, but when I tried to install it emacs would crash (during the installation). According to  [[https://github.com/dzop/emacs-zmq/issues/14][this bug report]] the [[https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa][emacs snapshot]] for Ubuntu is built with an out-of-date version of gcc. I don't know if that's true, but I re-built emacs with [[https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian][the instructions on the emacs wiki]] and it at least installed emacs-jupyter without crashing. Here's where I find out if it works. Of course, I now have two versions of emacs. One that gets updated automatically and one that works with emacs-jupyter. I'll have to figure out what to do about that, assuming emacs-jupyter turns out to be worth keeping.
+** Imports
+*** PyPi
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results none
+import cudf
+import dask_cudf
+import pandas
+#+end_src
+* Middle
+** Connecting To the Docker Container
+   According to the emacs-snapshot documentation you can connect via SSH (but the Rapids docker container doesn't have it installed by default) or you can connect to a notebook server. I originally was going to try the SSH route, since I already do that with ob-ipython, but the notebook-server might be more suited to this case. Let's see.
+
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results output :exports both
+print("test")
+#+end_src
+
+#+RESULTS:
+: test
+
+So, the notebook doesn't seem to work as-is, but the SSH connection does, which is nice, but it's not different from what ob-ipython gave me (well it kind of is in that I didn't copy the file over).
+** Create Series
+*** CUDF Series
+    This runs on the GPU.
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results output :exports both
+s = cudf.Series([1, 2, 3, None, 4])
+print(s)
+#+end_src
+
+#+RESULTS:
+: 0    1
+: 1    2
+: 2    3
+: 3     
+: 4    4
+: dtype: int64
+*** dask CUDF
+    This also runs on the GPU, but if you have more than one GPU it will use more than one.
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results output :exports both
+ds = dask_cudf.from_cudf(s, npartitions=2)
+print(ds.compute())
+#+end_src
+
+#+RESULTS:
+: 0    1
+: 1    2
+: 2    3
+: 3     
+: 4    4
+: dtype: int64
+
+My machine only has one GPU, so this didn't gain anything, but I do have more than one machine with a GPU so this might help with distributed computing, if I get around to it.
+** Data Frames
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results output :exports both
+frame = cudf.DataFrame([("a", list(range(10))),
+                        ("b", list(range(10)))])
+frame["a"] = frame.a * 5
+print(frame)
+#+end_src
+
+#+RESULTS:
+#+begin_example
+    a  b
+0   0  0
+1   5  1
+2  10  2
+3  15  3
+4  20  4
+5  25  5
+6  30  6
+7  35  7
+8  40  8
+9  45  9
+#+end_example
+*** From a Pandas DataFrame
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results output :exports both
+frame = pandas.DataFrame({"a": list(range(4)), "b": list(range(4, 8))})
+frame = cudf.DataFrame.from_pandas(frame)
+print(frame)
+#+end_src
+
+#+RESULTS:
+:    a  b
+: 0  0  4
+: 1  1  5
+: 2  2  6
+: 3  3  7
+** Selection
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results output :exports both
+print(frame[frame.a > 1])
+#+end_src
+
+#+RESULTS:
+:    a  b
+: 2  2  6
+: 3  3  7
+** Applyng functions
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results output :exports both
+frame["a"] = frame.a.applymap(lambda row: row + 5)
+print(frame)
+#+end_src
+
+#+RESULTS:
+:    a  b
+: 0  5  4
+: 1  6  5
+: 2  7  6
+: 3  8  7
+
+This is basically the pandas.DataFrame.apply method, but they renamed it for some reason.
+
+** String Methods
+#+begin_src jupyter-python :session /ssh:Rapids:.local/share/jupyter/runtime/kernel-2037.json :results output :exports both
+series = cudf.Series(["Alpha", "Beta", "GAMMA", "dELTA"])
+print(series.str.lower())
+#+end_src
+
+#+RESULTS:
+: 0    alpha
+: 1     beta
+: 2    gamma
+: 3    delta
+: dtype: object
+
+* End
+After a certain point, this was kind of a boring exercise, mostly because =cuDF= runs a subset of pandas but on the GPU, so if you know pandas, you know some of =cuDF=, but just getting it working (with emacs-jupyter) was a little bit of work, so maybe it's useful to have recorded that here.
