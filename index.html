@@ -12,14 +12,14 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/" rel="canonical">
-<link href="index-12.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+<link href="index-13.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
 <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
 <script async src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js" type="text/javascript"></script>
 <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
 <link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="/site.webmanifest" rel="manifest">
-<link href="/posts/futures-thinking/choose-your-own-future/" rel="prefetch" type="text/html">
+<link href="/posts/emacs/jupyter-emacs-sessions/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -53,6 +53,102 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="/posts/emacs/jupyter-emacs-sessions/">Jupyter-Emacs Sessions with org-mode</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="/authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="/posts/emacs/jupyter-emacs-sessions/" rel="bookmark"><time class="published dt-published" datetime="2020-05-09T15:36:05-07:00" itemprop="datePublished" title="2020-05-09 15:36">2020-05-09 15:36</time></a></p>
+</div>
+</header>
+<div class="e-content entry-content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="/posts/emacs/jupyter-emacs-sessions/#orgf18179c">Beginning</a></li>
+<li><a href="/posts/emacs/jupyter-emacs-sessions/#orgf9a2b99">Middle</a>
+<ul>
+<li><a href="/posts/emacs/jupyter-emacs-sessions/#org525ea66">Starting the Jupyter Server</a></li>
+<li><a href="/posts/emacs/jupyter-emacs-sessions/#org566aeb2">Start a Console</a></li>
+<li><a href="/posts/emacs/jupyter-emacs-sessions/#org438946d">Setting the Session</a></li>
+</ul>
+</li>
+<li><a href="/posts/emacs/jupyter-emacs-sessions/#org636d68d">End</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgf18179c">
+<h2 id="orgf18179c">Beginning</h2>
+<div class="outline-text-2" id="text-orgf18179c">
+<p>This is my notes on using <a href="https://github.com/dzop/emacs-jupyter">emacs-jupyter</a> using a remote session. It works with a local session as well, but I'll just relate the steps as if you're running the jupyter session on a remote machine.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgf9a2b99">
+<h2 id="orgf9a2b99">Middle</h2>
+<div class="outline-text-2" id="text-orgf9a2b99"></div>
+<div class="outline-3" id="outline-container-org525ea66">
+<h3 id="org525ea66">Starting the Jupyter Server</h3>
+<div class="outline-text-3" id="text-org525ea66">
+<p>The first thing to do is start the jupyter session on the remote machine. Since I'm doing this with <b>nikola</b> I should note that you want to start the session in the same location as the file you're editing in emacs, because all your file references will be based on that directory (so if you, for instance, create an image and want to place it in the <code>files</code> folder, you will need to note where that stands relative to the file you are editing and where you start the jupyter kernel).</p>
+<p>In my case I'm editing a file in <code>~projects/In-Too-Deep/posts/fastai/</code>.</p>
+<div class="highlight">
+<pre><span></span>cd ~/projects/In-Too-Deep/posts/fastai/
+jupyter kernel
+</pre></div>
+<p>This will start the kernel and show you the file that you need to copy to your local machine (where you are running emacs). Here's an example output of that command.</p>
+<div class="highlight">
+<pre><span></span>(In-Too-Deep) hades@erebus ~/p/I/p/fastai (fastai-restart| Dirty:4)&gt; jupyter kernel
+[KernelApp] Starting kernel 'python3'
+[KernelApp] Connection file: /home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json
+[KernelApp] To connect a client: --existing kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json
+</pre></div>
+<p>The important thing to note is the line with <code>Connection file</code>. You will need to copy that file to the machine that you are running emacs on. Where do you put it? Check your jupyter location on your local machine (where you're running emacs, not where you're running jupyter).</p>
+<div class="highlight">
+<pre><span></span>jupyter --runtime-dir
+</pre></div>
+<p>Change into whatever directory is output by that command and then copy the json file from the machine with the running jupyter kernel onto your local machine.</p>
+<div class="highlight">
+<pre><span></span>cd ~/.local/share/jupyter/runtime
+scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json .
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org566aeb2">
+<h3 id="org566aeb2">Start a Console</h3>
+<div class="outline-text-3" id="text-org566aeb2">
+<p>Now that you've copied over the information for the jupyter session you can start a console for it. I'll assume you're still in the directory with the json file in it, so I won't pass in the full path.</p>
+<div class="highlight">
+<pre><span></span>jupyter --console kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json --ssh Hades
+</pre></div>
+<p>Note the second argument where I passed in the SSH alias for my remote machine. If you don't have an alias set up then replace it with something that looks like <code>&lt;username&gt;@&lt;IP Address&gt;</code> (this assumes, of course, that the machine with the jupyter session running on it also has an SSH server running). This command sets up our session to forward our jupyter command to the remote machine. When you execute this command it should tell you that you can connect to the kernel using a slightly modified JSON file name:</p>
+<div class="highlight">
+<pre><span></span>[ZMQTerminalIPythonApp] Forwarding connections to 127.0.0.1 via Hades
+[ZMQTerminalIPythonApp] To connect another client via this tunnel, use:
+[ZMQTerminalIPythonApp] --existing kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232-ssh.json
+</pre></div>
+<p>Note that <code>--existing</code> argument for the next session (it should be the same as the original json file bit with <code>-ssh</code> added to the prefix).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org438946d">
+<h3 id="org438946d">Setting the Session</h3>
+<div class="outline-text-3" id="text-org438946d">
+<p>Since this is an org-mode-based explanation the first thing you need to do is connect your emacs buffer to the console. Add this to the top of your buffer (the file where you intend to run python).</p>
+<div class="highlight">
+<pre><span></span>#+PROPERTY: header-args :session /home/athena/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232-ssh.json
+</pre></div>
+<p>If you have this in your file when you open it you don't need to do anything special, but otherwise C-c C-c on it to load the session. What this does is allow subsequent python org-mode blocks to use the remote jupyter session when you execute them, without needing to specify a session.</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org636d68d">
+<h2 id="org636d68d">End</h2>
+<div class="outline-text-2" id="text-org636d68d">
+<p>At this point you can run org-mode code blocs that are set up to use <code>emacs-jupyter</code> and they will redirect to the remote jupyter session. That is a whole other adventure so I'll leave it for another time (or to someone else).</p>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="/posts/futures-thinking/choose-your-own-future/">Choose Your Own Future</a></h1>
@@ -795,88 +891,8 @@ sketch_container = new p5(mouse_follower_sketch, 'mouse-follower');
 </ol>
 </div>
 </div>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/processing/a-random-accelerator/">A Random Accelerator</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/processing/a-random-accelerator/" rel="bookmark"><time class="published dt-published" datetime="2019-07-21T15:14:42-07:00" itemprop="datePublished" title="2019-07-21 15:14">2019-07-21 15:14</time></a></p>
-</div>
-</header>
-<div class="e-content entry-content">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/processing/a-random-accelerator/#orgc64f9ff">Beginning</a></li>
-<li><a href="posts/processing/a-random-accelerator/#orgdbab3a9">Middle</a></li>
-<li><a href="posts/processing/a-random-accelerator/#org0149791">End</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgc64f9ff">
-<h2 id="orgc64f9ff">Beginning</h2>
-<div class="outline-text-2" id="text-orgc64f9ff">
-<p>This is an extension of the random walker with acceleration added.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgdbab3a9">
-<h2 id="orgdbab3a9">Middle</h2>
-<div class="outline-text-2" id="text-orgdbab3a9">
-<script language="javascript" src="posts/processing/a-random-accelerator/walker.js" type="text/javascript"></script>
-<div id="random-accelerator"></div>
-<div class="highlight">
-<pre><span></span>let random_accelerator_sketch = function(p) {
-    p.setup = function() {
-        let parent_div_id = "random-accelerator";
-        this.canvas = p.createCanvas($("#" + parent_div_id).outerWidth(true), 800);
-        this.canvas.parent(parent_div_id);
-        p.walker = new Walker(p);
-    }
-
-    p.draw = function() {
-        p.background(255);
-        p.walker.walk();
-        p.walker.display();
-    }
-};
-
-function Walker(p) {
-    this.position = p.createVector(p.width/2, p.height/2);
-    this.velocity = p.createVector(0, 0)
-
-    this.walk = function() {
-        acceleration = p.createVector(p.random(-1, 1), p.random(-1, 1));
-        acceleration = acceleration.mult(0.1)
-        this.velocity = this.velocity.add(acceleration)
-        this.position = this.position.add(this.velocity)
-  }
-
-  this.display = function() {
-      p.stroke(0);
-      p.noFill();
-      p.background(255, 255, 255, 25);
-      p.ellipse(this.position.x, this.position.y, 48, 48);
-  }
-}
-
-sketch_container = new p5(random_accelerator_sketch, 'random-accelerator');
-</pre></div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org0149791">
-<h2 id="org0149791">End</h2>
-<div class="outline-text-2" id="text-org0149791">
-<p>This was a very rudimentary walker, the main point of it was that at this point we have the basic kinematic elements to make something following the rules of classical physics (more or less).</p>
-<ol class="org-ol">
-<li>Shiffman D. <a href="https://natureofcode.com/">The nature of code</a>: simulating natural systems with processing. Version 1.0, generated December 6, 2012. s.l.: Selbstverl.; 2012. 498 p.</li>
-</ol>
-</div>
-</div>
-</div>
-</article>
 <ul class="pager postindexpager clearfix">
-<li class="next"><a href="index-12.html" rel="next">Older posts</a></li>
+<li class="next"><a href="index-13.html" rel="next">Older posts</a></li>
 </ul>
 <!--End of body content-->
 <footer id="footer">Contents © 2020 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
