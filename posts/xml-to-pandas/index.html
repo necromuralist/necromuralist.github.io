@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+<head>
+<meta charset="utf-8">
+<meta content="Converting XML to a pandas DataFrame." name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>XML To Pandas | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/xml-to-pandas/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/latest.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js" type="text/javascript"></script>
+<link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+<link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+<link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+<link href="/site.webmanifest" rel="manifest">
+<meta content="Cloistered Monkey" name="author">
+<link href="/posts/futures-thinking/signal-of-change/" rel="prev" title="Signal of Change" type="text/html">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="XML To Pandas" property="og:title">
+<meta content="https://necromuralist.github.io/posts/xml-to-pandas/" property="og:url">
+<meta content="Converting XML to a pandas DataFrame." property="og:description">
+<meta content="article" property="og:type">
+<meta content="2020-07-12T16:24:26-07:00" property="article:published_time">
+<meta content="beautiful soup" property="article:tag">
+<meta content="pandas" property="article:tag">
+<meta content="xml" property="article:tag">
+</head>
+<body>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="/"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="/archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="/categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="/rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/In-Too-Deep/">In Too Deep (Neural Networks)</a> <a class="dropdown-item" href="/machine-learning-projects/">Machine Learning</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a></div>
+</li>
+</ul>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
+<!-- 
+<button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-search"></span>
+</button>
+-->
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
+<!-- End of custom search -->
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="/posts/xml-to-pandas/index.org" id="sourcelink">Source</a></li>
+</ul>
+</div>
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href="/posts/xml-to-pandas/">XML To Pandas</a></h1>
+<div class="metadata">
+<p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author"><a class="u-url" href="/authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="/posts/xml-to-pandas/" rel="bookmark"><time class="published dt-published" datetime="2020-07-12T16:24:26-07:00" itemprop="datePublished" title="2020-07-12 16:24">2020-07-12 16:24</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="/posts/xml-to-pandas/index.org">Source</a></p>
+</div>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="/posts/xml-to-pandas/#org6cab6f8">Beginning</a>
+<ul>
+<li><a href="/posts/xml-to-pandas/#org24a84ae">Imports</a></li>
+<li><a href="/posts/xml-to-pandas/#orgc78e449">Set Up</a></li>
+</ul>
+</li>
+<li><a href="/posts/xml-to-pandas/#org7ece901">Middle</a>
+<ul>
+<li><a href="/posts/xml-to-pandas/#org1fd6026">The XML</a></li>
+<li><a href="/posts/xml-to-pandas/#org4ef0c19">To a DataFrame</a></li>
+<li><a href="/posts/xml-to-pandas/#orgebc4931">Save It</a></li>
+</ul>
+</li>
+<li><a href="/posts/xml-to-pandas/#org06a14ac">End</a>
+<ul>
+<li><a href="/posts/xml-to-pandas/#org7b35cdb">Time Series</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org6cab6f8">
+<h2 id="org6cab6f8">Beginning</h2>
+<div class="outline-text-2" id="text-org6cab6f8">
+<p>I went to the <a href="https://www.ssa.gov/">Social Security website</a> to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it actually has more than just the earnings data) so these are my notes on converting it to a pandas DataFrame using <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup</a>.</p>
+</div>
+<div class="outline-3" id="outline-container-org24a84ae">
+<h3 id="org24a84ae">Imports</h3>
+<div class="outline-text-3" id="text-org24a84ae">
+<p>To actually do the conversion you only need BeautifulSoup and pandas, all the rest of the stuff comes into play because I'm making a post.</p>
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">Namespace</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># from pypi</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+
+<span class="kn">import</span> <span class="nn">hvplot.pandas</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="c1"># my stuff</span>
+<span class="kn">from</span> <span class="nn">graeae</span> <span class="kn">import</span> <span class="n">EmbedHoloviews</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgc78e449">
+<h3 id="orgc78e449">Set Up</h3>
+<div class="outline-text-3" id="text-orgc78e449"></div>
+<div class="outline-4" id="outline-container-org21a8d23">
+<h4 id="org21a8d23">The Dotenv</h4>
+<div class="outline-text-4" id="text-org21a8d23">
+<p>I'm using a <code>.env</code> file to point to the location of the file so this call will load it.</p>
+<div class="highlight">
+<pre><span></span><span class="n">load_dotenv</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-4" id="outline-container-orgaf3983f">
+<h4 id="orgaf3983f">The Plotting</h4>
+<div class="outline-text-4" id="text-orgaf3983f">
+<p>This is just a central place to set up some constants so I don't have to re-type them or hunt around for them if I want to change things.</p>
+<div class="highlight">
+<pre><span></span><span class="n">SLUG</span> <span class="o">=</span> <span class="s2">"xml-to-pandas"</span>
+<span class="n">Embed</span> <span class="o">=</span>  <span class="n">partial</span><span class="p">(</span><span class="n">EmbedHoloviews</span><span class="p">,</span>
+                 <span class="n">create_folder</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">folder_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"files/posts/</span><span class="si">{</span><span class="n">SLUG</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">Plot</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span>
+    <span class="n">width</span><span class="o">=</span><span class="mi">990</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">780</span><span class="p">,</span>
+    <span class="n">tan</span><span class="o">=</span><span class="s2">"#ddb377"</span><span class="p">,</span>
+    <span class="n">blue</span><span class="o">=</span><span class="s2">"#4687b7"</span><span class="p">,</span>
+    <span class="n">red</span><span class="o">=</span><span class="s2">"#ce7b6d"</span><span class="p">,</span>
+    <span class="n">font_scale</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org7ece901">
+<h2 id="org7ece901">Middle</h2>
+<div class="outline-text-2" id="text-org7ece901"></div>
+<div class="outline-3" id="outline-container-org1fd6026">
+<h3 id="org1fd6026">The XML</h3>
+<div class="outline-text-3" id="text-org1fd6026"></div>
+<div class="outline-4" id="outline-container-org151ba0e">
+<h4 id="org151ba0e">Loading It</h4>
+<div class="outline-text-4" id="text-org151ba0e">
+<p>First, I'll load the XML into BeautifulSoup.</p>
+<div class="highlight">
+<pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
+    <span class="n">xml</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s2">"xml"</span><span class="p">)</span>
+</pre></div>
+<p>Note that you have to pass in the <code>"xml"</code> argument - BeautifulSoup is primarily an HTML parser so it assumes an HTML document by default. Normally I'd do some exploring at this point, but I didn't find it such an easy thing to do (I don't work with XML data generally) and found that it was easier to look at it with <a href="https://www.wikiwand.com/en/Less_(Unix)">less</a> and figure out what I needed.</p>
+</div>
+</div>
+<div class="outline-4" id="outline-container-orgad8c316">
+<h4 id="orgad8c316">The Earnings</h4>
+<div class="outline-text-4" id="text-orgad8c316">
+<p>The data I wanted is in a set of tags that look like this:</p>
+<div class="highlight">
+<pre><span></span>&lt;osss:Earnings endYear="1986" startYear="1986"&gt;
+&lt;osss:FicaEarnings&gt;526&lt;/osss:FicaEarnings&gt;
+&lt;osss:MedicareEarnings&gt;526&lt;/osss:MedicareEarnings&gt;
+&lt;/osss:Earnings&gt;
+</pre></div>
+<p>This set represents what was collected in 1986 - $526 for Social Security and Medicare (FICA stands for <a href="https://www.wikiwand.com/en/Federal_Insurance_Contributions_Act_tax">Federal Insurance Contributions Act</a> and is the name of the tax that funds Social Security). Yes, I'm that old, and yes, I only made $526 in 1986 because I was a teenager working a part-time job taking store inventories - still, I can't believe how little I got paid…</p>
+<p>Anyway, so the first thing to do is to grab all the nodes representing earning.</p>
+<div class="highlight">
+<pre><span></span><span class="n">earnings</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"Earnings"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">earnings</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">earnings</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+<pre class="example">
+34
+&lt;osss:Earnings endYear="1986" startYear="1986"&gt;
+&lt;osss:FicaEarnings&gt;526&lt;/osss:FicaEarnings&gt;
+&lt;osss:MedicareEarnings&gt;526&lt;/osss:MedicareEarnings&gt;
+&lt;/osss:Earnings&gt;
+</pre></div>
+</div>
+<div class="outline-4" id="outline-container-orgb97500b">
+<h4 id="orgb97500b">The Years</h4>
+<div class="outline-text-4" id="text-orgb97500b">
+<p>Now that we have the earnings, we can see about getting the years. Although they have <code>endYear</code> and <code>startYear</code> they're always the same so I'll use <code>startYear</code>.</p>
+<div class="highlight">
+<pre><span></span><span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startYear"</span><span class="p">))</span>
+</pre></div>
+<pre class="example">
+1986
+1987
+1988
+1989
+1990
+</pre></div>
+</div>
+<div class="outline-4" id="outline-container-org115ff55">
+<h4 id="org115ff55">Collected</h4>
+<div class="outline-text-4" id="text-org115ff55">
+<p>Next I'll see about grabbing the amounts collected for each year. The FICA and Medicare amounts are always the same so I'll just use the FICA amount.</p>
+<div class="highlight">
+<pre><span></span><span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"FicaEarnings"</span><span class="p">)</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+</pre></div>
+<pre class="example">
+526
+1123
+1546
+0
+0
+</pre>
+<p>That looks right. It drops to 0 because I went to college and started working on campus and since I went to a state university they didn't collect FICA.</p>
+</div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org4ef0c19">
+<h3 id="org4ef0c19">To a DataFrame</h3>
+<div class="outline-text-3" id="text-org4ef0c19">
+<p>Anyway, that's basically all you need to get it going.</p>
+<div class="highlight">
+<pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+    <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startYear"</span><span class="p">))</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">],</span>
+        <span class="n">amount</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"FicaEarnings"</span><span class="p">)</span><span class="o">.</span><span class="n">string</span><span class="p">)</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">]</span>
+        <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+<pre class="example">
+   year  amount
+0  1986     526
+1  1987    1123
+2  1988    1546
+3  1989       0
+4  1990       0
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-orgebc4931">
+<h3 id="orgebc4931">Save It</h3>
+<div class="outline-text-3" id="text-orgebc4931">
+<div class="highlight">
+<pre><span></span><span class="n">csv</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY_CSV"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org06a14ac">
+<h2 id="org06a14ac">End</h2>
+<div class="outline-text-2" id="text-org06a14ac">
+<p>I usually like to put in a little plotting so I'm going to plot the amount over time. Since I already shared my first five years I'm going to start after that and obscure the numbers a little.</p>
+</div>
+<div class="outline-3" id="outline-container-org7b35cdb">
+<h3 id="org7b35cdb">Time Series</h3>
+<div class="outline-text-3" id="text-org7b35cdb">
+<div class="highlight">
+<pre><span></span><span class="n">to_plot</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">&gt;</span> <span class="mi">1990</span><span class="p">]</span>
+<span class="n">MIN</span> <span class="o">=</span> <span class="n">to_plot</span><span class="p">[</span><span class="n">to_plot</span><span class="o">.</span><span class="n">amount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">to_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"amount"</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_plot</span><span class="o">.</span><span class="n">amount</span><span class="o">/</span><span class="n">MIN</span>
+
+<span class="n">plot</span> <span class="o">=</span> <span class="n">to_plot</span><span class="o">.</span><span class="n">hvplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"year"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"amount"</span><span class="p">)</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Income Over Time"</span><span class="p">,</span>
+    <span class="n">width</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+    <span class="n">fontscale</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">blue</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">outcome</span> <span class="o">=</span> <span class="n">Embed</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">"income_over_time"</span><span class="p">)()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
+</pre></div>
+<object data="/posts/xml-to-pandas/income_over_time.html" height="800" style="width:100%" type="text/html">
+<p>Figure Missing</p>
+</object>
+<p>Well, there you go. The plot starts out with me still working for the State, so there's no reported income, then there's an uptick when I took a retail job, then a drop again when I went back to school for a little while to look into getting a design degree, then there's another uptick when I gave up on the design degree and went to work as a clerk for a real estate office, then the next drop comes when I went back to get a Computer Science degree and the rising after that show the difference between working retail/clerical versus being a computer programmer, with the two plateaus representing the two companies I've worked for.</p>
+</div>
+</div>
+</div>
+</div>
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
+<li><a class="tag p-category" href="/categories/beautiful-soup/" rel="tag">beautiful soup</a></li>
+<li><a class="tag p-category" href="/categories/pandas/" rel="tag">pandas</a></li>
+<li><a class="tag p-category" href="/categories/xml/" rel="tag">xml</a></li>
+</ul>
+<ul class="pager hidden-print">
+<li class="previous"><a href="/posts/futures-thinking/signal-of-change/" rel="prev" title="Signal of Change">Previous post</a></li>
+</ul>
+</nav>
+</aside>
+</article>
+<!--End of body content-->
+<footer id="footer">Contents © 2020 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+</div>
+</div>
+<script src="/assets/js/all-nocdn.js"></script>
+<script>
+
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+</script> 
+</body>
+</html>

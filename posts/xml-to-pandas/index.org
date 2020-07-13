@@ -1,0 +1,202 @@
+#+BEGIN_COMMENT
+.. title: XML To Pandas
+.. slug: xml-to-pandas
+.. date: 2020-07-12 16:24:26 UTC-07:00
+.. tags: xml,pandas,beautiful soup
+.. category: XML
+.. link: 
+.. description: Converting XML to a pandas DataFrame.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-a65e3830-77e5-411d-a109-c8c4652b5a4e.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+* Beginning
+  I went to the [[https://www.ssa.gov/][Social Security website]] to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it actually has more than just the earnings data) so these are my notes on converting it to a pandas DataFrame using [[https://www.crummy.com/software/BeautifulSoup/bs4/doc/][BeautifulSoup]].
+
+** Imports
+   To actually do the conversion you only need BeautifulSoup and pandas, all the rest of the stuff comes into play because I'm making a post.
+
+#+begin_src python :results none
+# python
+from argparse import Namespace
+from functools import partial
+from pathlib import Path
+
+import os
+
+# from pypi
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+
+import hvplot.pandas
+import pandas
+
+# my stuff
+from graeae import EmbedHoloviews
+#+end_src
+
+** Set Up
+*** The Dotenv
+   I'm using a =.env= file to point to the location of the file so this call will load it.
+#+begin_src python :results none
+load_dotenv(override=True)
+#+end_src
+*** The Plotting
+    This is just a central place to set up some constants so I don't have to re-type them or hunt around for them if I want to change things.
+
+#+begin_src python :results none
+SLUG = "xml-to-pandas"
+Embed =  partial(EmbedHoloviews,
+                 create_folder=True,
+                folder_path=f"files/posts/{SLUG}")
+
+Plot = Namespace(
+    width=990,
+    height=780,
+    tan="#ddb377",
+    blue="#4687b7",
+    red="#ce7b6d",
+    font_scale=2,
+)
+#+end_src
+* Middle
+** The XML
+*** Loading It
+   First, I'll load the XML into BeautifulSoup.
+
+#+begin_src python :results none
+path = Path(os.environ["SOCIAL_SECURITY"]).expanduser()
+assert path.is_file()
+
+with path.open() as reader:
+    xml = BeautifulSoup(reader.read(), "xml")
+#+end_src
+
+Note that you have to pass in the ="xml"= argument - BeautifulSoup is primarily an HTML parser so it assumes an HTML document by default. Normally I'd do some exploring at this point, but I didn't find it such an easy thing to do (I don't work with XML data generally) and found that it was easier to look at it with [[https://www.wikiwand.com/en/Less_(Unix)][less]] and figure out what I needed.
+*** The Earnings
+    The data I wanted is in a set of tags that look like this:
+
+#+begin_src xml
+<osss:Earnings endYear="1986" startYear="1986">
+<osss:FicaEarnings>526</osss:FicaEarnings>
+<osss:MedicareEarnings>526</osss:MedicareEarnings>
+</osss:Earnings>
+#+end_src
+
+This set represents what was collected in 1986 - $526 for Social Security and Medicare (FICA stands for [[https://www.wikiwand.com/en/Federal_Insurance_Contributions_Act_tax][Federal Insurance Contributions Act]] and is the name of the tax that funds Social Security). Yes, I'm that old, and yes, I only made $526 in 1986 because I was a teenager working a part-time job taking store inventories - still, I can't believe how little I got paid...
+
+Anyway, so the first thing to do is to grab all the nodes representing earning.
+
+#+begin_src python :results output :exports both
+earnings = xml.find_all("Earnings")
+print(len(earnings))
+print(earnings[0])
+#+end_src
+
+#+RESULTS:
+: 34
+: <osss:Earnings endYear="1986" startYear="1986">
+: <osss:FicaEarnings>526</osss:FicaEarnings>
+: <osss:MedicareEarnings>526</osss:MedicareEarnings>
+: </osss:Earnings>
+
+*** The Years
+    Now that we have the earnings, we can see about getting the years. Although they have =endYear= and =startYear= they're always the same so I'll use =startYear=.
+
+#+begin_src python :results output :exports both
+for year in earnings[:5]:
+    print(year.get("startYear"))
+#+end_src
+
+#+RESULTS:
+: 1986
+: 1987
+: 1988
+: 1989
+: 1990
+
+*** Collected
+    Next I'll see about grabbing the amounts collected for each year. The FICA and Medicare amounts are always the same so I'll just use the FICA amount.
+
+#+begin_src python :results output :exports both
+for year in earnings[:5]:
+    print(year.find("FicaEarnings").string)
+#+end_src
+
+#+RESULTS:
+: 526
+: 1123
+: 1546
+: 0
+: 0
+
+That looks right. It drops to 0 because I went to college and started working on campus and since I went to a state university they didn't collect FICA. 
+
+** To a DataFrame
+   Anyway, that's basically all you need to get it going.
+
+#+begin_src python :results output :exports both
+data = pandas.DataFrame.from_dict(
+    dict(
+        year = [int(year.get("startYear")) for year in earnings],
+        amount = [int(year.find("FicaEarnings").string) for year in earnings]
+        )
+)
+
+print(data.head(5))
+#+end_src
+
+#+RESULTS:
+:    year  amount
+: 0  1986     526
+: 1  1987    1123
+: 2  1988    1546
+: 3  1989       0
+: 4  1990       0
+
+** Save It
+
+#+begin_src python :results none
+csv = Path(os.environ["SOCIAL_SECURITY_CSV"]).expanduser()
+data.to_csv(csv, index=False)
+#+end_src
+* End
+  I usually like to put in a little plotting so I'm going to plot the amount over time. Since I already shared my first five years I'm going to start after that and obscure the numbers a little.
+
+
+** Time Series
+#+begin_src python :results none
+to_plot = data[data.year > 1990]
+MIN = to_plot[to_plot.amount > 0].amount.min()
+to_plot.loc[:, "amount"] = to_plot.amount/MIN
+
+plot = to_plot.hvplot(x="year", y="amount").opts(
+    title="Income Over Time",
+    width=Plot.width, height=Plot.height,
+    fontscale=Plot.font_scale,
+    color=Plot.blue,
+)
+
+outcome = Embed(plot=plot, file_name="income_over_time")()
+#+end_src
+
+#+begin_src python :results output html :exports both
+print(outcome)
+#+end_src
+
+#+RESULTS:
+#+begin_export html
+<object type="text/html" data="income_over_time.html" style="width:100%" height=800>
+  <p>Figure Missing</p>
+</object>
+#+end_export
+
+Well, there you go. The plot starts out with me still working for the State, so there's no reported income, then there's an uptick when I took a retail job, then a drop again when I went back to school for a little while to look into getting a design degree, then there's another uptick when I gave up on the design degree and went to work as a clerk for a real estate office, then the next drop comes when I went back to get a Computer Science degree and the rising after that show the difference between working retail/clerical versus being a computer programmer, with the two plateaus representing the two companies I've worked for.
