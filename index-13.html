@@ -10,7 +10,7 @@
 <link href="assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <meta content="#5670d4" name="theme-color">
 <meta content="Nikola (getnikola.com)" name="generator">
-<link href="rss.xml" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/index-13.html" rel="canonical">
 <link href="." rel="prev" type="text/html">
 <link href="index-12.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
@@ -25,7 +25,7 @@
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
 <nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
 <div class="container"><!-- This keeps the margins nice -->
- <a class="navbar-brand" href="https://necromuralist.github.io/"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+ <a class="navbar-brand" href="/"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
 <div class="collapse navbar-collapse" id="bs-navbar">
 <ul class="navbar-nav mr-auto">
 <li class="nav-item"><a class="nav-link" href="/archive.html">Archive</a></li>
@@ -53,6 +53,72 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="/posts/emacs/opening-remote-files-in-emacs-using-ssh/">Opening Remote Files In Emacs Using SSH</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="/authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="/posts/emacs/opening-remote-files-in-emacs-using-ssh/" rel="bookmark"><time class="published dt-published" datetime="2019-07-27T12:58:44-07:00" itemprop="datePublished" title="2019-07-27 12:58">2019-07-27 12:58</time></a></p>
+</div>
+</header>
+<div class="e-content entry-content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="/posts/emacs/opening-remote-files-in-emacs-using-ssh/#org6c96f57">Beginning</a></li>
+<li><a href="/posts/emacs/opening-remote-files-in-emacs-using-ssh/#org2974e86">Middle</a>
+<ul>
+<li><a href="/posts/emacs/opening-remote-files-in-emacs-using-ssh/#orge2a1be4">Editing a Remote User File</a></li>
+<li><a href="/posts/emacs/opening-remote-files-in-emacs-using-ssh/#orgd109467">Editing a Remote File As Root</a></li>
+</ul>
+</li>
+<li><a href="/posts/emacs/opening-remote-files-in-emacs-using-ssh/#org2903fb8">End</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org6c96f57">
+<h2 id="org6c96f57">Beginning</h2>
+<div class="outline-text-2" id="text-org6c96f57">
+<p>For some strange reason, <a href="https://www.emacswiki.org/emacs/TrampMode">the emacs wiki page on tramp mode</a> doesn't have instructions on how to open a file on a remote machine using tramp in its main section. You instead have to go down to the <i>Tips and Tricks</i> and try and pick out a version that works. So I'm writing this here so I maybe won't have to do all the searching I did the next time. This is the version that worked for me (Emacs 27.0.50, Ubuntu 19.04).</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org2974e86">
+<h2 id="org2974e86">Middle</h2>
+<div class="outline-text-2" id="text-org2974e86"></div>
+<div class="outline-3" id="outline-container-orge2a1be4">
+<h3 id="orge2a1be4">Editing a Remote User File</h3>
+<div class="outline-text-3" id="text-orge2a1be4">
+<p>You start by opening the file like you would a local file (<code>C-x C-f</code>) and then in when the minibuffer opens up you use this syntax for the path:</p>
+<div class="highlight">
+<pre><span></span>/ssh:&lt;username&gt;@&lt;hostname&gt;&gt;:&lt;path to file&gt;
+</pre></div>
+<p>So, for example, I have an SSH alias to <code>hades@erebus</code> named <code>Hades</code> and if I wanted to edit the emacs init file on that machine I would use this:</p>
+<pre class="example">
+/ssh:Hades:.emacs.d/init.el
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-orgd109467">
+<h3 id="orgd109467">Editing a Remote File As Root</h3>
+<div class="outline-text-3" id="text-orgd109467">
+<p>To open a file as root you stick an extra pipe (<code>|sudo</code>) into the previous path syntax.</p>
+<pre class="example">
+/ssh:&lt;username&gt;@&lt;hostname&gt;|sudo:&lt;hostname&gt;:&lt;path to file&gt;
+</pre>
+<p>This syntax doesn't work with SSH aliases (or didn't seem to when I tried), so editing the <code>/etc/apt/sources.list</code> file the same machine as before would use this:</p>
+<pre class="example">
+/ssh:hades@erebus|sudo:erebus:/etc/apt/sources.list
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org2903fb8">
+<h2 id="org2903fb8">End</h2>
+<div class="outline-text-2" id="text-org2903fb8">
+<p>I got the <code>sudo</code> version from <a href="https://stackoverflow.com/questions/20624024/what-is-the-best-way-to-open-remote-files-with-emacs-and-ssh">Stack Overflow</a> (of course).</p>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="/posts/processing/a-mouse-follower/">A Mouse Follower</a></h1>
