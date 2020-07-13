@@ -13,12 +13,12 @@
 #+OPTIONS: H:5
 #+TOC: headlines 2
 * Beginning
-  This is my notes on using [[https://github.com/dzop/emacs-jupyter][emacs-jupyter]] using a remote session. It works with a local session as well, but I'll just relate the steps as if you're running the jupyter session on a remote machine.
+  These are my notes on using [[https://github.com/dzop/emacs-jupyter][emacs-jupyter]] using a remote session. It works with a local session as well, but I'll just relate the steps as if you're running the jupyter session on a remote machine.
 * Middle
 ** Starting the Jupyter Server
 The first thing to do is start the jupyter session on the remote machine. Since I'm doing this with *nikola* I should note that you want to start the session in the same location as the file you're editing in emacs, because all your file references will be based on that directory (so if you, for instance, create an image and want to place it in the =files= folder, you will need to note where that stands relative to the file you are editing and where you start the jupyter kernel).
 
-In my case I'm editing a file in =~projects/In-Too-Deep/posts/fastai/=.
+In my case I'm editing a file in =~/projects/In-Too-Deep/posts/fastai/=.
 
 #+begin_src bash
 cd ~/projects/In-Too-Deep/posts/fastai/
@@ -34,7 +34,7 @@ This will start the kernel and show you the file that you need to copy to your l
 [KernelApp] To connect a client: --existing kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json
 #+end_src
 
-The important thing to note is the line with =Connection file=. You will need to copy that file to the machine that you are running emacs on. Where do you put it? Check your jupyter location on your local machine (where you're running emacs, not where you're running jupyter).
+The important thing to note is the line with =Connection file= (=[KernelApp] Connection file: /home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json=). You will need to copy that file to the machine that you are running emacs on. Where do you put it? Check your jupyter location on your local machine (where you're running emacs, not where you're running jupyter).
 
 #+begin_src bash
 jupyter --runtime-dir
@@ -54,7 +54,7 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 jupyter --console kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json --ssh Hades
 #+end_src
 
-Note the second argument where I passed in the SSH alias for my remote machine. If you don't have an alias set up then replace it with something that looks like =<username>@<IP Address>= (this assumes, of course, that the machine with the jupyter session running on it also has an SSH server running). This command sets up our session to forward our jupyter command to the remote machine. When you execute this command it should tell you that you can connect to the kernel using a slightly modified JSON file name:
+Note the second argument where I passed in the SSH alias for my remote machine. If you don't have an alias set up then replace it with something that looks like =<username>@<IP Address>= (this assumes, of course, that the machine with the jupyter session running on it also has an SSH server running). This command sets up our session to forward our jupyter commands to the remote machine. When you execute this command it should tell you that you can connect to the kernel using a slightly modified JSON file name:
 
 #+begin_src bash
 [ZMQTerminalIPythonApp] Forwarding connections to 127.0.0.1 via Hades
@@ -62,9 +62,9 @@ Note the second argument where I passed in the SSH alias for my remote machine. 
 [ZMQTerminalIPythonApp] --existing kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232-ssh.json
 #+end_src
 
-Note that =--existing= argument for the next session (it should be the same as the original json file bit with =-ssh= added to the prefix).
+Note that =--existing= argument for the next session (it should be the same as the original json file but with =-ssh= added to the end of the name).
 ** Setting the Session
-   Since this is an org-mode-based explanation the first thing you need to do is connect your emacs buffer to the console. Add this to the top of your buffer (the file where you intend to run python).
+   Since this is org-mode-based the first thing you should do is connect your emacs buffer to the console. Add this to the top of your buffer (the file where you intend to run python).
 
 #+begin_src emacs
 #+PROPERTY: header-args :session /home/athena/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232-ssh.json
