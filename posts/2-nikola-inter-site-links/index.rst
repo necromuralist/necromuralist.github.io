@@ -1,5 +1,5 @@
 .. title: Nikola Inter-Site Links
-.. slug: nikola-inter-site-links
+.. slug: 2-nikola-inter-site-links
 .. date: 2018-01-14 14:56:00 UTC-08:00
 .. tags: nikola howto
 .. link: 
