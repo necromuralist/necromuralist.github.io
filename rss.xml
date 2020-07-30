@@ -1,1507 +1,216 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Wed, 29 Jul 2020 20:46:49 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Updating a Nikola Shortcode Plugin</title><link>https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#org59e907c"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#orgdc4bd67"&gt;Middle&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#org4794d34"&gt;The Plugin File&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#orgf6ac894"&gt;The Plugin Code&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#org12b7323"&gt;Stealing From the &lt;code&gt;doc&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#org3f4e8a2"&gt;The Plugin&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#org67bb7ec"&gt;Checking It Out&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#org1d9e375"&gt;Does it work like the original doc?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#orgb1e7168"&gt;Does it accept a title?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#org5bffbf4"&gt;What if the slug doesn't exist?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#orgc4c5f79"&gt;One More Thing&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/#org9a8b786"&gt;End&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-
-
-&lt;div class="figure"&gt;
-&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/lancelot_link.jpg" alt="lancelot_link.jpg"&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-
-&lt;p&gt;
-Source: &lt;a href="https://www.flickr.com/photos/myprontopup/264413649/in/photostream/"&gt;Brian&lt;/a&gt; (&lt;a href="https://creativecommons.org/licenses/by-nc/2.0/"&gt;CC License&lt;/a&gt;)/Unmodified
-&lt;/p&gt;
-&lt;div id="outline-container-org59e907c" class="outline-2"&gt;
-&lt;h2 id="org59e907c"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org59e907c"&gt;
-&lt;p&gt;
-These are some notes to help me remember what I did to alter a &lt;a href="https://www.getnikola.com/"&gt;Nikola&lt;/a&gt; &lt;a href="https://www.getnikola.com/handbook.html#shortcodes"&gt;shortcode&lt;/a&gt; plugin. A while back I looked into using their &lt;a href="https://www.getnikola.com/handbook.html#doc"&gt;&lt;code&gt;doc&lt;/code&gt;&lt;/a&gt; &lt;a href="https://www.getnikola.com/handbook.html#restructuredtext-extensions"&gt;reStructured Text extension&lt;/a&gt; ("role"?) which automatically creates links to other posts by looking up the &lt;a href="https://www.wikiwand.com/en/Clean_URL#/Slug"&gt;slug&lt;/a&gt; or title that you pass to it, but since I switched to using org-mode instead of restructured text I couldn't use it. Then I found out the other day that they built a &lt;a href="https://www.getnikola.com/handbook.html#shortcodes"&gt;shortcode&lt;/a&gt; that allows you to use it in other formats and when I tried it it worked - mostly.
-&lt;/p&gt;
-
-&lt;p&gt;
-A tag that looks like this:
-&lt;/p&gt;
-
-&lt;p&gt;
-
-{{% doc %}}2-nikola-inter-site-links{{% /doc %}}
-
-&lt;/p&gt;
-
-&lt;p&gt;
-Gets turned into this: &lt;a href="https://necromuralist.github.io/posts/2-nikola-inter-site-links/"&gt;Nikola Inter-Site Links&lt;/a&gt;.
-&lt;/p&gt;
-
-&lt;p&gt;
-The problem is that, while the &lt;code&gt;doc&lt;/code&gt; shortcode supports giving the link an alternate title, it expects restructured-text formatting. e.g. &lt;code&gt;`alternate title&amp;lt;some-slug&amp;gt;`&lt;/code&gt;. Why is this a problem? Well, I didn't look into where it's happening, but when the text within the {{% doc %}} tags gets sent to the shortcode code (meaning the python plugin code) for processing it converts the angle brackets (&lt;code&gt;&amp;lt;&lt;/code&gt; and &lt;code&gt;&amp;gt;&lt;/code&gt;) to &lt;a href="https://www.w3schools.com/html/html_entities.asp"&gt;HTML character entities&lt;/a&gt; (e.g. the &lt;code&gt;&amp;lt;&lt;/code&gt; becomes &lt;code&gt;&amp;amp;lt&lt;/code&gt;) but the regular expression in the code that extracts the alternate title is looking for the braces (presumably the role is processed differently from the shortcode) anyway, I was trying to figure out some workarounds but then I looked at the code and it looked fairly easy to customize so I decided I would so that I could learn how to do it (and have a way to use alternative titles in org-mode). So, here it goes.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgdc4bd67" class="outline-2"&gt;
-&lt;h2 id="orgdc4bd67"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgdc4bd67"&gt;
-&lt;p&gt;
-I'm going to call my shortcode &lt;code&gt;lancelot&lt;/code&gt;. I was going to call it link, but that seems like it might clash with something else, either now or in the future, so I decided to name it after &lt;a href="https://www.wikiwand.com/en/Lancelot_Link,_Secret_Chimp"&gt;Lancelot Link, Secret Chimp&lt;/a&gt; instead. Hopefully that won't end up conflicting with anything.
-&lt;/p&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org4794d34" class="outline-3"&gt;
-&lt;h3 id="org4794d34"&gt;The Plugin File&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org4794d34"&gt;
-&lt;p&gt;
-The first thing I did was poke around in the nikola folders for something I could copy. I decided to use the existing &lt;code&gt;gist&lt;/code&gt; shortcode to start with. Why not use &lt;code&gt;doc&lt;/code&gt;? because it's in a different folder and inherits from the &lt;code&gt;RestExtension&lt;/code&gt; which didn't seem like what I wanted, although maybe that's what makes the angle brackets work, but anyway, the &lt;code&gt;gist&lt;/code&gt; seemed like a good place to start. They appear to be using &lt;a href="https://yapsy.readthedocs.io/en/latest/"&gt;yapsy&lt;/a&gt; for the plugin system, which requires two files for your plugin, a python file where you define the plugin and a plugin-info file (which looks like an ini file). So to start I copied &lt;code&gt;nikola/plugins/shortcode/gist.plugin&lt;/code&gt; and renamed it &lt;code&gt;lancelot.plugin&lt;/code&gt; then edited it to look like this.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[Core]
-name = lancelot
-module = lancelot
-
-[Nikola]
-PluginCategory = Shortcode
-
-[Documentation]
-author = The Cloistered Monkey
-version = 0.1
-website = https://necromuralist.github.io/
-description = Variant of the doc shortcode that allows alternate titles for non-restructured text formats.
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Seems easy enough. Now to the plugin code.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgf6ac894" class="outline-3"&gt;
-&lt;h3 id="orgf6ac894"&gt;The Plugin Code&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgf6ac894"&gt;
-&lt;p&gt;
-According to the documentation on &lt;a href="https://getnikola.com/extending.html#shortcodes"&gt;creating a shortcode&lt;/a&gt;, the requirements are that you create a plugin that inherits from the &lt;code&gt;ShortcodePlugin&lt;/code&gt; (you'll find it in the &lt;code&gt;nikola/plugin_categories.py&lt;/code&gt; file if you want to check it out) and define the &lt;code&gt;handler&lt;/code&gt; method that handles the shortcode and returns a tuple of &lt;code&gt;(output, dependencies)&lt;/code&gt;. The &lt;code&gt;output&lt;/code&gt; is the text that will replace the shortcode in the document and the &lt;code&gt;dependencies&lt;/code&gt; is a list of files that nikola will use to check if something is out of date (I don't use it here).
-&lt;/p&gt;
-
-&lt;p&gt;
-There are three required named arguments for the &lt;code&gt;handler&lt;/code&gt; method:
-&lt;/p&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;code&gt;site&lt;/code&gt;: an object that you can use to check the state of the site&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;data&lt;/code&gt;: The text between the shortcode tags (if it uses both opening and closing tags)&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;lang&lt;/code&gt;: the current language&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-In addition, any attributes added within the shortcode tag will be passed into the &lt;code&gt;handler&lt;/code&gt; method by position or keyword. Anyway, since I copied the &lt;code&gt;doc&lt;/code&gt; code I didn't actually read this until just now, but maybe it's good to know. Onward.
-&lt;/p&gt;
-
-&lt;p&gt;
-The next thing to do was to create &lt;code&gt;lancelot.py&lt;/code&gt; in the same folder as the &lt;code&gt;lancelot.plugin&lt;/code&gt; file. The basic definition of class (and the start of the file) looks more-or-less the same for all the plugins.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# -*- coding: utf-8 -*-&lt;/span&gt;
-&lt;span class="c1"&gt;# This file is public domain according to its author, the Cloistered Monkey&lt;/span&gt;
-
-&lt;span class="sd"&gt;"""Shortcode for non-restructured text inter-site links."""&lt;/span&gt;
-
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;nikola.plugin_categories&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ShortcodePlugin&lt;/span&gt;
-
-
-&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Plugin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ShortcodePlugin&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="sd"&gt;"""Plugin for non-rst inter-site links."""&lt;/span&gt;
-
-    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"lancelot"&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;
-So, other than some doc-strings all you have to do is set the name and then the handler, which we'll do next.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org12b7323" class="outline-3"&gt;
-&lt;h3 id="org12b7323"&gt;Stealing From the &lt;code&gt;doc&lt;/code&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org12b7323"&gt;
-&lt;p&gt;
-The file that I stole most of the code from is located in &lt;code&gt;nikola/plugins/compile/rest/doc.py&lt;/code&gt;. The &lt;code&gt;Plugin&lt;/code&gt; class in that file is handling both the restructured text role and the shortcode so we don't need all of it. According to the documentation I linked to above, the &lt;code&gt;set_site&lt;/code&gt; method is used to tell nikola to use something other than the &lt;code&gt;handler&lt;/code&gt; method, and in this case the author used it to register the functions for the two things it's handling.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;set_site&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="sd"&gt;"""Set Nikola site."""&lt;/span&gt;
-    &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;site&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;site&lt;/span&gt;
-    &lt;span class="n"&gt;roles&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;register_canonical_role&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'doc'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;doc_role&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;register_shortcode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'doc'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;doc_shortcode&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="n"&gt;doc_role&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;site&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;site&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Plugin&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_site&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-If you look at the line &lt;code&gt;self.site.register_shortcode('doc', doc_shortcode)&lt;/code&gt; you can figure out that we need to steal from a function named - wait for it… &lt;code&gt;doc_shortcode&lt;/code&gt;. Here's what's in that function:
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;doc_shortcode&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;**&lt;/span&gt;&lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="sd"&gt;"""Implement the doc shortcode."""&lt;/span&gt;
-    &lt;span class="n"&gt;text&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;kwargs&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'data'&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
-    &lt;span class="n"&gt;success&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;twin_slugs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;permalink&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;_doc_link&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;LOGGER&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;twin_slugs&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="n"&gt;LOGGER&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;warning&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-		&lt;span class="s1"&gt;'More than one post with the same slug. Using "&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s1"&gt;" for doc shortcode'&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;permalink&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s1"&gt;'&amp;lt;a href="&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s1"&gt;"&amp;gt;&lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s1"&gt;&amp;lt;/a&amp;gt;'&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;permalink&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="n"&gt;LOGGER&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-	    &lt;span class="s1"&gt;'"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s1"&gt;" slug doesn&lt;/span&gt;&lt;span class="se"&gt;\'&lt;/span&gt;&lt;span class="s1"&gt;t exist.'&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s1"&gt;'&amp;lt;span class="error text-error" style="color: red;"&amp;gt;Invalid link: &lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s1"&gt;&amp;lt;/span&amp;gt;'&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-It looks pretty straight-forward except it's using two things not defined within it - &lt;code&gt;LOGGER&lt;/code&gt; and &lt;code&gt;_doc_link&lt;/code&gt;. The &lt;code&gt;LOGGER&lt;/code&gt; is just an import so we can just change the start of our file to grab it. The &lt;code&gt;doc_link&lt;/code&gt; is a function in the same file as &lt;code&gt;doc_shortcode&lt;/code&gt;. My first thought for the &lt;code&gt;_doc_link&lt;/code&gt; was that since it's a standalone function I could just import it and call it. That turned out to have a small problem though - right in the middle of &lt;code&gt;_doc_link&lt;/code&gt; is this for loop:
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;doc_role&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;timeline&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;meta&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'slug'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;post&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="n"&gt;post&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;
-	&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="n"&gt;twin_slugs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;True&lt;/span&gt;
-	    &lt;span class="k"&gt;break&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-What you'll notice is that the &lt;code&gt;doc_role&lt;/code&gt; function has an attribute &lt;code&gt;site&lt;/code&gt;. Well, it doesn't really, until it's set in that &lt;code&gt;set_site&lt;/code&gt; method above. So, okay, maybe I could figure out some way to set it… or maybe not, I don't know but even if I could it seems like it'd get kind of convoluted, and who knows what changes the original author might make in the future, it just seemed like it'd make more sense to re-implement it myself.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org3f4e8a2" class="outline-3"&gt;
-&lt;h3 id="org3f4e8a2"&gt;The Plugin&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3f4e8a2"&gt;
-&lt;p&gt;
-So, first a different start to our file, this time with the &lt;code&gt;LOGGER&lt;/code&gt; and &lt;code&gt;slugify&lt;/code&gt; imported (the &lt;code&gt;slugify&lt;/code&gt; was in &lt;code&gt;_doc_link&lt;/code&gt; which I'm re-defining later).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# -*- coding: utf-8 -*-&lt;/span&gt;
-&lt;span class="c1"&gt;# This file is public domain according to its author, the Cloisted Monkey&lt;/span&gt;
-
-&lt;span class="sd"&gt;"""Shortcode for non-restructured text inter-site links.&lt;/span&gt;
-&lt;span class="sd"&gt;Re-write of the ``doc`` plugin to allow alternative titles outside of RST"""&lt;/span&gt;
-
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;nikola.plugin_categories&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ShortcodePlugin&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;nikola.utils&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;LOGGER&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;slugify&lt;/span&gt;
-
-
-&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Plugin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ShortcodePlugin&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="sd"&gt;"""Plugin for non-rst inter-site links."""&lt;/span&gt;
-
-    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"lancelot"&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org9a30d9d" class="outline-4"&gt;
-&lt;h4 id="org9a30d9d"&gt;&lt;code&gt;lancelot_link&lt;/code&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org9a30d9d"&gt;
-&lt;p&gt;
-To replace the &lt;code&gt;_doc_link&lt;/code&gt; I made a new function called &lt;code&gt;lancelot_link&lt;/code&gt; which I'll be looking at in parts. First up is the function declaration.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;lancelot_link&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="sd"&gt;"""process the slug, check if it exists or is duplicated&lt;/span&gt;
-
-&lt;span class="sd"&gt;    if `title` is None this will grab the post-title&lt;/span&gt;
-
-&lt;span class="sd"&gt;    Args:&lt;/span&gt;
-&lt;span class="sd"&gt;     site: the Nikola object&lt;/span&gt;
-&lt;span class="sd"&gt;     slug: the text between the shortcode tags&lt;/span&gt;
-&lt;span class="sd"&gt;     title: the title passed in by the user (if any)&lt;/span&gt;
-
-&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
-&lt;span class="sd"&gt;     tuple (success, has duplicate slugs, title, permalink, slug)&lt;/span&gt;
-&lt;span class="sd"&gt;    """&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-The interface wants the objects that nikola passes into the &lt;code&gt;handler&lt;/code&gt; method - the &lt;code&gt;site&lt;/code&gt; object , the &lt;code&gt;data&lt;/code&gt; (renamed &lt;code&gt;slug&lt;/code&gt;) and the &lt;code&gt;title&lt;/code&gt;. 
-&lt;/p&gt;
-
-&lt;p&gt;
-&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; I'm not indenting the rest of the code in the post but imagine it's indented four spaces.
-&lt;/p&gt;
-&lt;/div&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a id="orga596e77"&gt;&lt;/a&gt;Slugification&lt;br&gt;
-&lt;div class="outline-text-5" id="text-orga596e77"&gt;
-&lt;p&gt;
-The first thing the function does is split out any fragments that might have been attached and "slugifies" the slug (makes sure it's ASCII and has only alphanumeric characters).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s1"&gt;'#'&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;fragment&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'#'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;fragment&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-&lt;span class="n"&gt;slug&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;slugify&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/li&gt;
-
-&lt;li&gt;&lt;a id="org3ef0557"&gt;&lt;/a&gt;Find the Post&lt;br&gt;
-&lt;div class="outline-text-5" id="text-org3ef0557"&gt;
-&lt;p&gt;
-Next it checks to see if the slug refers to an actual page on the site and if there are duplicate slugs. If the page doesn't exist, then it short-circuits the function so the &lt;code&gt;handler&lt;/code&gt; can return some error text instead of a link. If it does exist it saves the &lt;code&gt;post&lt;/code&gt; object for the next step (using the first post in the timeline if there were duplicates).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;twin_slugs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;False&lt;/span&gt;
-&lt;span class="n"&gt;post&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;timeline&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;meta&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'slug'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;post&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="n"&gt;post&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;
-	&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="n"&gt;twin_slugs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;True&lt;/span&gt;
-	    &lt;span class="k"&gt;break&lt;/span&gt;
-
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;post&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="kc"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kc"&gt;False&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/li&gt;
-
-&lt;li&gt;&lt;a id="org0003e69"&gt;&lt;/a&gt;The Title&lt;br&gt;
-&lt;div class="outline-text-5" id="text-org0003e69"&gt;
-&lt;p&gt;
-If the user didn't pass in an alternative title this grabs the title that was given to the post we're linking to.
-&lt;/p&gt;
-
-&lt;p&gt;
-&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; The &lt;code&gt;doc&lt;/code&gt; shortcode raises then catches a &lt;code&gt;ValueError&lt;/code&gt; exception if there's no matching post. I had thought that this was for logging, but that doesn't appear to be the case so I took it out. But since I don't know what it was doing in the first place I might be breaking something. Not that I can tell, though.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;title&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;post&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/li&gt;
-
-&lt;li&gt;&lt;a id="org33b83ce"&gt;&lt;/a&gt;The Permalink&lt;br&gt;
-&lt;div class="outline-text-5" id="text-org33b83ce"&gt;
-&lt;p&gt;
-Now we grab the permalink.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;permalink&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;post&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;permalink&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;fragment&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;permalink&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="s1"&gt;'#'&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;fragment&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/li&gt;
-
-&lt;li&gt;&lt;a id="orge0ae8fd"&gt;&lt;/a&gt;The Return&lt;br&gt;
-&lt;div class="outline-text-5" id="text-orge0ae8fd"&gt;
-&lt;p&gt;
-And finally we do the return dance to answer some questions for the &lt;code&gt;handler&lt;/code&gt;:
-&lt;/p&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;i&gt;Did we find the post?&lt;/i&gt;&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Were there duplicate posts with the same slug?&lt;/i&gt;&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;What's the text to display for the link?&lt;/i&gt;&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;What's the address for the anchor tag?&lt;/i&gt;&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;What's the correct slug?&lt;/i&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;twin_slugs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;permalink&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-The &lt;code&gt;slug&lt;/code&gt; is only for the logging messages.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org0468789" class="outline-4"&gt;
-&lt;h4 id="org0468789"&gt;The handler&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org0468789"&gt;
-&lt;p&gt;
-Now I'll define the &lt;code&gt;handler&lt;/code&gt; that's called by nikola. This is a method of the Plugin class that I started above, but I'm showing it after the &lt;code&gt;lancelot_link&lt;/code&gt; function since it mostly just calls &lt;code&gt;lancelot_link&lt;/code&gt; and creates the output from what it returned. I originally had it all in the same method (and maybe I'll put it back at some point). But I thought it was a little easier to read this way, especially as I referred back to the original &lt;code&gt;doc&lt;/code&gt; plugin to see what's going on.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;handler&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;lang&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="sd"&gt;"""Create an inter-site link&lt;/span&gt;
-
-&lt;span class="sd"&gt;    Args:&lt;/span&gt;
-&lt;span class="sd"&gt;     title: optional argument to specify a different title from the post&lt;/span&gt;
-
-&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
-&lt;span class="sd"&gt;     output HTML to replace the shortcode&lt;/span&gt;
-&lt;span class="sd"&gt;    """&lt;/span&gt;
-    &lt;span class="n"&gt;success&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;twin_slugs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;permalink&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;slug&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;lancelot_link&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-	&lt;span class="n"&gt;site&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;twin_slugs&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="n"&gt;LOGGER&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;warning&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-		&lt;span class="s1"&gt;'More than one post with the same slug. '&lt;/span&gt;
-		&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s1"&gt;'Using "&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;permalink&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s1"&gt;" for lancelot shortcode'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s1"&gt;'&amp;lt;a href="&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;permalink&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s1"&gt;"&amp;gt;&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s1"&gt;&amp;lt;/a&amp;gt;'&lt;/span&gt;
-    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="n"&gt;LOGGER&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-	    &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s1"&gt;'"&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;slug&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s1"&gt;" slug doesn&lt;/span&gt;&lt;span class="se"&gt;\'&lt;/span&gt;&lt;span class="s1"&gt;t exist.'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'&amp;lt;span class="error text-error" style="color: red;"&amp;gt;'&lt;/span&gt;
-		  &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s1"&gt;'Invalid link: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s1"&gt;&amp;lt;/span&amp;gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-One thing to note here is that the original &lt;code&gt;doc&lt;/code&gt; plugin only returns the output, not an empty list, even though the documentation says you should. It works either way, but I noticed the &lt;code&gt;gist&lt;/code&gt; plugin returned an empty list with the output so I followed, like a lemming to the sea.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org67bb7ec" class="outline-3"&gt;
-&lt;h3 id="org67bb7ec"&gt;Checking It Out&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org67bb7ec"&gt;
-&lt;p&gt;
-Now let's give it a dry run.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org1d9e375" class="outline-3"&gt;
-&lt;h3 id="org1d9e375"&gt;Does it work like the original doc?&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1d9e375"&gt;
-&lt;p&gt;
-   If we put this in the post:
-
-{{% lancelot %}}2-nikola-inter-site-links{{% /lancelot %}}
-
-&lt;/p&gt;
-
-&lt;p&gt;
-We get this:
-&lt;/p&gt;
-
-&lt;p&gt;
-&lt;a href="https://necromuralist.github.io/posts/2-nikola-inter-site-links/"&gt;Nikola Inter-Site Links&lt;/a&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgb1e7168" class="outline-3"&gt;
-&lt;h3 id="orgb1e7168"&gt;Does it accept a title?&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb1e7168"&gt;
-&lt;p&gt;
-Now, what this was all about.
-&lt;/p&gt;
-
-&lt;p&gt;
-
-{{% lancelot title="An old post about linking to another post." %}}2-nikola-inter-site-links{{% /lancelot %}}
-
-&lt;/p&gt;
-
-&lt;p&gt;
-Gives us:
-&lt;/p&gt;
-
-&lt;p&gt;
-&lt;a href="https://necromuralist.github.io/posts/2-nikola-inter-site-links/"&gt;An old post about linking to another post.&lt;/a&gt;
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 30 Jul 2020 06:53:55 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Memorizing Binaries</title><link>https://necromuralist.github.io/posts/memorizing-binaries/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+This is one way that you can memorize binary states - not just binary number, since you can encode the binary states as binary numbers.
 &lt;/p&gt;
 
-&lt;p&gt;
-And if you forget the name of the parameter, you can just pass in the alternate title instead.
-&lt;/p&gt;
-
-&lt;p&gt;
-
-{{% lancelot "Without the 'title=' part" %}}2-nikola-inter-site-links{{% /lancelot %}}
-
-&lt;/p&gt;
-
-&lt;p&gt;
-Gives this:
-&lt;/p&gt;
-
-&lt;p&gt;
-&lt;a href="https://necromuralist.github.io/posts/2-nikola-inter-site-links/"&gt;Without the 'title=' part&lt;/a&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org5bffbf4" class="outline-3"&gt;
-&lt;h3 id="org5bffbf4"&gt;What if the slug doesn't exist?&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org5bffbf4"&gt;
-&lt;p&gt;
-
-{{% lancelot title="Oops." %}}this-error-is-on-purpose-ignore-it{{% /lancelot %}}
-
-&lt;/p&gt;
-
-&lt;p&gt;
-Gives us:
-&lt;/p&gt;
-
-&lt;p&gt;
-&lt;span class="error text-error" style="color: red;"&gt;Invalid link: this-error-is-on-purpose-ignore-it&lt;/span&gt;
-&lt;/p&gt;
-
-&lt;p&gt;
-Note that adding this error to this post means it shows up in the logging every time I re-build. I hope I don't forget and try and hunt it down later.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgc4c5f79" class="outline-3"&gt;
-&lt;h3 id="orgc4c5f79"&gt;One More Thing&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc4c5f79"&gt;
-&lt;p&gt;
-When I originally was trying to figure this out I put the &lt;code&gt;lancelot&lt;/code&gt; files in the &lt;code&gt;shortcodes&lt;/code&gt; folder next to the &lt;code&gt;gist&lt;/code&gt; files (in the virtualenv, so I knew it was a bad idea, even as I did it) but while I was re-writing them for this post I wanted a place to stash the files so I put them in the &lt;code&gt;plugins&lt;/code&gt; folder that sits in the site repository next to the &lt;code&gt;conf.py&lt;/code&gt; file - which already existed because that's where nikola put the &lt;a href="https://plugins.getnikola.com/v7/orgmode/"&gt;org-mode plugin&lt;/a&gt; - and when I first re-built the site with the code only partially written, it raised an &lt;code&gt;Exception&lt;/code&gt; because it turns out that the place to put plugins, including shortcode plugins, for nikola/yapsy to find them is in the &lt;code&gt;plugins&lt;/code&gt; folder. Imagine that.
-&lt;/p&gt;
-
-&lt;p&gt;
-Also, to use an interactive debugger (like my favorite one, &lt;a href="https://pypi.org/project/pudb/"&gt;pudb&lt;/a&gt;) you need to change the verbosity when you build the site to 2.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;nikola build -v 2
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Otherwise it captures the stdout and you won't see the debugger (it will just look like it hung-up). The other thing is if you see an error something like this:
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[2020-07-28 20:53:44] ERROR: Nikola: Shortcode error: Syntax error in shortcode 'lancelot' at line 426, column 27: expecting whitespace!
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-It more than likely mean that the error is actually in the tag - no space after the first &lt;code&gt;%&lt;/code&gt; or before the second one or one time I chopped off the end of a tag when copying and pasting and it gave the same error - it seems to be a generic error that means "check the tag". 
-&lt;/p&gt;
-
-&lt;p&gt;
-I guess that's actually three more things.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org9a8b786" class="outline-2"&gt;
-&lt;h2 id="org9a8b786"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9a8b786"&gt;
-&lt;p&gt;
-So, that's my first foray into making a nikola plugin. I've been using nikola for a while now, but I never really looked at the code before. It's nice to see that the plugin system is so easy to use.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>nikola</category><guid>https://necromuralist.github.io/posts/2c-updating-a-nikola-shortcode-plugin/</guid><pubDate>Tue, 28 Jul 2020 23:33:43 GMT</pubDate></item><item><title>XML To Pandas</title><link>https://necromuralist.github.io/posts/xml-to-pandas/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#org6cab6f8"&gt;Beginning&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#org24a84ae"&gt;Imports&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#orgc78e449"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#org7ece901"&gt;Middle&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#org1fd6026"&gt;The XML&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#org4ef0c19"&gt;To a DataFrame&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#orgebc4931"&gt;Save It&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#org06a14ac"&gt;End&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/xml-to-pandas/#org7b35cdb"&gt;Time Series&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org6cab6f8" class="outline-2"&gt;
-&lt;h2 id="org6cab6f8"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6cab6f8"&gt;
-&lt;p&gt;
-I went to the &lt;a href="https://www.ssa.gov/"&gt;Social Security website&lt;/a&gt; to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it actually has more than just the earnings data) so these are my notes on converting it to a pandas DataFrame using &lt;a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/"&gt;BeautifulSoup&lt;/a&gt;.
-&lt;/p&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org24a84ae" class="outline-3"&gt;
-&lt;h3 id="org24a84ae"&gt;Imports&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org24a84ae"&gt;
-&lt;p&gt;
-To actually do the conversion you only need BeautifulSoup and pandas, all the rest of the stuff comes into play because I'm making a post.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# python&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;argparse&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Namespace&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pathlib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;
-
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
-
-&lt;span class="c1"&gt;# from pypi&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;bs4&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;BeautifulSoup&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;dotenv&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;load_dotenv&lt;/span&gt;
-
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;hvplot.pandas&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt;
-
-&lt;span class="c1"&gt;# my stuff&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;graeae&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;EmbedHoloviews&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgc78e449" class="outline-3"&gt;
-&lt;h3 id="orgc78e449"&gt;Set Up&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc78e449"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org21a8d23" class="outline-4"&gt;
-&lt;h4 id="org21a8d23"&gt;The Dotenv&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org21a8d23"&gt;
-&lt;p&gt;
-I'm using a &lt;code&gt;.env&lt;/code&gt; file to point to the location of the file so this call will load it.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;load_dotenv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;override&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgaf3983f" class="outline-4"&gt;
-&lt;h4 id="orgaf3983f"&gt;The Plotting&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgaf3983f"&gt;
-&lt;p&gt;
-This is just a central place to set up some constants so I don't have to re-type them or hunt around for them if I want to change things.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;SLUG&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"xml-to-pandas"&lt;/span&gt;
-&lt;span class="n"&gt;Embed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;  &lt;span class="n"&gt;partial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;EmbedHoloviews&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-		 &lt;span class="n"&gt;create_folder&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-		&lt;span class="n"&gt;folder_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"files/posts/&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;SLUG&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-
-&lt;span class="n"&gt;Plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Namespace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;990&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;780&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;tan&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"#ddb377"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;blue&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"#4687b7"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;red&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"#ce7b6d"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;font_scale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org7ece901" class="outline-2"&gt;
-&lt;h2 id="org7ece901"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7ece901"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org1fd6026" class="outline-3"&gt;
-&lt;h3 id="org1fd6026"&gt;The XML&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1fd6026"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org151ba0e" class="outline-4"&gt;
-&lt;h4 id="org151ba0e"&gt;Loading It&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org151ba0e"&gt;
-&lt;p&gt;
-First, I'll load the XML into BeautifulSoup.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"SOCIAL_SECURITY"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;expanduser&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;is_file&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-
-&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;xml&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BeautifulSoup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="s2"&gt;"xml"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Note that you have to pass in the &lt;code&gt;"xml"&lt;/code&gt; argument - BeautifulSoup is primarily an HTML parser so it assumes an HTML document by default. Normally I'd do some exploring at this point, but I didn't find it such an easy thing to do (I don't work with XML data generally) and found that it was easier to look at it with &lt;a href="https://www.wikiwand.com/en/Less_(Unix)"&gt;less&lt;/a&gt; and figure out what I needed.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgad8c316" class="outline-4"&gt;
-&lt;h4 id="orgad8c316"&gt;The Earnings&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgad8c316"&gt;
-&lt;p&gt;
-The data I wanted is in a set of tags that look like this:
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;lt;osss:Earnings endYear="1986" startYear="1986"&amp;gt;
-&amp;lt;osss:FicaEarnings&amp;gt;526&amp;lt;/osss:FicaEarnings&amp;gt;
-&amp;lt;osss:MedicareEarnings&amp;gt;526&amp;lt;/osss:MedicareEarnings&amp;gt;
-&amp;lt;/osss:Earnings&amp;gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-This set represents what was collected in 1986 - $526 for Social Security and Medicare (FICA stands for &lt;a href="https://www.wikiwand.com/en/Federal_Insurance_Contributions_Act_tax"&gt;Federal Insurance Contributions Act&lt;/a&gt; and is the name of the tax that funds Social Security). Yes, I'm that old, and yes, I only made $526 in 1986 because I was a teenager working a part-time job taking store inventories - still, I can't believe how little I got paid…
-&lt;/p&gt;
-
-&lt;p&gt;
-Anyway, so the first thing to do is to grab all the nodes representing earning.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;earnings&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;xml&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find_all&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Earnings"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;earnings&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;earnings&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-34
-&amp;lt;osss:Earnings endYear="1986" startYear="1986"&amp;gt;
-&amp;lt;osss:FicaEarnings&amp;gt;526&amp;lt;/osss:FicaEarnings&amp;gt;
-&amp;lt;osss:MedicareEarnings&amp;gt;526&amp;lt;/osss:MedicareEarnings&amp;gt;
-&amp;lt;/osss:Earnings&amp;gt;
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgb97500b" class="outline-4"&gt;
-&lt;h4 id="orgb97500b"&gt;The Years&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgb97500b"&gt;
-&lt;p&gt;
-Now that we have the earnings, we can see about getting the years. Although they have &lt;code&gt;endYear&lt;/code&gt; and &lt;code&gt;startYear&lt;/code&gt; they're always the same so I'll use &lt;code&gt;startYear&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;year&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;earnings&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
-    &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;year&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"startYear"&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-1986
-1987
-1988
-1989
-1990
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org115ff55" class="outline-4"&gt;
-&lt;h4 id="org115ff55"&gt;Collected&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org115ff55"&gt;
-&lt;p&gt;
-Next I'll see about grabbing the amounts collected for each year. The FICA and Medicare amounts are always the same so I'll just use the FICA amount.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;year&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;earnings&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;]:&lt;/span&gt;
-    &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;year&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"FicaEarnings"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-526
-1123
-1546
-0
-0
-&lt;/pre&gt;
-
-
-&lt;p&gt;
-That looks right. It drops to 0 because I went to college and started working on campus and since I went to a state university they didn't collect FICA. 
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org4ef0c19" class="outline-3"&gt;
-&lt;h3 id="org4ef0c19"&gt;To a DataFrame&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org4ef0c19"&gt;
-&lt;p&gt;
-Anyway, that's basically all you need to get it going.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DataFrame&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;from_dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-	&lt;span class="n"&gt;year&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;year&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"startYear"&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;year&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;earnings&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
-	&lt;span class="n"&gt;amount&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;year&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"FicaEarnings"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;year&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;earnings&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
-	&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="p"&gt;)&lt;/span&gt;
-
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-   year  amount
-0  1986     526
-1  1987    1123
-2  1988    1546
-3  1989       0
-4  1990       0
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgebc4931" class="outline-3"&gt;
-&lt;h3 id="orgebc4931"&gt;Save It&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgebc4931"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"SOCIAL_SECURITY_CSV"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;expanduser&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;to_csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;False&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org06a14ac" class="outline-2"&gt;
-&lt;h2 id="org06a14ac"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org06a14ac"&gt;
-&lt;p&gt;
-I usually like to put in a little plotting so I'm going to plot the amount over time. Since I already shared my first five years I'm going to start after that and obscure the numbers a little.
-&lt;/p&gt;
-&lt;/div&gt;
-
-
-&lt;div id="outline-container-org7b35cdb" class="outline-3"&gt;
-&lt;h3 id="org7b35cdb"&gt;Time Series&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org7b35cdb"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;to_plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;year&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1990&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
-&lt;span class="n"&gt;MIN&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;to_plot&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;to_plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;amount&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="n"&gt;to_plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loc&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="s2"&gt;"amount"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;to_plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;MIN&lt;/span&gt;
-
-&lt;span class="n"&gt;plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;to_plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hvplot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"year"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"amount"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Income Over Time"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;fontscale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;font_scale&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;blue&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-&lt;span class="p"&gt;)&lt;/span&gt;
-
-&lt;span class="n"&gt;outcome&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"income_over_time"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outcome&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;object type="text/html" data="https://necromuralist.github.io/posts/xml-to-pandas/income_over_time.html" style="width:100%" height="800"&gt;
-  &lt;p&gt;Figure Missing&lt;/p&gt;
-&lt;/object&gt;
-
-&lt;p&gt;
-Well, there you go. The plot starts out with me still working for the State, so there's no reported income, then there's an uptick when I took a retail job, then a drop again when I went back to school for a little while to look into getting a design degree, then there's another uptick when I gave up on the design degree and went to work as a clerk for a real estate office, then the next drop comes when I went back to get a Computer Science degree and the rising after that show the difference between working retail/clerical versus being a computer programmer, with the two plateaus representing the two companies I've worked for.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>beautiful soup</category><category>pandas</category><category>xml</category><guid>https://necromuralist.github.io/posts/xml-to-pandas/</guid><pubDate>Sun, 12 Jul 2020 23:24:26 GMT</pubDate></item><item><title>Jupyter-Emacs Sessions with org-mode</title><link>https://necromuralist.github.io/posts/emacs/jupyter-emacs-sessions/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/jupyter-emacs-sessions/#orga08e2e0"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/jupyter-emacs-sessions/#org3df1808"&gt;Middle&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/jupyter-emacs-sessions/#orgc7f42b5"&gt;Starting the Jupyter Server&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/jupyter-emacs-sessions/#org3a26da1"&gt;Start a Console&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/jupyter-emacs-sessions/#orgfb9d363"&gt;Setting the Session&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/jupyter-emacs-sessions/#orgf3ecc46"&gt;End&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orga08e2e0" class="outline-2"&gt;
-&lt;h2 id="orga08e2e0"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga08e2e0"&gt;
-&lt;p&gt;
-These are my notes on using &lt;a href="https://github.com/dzop/emacs-jupyter"&gt;emacs-jupyter&lt;/a&gt; using a remote session. It works with a local session as well, but I'll just relate the steps as if you're running the jupyter session on a remote machine.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org3df1808" class="outline-2"&gt;
-&lt;h2 id="org3df1808"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3df1808"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgc7f42b5" class="outline-3"&gt;
-&lt;h3 id="orgc7f42b5"&gt;Starting the Jupyter Server&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc7f42b5"&gt;
-&lt;p&gt;
-The first thing to do is start the jupyter session on the remote machine. Since I'm doing this with &lt;b&gt;nikola&lt;/b&gt; I should note that you want to start the session in the same location as the file you're editing in emacs, because all your file references will be based on that directory (so if you, for instance, create an image and want to place it in the &lt;code&gt;files&lt;/code&gt; folder, you will need to note where that stands relative to the file you are editing and where you start the jupyter kernel).
-&lt;/p&gt;
-
-&lt;p&gt;
-In my case I'm editing a file in &lt;code&gt;~/projects/In-Too-Deep/posts/fastai/&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cd ~/projects/In-Too-Deep/posts/fastai/
-jupyter kernel
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-This will start the kernel and show you the file that you need to copy to your local machine (where you are running emacs). Here's an example output of that command.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(In-Too-Deep) hades@erebus ~/p/I/p/fastai (fastai-restart| Dirty:4)&amp;gt; jupyter kernel
-[KernelApp] Starting kernel 'python3'
-[KernelApp] Connection file: /home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json
-[KernelApp] To connect a client: --existing kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-The important thing to note is the line with &lt;code&gt;Connection file&lt;/code&gt; (&lt;code&gt;[KernelApp] Connection file: /home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json&lt;/code&gt;). You will need to copy that file to the machine that you are running emacs on. Where do you put it? Check your jupyter location on your local machine (where you're running emacs, not where you're running jupyter).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;jupyter --runtime-dir
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Change into whatever directory is output by that command and then copy the json file from the machine with the running jupyter kernel onto your local machine.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cd ~/.local/share/jupyter/runtime
-scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json .
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org3a26da1" class="outline-3"&gt;
-&lt;h3 id="org3a26da1"&gt;Start a Console&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3a26da1"&gt;
-&lt;p&gt;
-Now that you've copied over the information for the jupyter session you can start a console for it. I'll assume you're still in the directory with the json file in it, so I won't pass in the full path.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;jupyter --console kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json --ssh Hades
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Note the second argument where I passed in the SSH alias for my remote machine. If you don't have an alias set up then replace it with something that looks like &lt;code&gt;&amp;lt;username&amp;gt;@&amp;lt;IP Address&amp;gt;&lt;/code&gt; (this assumes, of course, that the machine with the jupyter session running on it also has an SSH server running). This command sets up our session to forward our jupyter commands to the remote machine. When you execute this command it should tell you that you can connect to the kernel using a slightly modified JSON file name:
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ZMQTerminalIPythonApp] Forwarding connections to 127.0.0.1 via Hades
-[ZMQTerminalIPythonApp] To connect another client via this tunnel, use:
-[ZMQTerminalIPythonApp] --existing kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232-ssh.json
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Note that &lt;code&gt;--existing&lt;/code&gt; argument for the next session (it should be the same as the original json file but with &lt;code&gt;-ssh&lt;/code&gt; added to the end of the name).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgfb9d363" class="outline-3"&gt;
-&lt;h3 id="orgfb9d363"&gt;Setting the Session&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgfb9d363"&gt;
-&lt;p&gt;
-Since this is org-mode-based the first thing you should do is connect your emacs buffer to the console. Add this to the top of your buffer (the file where you intend to run python).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+PROPERTY: header-args :session /home/athena/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232-ssh.json
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-If you have this in your file when you open it you don't need to do anything special, but otherwise C-c C-c on it to load the session. What this does is allow subsequent python org-mode blocks to use the remote jupyter session when you execute them, without needing to specify a session.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgf3ecc46" class="outline-2"&gt;
-&lt;h2 id="orgf3ecc46"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf3ecc46"&gt;
-&lt;p&gt;
-At this point you can run org-mode code blocs that are set up to use &lt;code&gt;emacs-jupyter&lt;/code&gt; and they will redirect to the remote jupyter session. That is a whole other adventure so I'll leave it for another time (or to someone else).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>emacs</category><category>jupyter</category><category>python</category><guid>https://necromuralist.github.io/posts/emacs/jupyter-emacs-sessions/</guid><pubDate>Sat, 09 May 2020 22:36:05 GMT</pubDate></item><item><title>Making Stuff Links</title><link>https://necromuralist.github.io/posts/making-stuff/making-stuff-links/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/making-stuff/making-stuff-links/#org6c53bc9"&gt;Agile&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org6c53bc9" class="outline-2"&gt;
-&lt;h2 id="org6c53bc9"&gt;Agile&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6c53bc9"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://www.alexandercowan.com/"&gt;COWAN+&lt;/a&gt; : this is the site for the Coursera &lt;i&gt;Agile Meets Design Thinking&lt;/i&gt; instructor.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>links</category><guid>https://necromuralist.github.io/posts/making-stuff/making-stuff-links/</guid><pubDate>Tue, 14 Apr 2020 20:51:22 GMT</pubDate></item><item><title>Link-Collection</title><link>https://necromuralist.github.io/posts/programming/link-collection/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/programming/link-collection/#org294c45c"&gt;Reading&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/programming/link-collection/#org39e3bfe"&gt;Python&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org294c45c" class="outline-2"&gt;
-&lt;h2 id="org294c45c"&gt;Reading&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org294c45c"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org39e3bfe" class="outline-3"&gt;
-&lt;h3 id="org39e3bfe"&gt;Python&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org39e3bfe"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://opensource.com/tags/python"&gt;opensource.com&lt;/a&gt; : The site has more than that, but the python stuff is what I'm exploring right now.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>reference</category><category>urls</category><guid>https://necromuralist.github.io/posts/programming/link-collection/</guid><pubDate>Mon, 30 Dec 2019 00:02:08 GMT</pubDate></item><item><title>Draw Yourself</title><link>https://necromuralist.github.io/posts/making-comics/draw-yourself/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/making-comics/draw-yourself/#org2627d2b"&gt;Draw Yourself&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/making-comics/draw-yourself/#org931bfcc"&gt;Source&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org2627d2b" class="outline-2"&gt;
-&lt;h2 id="org2627d2b"&gt;Draw Yourself&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2627d2b"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;Surfing with a shark&lt;/li&gt;
-&lt;li&gt;As a statue in a museum&lt;/li&gt;
-&lt;li&gt;In the hospital&lt;/li&gt;
-&lt;li&gt;Doing something you would never do&lt;/li&gt;
-&lt;li&gt;As conjoined twins&lt;/li&gt;
-&lt;li&gt;Eating Fried chicken&lt;/li&gt;
-&lt;li&gt;At the beauty parlor&lt;/li&gt;
-&lt;li&gt;As a Viking&lt;/li&gt;
-&lt;li&gt;As the God of fire&lt;/li&gt;
-&lt;li&gt;In a marching band&lt;/li&gt;
-&lt;li&gt;As a French person&lt;/li&gt;
-&lt;li&gt;Tunneling to freedom&lt;/li&gt;
-&lt;li&gt;Riding an Insect&lt;/li&gt;
-&lt;li&gt;As a cave-persion with a pal&lt;/li&gt;
-&lt;li&gt;Getting arrested&lt;/li&gt;
-&lt;li&gt;As a bearded lady&lt;/li&gt;
-&lt;li&gt;Shooting out of a volcano&lt;/li&gt;
-&lt;li&gt;Dancing with a potato&lt;/li&gt;
-&lt;li&gt;As a tightrope walker&lt;/li&gt;
-&lt;li&gt;Vomiting&lt;/li&gt;
-&lt;li&gt;Running from a giant snowball&lt;/li&gt;
-&lt;li&gt;Riding a bird&lt;/li&gt;
-&lt;li&gt;Dancing sadly&lt;/li&gt;
-&lt;li&gt;As the God of Springs&lt;/li&gt;
-&lt;li&gt;Climbing a Rope&lt;/li&gt;
-&lt;li&gt;At a lovely fountain&lt;/li&gt;
-&lt;li&gt;In an encounter with a squirrel&lt;/li&gt;
-&lt;li&gt;Escaping from jail&lt;/li&gt;
-&lt;li&gt;Playing in a bad jazz band&lt;/li&gt;
-&lt;li&gt;Being carried by an alien&lt;/li&gt;
-&lt;li&gt;As a Pirate&lt;/li&gt;
-&lt;li&gt;As a kid in a costume&lt;/li&gt;
-&lt;li&gt;With 3 cats&lt;/li&gt;
-&lt;li&gt;Lost at sea&lt;/li&gt;
-&lt;li&gt;As a fry cook&lt;/li&gt;
-&lt;li&gt;In Love&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-This is a list of ideas for attendance cards from Lynda Barry's &lt;i&gt;Making Comics&lt;/i&gt;.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org931bfcc" class="outline-2"&gt;
-&lt;h2 id="org931bfcc"&gt;Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org931bfcc"&gt;
 &lt;ol class="org-ol"&gt;
-&lt;li&gt;Barry L. Making comics. Montreal, Quebec: Drawn &amp;amp; Quarterly; 2019.&lt;/li&gt;
+&lt;li&gt;Encode as bits (e.g. &lt;i&gt;white=0&lt;/i&gt;, &lt;i&gt;black=1&lt;/i&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;
+Arrange the bits into 3x3 grids - 3 bits per row, 3 rows per grid
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+  000\\
+  110\\
+  101\\
+  \]
+&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;
+Convert each row to decimal numbers.
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+  000 = 0\\
+  110 = 6\\
+  101 = 5\\
+  \]
+&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;Convert the decimal to a word-image using a system. In the case of the Major System you might get &lt;i&gt;065 = sgl = seagull&lt;/i&gt;.&lt;/li&gt;
+
+&lt;li&gt;Repeat until you have all the bits covered&lt;/li&gt;
+
+&lt;li&gt;Put the images into a Memory Palace, two images per location.&lt;/li&gt;
 &lt;/ol&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>lists</category><category>making comics</category><category>prompts</category><guid>https://necromuralist.github.io/posts/making-comics/draw-yourself/</guid><pubDate>Sun, 22 Dec 2019 19:31:32 GMT</pubDate></item><item><title>Online Reading List</title><link>https://necromuralist.github.io/posts/reference/online-reading-list/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/reference/online-reading-list/#org36513e6"&gt;Magazines&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/reference/online-reading-list/#orgb74f104"&gt;Philosophy &amp;amp; Science&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/reference/online-reading-list/#orga175e13"&gt;General&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org36513e6" class="outline-2"&gt;
-&lt;h2 id="org36513e6"&gt;Magazines&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org36513e6"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgb74f104" class="outline-3"&gt;
-&lt;h3 id="orgb74f104"&gt;Philosophy &amp;amp; Science&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb74f104"&gt;
+
+&lt;div id="outline-container-orgf2fb684" class="outline-2"&gt;
+&lt;h2 id="orgf2fb684"&gt;Bibliography&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf2fb684"&gt;
 &lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://aeon.co/"&gt;aeon&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="http://nautil.us/"&gt;Nautilus&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/mnemonic-alphabet-systems/"&gt;Mnemonic Alphabet Systems&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orga175e13" class="outline-3"&gt;
-&lt;h3 id="orga175e13"&gt;General&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga175e13"&gt;
+&lt;/div&gt;</description><category>memory</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/memorizing-binaries/</guid><pubDate>Thu, 30 Jul 2020 06:41:28 GMT</pubDate></item><item><title>Basics Steps of Clicker Training</title><link>https://necromuralist.github.io/posts/basics-steps-of-clicker-training/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+These are the basic steps of clicker training.
+&lt;/p&gt;
+
+&lt;ol class="org-ol"&gt;
+&lt;li&gt;Get your rabbit to do what you want it to do&lt;/li&gt;
+&lt;li&gt;Click the instant she does it&lt;/li&gt;
+&lt;li&gt;Reward your rabbit with a treat&lt;/li&gt;
+&lt;li&gt;Add a cue once she's learned to do it so she knows the name of what she's doing&lt;/li&gt;
+&lt;li&gt;Gradually fade out the clicks and treats&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div id="outline-container-org3977e99" class="outline-2"&gt;
+&lt;h2 id="org3977e99"&gt;Links&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3977e99"&gt;
 &lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://harpers.org/"&gt;Harper's&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://www.theatlantic.com/"&gt;The Atlantic&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/clicking-basics/"&gt;Clicking Basics&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>online</category><category>reading</category><guid>https://necromuralist.github.io/posts/reference/online-reading-list/</guid><pubDate>Sat, 17 Aug 2019 21:51:35 GMT</pubDate></item><item><title>emacs-jupyter</title><link>https://necromuralist.github.io/posts/emacs/emacs-jupyter/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#orgf781b76"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#org8885785"&gt;Middle&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#org1352da5"&gt;Finding the Problem&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#org4399b34"&gt;Fixing the Problem&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#org9e72739"&gt;First Clone the Repository&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#orgdf0c12c"&gt;Then Install the Dependencies&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#orgd44c961"&gt;Then Build It&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#org34da79a"&gt;Fix the Other Problem&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/emacs-jupyter/#org4d74de0"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;div id="outline-container-org86741cf" class="outline-2"&gt;
+&lt;h2 id="org86741cf"&gt;Citations&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org86741cf"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/clicking-with-your-rabbit/"&gt;Clicking With Your Rabbit&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgf781b76" class="outline-2"&gt;
-&lt;h2 id="orgf781b76"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf781b76"&gt;
-&lt;p&gt;
-&lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; has become one of the most important tools in my workflow (along with &lt;a href="https://getnikola.com/"&gt;Nikola&lt;/a&gt;, and the &lt;a href="https://plugins.getnikola.com/v8/orgmode/"&gt;org-mode plugin&lt;/a&gt;), but earlier this week I stumbled upon &lt;a href="https://github.com/dzop/emacs-jupyter"&gt;emacs-jupyter&lt;/a&gt; and I thought maybe it'd be worth it to at least take a look. If the &lt;code&gt;readme&lt;/code&gt; file is to be believed, it does everything &lt;code&gt;ob-ipython&lt;/code&gt; does and more, so maybe my world would change once again. But then I ran into a little problem - trying to install it from &lt;a href="https://melpa.org/#/"&gt;MELPA&lt;/a&gt; caused emacs to crash… with no messages, nothing. So is this thing ready for the world to use yet?
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org8885785" class="outline-2"&gt;
-&lt;h2 id="org8885785"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8885785"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org1352da5" class="outline-3"&gt;
-&lt;h3 id="org1352da5"&gt;Finding the Problem&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1352da5"&gt;
-&lt;p&gt;
-I tried different things based on the errors in the emacs-jupyter's &lt;a href="https://github.com/dzop/emacs-jupyter/issues"&gt;"Issues"&lt;/a&gt; but it turned out that &lt;a href="https://github.com/dzop/emacs-zmq/issues/14"&gt;this emacs-zmq bug&lt;/a&gt; had the answer - the &lt;a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa"&gt;emacs snapshot&lt;/a&gt; for Ubuntu wasn't built in a way that works with emacs-jupyter. The bug-report mentions an out of date gcc version, but I didn't confirm that.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org4399b34" class="outline-3"&gt;
-&lt;h3 id="org4399b34"&gt;Fixing the Problem&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org4399b34"&gt;
-&lt;p&gt;
-So, knowing that the version of emacs I was using was the problem I decided to build it myself. In the earlier days of Ubuntu this was something I did all the time, but it seems like it's been forever since I had to do this so I was a little worried that it might be a huge mess of Makefile debugging, but I found &lt;a href="https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian"&gt;this page on the emacs wiki&lt;/a&gt; which made it pretty easy.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org9e72739" class="outline-4"&gt;
-&lt;h4 id="org9e72739"&gt;First Clone the Repository&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org9e72739"&gt;
-&lt;pre class="example"&gt;
-git clone --depth 1 git://git.sv.gnu.org/emacs.git
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgdf0c12c" class="outline-4"&gt;
-&lt;h4 id="orgdf0c12c"&gt;Then Install the Dependencies&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgdf0c12c"&gt;
-&lt;pre class="example"&gt;
-sudo apt-fast install autoconf automake libtool texinfo build-essential xorg-dev libgtk2.0-dev libjpeg-dev libncurses5-dev libdbus-1-dev libgif-dev libtiff-dev libm17n-dev libpng-dev librsvg2-dev libotf-dev libgnutls28-dev libxml2-dev
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgd44c961" class="outline-4"&gt;
-&lt;h4 id="orgd44c961"&gt;Then Build It&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgd44c961"&gt;
-&lt;pre class="example"&gt;
-cd emacs
-./autogen.sh
-./configure --prefix=/home/athena/bin/emacs-jupyter/
-make bootstrap
-make install
-sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
-&lt;/pre&gt;
-
-&lt;p&gt;
-That bit about installing it in my home directory and linking it isn't necessary, but I didn't want to let the Makefile clobber anything (and I was too lazy to read it too closely).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org34da79a" class="outline-3"&gt;
-&lt;h3 id="org34da79a"&gt;Fix the Other Problem&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org34da79a"&gt;
-&lt;p&gt;
-It turned out that the build went okay, and I could even install emacs-jupyter (yay), but when I tried to execute &lt;code&gt;M-x jupyter-run-repl&lt;/code&gt; I got an error message saying that modules weren't supported (what?). So then I found &lt;a href="http://diobla.info/blog-archive/modules-tut.html"&gt;this blog post&lt;/a&gt; that said you have to pass in the &lt;code&gt;--with-modules&lt;/code&gt; argument when you run &lt;code&gt;configure&lt;/code&gt;… So now the process became this:
+&lt;/div&gt;</description><category>clicker training</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/basics-steps-of-clicker-training/</guid><pubDate>Thu, 30 Jul 2020 06:33:37 GMT</pubDate></item><item><title>Clicking Basics</title><link>https://necromuralist.github.io/posts/clicking-basics/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+The basics ideas of clicker training are:
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
-cd emacs
-./autogen.sh
-./configure --prefix=/home/athena/bin/emacs-jupyter/ --with-modules
-make bootstrap
-make install
-sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
-&lt;/pre&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Click at the moment that some desired behavior has happened&lt;/li&gt;
+&lt;li&gt;Follow every click with a reward&lt;/li&gt;
+&lt;li&gt;Ignore any behavior you don't want or don't care about&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;
-And what do you know, it worked.
-&lt;/p&gt;
+&lt;div id="outline-container-orgf868319" class="outline-2"&gt;
+&lt;h2 id="orgf868319"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf868319"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/clicking-with-your-rabbit/"&gt;Clicking With Your Rabbit&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org4d74de0" class="outline-2"&gt;
-&lt;h2 id="org4d74de0"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4d74de0"&gt;
-&lt;p&gt;
-emacs-jupyter looks like an improvement over &lt;code&gt;ob-ipython&lt;/code&gt; in that it adds a lot of features (and claims to be faster), but getting it to work was way harder than I'm used to. I don't think it was "difficult" in a real sense, given what it used to be like to make and install things on Ubuntu, but I think I've gotten used to things just working. Anyway, now I can see if emacs-jupyter lives up to its own hype.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>emacs</category><category>emacs-jupyter</category><guid>https://necromuralist.github.io/posts/emacs/emacs-jupyter/</guid><pubDate>Sat, 10 Aug 2019 22:13:27 GMT</pubDate></item><item><title>cuDF With emacs-jupyter</title><link>https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org93a4183"&gt;Beginning&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#orgef106ed"&gt;Problems Before I Even Started&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#orgffa98f5"&gt;the &lt;b&gt;&lt;b&gt;RAPIDS&lt;/b&gt;&lt;/b&gt; instruction for starting the docker container is out of date&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#orgb5d5aac"&gt;The emacs-snapshot isn't compatible with emacs-jupyter&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org9a39bda"&gt;Imports&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org9e09bb8"&gt;PyPi&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org94828f2"&gt;Middle&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org0f86be2"&gt;Connecting To the Docker Container&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org98920f3"&gt;Create Series&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#orgf20a92b"&gt;CUDF Series&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#orgd2fac01"&gt;dask CUDF&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#orgc34d521"&gt;Data Frames&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org50b6b77"&gt;From a Pandas DataFrame&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org7ef24cb"&gt;Selection&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org933f39e"&gt;Applyng functions&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org9b12184"&gt;String Methods&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/#org0335d93"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;/div&gt;</description><category>clicker training</category><category>slip note</category><guid>https://necromuralist.github.io/posts/clicking-basics/</guid><pubDate>Thu, 30 Jul 2020 06:28:21 GMT</pubDate></item><item><title>Clicking With Your Rabbit</title><link>https://necromuralist.github.io/posts/bibliography/clicking-with-your-rabbit/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org5d0e780" class="outline-2"&gt;
+&lt;h2 id="org5d0e780"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5d0e780"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Orr J, Lewin T. Clicking with your rabbit. Waltham, MA: Karen Pryor Clickertaining; 2006.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org93a4183" class="outline-2"&gt;
-&lt;h2 id="org93a4183"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org93a4183"&gt;
-&lt;p&gt;
-This is a first attempt to use &lt;a href="https://rapids.ai/"&gt;RAPIDS&lt;/a&gt; using their docker container and &lt;a href="https://github.com/dzop/emacs-jupyter#building-the-widget-support-experimental"&gt;emacs-jupyter&lt;/a&gt;. So there's multiple places where things can go wrong and I don't know why.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgef106ed" class="outline-3"&gt;
-&lt;h3 id="orgef106ed"&gt;Problems Before I Even Started&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgef106ed"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgffa98f5" class="outline-4"&gt;
-&lt;h4 id="orgffa98f5"&gt;the &lt;b&gt;&lt;b&gt;RAPIDS&lt;/b&gt;&lt;/b&gt; instruction for starting the docker container is out of date&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgffa98f5"&gt;
-&lt;p&gt;
-The instructions on the &lt;a href="https://rapids.ai/start.html"&gt;getting started page&lt;/a&gt; say to start the docker container using this:
-&lt;/p&gt;
-&lt;pre class="example"&gt;
-docker run --runtime=nvidia --rm -it -p 8888:8888 -p 8787:8787 -p 8786:8786 \
-    rapidsai/rapidsai:0.8-cuda10.0-runtime-ubuntu18.04-gcc7-py3.7
-&lt;/pre&gt;
 
-&lt;p&gt;
-But the &lt;code&gt;--runtime=nvidia&lt;/code&gt; flag is for the now-deprecated &lt;code&gt;nvidia-docker2&lt;/code&gt; package (which isn't compatible with Ubuntu Disco Dingo anyway) and it will cause it to fail with an &lt;code&gt;unknown runtime&lt;/code&gt; error if you don't have that older package installed (which I don't). Removing the flag (and having the &lt;a href="https://github.com/NVIDIA/nvidia-docker"&gt;NVIDIA Container Toolkit&lt;/a&gt; installed) fixes the error.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgb5d5aac" class="outline-4"&gt;
-&lt;h4 id="orgb5d5aac"&gt;The emacs-snapshot isn't compatible with emacs-jupyter&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgb5d5aac"&gt;
-&lt;p&gt;
-&lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; has become such a center-piece for how I work I can't even remember how I did things before I discovered it, but now there's &lt;a href="https://github.com/dzop/emacs-jupyter"&gt;Emacs Jupyter&lt;/a&gt; which claims to have even more features, so I thought I'd try it out, but when I tried to install it emacs would crash (during the installation). According to  &lt;a href="https://github.com/dzop/emacs-zmq/issues/14"&gt;this bug report&lt;/a&gt; the &lt;a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa"&gt;emacs snapshot&lt;/a&gt; for Ubuntu is built with an out-of-date version of gcc. I don't know if that's true, but I re-built emacs with &lt;a href="https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian"&gt;the instructions on the emacs wiki&lt;/a&gt; and it at least installed emacs-jupyter without crashing. Here's where I find out if it works. Of course, I now have two versions of emacs. One that gets updated automatically and one that works with emacs-jupyter. I'll have to figure out what to do about that, assuming emacs-jupyter turns out to be worth keeping.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org9a39bda" class="outline-3"&gt;
-&lt;h3 id="org9a39bda"&gt;Imports&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9a39bda"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org9e09bb8" class="outline-4"&gt;
-&lt;h4 id="org9e09bb8"&gt;PyPi&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org9e09bb8"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;import cudf
-import dask_cudf
-import pandas
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org94828f2" class="outline-2"&gt;
-&lt;h2 id="org94828f2"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org94828f2"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org0f86be2" class="outline-3"&gt;
-&lt;h3 id="org0f86be2"&gt;Connecting To the Docker Container&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org0f86be2"&gt;
-&lt;p&gt;
-According to the emacs-snapshot documentation you can connect via SSH (but the Rapids docker container doesn't have it installed by default) or you can connect to a notebook server. I originally was going to try the SSH route, since I already do that with ob-ipython, but the notebook-server might be more suited to this case. Let's see.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;print("test")
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-test
-
-&lt;/pre&gt;
-
-&lt;p&gt;
-So, the notebook doesn't seem to work as-is, but the SSH connection does, which is nice, but it's not different from what ob-ipython gave me (well it kind of is in that I didn't copy the file over).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org98920f3" class="outline-3"&gt;
-&lt;h3 id="org98920f3"&gt;Create Series&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org98920f3"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgf20a92b" class="outline-4"&gt;
-&lt;h4 id="orgf20a92b"&gt;CUDF Series&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgf20a92b"&gt;
-&lt;p&gt;
-This runs on the GPU.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;s = cudf.Series([1, 2, 3, None, 4])
-print(s)
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-0    1
-1    2
-2    3
-3     
-4    4
-dtype: int64
-
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgd2fac01" class="outline-4"&gt;
-&lt;h4 id="orgd2fac01"&gt;dask CUDF&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgd2fac01"&gt;
-&lt;p&gt;
-This also runs on the GPU, but if you have more than one GPU it will use more than one.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ds = dask_cudf.from_cudf(s, npartitions=2)
-print(ds.compute())
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-0    1
-1    2
-2    3
-3     
-4    4
-dtype: int64
-
-&lt;/pre&gt;
-
-&lt;p&gt;
-My machine only has one GPU, so this didn't gain anything, but I do have more than one machine with a GPU so this might help with distributed computing, if I get around to it.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgc34d521" class="outline-3"&gt;
-&lt;h3 id="orgc34d521"&gt;Data Frames&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc34d521"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;frame = cudf.DataFrame([("a", list(range(10))),
-			("b", list(range(10)))])
-frame["a"] = frame.a * 5
-print(frame)
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-    a  b
-0   0  0
-1   5  1
-2  10  2
-3  15  3
-4  20  4
-5  25  5
-6  30  6
-7  35  7
-8  40  8
-9  45  9
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org50b6b77" class="outline-4"&gt;
-&lt;h4 id="org50b6b77"&gt;From a Pandas DataFrame&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org50b6b77"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;frame = pandas.DataFrame({"a": list(range(4)), "b": list(range(4, 8))})
-frame = cudf.DataFrame.from_pandas(frame)
-print(frame)
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-   a  b
-0  0  4
-1  1  5
-2  2  6
-3  3  7
-
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org7ef24cb" class="outline-3"&gt;
-&lt;h3 id="org7ef24cb"&gt;Selection&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org7ef24cb"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;print(frame[frame.a &amp;gt; 1])
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-   a  b
-2  2  6
-3  3  7
-
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org933f39e" class="outline-3"&gt;
-&lt;h3 id="org933f39e"&gt;Applyng functions&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org933f39e"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;frame["a"] = frame.a.applymap(lambda row: row + 5)
-print(frame)
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-   a  b
-0  5  4
-1  6  5
-2  7  6
-3  8  7
-
-&lt;/pre&gt;
-
-&lt;p&gt;
-This is basically the pandas.DataFrame.apply method, but they renamed it for some reason.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org9b12184" class="outline-3"&gt;
-&lt;h3 id="org9b12184"&gt;String Methods&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9b12184"&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;series = cudf.Series(["Alpha", "Beta", "GAMMA", "dELTA"])
-print(series.str.lower())
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-0    alpha
-1     beta
-2    gamma
-3    delta
-dtype: object
-
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org0335d93" class="outline-2"&gt;
-&lt;h2 id="org0335d93"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0335d93"&gt;
-&lt;p&gt;
-After a certain point, this was kind of a boring exercise, mostly because &lt;code&gt;cuDF&lt;/code&gt; runs a subset of pandas but on the GPU, so if you know pandas, you know some of &lt;code&gt;cuDF&lt;/code&gt;, but just getting it working (with emacs-jupyter) was a little bit of work, so maybe it's useful to have recorded that here.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>cudf</category><category>emacs-jupyter</category><category>walk-through</category><guid>https://necromuralist.github.io/posts/rapids/cudf-with-emacs-jupyter/</guid><pubDate>Sat, 10 Aug 2019 21:12:42 GMT</pubDate></item><item><title>Opening Remote Files In Emacs Using SSH</title><link>https://necromuralist.github.io/posts/emacs/opening-remote-files-in-emacs-using-ssh/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/opening-remote-files-in-emacs-using-ssh/#org6c96f57"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/opening-remote-files-in-emacs-using-ssh/#org2974e86"&gt;Middle&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/opening-remote-files-in-emacs-using-ssh/#orge2a1be4"&gt;Editing a Remote User File&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/opening-remote-files-in-emacs-using-ssh/#orgd109467"&gt;Editing a Remote File As Root&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs/opening-remote-files-in-emacs-using-ssh/#org2903fb8"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;div id="outline-container-orgd1fba28" class="outline-2"&gt;
+&lt;h2 id="orgd1fba28"&gt;Commentary&lt;/h2&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>rabbits</category><guid>https://necromuralist.github.io/posts/bibliography/clicking-with-your-rabbit/</guid><pubDate>Thu, 30 Jul 2020 03:35:00 GMT</pubDate></item><item><title>Etymology of Ham Radio</title><link>https://necromuralist.github.io/posts/bibliography/etymology-of-ham-radio/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org0f5f79f" class="outline-2"&gt;
+&lt;h2 id="org0f5f79f"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0f5f79f"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Etymology of ham radio. In: Wikipedia [Internet]. 2020 [cited 2020 Jul 29]. Available from: &lt;a href="https://en.wikipedia.org/w/index.php?title=Etymology_of_ham_radio&amp;amp;oldid=937526628"&gt;https://en.wikipedia.org/w/index.php?title=Etymology_of_ham_radio&amp;amp;oldid=937526628&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6c96f57" class="outline-2"&gt;
-&lt;h2 id="org6c96f57"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6c96f57"&gt;
-&lt;p&gt;
-For some strange reason, &lt;a href="https://www.emacswiki.org/emacs/TrampMode"&gt;the emacs wiki page on tramp mode&lt;/a&gt; doesn't have instructions on how to open a file on a remote machine using tramp in its main section. You instead have to go down to the &lt;i&gt;Tips and Tricks&lt;/i&gt; and try and pick out a version that works. So I'm writing this here so I maybe won't have to do all the searching I did the next time. This is the version that worked for me (Emacs 27.0.50, Ubuntu 19.04).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org2974e86" class="outline-2"&gt;
-&lt;h2 id="org2974e86"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2974e86"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orge2a1be4" class="outline-3"&gt;
-&lt;h3 id="orge2a1be4"&gt;Editing a Remote User File&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge2a1be4"&gt;
-&lt;p&gt;
-You start by opening the file like you would a local file (&lt;code&gt;C-x C-f&lt;/code&gt;) and then in when the minibuffer opens up you use this syntax for the path:
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/ssh:&amp;lt;username&amp;gt;@&amp;lt;hostname&amp;gt;&amp;gt;:&amp;lt;path to file&amp;gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-So, for example, I have an SSH alias to &lt;code&gt;hades@erebus&lt;/code&gt; named &lt;code&gt;Hades&lt;/code&gt; and if I wanted to edit the emacs init file on that machine I would use this:
+&lt;div id="outline-container-org779969b" class="outline-2"&gt;
+&lt;h2 id="org779969b"&gt;Commentary&lt;/h2&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>etymology</category><category>ham radio</category><guid>https://necromuralist.github.io/posts/bibliography/etymology-of-ham-radio/</guid><pubDate>Thu, 30 Jul 2020 03:33:04 GMT</pubDate></item><item><title>Why Is Ham Radio Called Ham Radio?</title><link>https://necromuralist.github.io/posts/why-is-ham-radio-called-ham-radio/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+So, why is &lt;a href="https://www.wikiwand.com/en/Amateur_radio"&gt;Amateur Radio called&lt;/a&gt; &lt;i&gt;ham&lt;/i&gt; radio? It appears that the term originated with Telegraph Operators who referred to unskilled operators as "hams", presumably because they were considered "ham-fisted" (or "ham-handed"). When radio first became available to the general population many of the first radio ("wireless telegraph") operators were former telegraph operators and it became the norm for both amateurs and professionals to refer to amateur operators who accidentally interfered with other broadcasts as "hams" and eventually the term was adopted by the amateur radio community as the term for "amateur" radio.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
-/ssh:Hades:.emacs.d/init.el
-&lt;/pre&gt;
+&lt;div id="outline-container-orgbd47385" class="outline-2"&gt;
+&lt;h2 id="orgbd47385"&gt;Citations&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgbd47385"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/arrl-ham-radio-license-manual/"&gt;ARRL Ham Radio License Manual&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>etymology</category><category>ham radio</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/why-is-ham-radio-called-ham-radio/</guid><pubDate>Thu, 30 Jul 2020 03:21:08 GMT</pubDate></item><item><title>ARRL Ham Radio License Manual</title><link>https://necromuralist.github.io/posts/bibliography/arrl-ham-radio-license-manual/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org11b5984" class="outline-2"&gt;
+&lt;h2 id="org11b5984"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org11b5984"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Silver HW, Wilson MJ. The ARRL ham radio license manual: all you need to become an amateur radio operator. Fourth edition. Newington, CT: AARL; 2018. 1 p.&lt;/li&gt;
+&lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgd109467" class="outline-3"&gt;
-&lt;h3 id="orgd109467"&gt;Editing a Remote File As Root&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgd109467"&gt;
-&lt;p&gt;
-To open a file as root you stick an extra pipe (&lt;code&gt;|sudo&lt;/code&gt;) into the previous path syntax.
+&lt;div id="outline-container-org355406e" class="outline-2"&gt;
+&lt;h2 id="org355406e"&gt;Commentary&lt;/h2&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>ham radio</category><guid>https://necromuralist.github.io/posts/bibliography/arrl-ham-radio-license-manual/</guid><pubDate>Thu, 30 Jul 2020 03:15:54 GMT</pubDate></item><item><title>Mnemonic Alphabet Systems</title><link>https://necromuralist.github.io/posts/bibliography/mnemonic-alphabet-systems/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org174ad64" class="outline-2"&gt;
+&lt;h2 id="org174ad64"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org174ad64"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Mnemonic Alphabet Systems - Memory Techniques Wiki [Internet]. [cited 2020 Jul 29]. Available from: &lt;a href="https://artofmemory.com/wiki/Mnemonic_Alphabet_Systems"&gt;https://artofmemory.com/wiki/Mnemonic_Alphabet_Systems&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org7aa7ec2" class="outline-2"&gt;
+&lt;h2 id="org7aa7ec2"&gt;Commentary&lt;/h2&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>memory</category><guid>https://necromuralist.github.io/posts/bibliography/mnemonic-alphabet-systems/</guid><pubDate>Thu, 30 Jul 2020 03:09:46 GMT</pubDate></item><item><title>The Alphabet Peg</title><link>https://necromuralist.github.io/posts/the-alphabet-peg/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+This is a type of Mnemonic Peg System that helps you memorize lists using a pre-built Peg List based on the alphabet. It doesn't have to be the alphabet, it can be any ordered list of words that you already have memorized.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
-/ssh:&amp;lt;username&amp;gt;@&amp;lt;hostname&amp;gt;|sudo:&amp;lt;hostname&amp;gt;:&amp;lt;path to file&amp;gt;
-&lt;/pre&gt;
-
 &lt;p&gt;
-This syntax doesn't work with SSH aliases (or didn't seem to when I tried), so editing the &lt;code&gt;/etc/apt/sources.list&lt;/code&gt; file the same machine as before would use this:
+First you created a list of words wherein the first letter of each word matches the letters of the alphabet - &lt;i&gt;Ape, Bat, Crane&lt;/i&gt;, etc. Now whenever you need to memorize a list you associate each item on the list with a word in the alphabet list in order. So if you need to memorize &lt;i&gt;a loaf of bread, a container of milk, and a stick of butter&lt;/i&gt; you would do something like this:
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
-/ssh:hades@erebus|sudo:erebus:/etc/apt/sources.list
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org2903fb8" class="outline-2"&gt;
-&lt;h2 id="org2903fb8"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2903fb8"&gt;
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;Abecadarium&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;List&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Link&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;Ape&lt;/td&gt;
+&lt;td class="org-left"&gt;Loaf of Bread&lt;/td&gt;
+&lt;td class="org-left"&gt;King Kong climbing the Empire State Building holding a loaf of bread&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;Bat&lt;/td&gt;
+&lt;td class="org-left"&gt;Container of Milk&lt;/td&gt;
+&lt;td class="org-left"&gt;Supermarket milk jug with a bat in it&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;Crane&lt;/td&gt;
+&lt;td class="org-left"&gt;Stick of Butter&lt;/td&gt;
+&lt;td class="org-left"&gt;A crane choking on a giant stick of butter&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
 &lt;p&gt;
-I got the &lt;code&gt;sudo&lt;/code&gt; version from &lt;a href="https://stackoverflow.com/questions/20624024/what-is-the-best-way-to-open-remote-files-with-emacs-and-ssh"&gt;Stack Overflow&lt;/a&gt; (of course).
+Once you've made the associations you can remember the list by starting with Ape and working through the alphabet.
+&lt;/p&gt;
+
+&lt;div id="outline-container-org6d3c4b9" class="outline-2"&gt;
+&lt;h2 id="org6d3c4b9"&gt;Bibliography&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6d3c4b9"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/mnemonic-alphabet-systems/"&gt;Mnemonic Alphabet Systems&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>memory</category><category>mnemonic peg system</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/the-alphabet-peg/</guid><pubDate>Thu, 30 Jul 2020 02:54:16 GMT</pubDate></item><item><title>Memorize the Order of Black and Red Playing Cards</title><link>https://necromuralist.github.io/posts/bibliography/memorize-the-order-of-black-and-red-playing-cards/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org92fe738" class="outline-2"&gt;
+&lt;h2 id="org92fe738"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org92fe738"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Josh. Learn How to Memorize the Order of Black &amp;amp; Red in a Deck of Playing Cards (Easy) [Internet]. Art of Memory Blog. 2011 [cited 2020 Jul 29]. Available from: &lt;a href="https://artofmemory.com/blog/memorize-order-of-black-red-playing-cards-2888.html"&gt;https://artofmemory.com/blog/memorize-order-of-black-red-playing-cards-2888.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org13a5dec" class="outline-2"&gt;
+&lt;h2 id="org13a5dec"&gt;Commentary&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org13a5dec"&gt;
+&lt;p&gt;
+Presents a simple way to memorize the order that black and red cards appear in a deck of cards using a Nook-and-Cranny Memory Palace.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>emacs</category><category>howto</category><category>ssh</category><guid>https://necromuralist.github.io/posts/emacs/opening-remote-files-in-emacs-using-ssh/</guid><pubDate>Sat, 27 Jul 2019 19:58:44 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>bibliography</category><category>memory</category><guid>https://necromuralist.github.io/posts/bibliography/memorize-the-order-of-black-and-red-playing-cards/</guid><pubDate>Thu, 30 Jul 2020 02:48:51 GMT</pubDate></item></channel></rss>
