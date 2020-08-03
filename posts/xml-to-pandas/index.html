@@ -78,35 +78,35 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="/posts/xml-to-pandas/#org6cab6f8">Beginning</a>
+<li><a href="/posts/xml-to-pandas/#orgb378165">Beginning</a>
 <ul>
-<li><a href="/posts/xml-to-pandas/#org24a84ae">Imports</a></li>
-<li><a href="/posts/xml-to-pandas/#orgc78e449">Set Up</a></li>
+<li><a href="/posts/xml-to-pandas/#org6c376bf">Imports</a></li>
+<li><a href="/posts/xml-to-pandas/#orgd812d01">Set Up</a></li>
 </ul>
 </li>
-<li><a href="/posts/xml-to-pandas/#org7ece901">Middle</a>
+<li><a href="/posts/xml-to-pandas/#orge61567b">Middle</a>
 <ul>
-<li><a href="/posts/xml-to-pandas/#org1fd6026">The XML</a></li>
-<li><a href="/posts/xml-to-pandas/#org4ef0c19">To a DataFrame</a></li>
-<li><a href="/posts/xml-to-pandas/#orgebc4931">Save It</a></li>
+<li><a href="/posts/xml-to-pandas/#org91560df">The XML</a></li>
+<li><a href="/posts/xml-to-pandas/#orgf0d6dfe">To a DataFrame</a></li>
+<li><a href="/posts/xml-to-pandas/#orge7d763b">Save It</a></li>
 </ul>
 </li>
-<li><a href="/posts/xml-to-pandas/#org06a14ac">End</a>
+<li><a href="/posts/xml-to-pandas/#orgc19a58c">End</a>
 <ul>
-<li><a href="/posts/xml-to-pandas/#org7b35cdb">Time Series</a></li>
+<li><a href="/posts/xml-to-pandas/#org7bd731f">Time Series</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6cab6f8">
-<h2 id="org6cab6f8">Beginning</h2>
-<div class="outline-text-2" id="text-org6cab6f8">
-<p>I went to the <a href="https://www.ssa.gov/">Social Security website</a> to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it actually has more than just the earnings data) so these are my notes on converting it to a pandas DataFrame using <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup</a>.</p>
+<div class="outline-2" id="outline-container-orgb378165">
+<h2 id="orgb378165">Beginning</h2>
+<div class="outline-text-2" id="text-orgb378165">
+<p>I went to the <a href="https://www.ssa.gov/">Social Security website</a> to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it has more than just the earnings data, so it would have to be a series of CSVs instead of one file) so these are my notes on converting it to a pandas DataFrame using <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup</a>.</p>
 </div>
-<div class="outline-3" id="outline-container-org24a84ae">
-<h3 id="org24a84ae">Imports</h3>
-<div class="outline-text-3" id="text-org24a84ae">
+<div class="outline-3" id="outline-container-org6c376bf">
+<h3 id="org6c376bf">Imports</h3>
+<div class="outline-text-3" id="text-org6c376bf">
 <p>To actually do the conversion you only need BeautifulSoup and pandas, all the rest of the stuff comes into play because I'm making a post.</p>
 <div class="highlight">
 <pre><span></span><span class="c1"># python</span>
@@ -115,6 +115,7 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
 
 <span class="c1"># from pypi</span>
 <span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
@@ -128,21 +129,21 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgc78e449">
-<h3 id="orgc78e449">Set Up</h3>
-<div class="outline-text-3" id="text-orgc78e449"></div>
-<div class="outline-4" id="outline-container-org21a8d23">
-<h4 id="org21a8d23">The Dotenv</h4>
-<div class="outline-text-4" id="text-org21a8d23">
+<div class="outline-3" id="outline-container-orgd812d01">
+<h3 id="orgd812d01">Set Up</h3>
+<div class="outline-text-3" id="text-orgd812d01"></div>
+<div class="outline-4" id="outline-container-org8ce1f43">
+<h4 id="org8ce1f43">The Dotenv</h4>
+<div class="outline-text-4" id="text-org8ce1f43">
 <p>I'm using a <code>.env</code> file to point to the location of the file so this call will load it.</p>
 <div class="highlight">
 <pre><span></span><span class="n">load_dotenv</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgaf3983f">
-<h4 id="orgaf3983f">The Plotting</h4>
-<div class="outline-text-4" id="text-orgaf3983f">
+<div class="outline-4" id="outline-container-orgeb942af">
+<h4 id="orgeb942af">The Plotting</h4>
+<div class="outline-text-4" id="text-orgeb942af">
 <p>This is just a central place to set up some constants so I don't have to re-type them or hunt around for them if I want to change things.</p>
 <div class="highlight">
 <pre><span></span><span class="n">SLUG</span> <span class="o">=</span> <span class="s2">"xml-to-pandas"</span>
@@ -161,17 +162,27 @@
 </pre></div>
 </div>
 </div>
+<div class="outline-4" id="outline-container-org1062494">
+<h4 id="org1062494">The Random Seed</h4>
+<div class="outline-text-4" id="text-org1062494">
+<p>I decided since I'm talking about social security stuff I'd make at least some attempt at obfuscating things so I'm adding a random offset to the years.</p>
+<div class="highlight">
+<pre><span></span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">2020</span><span class="p">)</span>
+<span class="n">OFFSET</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+</pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org7ece901">
-<h2 id="org7ece901">Middle</h2>
-<div class="outline-text-2" id="text-org7ece901"></div>
-<div class="outline-3" id="outline-container-org1fd6026">
-<h3 id="org1fd6026">The XML</h3>
-<div class="outline-text-3" id="text-org1fd6026"></div>
-<div class="outline-4" id="outline-container-org151ba0e">
-<h4 id="org151ba0e">Loading It</h4>
-<div class="outline-text-4" id="text-org151ba0e">
+</div>
+</div>
+<div class="outline-2" id="outline-container-orge61567b">
+<h2 id="orge61567b">Middle</h2>
+<div class="outline-text-2" id="text-orge61567b"></div>
+<div class="outline-3" id="outline-container-org91560df">
+<h3 id="org91560df">The XML</h3>
+<div class="outline-text-3" id="text-org91560df"></div>
+<div class="outline-4" id="outline-container-org0463f71">
+<h4 id="org0463f71">Loading It</h4>
+<div class="outline-text-4" id="text-org0463f71">
 <p>First, I'll load the XML into BeautifulSoup.</p>
 <div class="highlight">
 <pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
@@ -183,17 +194,17 @@
 <p>Note that you have to pass in the <code>"xml"</code> argument - BeautifulSoup is primarily an HTML parser so it assumes an HTML document by default. Normally I'd do some exploring at this point, but I didn't find it such an easy thing to do (I don't work with XML data generally) and found that it was easier to look at it with <a href="https://www.wikiwand.com/en/Less_(Unix)">less</a> and figure out what I needed.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgad8c316">
-<h4 id="orgad8c316">The Earnings</h4>
-<div class="outline-text-4" id="text-orgad8c316">
+<div class="outline-4" id="outline-container-org6932dbb">
+<h4 id="org6932dbb">The Earnings</h4>
+<div class="outline-text-4" id="text-org6932dbb">
 <p>The data I wanted is in a set of tags that look like this:</p>
 <div class="highlight">
-<pre><span></span>&lt;osss:Earnings endYear="1986" startYear="1986"&gt;
+<pre><span></span>&lt;osss:Earnings endYear="1998" startYear="1998"&gt;
 &lt;osss:FicaEarnings&gt;526&lt;/osss:FicaEarnings&gt;
 &lt;osss:MedicareEarnings&gt;526&lt;/osss:MedicareEarnings&gt;
 &lt;/osss:Earnings&gt;
 </pre></div>
-<p>This set represents what was collected in 1986 - $526 for Social Security and Medicare (FICA stands for <a href="https://www.wikiwand.com/en/Federal_Insurance_Contributions_Act_tax">Federal Insurance Contributions Act</a> and is the name of the tax that funds Social Security). Yes, I'm that old, and yes, I only made $526 in 1986 because I was a teenager working a part-time job taking store inventories - still, I can't believe how little I got paid…</p>
+<p>This set represents what was collected in 1998 - $526 for Social Security and Medicare (FICA stands for <a href="https://www.wikiwand.com/en/Federal_Insurance_Contributions_Act_tax">Federal Insurance Contributions Act</a> and is the name of the tax that funds Social Security). Yes, I only made $526 in 1998 because I was a teenager working a part-time job taking store inventories - still, I can't believe how little I got paid…</p>
 <p>Anyway, so the first thing to do is to grab all the nodes representing earning.</p>
 <div class="highlight">
 <pre><span></span><span class="n">earnings</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"Earnings"</span><span class="p">)</span>
@@ -202,31 +213,31 @@
 </pre></div>
 <pre class="example">
 34
-&lt;osss:Earnings endYear="1986" startYear="1986"&gt;
+&lt;osss:Earnings endYear="1998" startYear="1998"&gt;
 &lt;osss:FicaEarnings&gt;526&lt;/osss:FicaEarnings&gt;
 &lt;osss:MedicareEarnings&gt;526&lt;/osss:MedicareEarnings&gt;
 &lt;/osss:Earnings&gt;
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orgb97500b">
-<h4 id="orgb97500b">The Years</h4>
-<div class="outline-text-4" id="text-orgb97500b">
-<p>Now that we have the earnings, we can see about getting the years. Although they have <code>endYear</code> and <code>startYear</code> they're always the same so I'll use <code>startYear</code>.</p>
+<div class="outline-4" id="outline-container-orgf60a805">
+<h4 id="orgf60a805">The Years</h4>
+<div class="outline-text-4" id="text-orgf60a805">
+<p>Now that we have the earnings, we can see about getting the years. Although they have <code>endYear</code> and <code>startYear</code> they're always the same so I'll use <code>startYear</code>. I'm adding the <code>OFFSET</code> here just to obfuscate what years I'm looking at.</p>
 <div class="highlight">
 <pre><span></span><span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startYear"</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startYear"</span><span class="p">))</span> <span class="o">+</span> <span class="n">OFFSET</span><span class="p">)</span>
 </pre></div>
 <pre class="example">
-1986
-1987
-1988
-1989
-1990
+1998
+1999
+2000
+2001
+2002
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org115ff55">
-<h4 id="org115ff55">Collected</h4>
-<div class="outline-text-4" id="text-org115ff55">
+<div class="outline-4" id="outline-container-org7a5cd85">
+<h4 id="org7a5cd85">Collected</h4>
+<div class="outline-text-4" id="text-org7a5cd85">
 <p>Next I'll see about grabbing the amounts collected for each year. The FICA and Medicare amounts are always the same so I'll just use the FICA amount.</p>
 <div class="highlight">
 <pre><span></span><span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
@@ -243,56 +254,63 @@
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4ef0c19">
-<h3 id="org4ef0c19">To a DataFrame</h3>
-<div class="outline-text-3" id="text-org4ef0c19">
+<div class="outline-3" id="outline-container-orgf0d6dfe">
+<h3 id="orgf0d6dfe">To a DataFrame</h3>
+<div class="outline-text-3" id="text-orgf0d6dfe">
 <p>Anyway, that's basically all you need to get it going.</p>
 <div class="highlight">
 <pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
     <span class="nb">dict</span><span class="p">(</span>
-        <span class="n">year</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startYear"</span><span class="p">))</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">],</span>
+        <span class="n">year</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startYear"</span><span class="p">))</span>  <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">],</span>
         <span class="n">amount</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"FicaEarnings"</span><span class="p">)</span><span class="o">.</span><span class="n">string</span><span class="p">)</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">]</span>
         <span class="p">)</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">"offset"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="n">OFFSET</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)[[</span><span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"amount"</span><span class="p">]])</span>
 </pre></div>
 <pre class="example">
-   year  amount
-0  1986     526
-1  1987    1123
-2  1988    1546
-3  1989       0
-4  1990       0
+   offset  amount
+0    1998     526
+1    1999    1123
+2    2000    1546
+3    2001       0
+4    2002       0
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgebc4931">
-<h3 id="orgebc4931">Save It</h3>
-<div class="outline-text-3" id="text-orgebc4931">
+<div class="outline-3" id="outline-container-orge7d763b">
+<h3 id="orge7d763b">Save It</h3>
+<div class="outline-text-3" id="text-orge7d763b">
 <div class="highlight">
-<pre><span></span><span class="n">csv</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY_CSV"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<pre><span></span><span class="k">del</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"offset"</span><span class="p">])</span>
+<span class="n">csv</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY_CSV"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
 <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org06a14ac">
-<h2 id="org06a14ac">End</h2>
-<div class="outline-text-2" id="text-org06a14ac">
+<div class="outline-2" id="outline-container-orgc19a58c">
+<h2 id="orgc19a58c">End</h2>
+<div class="outline-text-2" id="text-orgc19a58c">
 <p>I usually like to put in a little plotting so I'm going to plot the amount over time. Since I already shared my first five years I'm going to start after that and obscure the numbers a little.</p>
 </div>
-<div class="outline-3" id="outline-container-org7b35cdb">
-<h3 id="org7b35cdb">Time Series</h3>
-<div class="outline-text-3" id="text-org7b35cdb">
+<div class="outline-3" id="outline-container-org7bd731f">
+<h3 id="org7bd731f">Time Series</h3>
+<div class="outline-text-3" id="text-org7bd731f">
+<p>First I'll add the offset year back in, then I'm going to scale it.</p>
 <div class="highlight">
-<pre><span></span><span class="n">to_plot</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">&gt;</span> <span class="mi">1990</span><span class="p">]</span>
-<span class="n">MIN</span> <span class="o">=</span> <span class="n">to_plot</span><span class="p">[</span><span class="n">to_plot</span><span class="o">.</span><span class="n">amount</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">amount</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-<span class="n">to_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"amount"</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_plot</span><span class="o">.</span><span class="n">amount</span><span class="o">/</span><span class="n">MIN</span>
+<pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">"year"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="n">OFFSET</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">to_plot</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span>
+<span class="n">MAX</span> <span class="o">=</span> <span class="n">to_plot</span><span class="o">.</span><span class="n">amount</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">to_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"amount"</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_plot</span><span class="o">.</span><span class="n">amount</span><span class="o">/</span><span class="n">MAX</span>
 
 <span class="n">plot</span> <span class="o">=</span> <span class="n">to_plot</span><span class="o">.</span><span class="n">hvplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"year"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"amount"</span><span class="p">)</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">"Income Over Time"</span><span class="p">,</span>
     <span class="n">width</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
     <span class="n">fontscale</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span>
+    <span class="n">xaxis</span><span class="o">=</span><span class="s2">"bare"</span><span class="p">,</span>
     <span class="n">color</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">blue</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -304,7 +322,7 @@
 <object data="/posts/xml-to-pandas/income_over_time.html" height="800" style="width:100%" type="text/html">
 <p>Figure Missing</p>
 </object>
-<p>Well, there you go. The plot starts out with me still working for the State, so there's no reported income, then there's an uptick when I took a retail job, then a drop again when I went back to school for a little while to look into getting a design degree, then there's another uptick when I gave up on the design degree and went to work as a clerk for a real estate office, then the next drop comes when I went back to get a Computer Science degree and the rising after that show the difference between working retail/clerical versus being a computer programmer, with the two plateaus representing the two companies I've worked for.</p>
+<p>Well, there you go. Since I'm adding a random offset to the years I removed the x-axis labels, but the plot starts out with me still working for the State, so there's no reported income, then there's an uptick when I took a retail job, then a drop again when I went back to school for a little while to look into getting a design degree, then there's another uptick when I gave up on the design degree and went to work as a clerk for a real estate office, then the next drop comes when I went back to get a Computer Science degree and the rising after that shows the difference between working retail/clerical versus being a computer programmer, with the two plateaus representing the two companies I've worked for.</p>
 </div>
 </div>
 </div>
