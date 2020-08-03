@@ -12,14 +12,14 @@
 #+OPTIONS: ^:{}
 #+TOC: headlines 2
 
-#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-a65e3830-77e5-411d-a109-c8c4652b5a4e.json
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-d52a311d-fde0-4e6a-89a4-d121ca48c0cc.json
 
 #+BEGIN_SRC python :results none :exports none
 %load_ext autoreload
 %autoreload 2
 #+END_SRC
 * Beginning
-  I went to the [[https://www.ssa.gov/][Social Security website]] to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it actually has more than just the earnings data) so these are my notes on converting it to a pandas DataFrame using [[https://www.crummy.com/software/BeautifulSoup/bs4/doc/][BeautifulSoup]].
+  I went to the [[https://www.ssa.gov/][Social Security website]] to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it has more than just the earnings data, so it would have to be a series of CSVs instead of one file) so these are my notes on converting it to a pandas DataFrame using [[https://www.crummy.com/software/BeautifulSoup/bs4/doc/][BeautifulSoup]].
 
 ** Imports
    To actually do the conversion you only need BeautifulSoup and pandas, all the rest of the stuff comes into play because I'm making a post.
@@ -31,6 +31,7 @@ from functools import partial
 from pathlib import Path
 
 import os
+import random
 
 # from pypi
 from bs4 import BeautifulSoup
@@ -67,6 +68,13 @@ Plot = Namespace(
     font_scale=2,
 )
 #+end_src
+*** The Random Seed
+    I decided since I'm talking about social security stuff I'd make at least some attempt at obfuscating things so I'm adding a random offset to the years.
+
+#+begin_src python :results none
+random.seed(2020)
+OFFSET = random.randint(10, 20)
+#+end_src
 * Middle
 ** The XML
 *** Loading It
@@ -85,13 +93,13 @@ Note that you have to pass in the ="xml"= argument - BeautifulSoup is primarily 
     The data I wanted is in a set of tags that look like this:
 
 #+begin_src xml
-<osss:Earnings endYear="1986" startYear="1986">
+<osss:Earnings endYear="1998" startYear="1998">
 <osss:FicaEarnings>526</osss:FicaEarnings>
 <osss:MedicareEarnings>526</osss:MedicareEarnings>
 </osss:Earnings>
 #+end_src
 
-This set represents what was collected in 1986 - $526 for Social Security and Medicare (FICA stands for [[https://www.wikiwand.com/en/Federal_Insurance_Contributions_Act_tax][Federal Insurance Contributions Act]] and is the name of the tax that funds Social Security). Yes, I'm that old, and yes, I only made $526 in 1986 because I was a teenager working a part-time job taking store inventories - still, I can't believe how little I got paid...
+This set represents what was collected in 1998 - $526 for Social Security and Medicare (FICA stands for [[https://www.wikiwand.com/en/Federal_Insurance_Contributions_Act_tax][Federal Insurance Contributions Act]] and is the name of the tax that funds Social Security). Yes, I only made $526 in 1998 because I was a teenager working a part-time job taking store inventories - still, I can't believe how little I got paid...
 
 Anyway, so the first thing to do is to grab all the nodes representing earning.
 
@@ -103,25 +111,25 @@ print(earnings[0])
 
 #+RESULTS:
 : 34
-: <osss:Earnings endYear="1986" startYear="1986">
+: <osss:Earnings endYear="1998" startYear="1998">
 : <osss:FicaEarnings>526</osss:FicaEarnings>
 : <osss:MedicareEarnings>526</osss:MedicareEarnings>
 : </osss:Earnings>
 
 *** The Years
-    Now that we have the earnings, we can see about getting the years. Although they have =endYear= and =startYear= they're always the same so I'll use =startYear=.
+    Now that we have the earnings, we can see about getting the years. Although they have =endYear= and =startYear= they're always the same so I'll use =startYear=. I'm adding the =OFFSET= here just to obfuscate what years I'm looking at.
 
 #+begin_src python :results output :exports both
 for year in earnings[:5]:
-    print(year.get("startYear"))
+    print(int(year.get("startYear")) + OFFSET)
 #+end_src
 
 #+RESULTS:
-: 1986
-: 1987
-: 1988
-: 1989
-: 1990
+: 1998
+: 1999
+: 2000
+: 2001
+: 2002
 
 *** Collected
     Next I'll see about grabbing the amounts collected for each year. The FICA and Medicare amounts are always the same so I'll just use the FICA amount.
@@ -146,25 +154,27 @@ That looks right. It drops to 0 because I went to college and started working on
 #+begin_src python :results output :exports both
 data = pandas.DataFrame.from_dict(
     dict(
-        year = [int(year.get("startYear")) for year in earnings],
+        year = [int(year.get("startYear"))  for year in earnings],
         amount = [int(year.find("FicaEarnings").string) for year in earnings]
         )
 )
 
-print(data.head(5))
+data["offset"] = data.year + OFFSET
+print(data.head(5)[["offset", "amount"]])
 #+end_src
 
 #+RESULTS:
-:    year  amount
-: 0  1986     526
-: 1  1987    1123
-: 2  1988    1546
-: 3  1989       0
-: 4  1990       0
+:    offset  amount
+: 0    1998     526
+: 1    1999    1123
+: 2    2000    1546
+: 3    2001       0
+: 4    2002       0
 
 ** Save It
 
 #+begin_src python :results none
+del(data["offset"])
 csv = Path(os.environ["SOCIAL_SECURITY_CSV"]).expanduser()
 data.to_csv(csv, index=False)
 #+end_src
@@ -173,15 +183,22 @@ data.to_csv(csv, index=False)
 
 
 ** Time Series
+   First I'll add the offset year back in, then I'm going to scale it.
+
 #+begin_src python :results none
-to_plot = data[data.year > 1990]
-MIN = to_plot[to_plot.amount > 0].amount.min()
-to_plot.loc[:, "amount"] = to_plot.amount/MIN
+data["year"] = data.year + OFFSET
+#+end_src
+
+#+begin_src python :results none
+to_plot = data.iloc[5:]
+MAX = to_plot.amount.max()
+to_plot.loc[:, "amount"] = to_plot.amount/MAX
 
 plot = to_plot.hvplot(x="year", y="amount").opts(
     title="Income Over Time",
     width=Plot.width, height=Plot.height,
     fontscale=Plot.font_scale,
+    xaxis="bare",
     color=Plot.blue,
 )
 
@@ -199,4 +216,6 @@ print(outcome)
 </object>
 #+end_export
 
-Well, there you go. The plot starts out with me still working for the State, so there's no reported income, then there's an uptick when I took a retail job, then a drop again when I went back to school for a little while to look into getting a design degree, then there's another uptick when I gave up on the design degree and went to work as a clerk for a real estate office, then the next drop comes when I went back to get a Computer Science degree and the rising after that show the difference between working retail/clerical versus being a computer programmer, with the two plateaus representing the two companies I've worked for.
+Well, there you go. Since I'm adding a random offset to the years I removed the x-axis labels, but the plot starts out with me still working for the State, so there's no reported income, then there's an uptick when I took a retail job, then a drop again when I went back to school for a little while to look into getting a design degree, then there's another uptick when I gave up on the design degree and went to work as a clerk for a real estate office, then the next drop comes when I went back to get a Computer Science degree and the rising after that shows the difference between working retail/clerical versus being a computer programmer, with the two plateaus representing the two companies I've worked for.
+
+#  LocalWords:  BeautifulSoup
