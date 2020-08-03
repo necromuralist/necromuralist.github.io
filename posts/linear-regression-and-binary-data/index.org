@@ -1,0 +1,244 @@
+#+BEGIN_COMMENT
+.. title: Linear Regression and Binary Data
+.. slug: linear-regression-and-binary-data
+.. date: 2020-08-01 17:31:46 UTC-07:00
+.. tags: linear regression,data,slipnote,dummy variables,categorical data
+.. category: Data
+.. link: 
+.. description: A note on Linear Regression and binary data.
+.. type: text
+.. has_math: true
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-a9199e19-26ff-4877-a660-e5f1f3cda209.json
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+
+* Beginning
+I'm going to look at binary classification (two classes) and linear regression. In particular I'm going to use the {{% lancelot "Credit Card Balance" %}}isl-credit-data-set{{% /lancelot %}} data set {{% lancelot "(James et al., 2013)" %}}an-introduction-to-statistical-learning{{% /lancelot %}} to look at how to interpret the linear model once we encode gender.
+** Set Up
+*** Imports
+   First, some importing.
+#+begin_src python :results none
+# python
+from functools import partial
+from pathlib import Path
+
+import math
+import os
+import pickle
+
+# pypi
+from dotenv import load_dotenv
+from expects import (
+    be_true,
+    expect
+)
+import hvplot.pandas
+import pandas
+import statsmodels.api as statsmodels
+import statsmodels.formula.api as statsmodels_formula
+
+# my stuff
+from graeae import EmbedHoloviews, CountPercentage
+#+end_src
+*** The Environment
+    This loads the path to files.
+#+begin_src python :results none
+load_dotenv(".env")
+#+end_src
+*** Plotting
+    This just sets up some convenience values for plotting.
+#+begin_src python :results none
+SLUG = "linear-regression-and-binary-data"
+Embed = partial(EmbedHoloviews,
+                folder_path=f"files/posts/{SLUG}")
+
+with Path(os.environ["PLOT_CONSTANTS"]).expanduser().open("rb") as reader:
+    Plot = pickle.load(reader)
+#+end_src
+*** The Data
+    I downloaded the data from the [[https://faculty.marshall.usc.edu/gareth-james/ISL/data.html][ISL Data Set page]] previously so I'll load it here.
+#+begin_src python :results none
+data = pandas.read_csv(Path(os.environ["CREDIT"]).expanduser(), index_col=0)
+#+end_src
+
+I passed in the =index_col= argument because the first column is a index column with no header, so it just looks goofy if you don't. There are several columns but I only want =Gender= and =Balance= (the credit card balance).
+
+#+begin_src python :results none
+data = data[["Gender", "Balance"]]
+#+end_src
+* Middle
+** The Data
+   Now that we have the data we can take a quick look at what's there.
+#+begin_src python :results output :exports both
+counter = CountPercentage(data.Gender, value_label="Gender")
+print(counter())
+#+end_src
+
+| Gender   |   Count |   Percent (%) |
+|----------+---------+---------------|
+| Female   |     207 |         51.75 |
+| Male     |     193 |         48.25 |
+
+Our two classes are "Female" and "Male" and they are roughly, but not quite, equal in number. Now I'll look at the balance.
+
+#+begin_src python :results none
+plot = data.hvplot.kde(y="Balance", by="Gender", color=Plot.color_cycle).opts(
+    width=Plot.width,
+    height=Plot.height,
+    fontscale=Plot.font_scale,
+    title="Credit Card Balance Distribution by Gender"
+)
+
+output = Embed(plot=plot, file_name="balance_distributions")()
+#+end_src
+
+#+begin_src python :results output html :exports both
+print(output)
+#+end_src
+
+#+RESULTS:
+#+begin_export html
+<object type="text/html" data="balance_distributions.html" style="width:100%" height=800>
+  <p>Figure Missing</p>
+</object>
+#+end_export
+
+It looks like there are two populations for each gender. The larger one for both genders is centered near 0 and then both genders have a secondary population that carries a balance.
+
+** Encode the Gender
+   Since the =Gender= data is categorical we need to create a /dummy variable/ to encode it. So what I'm going to do is encode males as 0 and females as 1 (because of the nature of binary encoding, we could swap the numbers and it would still work).
+
+#+begin_src python :results none
+gender = dict(
+    Male=0,
+    Female=1,
+)
+#+end_src
+
+#+begin_src python :results output :exports both
+data["gender"] = data.Gender.map(gender)
+print(data.gender.value_counts())
+#+end_src
+
+#+RESULTS:
+: 1    207
+: 0    193
+: Name: gender, dtype: int64
+
+** Fit the Regression
+   Now I'll fit the model with [[https://www.statsmodels.org/stable/index.html][statsmodels]], which uses r-style arguments (I think it supports regular python arguments too).
+
+#+begin_src python :results output :exports both
+model = statsmodels_formula.ols("Balance ~ gender", data=data).fit()
+print(model.summary())
+#+end_src
+
+#+RESULTS:
+#+begin_example
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                Balance   R-squared:                       0.000
+Model:                            OLS   Adj. R-squared:                 -0.002
+Method:                 Least Squares   F-statistic:                    0.1836
+Date:                Sun, 02 Aug 2020   Prob (F-statistic):              0.669
+Time:                        16:55:01   Log-Likelihood:                -3019.3
+No. Observations:                 400   AIC:                             6043.
+Df Residuals:                     398   BIC:                             6051.
+Df Model:                           1                                         
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept    509.8031     33.128     15.389      0.000     444.675     574.931
+gender        19.7331     46.051      0.429      0.669     -70.801     110.267
+==============================================================================
+Omnibus:                       28.438   Durbin-Watson:                   1.940
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               27.346
+Skew:                           0.583   Prob(JB):                     1.15e-06
+Kurtosis:                       2.471   Cond. No.                         2.66
+==============================================================================
+
+Warnings:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+#+end_example
+
+The model is something like this:
+
+\[
+ balance = \beta_0 + \beta_1 \times gender
+\]
+
+Since we encoded Male as 0 and Female as 1, when the gender is Male the second term drops out and all you have is \(\beta_0\), while for females you have have the full equation. How do you interpret the \(\beta\)s? 
+
+ - \(\beta_0\) is the average balance that males carry
+ - \(\beta_0 + \beta_1\) is the average balance that females carry
+ - \(\beta_1\) is the difference between the average balances
+
+We can check this by comparing the =coef= entry in the summary table that I printed. The =Intercept= is \(\beta_0\) and =gender= is \(\beta_1\)
+
+#+begin_src python :results output :exports both
+male_mean = data[data.Gender=="Male"].Balance.mean()
+female_mean = data[data.Gender=="Female"].Balance.mean()
+print(f"Average Male Balance: {male_mean:.7}")
+print(f"Average Female Balance: {female_mean:0.7}")
+print(f"Average difference: {female_mean - male_mean:0.7}")
+
+expect(math.isclose(male_mean, model.params.Intercept)).to(be_true)
+expect(math.isclose(female_mean - male_mean, model.params.gender)).to(be_true)
+#+end_src
+
+#+RESULTS:
+: Average Male Balance: 509.8031
+: Average Female Balance: 529.5362
+: Average difference: 19.73312
+
+#+begin_src python :results none
+data = data.sort_values(by="Balance")
+data["prediction"] = model.predict(data.gender)
+#+end_src
+
+#+begin_src python :results none
+scatter = data.hvplot.scatter(x="Balance", y="prediction", by="Gender",
+                               color=Plot.color_cycle).opts(
+    width=Plot.width,
+    height=Plot.height,
+    title="Gender Model",
+    fontscale=Plot.font_scale,
+)
+
+output = Embed(plot=scatter, file_name="Gender Model")()
+#+end_src
+
+#+begin_src python :results output html :exports both
+print(output)
+#+end_src
+
+#+RESULTS:
+#+begin_export html
+<object type="text/html" data="Gender Model.html" style="width:100%" height=800>
+  <p>Figure Missing</p>
+</object>
+#+end_export
+
+I didn't set up a hypothesis test, but if you look at the p-value (the =P>|t|= column in the summary) for =gender= you can see that it's much larger than 0.05 or whatever level you would normally choose, so it's probable that =gender= isn't significant, so the average balance for both genders is really the same, given the deviation, but this is just about interpreting the coefficients, not deciding the validity of this particular model.
+
+* End
+  So there you have it. If you have the specialized case of binary categorical data you can convert the category to /dummy variables/ and then fit a linear regression to it. If you encode the values as /0/ and /1/ then the /y-intercept/ will give you the average output value for the category set to 0 and the /slope/ will give you the difference between the average outputs for the categories. If you use different dummy variables the meanings will change slightly, although you will still be inferring things about the averages. Why is this interesting - predicting the mean for each category?
+
+ Logistic regression also relies on dummy variables for categorical encodings and this shows a preliminary step that helps us:
+  - encode the dummy variables
+  - build a linear model using statsmodels
+  - view summary information about the model
+
+I didn't emphasize it, but the p-value for the f-statistic might be valuable when deciding whether the categorical data is different enough to use as a feature.
+* Sources
+  - {{% doc %}}an-introduction-to-statistical-learning{{% /doc %}}
+  - {{% doc %}}isl-credit-data-set{{% /doc %}}
+
+#  LocalWords:  lancelot
