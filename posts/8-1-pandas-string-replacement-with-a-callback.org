@@ -1,0 +1,41 @@
+#+BEGIN_COMMENT
+.. title: Pandas String Replacement With a Callback
+.. slug: pandas-string-replacement-with-a-callback
+.. date: 2020-08-05 17:05:10 UTC-07:00
+.. tags: slipnote,pandas
+.. category: Pandas
+.. link: 
+.. description: Replacing parts of strings with a callback function in Pandas.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+
+If you want to replace parts of strings in a Pandas Series you can pass in a string, but if you want to keep part of the original sub-string that you are replacing you can call the [[https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html][replace method]] while passing in a function that un-packs the [[https://docs.python.org/3.6/library/re.html#match-objects][match]] object.
+
+As an example, to add paretheses around strings that look like "Also see penguin" you can define a regular expression that has a named group in it.
+#+begin_src python :results none
+PATTERN = r"Also see (?P<name>\w+)"
+#+end_src
+
+Then define a function that expects objects that match the pattern and creates a string using the named-group.
+
+#+begin_src python :results none
+def see_also(match: re.match) -> str:
+    """Add parentheses to Also see
+
+    Args:
+     match: regular expression match object
+
+    Returns:
+     string with the name from the object and parentheses added
+    """
+    return f"(Also see {match['name']})"
+#+end_src
+
+Then pass in the pattern and function to the [[https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html][replace method]].
+
+#+begin_src python :results none
+table["Animal"] = table.Animal.str.replace(PATTERN, see_also)
+#+end_src

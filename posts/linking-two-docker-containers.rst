@@ -1,8 +1,8 @@
 .. title: Linking Two Docker Containers
 .. slug: linking-two-docker-containers
 .. date: 2016-06-19 20:31:20 UTC-07:00
-.. tags: docker how-to 
-.. category: how-to
+.. tags: docker,how-to 
+.. category: Docker
 .. link: 
 .. description: How to link two docker containers.
 .. type: text
