@@ -1,8 +1,8 @@
 .. title: Pruning Large Files From Git with BFG
 .. slug: pruning-large-files-from-git-with-bfg
 .. date: 2018-01-14 12:57:59 UTC-08:00
-.. tags: git bfg howto
-.. category: HowTo
+.. tags: git,bfg,how-to
+.. category: Git
 .. link: 
 .. description: How to prune large files from a git repository after pushing changes with BFG.
 .. type: text

@@ -1,0 +1,189 @@
+#+BEGIN_COMMENT
+.. title: SQL Alchemy Tutorial
+.. slug: sql-alchemy-tutorial
+.. date: 2018-11-30 17:10:50 UTC-08:00
+.. tags: sql-alchemy,tutorial
+.. category: SQL Alchemy
+.. link: 
+.. description: Walking through the SQL Alchemy Tutorial.
+.. type: text
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 1
+This is a walk through of the [[https://docs.sqlalchemy.org/en/latest/orm/tutorial.html][SQL Alchemy Tutorial]]. There's nothing original here, I'm just trying to re-acquaint myself with SQL Alchemy.
+* Imports
+#+BEGIN_SRC python :session sqlalchemy :results none
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+#+END_SRC
+* Create the Engine
+  This is going to connect to [[https://sqlite.org/index.html][SQLite]] (in memory).
+
+#+BEGIN_SRC python :session sqlalchemy :results none
+engine = create_engine("sqlite:///:memory:", echo=True)
+#+END_SRC
+
+The =echo= parameter tells SQLAlchemy to start logging.
+
+* Declare a Mapping
+** The Base
+  This creates a base-class that our classes will inherit from.
+
+#+BEGIN_SRC python :session sqlalchemy :results none
+Base = declarative_base()
+#+END_SRC
+** A User
+   First we're going to create a User class that maps to a user-table in the database.
+#+BEGIN_SRC python :session sqlalchemy :results none
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    fullname = Column(String)
+    password = Column(String)
+
+    def __repr__(self):
+        return "<User (name={} fullname={} password={})".format(self.name,
+                                                                self.fullname,
+                                                                self.password)
+#+END_SRC
+* Create a Schema
+  SQL Alchemy automatically creates a Table object for us.
+
+#+BEGIN_SRC python :session sqlalchemy :results raw :exports both
+User.__table__
+#+END_SRC
+
+#+RESULTS:
+# Out[5]:
+: Table('users', MetaData(bind=None), Column('id', Integer(), table=<users>, primary_key=True, nullable=False), Column('name', String(), table=<users>), Column('fullname', String(), table=<users>), Column('password', String(), table=<users>), schema=None)
+
+If you try and print it you will only get the table-name 'users'.
+
+** Create the Table
+Now we actually create the table using the Base object.
+
+#+BEGIN_SRC python :session sqlalchemy :results output :exports both
+Base.metadata.create_all(engine)
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+2018-11-30 18:05:27,009 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS VARCHAR(60)) AS anon_1
+2018-11-30 18:05:27,010 INFO sqlalchemy.engine.base.Engine ()
+2018-11-30 18:05:27,011 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS VARCHAR(60)) AS anon_1
+2018-11-30 18:05:27,011 INFO sqlalchemy.engine.base.Engine ()
+2018-11-30 18:05:27,013 INFO sqlalchemy.engine.base.Engine PRAGMA table_info("users")
+2018-11-30 18:05:27,014 INFO sqlalchemy.engine.base.Engine ()
+2018-11-30 18:05:27,015 INFO sqlalchemy.engine.base.Engine 
+CREATE TABLE users (
+	id INTEGER NOT NULL, 
+	name VARCHAR, 
+	fullname VARCHAR, 
+	password VARCHAR, 
+	PRIMARY KEY (id)
+)
+
+
+2018-11-30 18:05:27,016 INFO sqlalchemy.engine.base.Engine ()
+2018-11-30 18:05:27,017 INFO sqlalchemy.engine.base.Engine COMMIT
+#+END_EXAMPLE
+
+* Create a User
+
+#+BEGIN_SRC python :session sqlalchemy :results output :exports both
+bob = User(name="bob", fullname="Bob Dobolina", password="bob spelled backwards")
+
+print(bob.name)
+print(bob.fullname)
+print(bob.id)
+#+END_SRC
+
+#+RESULTS:
+: bob
+: Bob Dobolina
+: None
+
+* Create a Session
+  So far we've only been working with python objects, you need a session to actually talk to a database.
+
+#+BEGIN_SRC python :session sqlalchemy :results none
+Session = sessionmaker(bind=engine)
+#+END_SRC
+
+#+BEGIN_SRC python :session sqlalchemy :results none
+session = Session()
+#+END_SRC
+
+* Add Bob to the Session
+
+#+BEGIN_SRC python :session sqlalchemy :results none
+session.add(bob)
+#+END_SRC
+
+This still doesn't actually add it to the database, we need to commit it. This is useful because you can continue to create objects and update them without continuously hitting the database.
+
+Now we actually do our first communication with the database.
+
+#+BEGIN_SRC python :session sqlalchemy :results output :exports both
+session.commit()
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+2018-12-03 14:39:51,652 INFO sqlalchemy.engine.base.Engine BEGIN (implicit)
+2018-12-03 14:39:51,655 INFO sqlalchemy.engine.base.Engine INSERT INTO users (name, fullname, password) VALUES (?, ?, ?)
+2018-12-03 14:39:51,656 INFO sqlalchemy.engine.base.Engine ('bob', 'Bob Dobolina', 'bob spelled backwards')
+2018-12-03 14:39:51,658 INFO sqlalchemy.engine.base.Engine COMMIT
+#+END_EXAMPLE
+
+
+#+BEGIN_SRC python :session sqlalchemy :results output :exports both
+print("Bob's ID: {}".format(bob.id))
+#+END_SRC
+
+#+RESULTS:
+: Bob's ID: 1
+
+Even though we didn't specify the ID, it gets added when the entry is committed to the database.
+
+* More Users
+  Instead of adding them one at a time you can pass in a list of users.
+
+#+BEGIN_SRC python :session sqlalchemy :results none
+session.add_all([
+    User(name="ted", fullname="Ted Thompson", password="wordpass"),
+    User(name="tom", fullname="Tom Tuttle", password="tacoma")
+])
+#+END_SRC
+
+#+BEGIN_SRC python :session sqlalchemy :results output :exports both
+session.commit()
+#+END_SRC
+
+#+RESULTS:
+: 2018-12-03 14:46:48,764 INFO sqlalchemy.engine.base.Engine INSERT INTO users (name, fullname, password) VALUES (?, ?, ?)
+: 2018-12-03 14:46:48,765 INFO sqlalchemy.engine.base.Engine ('ted', 'Ted Thompson', 'wordpass')
+: 2018-12-03 14:46:48,766 INFO sqlalchemy.engine.base.Engine INSERT INTO users (name, fullname, password) VALUES (?, ?, ?)
+: 2018-12-03 14:46:48,767 INFO sqlalchemy.engine.base.Engine ('tom', 'Tom Tuttle', 'tacoma')
+: 2018-12-03 14:46:48,768 INFO sqlalchemy.engine.base.Engine COMMIT
+
+Now we can make a query to see what's there.
+
+#+BEGIN_SRC python :session sqlalchemy :results output :exports both
+for row in session.query(User).order_by(User.id):
+    print(row.id, row.fullname)
+#+END_SRC
+
+#+RESULTS:
+: 2018-12-03 14:48:53,556 INFO sqlalchemy.engine.base.Engine SELECT users.id AS users_id, users.name AS users_name, users.fullname AS users_fullname, users.password AS users_password 
+: FROM users ORDER BY users.id
+: 2018-12-03 14:48:53,557 INFO sqlalchemy.engine.base.Engine ()
+: 1 Bob Dobolina
+: 2 Ted Thompson
+: 3 Tom Tuttle

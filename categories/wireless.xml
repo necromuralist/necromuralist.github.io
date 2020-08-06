@@ -1,17 +1,324 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about wireless)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/wireless.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2019 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sat, 27 Jul 2019 17:00:38 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Wireless Bibliography</title><link>https://necromuralist.github.io/posts/reference/wireless-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about wireless)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/wireless.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 06 Aug 2020 02:47:23 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</title><link>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org2e9f6cf" class="outline-2"&gt;
+&lt;h2 id="org2e9f6cf"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2e9f6cf"&gt;
+&lt;p&gt;
+I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+iwconfig wlan0 mode monitor
+Error for wireless request "Set Mode" (8B06) :
+    SET failed on device wlan0 ; Operation not supported.
+&lt;/pre&gt;
+
+&lt;p&gt;
+Looking around on the web I found &lt;a href="https://www.reddit.com/r/raspberry_pi/comments/4ah4oi/psa_the_raspberry_pi_3s_embedded_wifi_card_does/"&gt;this reddit post&lt;/a&gt; as well as some Stack Overflow posts that said that monitor mode isn't supported on the Raspberry Pi. There is a project called &lt;a href="https://github.com/seemoo-lab/nexmon"&gt;nexmon&lt;/a&gt; that apparently lets up add a firmware patch to enable it, which I'll probably try later, but before I tried that I remembered that I have a Realtek 8812AU USB WiFi adapter that I bought a while ago for an old desktop I had that I wasn't using so I decided to try it.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgfa79f22" class="outline-2"&gt;
+&lt;h2 id="orgfa79f22"&gt;What I tried&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgfa79f22"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orge93a9ff" class="outline-3"&gt;
+&lt;h3 id="orge93a9ff"&gt;Plug-and-Pray&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge93a9ff"&gt;
+&lt;p&gt;
+The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although &lt;code&gt;lsusb&lt;/code&gt; showed it, &lt;code&gt;iwconfig&lt;/code&gt; didn't show it as an interface. Back to the internet. 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org050fc72" class="outline-3"&gt;
+&lt;h3 id="org050fc72"&gt;Github&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org050fc72"&gt;
+&lt;p&gt;
+Next I found &lt;a href="https://github.com/diederikdehaas/rtl8812AU"&gt;a repository on github&lt;/a&gt; that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_RPI = y
+&lt;/pre&gt;
+
+&lt;p&gt;
+in the &lt;code&gt;Makefile&lt;/code&gt; - but when I tried to build it I got this error.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo dkms install -m $DRV_NAME -v $DRV_VERSION
+
+'make' KVER=4.4.38-v7+....(bad exit status: 2)
+ERROR (dkms apport): binary package for rtl8812AU: 4.3.20 not found
+Error! Bad return status for module build on kernel: 4.4.38-v7+ (armv7l)
+Consult /var/lib/dkms/rtl8812AU/4.3.20/build/make.log for more information.
+&lt;/pre&gt;
+
+&lt;p&gt;
+There was also a message in the &lt;code&gt;make.log&lt;/code&gt; file but I didn't remember to copy it. 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org958818a" class="outline-2"&gt;
+&lt;h2 id="org958818a"&gt;What fixed it&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org958818a"&gt;
+&lt;p&gt;
+The solution was in &lt;a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make"&gt;this StackOverflow post&lt;/a&gt; - the &lt;code&gt;make&lt;/code&gt; program is being pointed to a folder named &lt;code&gt;arm7l&lt;/code&gt; (thats 'arm seven ell') but it should actually be pointed to one named &lt;code&gt;arm&lt;/code&gt;. The simple solution is to create an alias with the correct name.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.4.38-v7+/arch/armv7l
+&lt;/pre&gt;
+
+&lt;p&gt;
+This turns out to fix the build problem and after a reboot the network interface showed up.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgdcc3f79" class="outline-2"&gt;
+&lt;h2 id="orgdcc3f79"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgdcc3f79"&gt;
+&lt;p&gt;
+The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that &lt;code&gt;iwconfig&lt;/code&gt; will put it in monitor mode but &lt;code&gt;airmon-ng&lt;/code&gt; doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, &lt;code&gt;iw&lt;/code&gt; always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>how-to</category><category>rapsberry-pi</category><category>wireless</category><guid>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</guid><pubDate>Sun, 03 Jun 2018 22:57:12 GMT</pubDate></item><item><title>Wireless Bibliography</title><link>https://necromuralist.github.io/posts/reference/wireless-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/reference/wireless-bibliography/#org3e1c685"&gt;Benchmarking&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/reference/wireless-bibliography/#orgbd86712"&gt;Benchmarking&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3e1c685" class="outline-2"&gt;
-&lt;h2 id="org3e1c685"&gt;Benchmarking&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3e1c685"&gt;
+&lt;div id="outline-container-orgbd86712" class="outline-2"&gt;
+&lt;h2 id="orgbd86712"&gt;Benchmarking&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgbd86712"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;[R1] Rehman S, Turletti T, Dabbous W. A Roadmap for Benchmarking in Wireless Networks. 2011 Aug 9;  (&lt;a href="https://www.researchgate.net/publication/279405375_A_Roadmap_for_Benchmarking_in_Wireless_Networks"&gt;ResearchGate Link&lt;/a&gt;)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>bibliography</category><category>wireless</category><guid>https://necromuralist.github.io/posts/reference/wireless-bibliography/</guid><pubDate>Thu, 31 May 2018 21:23:38 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>bibliography</category><category>wireless</category><guid>https://necromuralist.github.io/posts/reference/wireless-bibliography/</guid><pubDate>Thu, 31 May 2018 21:23:38 GMT</pubDate></item><item><title>Networking Tools</title><link>https://necromuralist.github.io/posts/networking-tools/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgab17277" class="outline-2"&gt;
+&lt;h2 id="orgab17277"&gt;Packet Capturing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgab17277"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org5593837" class="outline-3"&gt;
+&lt;h3 id="org5593837"&gt;&lt;a href="http://staff.washington.edu/corey/gulp/"&gt;Gulp&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5593837"&gt;
+&lt;p&gt;
+Gulp purports to be better at capturing packets than tcpdump (although they can work together).
+&lt;/p&gt;
+
+&lt;p&gt;
+There is more than one version out there:
+&lt;/p&gt;
+
+&lt;p&gt;
+-&lt;a href="//github.com/gsson/gulp"&gt; This one&lt;/a&gt; says it applied a patch to it five years ago. 
+&lt;/p&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://github.com/aokunev/gulp-v01"&gt;This one&lt;/a&gt; says it is the original but hasn't been updated in six years.&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.crox.net/archives/72-gulp-tcpdump-alternative-for-lossless-capture-on-Linux.html"&gt;This blog post&lt;/a&gt; has updated versions of it including one in 2017 that says it has a major bug fix (but I don't know if it's a gulp bug or not)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org1169b35" class="outline-3"&gt;
+&lt;h3 id="org1169b35"&gt;&lt;a href="https://www.tcpdump.org"&gt;tcpdump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org1169b35"&gt;
+&lt;p&gt;
+More easily obtainable and better documentation available (although still not enough).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org20c8875" class="outline-3"&gt;
+&lt;h3 id="org20c8875"&gt;&lt;a href="http://ssldump.sourceforge.net"&gt;ssldump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org20c8875"&gt;
+&lt;p&gt;
+Captures packets and decodes SSL/TLS packets.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org5b647d4" class="outline-2"&gt;
+&lt;h2 id="org5b647d4"&gt;Packet Examining&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5b647d4"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgfda0c5d" class="outline-3"&gt;
+&lt;h3 id="orgfda0c5d"&gt;&lt;a href="https://github.com/mschiffm/cppip"&gt;Compressed PCAP Packet Indexing Prograpm (cppip)&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfda0c5d"&gt;
+&lt;p&gt;
+This adds indexing to &lt;a href="http://www.htslib.org/doc/bgzip.html"&gt;bgzip&lt;/a&gt; compressed LibPCAP files which then lets you extract them while the original files are still compressed.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org8c6a46f" class="outline-3"&gt;
+&lt;h3 id="org8c6a46f"&gt;&lt;a href="https://linux.die.net/man/8/tcpslice"&gt;tcpslice&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8c6a46f"&gt;
+&lt;p&gt;
+This lets you extract part of or combine files created by tcpdump when using file rotation.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgec2b3c9" class="outline-3"&gt;
+&lt;h3 id="orgec2b3c9"&gt;&lt;a href="https://github.com/jpr5/ngrep"&gt;ngrep&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgec2b3c9"&gt;
+&lt;p&gt;
+Describes itself as like GNU grep but for packets.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org8a628e1" class="outline-3"&gt;
+&lt;h3 id="org8a628e1"&gt;&lt;a href="https://github.com/signed0/pylibpcap"&gt;pylibpcap&lt;/a&gt;, &lt;a href="https://github.com/pynetwork/pypcap"&gt;pypcap&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8a628e1"&gt;
+&lt;p&gt;
+Python code to work with libpcap.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgf42e18c" class="outline-3"&gt;
+&lt;h3 id="orgf42e18c"&gt;WireShark&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf42e18c"&gt;
+&lt;p&gt;
+These are installed when you install wireshark.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org8edf477" class="outline-4"&gt;
+&lt;h4 id="org8edf477"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/tshark.html"&gt;tshark&lt;/a&gt;/&lt;a href="https://www.wireshark.org"&gt;wireshark&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org8edf477"&gt;
+&lt;p&gt;
+Packet capturing and examining (better documented than most of the other programs)
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org2757fa0" class="outline-4"&gt;
+&lt;h4 id="org2757fa0"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/reordercap.html"&gt;reordercap&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org2757fa0"&gt;
+&lt;p&gt;
+Reorders the packets by timestamp.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgc532c9c" class="outline-4"&gt;
+&lt;h4 id="orgc532c9c"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgc532c9c"&gt;
+&lt;p&gt;
+This prints summary information about packe files (works with gzipped files).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org5e6a26f" class="outline-4"&gt;
+&lt;h4 id="org5e6a26f"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/mergecap.html"&gt;mergecap&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org5e6a26f"&gt;
+&lt;p&gt;
+Merges multiple packet files together. Mergecap will try to keep timestamps in order when merging, but it assumes each individual file to merge is already in order.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org43997dd" class="outline-2"&gt;
+&lt;h2 id="org43997dd"&gt;Packet Flows&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org43997dd"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org787326a" class="outline-3"&gt;
+&lt;h3 id="org787326a"&gt;&lt;a href="http://tcpick.sourceforge.net"&gt;tcpick&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org787326a"&gt;
+&lt;p&gt;
+Track, reassemble, reorder TCP streams.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgf8353ae" class="outline-3"&gt;
+&lt;h3 id="orgf8353ae"&gt;&lt;a href="http://www.tcptrace.org"&gt;tcptrace&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf8353ae"&gt;
+&lt;p&gt;
+Gives connection information taken from a capture file.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org288000e" class="outline-3"&gt;
+&lt;h3 id="org288000e"&gt;&lt;a href="https://github.com/simsong/tcpflow"&gt;tcpflow&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org288000e"&gt;
+&lt;p&gt;
+Separates out TCP flows into separate files.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org6c58bde" class="outline-2"&gt;
+&lt;h2 id="org6c58bde"&gt;Capture Summarizing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6c58bde"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgb7eebe9" class="outline-3"&gt;
+&lt;h3 id="orgb7eebe9"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h3&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7da3ba6" class="outline-3"&gt;
+&lt;h3 id="org7da3ba6"&gt;&lt;a href="https://github.com/kohler/ipsumdump"&gt;ipsumdump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7da3ba6"&gt;
+&lt;p&gt;
+Summarizes packet information in ASCII format
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orge8d017f" class="outline-3"&gt;
+&lt;h3 id="orge8d017f"&gt;&lt;a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html"&gt;tcpdstat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge8d017f"&gt;
+&lt;p&gt;
+Gives summary statistics for a pcap file
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org6b12f54" class="outline-2"&gt;
+&lt;h2 id="org6b12f54"&gt;Network Monitoring&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6b12f54"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org516dd38" class="outline-3"&gt;
+&lt;h3 id="org516dd38"&gt;&lt;a href="https://www.ntop.org"&gt;ntop&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org516dd38"&gt;
+&lt;p&gt;
+Like top but for the network.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orga21e5ee" class="outline-3"&gt;
+&lt;h3 id="orga21e5ee"&gt;&lt;a href="http://man7.org/linux/man-pages/man8/ss.8.html"&gt;ss (socket statistics)&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga21e5ee"&gt;
+&lt;p&gt;
+Part of &lt;a href="https://en.wikipedia.org/wiki/Iproute2"&gt;iproute2&lt;/a&gt;
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org2a1bec7" class="outline-2"&gt;
+&lt;h2 id="org2a1bec7"&gt;Miscellaneous&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2a1bec7"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org111d2e5" class="outline-3"&gt;
+&lt;h3 id="org111d2e5"&gt;&lt;a href="http://tcpreplay.appneta.com/"&gt;tcpreplay&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org111d2e5"&gt;
+&lt;p&gt;
+A suite of programs to edit and replay pcap files.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgfcc75a6" class="outline-3"&gt;
+&lt;h3 id="orgfcc75a6"&gt;&lt;a href="https://en.wikipedia.org/wiki/Netcat"&gt;netcat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfcc75a6"&gt;
+&lt;p&gt;
+Read from and write to TCP/UDP network connections.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org262f90e" class="outline-3"&gt;
+&lt;h3 id="org262f90e"&gt;&lt;a href="https://linux.die.net/man/1/socat"&gt;socat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org262f90e"&gt;
+&lt;p&gt;
+Route data between byte streams.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>networking</category><category>tools</category><category>wireless</category><guid>https://necromuralist.github.io/posts/networking-tools/</guid><pubDate>Tue, 22 May 2018 20:57:42 GMT</pubDate></item></channel></rss>

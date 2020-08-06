@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+<head>
+<meta charset="utf-8">
+<meta content="Exploring plotting of categorical data with groupby." name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>Categorical Plotting | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/categorical-plotting/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<link href="../../apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+<link href="../../favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+<link href="../../favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+<link href="../../site.webmanifest" rel="manifest">
+<meta content="Cloistered Monkey" name="author">
+<link href="../date-mean-squared-error/" rel="prev" title="Date Mean Squared Error" type="text/html">
+<link href="../ubuntu/recovering-from-the-ubuntu-1810-upgrade/" rel="next" title="Recovering From the Ubuntu 18.10 Upgrade" type="text/html">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="Categorical Plotting" property="og:title">
+<meta content="https://necromuralist.github.io/posts/categorical-plotting/" property="og:url">
+<meta content="Exploring plotting of categorical data with groupby." property="og:description">
+<meta content="article" property="og:type">
+<meta content="2018-10-26T15:01:04-07:00" property="article:published_time">
+<meta content="categorical data" property="article:tag">
+<meta content="groupby" property="article:tag">
+<meta content="pandas" property="article:tag">
+<meta content="plotting" property="article:tag">
+</head>
+<body>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="../../"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="../../machine-learning-projects/">Machine Learning</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
+</li>
+</ul>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
+<!-- 
+<button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-search"></span>
+</button>
+-->
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
+<!-- End of custom search -->
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
+</ul>
+</div>
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">Categorical Plotting</a></h1>
+<div class="metadata">
+<p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author"><a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-10-26T15:01:04-07:00" itemprop="datePublished" title="2018-10-26 15:01">2018-10-26 15:01</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
+</div>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org53671f5">Imports</a></li>
+<li><a href="#org931493b">Set Up</a></li>
+<li><a href="#org2c3d724">The Data</a></li>
+<li><a href="#orgaef8edc">Grouping</a></li>
+<li><a href="#org3e9488c">Concatenate our data</a></li>
+<li><a href="#org5a75926">Scaled</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org53671f5">
+<h2 id="org53671f5">Imports</h2>
+<div class="outline-text-2" id="text-org53671f5"></div>
+<div class="outline-3" id="outline-container-orgef60e28">
+<h3 id="orgef60e28">From Python</h3>
+<div class="outline-text-3" id="text-orgef60e28">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgc43a42d">
+<h3 id="orgc43a42d">From pypi</h3>
+<div class="outline-text-3" id="text-orgc43a42d">
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">pyplot</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">seaborn</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org931493b">
+<h2 id="org931493b">Set Up</h2>
+<div class="outline-text-2" id="text-org931493b"></div>
+<div class="outline-3" id="outline-container-org5a8ae7a">
+<h3 id="org5a8ae7a">The Plotting</h3>
+<div class="outline-text-3" id="text-org5a8ae7a">
+<div class="highlight">
+<pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="n">seaborn</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">"whitegrid"</span><span class="p">,</span> <span class="n">color_codes</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">FIGURE_SIZE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org37c5491">
+<h3 id="org37c5491">The Tables</h3>
+<div class="outline-text-3" id="text-org37c5491">
+<div class="highlight">
+<pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">tabulate</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="s2">"keys"</span><span class="p">,</span>
+                <span class="n">tablefmt</span><span class="o">=</span><span class="s2">"orgtbl"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org2c3d724">
+<h2 id="org2c3d724">The Data</h2>
+<div class="outline-text-2" id="text-org2c3d724">
+<p>This is just some fake stuff to test it out. We're going to simulate how participants in a survey scored two products on a scale from -3 to 3.</p>
+</div>
+<div class="outline-3" id="outline-container-orgc9a8315">
+<h3 id="orgc9a8315">Product One</h3>
+<div class="outline-text-3" id="text-orgc9a8315">
+<div class="highlight">
+<pre><span></span><span class="n">countries</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"china"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">50</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"india"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"japan"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">countries</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"category"</span><span class="p">)</span>
+<span class="n">one_hot</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="s2">"Alpha"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="n">countries</span><span class="p">),</span>
+                                  <span class="n">dtype</span><span class="o">=</span><span class="s2">"category"</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(),</span> <span class="n">showindex</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+</pre></div>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">country</th>
+<th class="org-right" scope="col">Alpha -3</th>
+<th class="org-right" scope="col">Alpha -2</th>
+<th class="org-right" scope="col">Alpha -1</th>
+<th class="org-right" scope="col">Alpha 0</th>
+<th class="org-right" scope="col">Alpha 1</th>
+<th class="org-right" scope="col">Alpha 2</th>
+<th class="org-right" scope="col">Alpha 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgf52047b">
+<h3 id="orgf52047b">Product Two</h3>
+<div class="outline-text-3" id="text-orgf52047b">
+<div class="highlight">
+<pre><span></span><span class="n">countries</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"china"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"india"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">30</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"japan"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">25</span>
+<span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">countries</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"category"</span><span class="p">)</span>
+<span class="n">one_hot</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="s2">"Beta"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span>
+<span class="n">data_2</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="n">countries</span><span class="p">),</span>
+                                    <span class="n">dtype</span><span class="o">=</span><span class="s2">"category"</span><span class="p">)</span>
+<span class="n">data_2</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data_2</span><span class="p">,</span> <span class="n">one_hot</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">data_2</span><span class="o">.</span><span class="n">head</span><span class="p">()))</span>
+</pre></div>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">country</th>
+<th class="org-right" scope="col">Beta -3</th>
+<th class="org-right" scope="col">Beta -2</th>
+<th class="org-right" scope="col">Beta -1</th>
+<th class="org-right" scope="col">Beta 0</th>
+<th class="org-right" scope="col">Beta 1</th>
+<th class="org-right" scope="col">Beta 2</th>
+<th class="org-right" scope="col">Beta 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgaef8edc">
+<h2 id="orgaef8edc">Grouping</h2>
+<div class="outline-text-2" id="text-orgaef8edc">
+<div class="highlight">
+<pre><span></span><span class="n">grouped</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"country"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">grouped</span><span class="p">))</span>
+</pre></div>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">country</th>
+<th class="org-right" scope="col">Alpha -3</th>
+<th class="org-right" scope="col">Alpha -2</th>
+<th class="org-right" scope="col">Alpha -1</th>
+<th class="org-right" scope="col">Alpha 0</th>
+<th class="org-right" scope="col">Alpha 1</th>
+<th class="org-right" scope="col">Alpha 2</th>
+<th class="org-right" scope="col">Alpha 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">6</td>
+<td class="org-right">8</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
+<td class="org-right">4</td>
+<td class="org-right">11</td>
+<td class="org-right">9</td>
+</tr>
+<tr>
+<td class="org-left">india</td>
+<td class="org-right">3</td>
+<td class="org-right">3</td>
+<td class="org-right">3</td>
+<td class="org-right">3</td>
+<td class="org-right">4</td>
+<td class="org-right">1</td>
+<td class="org-right">3</td>
+</tr>
+<tr>
+<td class="org-left">japan</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">1</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight">
+<pre><span></span><span class="n">grouped_2</span> <span class="o">=</span> <span class="n">data_2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"country"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">grouped_2</span><span class="p">))</span>
+</pre></div>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">country</th>
+<th class="org-right" scope="col">Beta -3</th>
+<th class="org-right" scope="col">Beta -2</th>
+<th class="org-right" scope="col">Beta -1</th>
+<th class="org-right" scope="col">Beta 0</th>
+<th class="org-right" scope="col">Beta 1</th>
+<th class="org-right" scope="col">Beta 2</th>
+<th class="org-right" scope="col">Beta 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">1</td>
+<td class="org-right">5</td>
+<td class="org-right">4</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+<td class="org-right">1</td>
+<td class="org-right">4</td>
+</tr>
+<tr>
+<td class="org-left">india</td>
+<td class="org-right">5</td>
+<td class="org-right">2</td>
+<td class="org-right">10</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+<td class="org-right">4</td>
+<td class="org-right">4</td>
+</tr>
+<tr>
+<td class="org-left">japan</td>
+<td class="org-right">5</td>
+<td class="org-right">4</td>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+<td class="org-right">3</td>
+<td class="org-right">5</td>
+<td class="org-right">3</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight">
+<pre><span></span>
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org3e9488c">
+<h2 id="org3e9488c">Concatenate our data</h2>
+<div class="outline-text-2" id="text-org3e9488c">
+<div class="highlight">
+<pre><span></span><span class="n">figure</span><span class="p">,</span> <span class="n">axe</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">FIGURE_SIZE</span><span class="p">)</span>
+<span class="n">axe</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Country vs Score"</span><span class="p">)</span>
+<span class="n">axe</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Score"</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Reds"</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">axe</span> <span class="o">=</span> <span class="n">grouped_2</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axe</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Blues"</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">axe</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axe</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">axe</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+</pre></div>
+<div class="figure">
+<p><img alt="barplot.png" src="barplot.png"></p>
+</div>
+<div class="highlight">
+<pre><span></span><span class="n">figure</span><span class="p">,</span> <span class="n">axe</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">FIGURE_SIZE</span><span class="p">)</span>
+<span class="n">axe</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Country vs Score"</span><span class="p">)</span>
+<span class="n">axe</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Score"</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Reds"</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">axe</span> <span class="o">=</span> <span class="n">grouped_2</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axe</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Blues"</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">axe</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axe</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">axe</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+</pre></div>
+<div class="figure">
+<p><img alt="barplot_2.png" src="barplot_2.png"></p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org5a75926">
+<h2 id="org5a75926">Scaled</h2>
+<div class="outline-text-2" id="text-org5a75926">
+<div class="highlight">
+<pre><span></span><span class="n">alpha_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">T</span><span class="o">/</span><span class="n">grouped</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="k">print</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">alpha_scaled</span><span class="p">))</span>
+</pre></div>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">country</th>
+<th class="org-right" scope="col">Alpha -3</th>
+<th class="org-right" scope="col">Alpha -2</th>
+<th class="org-right" scope="col">Alpha -1</th>
+<th class="org-right" scope="col">Alpha 0</th>
+<th class="org-right" scope="col">Alpha 1</th>
+<th class="org-right" scope="col">Alpha 2</th>
+<th class="org-right" scope="col">Alpha 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0.12</td>
+<td class="org-right">0.16</td>
+<td class="org-right">0.06</td>
+<td class="org-right">0.18</td>
+<td class="org-right">0.08</td>
+<td class="org-right">0.22</td>
+<td class="org-right">0.18</td>
+</tr>
+<tr>
+<td class="org-left">india</td>
+<td class="org-right">0.15</td>
+<td class="org-right">0.15</td>
+<td class="org-right">0.15</td>
+<td class="org-right">0.15</td>
+<td class="org-right">0.2</td>
+<td class="org-right">0.05</td>
+<td class="org-right">0.15</td>
+</tr>
+<tr>
+<td class="org-left">japan</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0.5</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0.5</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight">
+<pre><span></span><span class="n">beta_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">grouped_2</span><span class="o">.</span><span class="n">T</span><span class="o">/</span><span class="n">grouped_2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="k">print</span><span class="p">(</span><span class="n">table</span><span class="p">(</span><span class="n">beta_scaled</span><span class="p">))</span>
+</pre></div>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">country</th>
+<th class="org-right" scope="col">Beta -3</th>
+<th class="org-right" scope="col">Beta -2</th>
+<th class="org-right" scope="col">Beta -1</th>
+<th class="org-right" scope="col">Beta 0</th>
+<th class="org-right" scope="col">Beta 1</th>
+<th class="org-right" scope="col">Beta 2</th>
+<th class="org-right" scope="col">Beta 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">china</td>
+<td class="org-right">0.05</td>
+<td class="org-right">0.25</td>
+<td class="org-right">0.2</td>
+<td class="org-right">0.1</td>
+<td class="org-right">0.15</td>
+<td class="org-right">0.05</td>
+<td class="org-right">0.2</td>
+</tr>
+<tr>
+<td class="org-left">india</td>
+<td class="org-right">0.166667</td>
+<td class="org-right">0.0666667</td>
+<td class="org-right">0.333333</td>
+<td class="org-right">0.0666667</td>
+<td class="org-right">0.1</td>
+<td class="org-right">0.133333</td>
+<td class="org-right">0.133333</td>
+</tr>
+<tr>
+<td class="org-left">japan</td>
+<td class="org-right">0.2</td>
+<td class="org-right">0.16</td>
+<td class="org-right">0.08</td>
+<td class="org-right">0.12</td>
+<td class="org-right">0.12</td>
+<td class="org-right">0.2</td>
+<td class="org-right">0.12</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight">
+<pre><span></span><span class="n">figure</span><span class="p">,</span> <span class="n">axe</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">FIGURE_SIZE</span><span class="p">)</span>
+<span class="n">axe</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Country vs Score"</span><span class="p">)</span>
+<span class="n">axe</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Score"</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Reds"</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">axe</span> <span class="o">=</span> <span class="n">alpha_scaled</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axe</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Blues"</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">axe</span> <span class="o">=</span> <span class="n">beta_scaled</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axe</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">axe</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+</pre></div>
+<div class="figure">
+<p><img alt="alpha_scaled.png" src="alpha_scaled.png"></p>
+</div>
+<div class="highlight">
+<pre><span></span><span class="n">figure</span><span class="p">,</span> <span class="n">axe</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">FIGURE_SIZE</span><span class="p">)</span>
+<span class="n">axe</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Country vs Score"</span><span class="p">)</span>
+<span class="n">axe</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"Score"</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Reds"</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">axe</span> <span class="o">=</span> <span class="n">alpha_scaled</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axe</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">seaborn</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s2">"Blues"</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
+    <span class="n">axe</span> <span class="o">=</span> <span class="n">beta_scaled</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axe</span><span class="p">,</span> <span class="n">stacked</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">axe</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+</pre></div>
+<div class="figure">
+<p><img alt="stacked_scaled.png" src="stacked_scaled.png"></p>
+</div>
+<p>Well, I guess I need to work on making the reds visible, but I'm out of time.</p>
+</div>
+</div>
+</div>
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
+<li><a class="tag p-category" href="../../categories/categorical-data/" rel="tag">categorical data</a></li>
+<li><a class="tag p-category" href="../../categories/groupby/" rel="tag">groupby</a></li>
+<li><a class="tag p-category" href="../../categories/pandas/" rel="tag">pandas</a></li>
+<li><a class="tag p-category" href="../../categories/plotting/" rel="tag">plotting</a></li>
+</ul>
+<ul class="pager hidden-print">
+<li class="previous"><a href="../date-mean-squared-error/" rel="prev" title="Date Mean Squared Error">Previous post</a></li>
+<li class="next"><a href="../ubuntu/recovering-from-the-ubuntu-1810-upgrade/" rel="next" title="Recovering From the Ubuntu 18.10 Upgrade">Next post</a></li>
+</ul>
+</nav>
+</aside>
+</article>
+<!--End of body content-->
+<footer id="footer">Contents © 2020 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+</div>
+</div>
+<script src="../../assets/js/all-nocdn.js"></script>
+<script>
+
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+</script>
+</body>
+</html>
