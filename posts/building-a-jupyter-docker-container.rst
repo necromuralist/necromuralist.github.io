@@ -1,8 +1,8 @@
 .. title: Building a Jupyter Docker Container
 .. slug: building-a-jupyter-docker-container
 .. date: 2016-06-19 20:48:21 UTC-07:00
-.. tags: docker jupyter how-to
-.. category: how-to
+.. tags: docker,jupyter,how-to
+.. category: Docker
 .. link: 
 .. description: This is what my docker file looks like.
 .. type: text

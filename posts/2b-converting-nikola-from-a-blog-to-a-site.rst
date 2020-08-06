@@ -1,8 +1,8 @@
 .. title: Converting Nikola from a Blog to a Site
 .. slug: converting-nikola-from-a-blog-to-a-site
 .. date: 2016-03-02 12:53:31 UTC-08:00
-.. tags: nikola howto
-.. category: how-to
+.. tags: nikola,how-to
+.. category: Nikola
 .. link: 
 .. description: Notes on converting this site from a blog to a web-site.
 .. type: text

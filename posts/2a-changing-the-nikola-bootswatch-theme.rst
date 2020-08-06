@@ -1,7 +1,8 @@
 .. title: How To Change The Nikola Bootswatch Theme
 .. slug: how-to-change-the-nikola-bootswatch-theme
 .. date: 2017-08-13 15:58
-.. tags: HowTo Nikola
+.. tags: how-to,nikola
+.. category: Nikola
 .. link: 
 .. description: How to change the nikola theme using customized CSS and HTML.
 .. type: text

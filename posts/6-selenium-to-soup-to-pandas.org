@@ -1,0 +1,64 @@
+#+BEGIN_COMMENT
+.. title: Selenium To Soup To Pandas
+.. slug: selenium-to-soup-to-pandas
+.. date: 2020-08-05 17:18:54 UTC-07:00
+.. tags: slipnote,selenium,beautiful soup,html,web-scraping,pandas
+.. category: Pandas
+.. link: 
+.. description: Using Selenium and Beautiful Soup to grab a table for pandas.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+
+[[https://pandas.pydata.org/][Pandas]] has a [[https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_html.html][read_html]] function that will automatically convert HTML tables that it finds into DataFrames, but if you need to do a little cleaning up of the tables first or are doing some exploration of the HTML it can be useful to work with it in [[https://www.crummy.com/software/BeautifulSoup/bs4/doc/#][Beautiful Soup]] first, and if the table is being rendered on the page with Javascript it can be useful to use [[https://www.selenium.dev/selenium/docs/api/py/index.html][Selenium]] to grab the page for you so that it's rendered.
+
+Start selenium (headless) and grab the page.
+
+#+begin_src python :results none
+options = webdriver.FirefoxOptions()
+options.headless = True
+browser = webdriver.Firefox(firefox_options=options)
+
+browser.get(URL)
+#+end_src
+
+Give it to Beautiful Soup.
+
+#+begin_src python :results none
+soup = BeautifulSoup(browser.page_source)
+#+end_src
+
+Do stuff with the soup (not shown).
+
+Optionally grab the table you want - in this case I want the last one.
+
+#+begin_src python :results none
+soup_table = soup.find_all("table")[-1]
+#+end_src
+
+But if there's one or you just want the first one you could use =find= instead.
+
+#+begin_src python :results none
+soup_table = soup.find("table")
+#+end_src
+
+Pass it to pandas.
+
+#+begin_src python :results none
+tables = pandas.read_html(str(soup_table))
+#+end_src
+
+=tables= is a list of DataFrames - one for each table that pandas found - even if there's only one so now it might be useful to get the one you want.
+
+#+begin_src python :results none
+table = tables[0]
+#+end_src
+
+From what I understand from the documentation, pandas is using Beautiful Soup to parse the HTML, so if the tables come out okay and you don't need to mess around with the HTML tree beforehand you can just skip the soup.
+
+#+begin_src python :results none
+table = pandas.read_html(browser.page_source)[0]
+#+end_src

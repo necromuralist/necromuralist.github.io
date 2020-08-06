@@ -1,7 +1,7 @@
 .. title: Nikola Inter-Site Links
 .. slug: 2-nikola-inter-site-links
 .. date: 2018-01-14 14:56:00 UTC-08:00
-.. tags: nikola howto
+.. tags: nikola,how-to
 .. link: 
 .. description: How to add inter-site links in nikola.
 .. type: text
