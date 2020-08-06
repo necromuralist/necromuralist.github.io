@@ -1,31 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about Pandas)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_pandas.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2019 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sat, 27 Jul 2019 17:00:36 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Categorical Plotting</title><link>https://necromuralist.github.io/posts/pandas/categorical-plotting/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about Pandas)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_pandas.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 06 Aug 2020 02:21:29 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Selenium To Soup To Pandas</title><link>https://necromuralist.github.io/posts/selenium-to-soup-to-pandas/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+&lt;a href="https://pandas.pydata.org/"&gt;Pandas&lt;/a&gt; has a &lt;a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_html.html"&gt;read_html&lt;/a&gt; function that will automatically convert HTML tables that it finds into DataFrames, but if you need to do a little cleaning up of the tables first or are doing some exploration of the HTML it can be useful to work with it in &lt;a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#"&gt;Beautiful Soup&lt;/a&gt; first, and if the table is being rendered on the page with Javascript it can be useful to use &lt;a href="https://www.selenium.dev/selenium/docs/api/py/index.html"&gt;Selenium&lt;/a&gt; to grab the page for you so that it's rendered.
+&lt;/p&gt;
+
+&lt;p&gt;
+Start selenium (headless) and grab the page.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FirefoxOptions&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;headless&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+&lt;span class="n"&gt;browser&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Firefox&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;firefox_options&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;browser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;URL&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Give it to Beautiful Soup.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;soup&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BeautifulSoup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;browser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;page_source&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Do stuff with the soup (not shown).
+&lt;/p&gt;
+
+&lt;p&gt;
+Optionally grab the table you want - in this case I want the last one.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;soup_table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find_all&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"table"&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+But if there's one or you just want the first one you could use &lt;code&gt;find&lt;/code&gt; instead.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;soup_table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"table"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Pass it to pandas.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;tables&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_html&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;soup_table&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+&lt;code&gt;tables&lt;/code&gt; is a list of DataFrames - one for each table that pandas found - even if there's only one so now it might be useful to get the one you want.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+From what I understand from the documentation, pandas is using Beautiful Soup to parse the HTML, so if the tables come out okay and you don't need to mess around with the HTML tree beforehand you can just skip the soup.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_html&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;browser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;page_source&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>pandas</category><category>selenium</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/selenium-to-soup-to-pandas/</guid><pubDate>Thu, 06 Aug 2020 00:18:54 GMT</pubDate></item><item><title>Pandas String Replacement With a Callback</title><link>https://necromuralist.github.io/posts/pandas-string-replacement-with-a-callback/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+If you want to replace parts of strings in a Pandas Series you can pass in a string, but if you want to keep part of the original sub-string that you are replacing you can call the &lt;a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html"&gt;replace method&lt;/a&gt; while passing in a function that un-packs the &lt;a href="https://docs.python.org/3.6/library/re.html#match-objects"&gt;match&lt;/a&gt; object.
+&lt;/p&gt;
+
+&lt;p&gt;
+As an example, to add paretheses around strings that look like "Also see penguin" you can define a regular expression that has a named group in it.
+&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;PATTERN&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sa"&gt;r&lt;/span&gt;&lt;span class="s2"&gt;"Also see (?P&amp;lt;name&amp;gt;\w+)"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then define a function that expects objects that match the pattern and creates a string using the named-group.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;see_also&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;match&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;re&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;match&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="sd"&gt;"""Add parentheses to Also see&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Args:&lt;/span&gt;
+&lt;span class="sd"&gt;     match: regular expression match object&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
+&lt;span class="sd"&gt;     string with the name from the object and parentheses added&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"(Also see {match['name']})"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then pass in the pattern and function to the &lt;a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html"&gt;replace method&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"Animal"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Animal&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;replace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PATTERN&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;see_also&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><category>pandas</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/pandas-string-replacement-with-a-callback/</guid><pubDate>Thu, 06 Aug 2020 00:05:10 GMT</pubDate></item><item><title>Categorical Plotting</title><link>https://necromuralist.github.io/posts/categorical-plotting/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org82d54f2"&gt;Imports&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org95be866"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org7a13ce8"&gt;The Data&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org64f00f6"&gt;Grouping&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#orgec403e5"&gt;Concatenate our data&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/categorical-plotting/#org973d155"&gt;Scaled&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/categorical-plotting/#org53671f5"&gt;Imports&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/categorical-plotting/#org931493b"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/categorical-plotting/#org2c3d724"&gt;The Data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/categorical-plotting/#orgaef8edc"&gt;Grouping&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/categorical-plotting/#org3e9488c"&gt;Concatenate our data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/categorical-plotting/#org5a75926"&gt;Scaled&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org82d54f2" class="outline-2"&gt;
-&lt;h2 id="org82d54f2"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org82d54f2"&gt;
+&lt;div id="outline-container-org53671f5" class="outline-2"&gt;
+&lt;h2 id="org53671f5"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org53671f5"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfe13115" class="outline-3"&gt;
-&lt;h3 id="orgfe13115"&gt;From Python&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgfe13115"&gt;
+&lt;div id="outline-container-orgef60e28" class="outline-3"&gt;
+&lt;h3 id="orgef60e28"&gt;From Python&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgef60e28"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org285f6e6" class="outline-3"&gt;
-&lt;h3 id="org285f6e6"&gt;From pypi&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org285f6e6"&gt;
+&lt;div id="outline-container-orgc43a42d" class="outline-3"&gt;
+&lt;h3 id="orgc43a42d"&gt;From pypi&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc43a42d"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;tabulate&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;tabulate&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;matplotlib.pyplot&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;pyplot&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt;
@@ -35,38 +125,38 @@
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org95be866" class="outline-2"&gt;
-&lt;h2 id="org95be866"&gt;Set Up&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org95be866"&gt;
+&lt;div id="outline-container-org931493b" class="outline-2"&gt;
+&lt;h2 id="org931493b"&gt;Set Up&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org931493b"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org21d1e9f" class="outline-3"&gt;
-&lt;h3 id="org21d1e9f"&gt;The Plotting&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org21d1e9f"&gt;
+&lt;div id="outline-container-org5a8ae7a" class="outline-3"&gt;
+&lt;h3 id="org5a8ae7a"&gt;The Plotting&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5a8ae7a"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;matplotlib&lt;/span&gt; &lt;span class="n"&gt;inline&lt;/span&gt;
 &lt;span class="n"&gt;seaborn&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;style&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"whitegrid"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;color_codes&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;FIGURE_SIZE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2a2c464" class="outline-3"&gt;
-&lt;h3 id="org2a2c464"&gt;The Tables&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2a2c464"&gt;
+&lt;div id="outline-container-org37c5491" class="outline-3"&gt;
+&lt;h3 id="org37c5491"&gt;The Tables&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org37c5491"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tabulate&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;headers&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"keys"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
 		&lt;span class="n"&gt;tablefmt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"orgtbl"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7a13ce8" class="outline-2"&gt;
-&lt;h2 id="org7a13ce8"&gt;The Data&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7a13ce8"&gt;
+&lt;div id="outline-container-org2c3d724" class="outline-2"&gt;
+&lt;h2 id="org2c3d724"&gt;The Data&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2c3d724"&gt;
 &lt;p&gt;
 This is just some fake stuff to test it out. We're going to simulate how participants in a survey scored two products on a scale from -3 to 3.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb7234d4" class="outline-3"&gt;
-&lt;h3 id="orgb7234d4"&gt;Product One&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb7234d4"&gt;
+&lt;div id="outline-container-orgc9a8315" class="outline-3"&gt;
+&lt;h3 id="orgc9a8315"&gt;Product One&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc9a8315"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"china"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"india"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"japan"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
 &lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
 &lt;span class="n"&gt;scores&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Series&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;choice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt; &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"category"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -171,9 +261,9 @@ This is just some fake stuff to test it out. We're going to simulate how partici
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org026f990" class="outline-3"&gt;
-&lt;h3 id="org026f990"&gt;Product Two&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org026f990"&gt;
+&lt;div id="outline-container-orgf52047b" class="outline-3"&gt;
+&lt;h3 id="orgf52047b"&gt;Product Two&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf52047b"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"china"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"india"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;30&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"japan"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;25&lt;/span&gt;
 &lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
 &lt;span class="n"&gt;scores&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Series&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;choice&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;countries&lt;/span&gt;&lt;span class="p"&gt;)),&lt;/span&gt; &lt;span class="n"&gt;dtype&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"category"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -279,9 +369,9 @@ This is just some fake stuff to test it out. We're going to simulate how partici
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org64f00f6" class="outline-2"&gt;
-&lt;h2 id="org64f00f6"&gt;Grouping&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org64f00f6"&gt;
+&lt;div id="outline-container-orgaef8edc" class="outline-2"&gt;
+&lt;h2 id="orgaef8edc"&gt;Grouping&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgaef8edc"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;groupby&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"country"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -438,9 +528,9 @@ This is just some fake stuff to test it out. We're going to simulate how partici
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgec403e5" class="outline-2"&gt;
-&lt;h2 id="orgec403e5"&gt;Concatenate our data&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgec403e5"&gt;
+&lt;div id="outline-container-org3e9488c" class="outline-2"&gt;
+&lt;h2 id="org3e9488c"&gt;Concatenate our data&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3e9488c"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;axe&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pyplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;subplots&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;figsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;FIGURE_SIZE&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_title&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Country vs Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;axe&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_ylabel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Score"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -453,7 +543,7 @@ This is just some fake stuff to test it out. We're going to simulate how partici
 
 
 &lt;div class="figure"&gt;
-&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/pandas/categorical-plotting/barplot.png" alt="barplot.png"&gt;
+&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/categorical-plotting/barplot.png" alt="barplot.png"&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 
@@ -469,15 +559,15 @@ This is just some fake stuff to test it out. We're going to simulate how partici
 
 
 &lt;div class="figure"&gt;
-&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/pandas/categorical-plotting/barplot_2.png" alt="barplot_2.png"&gt;
+&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/categorical-plotting/barplot_2.png" alt="barplot_2.png"&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org973d155" class="outline-2"&gt;
-&lt;h2 id="org973d155"&gt;Scaled&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org973d155"&gt;
+&lt;div id="outline-container-org5a75926" class="outline-2"&gt;
+&lt;h2 id="org5a75926"&gt;Scaled&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5a75926"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;alpha_scaled&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;axis&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"columns"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;
 &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;alpha_scaled&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -634,7 +724,7 @@ This is just some fake stuff to test it out. We're going to simulate how partici
 
 
 &lt;div class="figure"&gt;
-&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/pandas/categorical-plotting/alpha_scaled.png" alt="alpha_scaled.png"&gt;
+&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/categorical-plotting/alpha_scaled.png" alt="alpha_scaled.png"&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 
@@ -650,7 +740,7 @@ This is just some fake stuff to test it out. We're going to simulate how partici
 
 
 &lt;div class="figure"&gt;
-&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/pandas/categorical-plotting/stacked_scaled.png" alt="stacked_scaled.png"&gt;
+&lt;p&gt;&lt;img src="https://necromuralist.github.io/posts/categorical-plotting/stacked_scaled.png" alt="stacked_scaled.png"&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 
@@ -658,35 +748,35 @@ This is just some fake stuff to test it out. We're going to simulate how partici
 Well, I guess I need to work on making the reds visible, but I'm out of time.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>categorical data</category><category>groupby</category><category>pandas</category><category>plotting</category><guid>https://necromuralist.github.io/posts/pandas/categorical-plotting/</guid><pubDate>Fri, 26 Oct 2018 22:01:04 GMT</pubDate></item><item><title>Date Mean Squared Error</title><link>https://necromuralist.github.io/posts/pandas/date-mean-squared-error/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;/div&gt;</description><category>categorical data</category><category>groupby</category><category>pandas</category><category>plotting</category><guid>https://necromuralist.github.io/posts/categorical-plotting/</guid><pubDate>Fri, 26 Oct 2018 22:01:04 GMT</pubDate></item><item><title>Date Mean Squared Error</title><link>https://necromuralist.github.io/posts/date-mean-squared-error/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgc66c608"&gt;What is this?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgf8cc4e4"&gt;Imports&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgc3668a9"&gt;The Data&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgc6d2574"&gt;The Mean&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#org6ac3bef"&gt;Getting the Mean Back Into the Frame&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/pandas/date-mean-squared-error/#orgd9f5724"&gt;Calculating the RMSE&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/date-mean-squared-error/#org8681ab8"&gt;What is this?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/date-mean-squared-error/#orgb268c55"&gt;Imports&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/date-mean-squared-error/#org04b62e9"&gt;The Data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/date-mean-squared-error/#orgb45cd2e"&gt;The Mean&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/date-mean-squared-error/#org66cbe3a"&gt;Getting the Mean Back Into the Frame&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/date-mean-squared-error/#org2ad35db"&gt;Calculating the RMSE&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc66c608" class="outline-2"&gt;
-&lt;h2 id="orgc66c608"&gt;What is this?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc66c608"&gt;
+&lt;div id="outline-container-org8681ab8" class="outline-2"&gt;
+&lt;h2 id="org8681ab8"&gt;What is this?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org8681ab8"&gt;
 &lt;p&gt;
 This is a short sketch to figure out how to group a bunch of values by month and calculate the &lt;a href="https://en.wikipedia.org/wiki/Root-mean-square_deviation"&gt;Root-Mean-Squared-Error&lt;/a&gt; (RMSE) for the mean for the values in that month. This probably isn't the most efficient way to do this, but I'm trying to double check everything as I go and doing the typical &lt;a href="http://wiki.c2.com/?TrainWreck"&gt;Train Wreck&lt;/a&gt; like you see in most examples on Stack Overflow.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgf8cc4e4" class="outline-2"&gt;
-&lt;h2 id="orgf8cc4e4"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf8cc4e4"&gt;
+&lt;div id="outline-container-orgb268c55" class="outline-2"&gt;
+&lt;h2 id="orgb268c55"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb268c55"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6d963aa" class="outline-3"&gt;
-&lt;h3 id="org6d963aa"&gt;From PyPi&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6d963aa"&gt;
+&lt;div id="outline-container-orgebc98d0" class="outline-3"&gt;
+&lt;h3 id="orgebc98d0"&gt;From PyPi&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgebc98d0"&gt;
 &lt;p&gt;
 Just pandas.
 &lt;/p&gt;
@@ -695,9 +785,9 @@ Just pandas.
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc3668a9" class="outline-2"&gt;
-&lt;h2 id="orgc3668a9"&gt;The Data&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc3668a9"&gt;
+&lt;div id="outline-container-org04b62e9" class="outline-2"&gt;
+&lt;h2 id="org04b62e9"&gt;The Data&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org04b62e9"&gt;
 &lt;p&gt;
 I'm going to create some simple values so that it's easy(ish) to do the math by hand and double-check what comes out. I'll use the pandas &lt;a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Timestamp.html"&gt;Timestamp&lt;/a&gt; for the dates. I'm still not one-hundred percent sure why it's better than date-time, but hopefully it's optimized or something.
 &lt;/p&gt;
@@ -722,9 +812,9 @@ I'm going to use &lt;a href="https://pandas.pydata.org/pandas-docs/stable/genera
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgc6d2574" class="outline-2"&gt;
-&lt;h2 id="orgc6d2574"&gt;The Mean&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc6d2574"&gt;
+&lt;div id="outline-container-orgb45cd2e" class="outline-2"&gt;
+&lt;h2 id="orgb45cd2e"&gt;The Mean&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb45cd2e"&gt;
 &lt;p&gt;
 The value I'm going to use to estimate the values for each month is the mean.
 &lt;/p&gt;
@@ -739,14 +829,13 @@ assert all(means.value == [2.0, 1.5])
 date             
 2018-09-30    2.0
 2018-10-31    1.5
-
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org6ac3bef" class="outline-2"&gt;
-&lt;h2 id="org6ac3bef"&gt;Getting the Mean Back Into the Frame&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6ac3bef"&gt;
+&lt;div id="outline-container-org66cbe3a" class="outline-2"&gt;
+&lt;h2 id="org66cbe3a"&gt;Getting the Mean Back Into the Frame&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org66cbe3a"&gt;
 &lt;p&gt;
 Now that we have the monthly means, I want to re-add them to the original data-frame by giving them a common column named &lt;code&gt;year_month&lt;/code&gt; (using &lt;a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.apply.html"&gt;apply&lt;/a&gt;) so I can broadcast the means by merging the two data-frames.
 &lt;/p&gt;
@@ -763,8 +852,8 @@ print(frame.head())
 2 2018-09-05      3 2018-09-01
 3 2018-10-01      1 2018-10-01
 4 2018-10-05      2 2018-10-01
-
 &lt;/pre&gt;
+
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mean_frame = means.reset_index()
 mean_frame["year_month"] = mean_frame.date.apply(
@@ -778,8 +867,8 @@ print(mean_frame)
         date  value year_month
 0 2018-09-30    2.0 2018-09-01
 1 2018-10-31    1.5 2018-10-01
-
 &lt;/pre&gt;
+
 
 &lt;p&gt;
 The &lt;code&gt;value&lt;/code&gt; column in the &lt;code&gt;mean_frame&lt;/code&gt; is actually the mean of the values for that month so I'll re-name it before I forget.
@@ -794,8 +883,8 @@ print(mean_frame)
         date  mean year_month
 0 2018-09-30   2.0 2018-09-01
 1 2018-10-31   1.5 2018-10-01
-
 &lt;/pre&gt;
+
 
 &lt;p&gt;
 Now I'll &lt;a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.merge.html"&gt;merge&lt;/a&gt; the two data frames on the &lt;code&gt;year_month&lt;/code&gt; column using the default &lt;a href="https://en.wikipedia.org/wiki/Join_(SQL)#Inner_join"&gt;inner-join&lt;/a&gt; (intersection) method.
@@ -814,21 +903,21 @@ assert all(merged["mean"] == [2, 2, 2, 1.5, 1.5])
 2 2018-09-05      3 2018-09-01   2.0
 3 2018-10-01      1 2018-10-01   1.5
 4 2018-10-05      2 2018-10-01   1.5
-
 &lt;/pre&gt;
+
 
 &lt;p&gt;
 Note that I had to use the &lt;code&gt;merged["mean"]&lt;/code&gt; form because the data-frame has a &lt;a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.mean.html"&gt;mean&lt;/a&gt; method which the dot-notation (&lt;code&gt;merged.mean&lt;/code&gt;) would call instead of grabbing the column.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd9f5724" class="outline-2"&gt;
-&lt;h2 id="orgd9f5724"&gt;Calculating the RMSE&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd9f5724"&gt;
+&lt;div id="outline-container-org2ad35db" class="outline-2"&gt;
+&lt;h2 id="org2ad35db"&gt;Calculating the RMSE&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2ad35db"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9a2740d" class="outline-3"&gt;
-&lt;h3 id="org9a2740d"&gt;Error&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9a2740d"&gt;
+&lt;div id="outline-container-orgc72077c" class="outline-3"&gt;
+&lt;h3 id="orgc72077c"&gt;Error&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc72077c"&gt;
 &lt;p&gt;
 Since I'm estimating the values for each month using the mean the &lt;i&gt;error&lt;/i&gt; is the difference between the &lt;i&gt;mean&lt;/i&gt; and each of the &lt;i&gt;values&lt;/i&gt;.
 &lt;/p&gt;
@@ -844,14 +933,13 @@ assert all(merged.error==[-1, 0, 1, -.5, .5])
 2 2018-09-05      3 2018-09-01   2.0    1.0
 3 2018-10-01      1 2018-10-01   1.5   -0.5
 4 2018-10-05      2 2018-10-01   1.5    0.5
-
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgf0b616e" class="outline-3"&gt;
-&lt;h3 id="orgf0b616e"&gt;Error Squared&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgf0b616e"&gt;
+&lt;div id="outline-container-orgc374145" class="outline-3"&gt;
+&lt;h3 id="orgc374145"&gt;Error Squared&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc374145"&gt;
 &lt;p&gt;
 Now I'll square the error to get rid of the negative error values (which would cancel each other out when we take the mean errors) and to make the effect of the errors non-linear (the errors are exagerrated).
 &lt;/p&gt;
@@ -868,13 +956,12 @@ Now I'll square the error to get rid of the negative error values (which would c
 2 2018-09-05      3 2018-09-01   2.0    1.0           1.00
 3 2018-10-01      1 2018-10-01   1.5   -0.5           0.25
 4 2018-10-05      2 2018-10-01   1.5    0.5           0.25
-
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5c4308c" class="outline-3"&gt;
-&lt;h3 id="org5c4308c"&gt;Mean Squared Error&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org5c4308c"&gt;
+&lt;div id="outline-container-orgb40aa85" class="outline-3"&gt;
+&lt;h3 id="orgb40aa85"&gt;Mean Squared Error&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb40aa85"&gt;
 &lt;p&gt;
 So now we take the mean of our squared errors to get an initial estimate of how much we are off each month.
 &lt;/p&gt;
@@ -887,13 +974,12 @@ year_month
 2018-09-01    0.666667
 2018-10-01    0.250000
 Name: error_squared, dtype: float64
-
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgf782bbd" class="outline-3"&gt;
-&lt;h3 id="orgf782bbd"&gt;RMSE&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgf782bbd"&gt;
+&lt;div id="outline-container-org4c00c11" class="outline-3"&gt;
+&lt;h3 id="org4c00c11"&gt;RMSE&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4c00c11"&gt;
 &lt;p&gt;
 Since the squared error would have units squared, I'll take the root of it to get a more interpretable estimate of the error.
 &lt;/p&gt;
@@ -905,8 +991,7 @@ year_month
 2018-09-01    0.816497
 2018-10-01    0.500000
 Name: error_squared, dtype: float64
-
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>dates</category><category>errors</category><category>pandas</category><guid>https://necromuralist.github.io/posts/pandas/date-mean-squared-error/</guid><pubDate>Mon, 22 Oct 2018 23:46:21 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>dates</category><category>errors</category><category>pandas</category><guid>https://necromuralist.github.io/posts/date-mean-squared-error/</guid><pubDate>Mon, 22 Oct 2018 23:46:21 GMT</pubDate></item></channel></rss>

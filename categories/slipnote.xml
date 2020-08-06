@@ -1,39 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about slipnote)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/slipnote.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Mon, 03 Aug 2020 01:06:02 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Linear Regression and Binary Data</title><link>https://necromuralist.github.io/posts/linear-regression-and-binary-data/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about slipnote)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/slipnote.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 06 Aug 2020 03:00:38 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Selenium To Soup To Pandas</title><link>https://necromuralist.github.io/posts/selenium-to-soup-to-pandas/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+&lt;a href="https://pandas.pydata.org/"&gt;Pandas&lt;/a&gt; has a &lt;a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_html.html"&gt;read_html&lt;/a&gt; function that will automatically convert HTML tables that it finds into DataFrames, but if you need to do a little cleaning up of the tables first or are doing some exploration of the HTML it can be useful to work with it in &lt;a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#"&gt;Beautiful Soup&lt;/a&gt; first, and if the table is being rendered on the page with Javascript it can be useful to use &lt;a href="https://www.selenium.dev/selenium/docs/api/py/index.html"&gt;Selenium&lt;/a&gt; to grab the page for you so that it's rendered.
+&lt;/p&gt;
+
+&lt;p&gt;
+Start selenium (headless) and grab the page.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FirefoxOptions&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;headless&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+&lt;span class="n"&gt;browser&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Firefox&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;firefox_options&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;browser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;URL&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Give it to Beautiful Soup.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;soup&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BeautifulSoup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;browser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;page_source&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Do stuff with the soup (not shown).
+&lt;/p&gt;
+
+&lt;p&gt;
+Optionally grab the table you want - in this case I want the last one.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;soup_table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find_all&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"table"&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+But if there's one or you just want the first one you could use &lt;code&gt;find&lt;/code&gt; instead.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;soup_table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"table"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Pass it to pandas.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;tables&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_html&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;soup_table&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+&lt;code&gt;tables&lt;/code&gt; is a list of DataFrames - one for each table that pandas found - even if there's only one so now it might be useful to get the one you want.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+From what I understand from the documentation, pandas is using Beautiful Soup to parse the HTML, so if the tables come out okay and you don't need to mess around with the HTML tree beforehand you can just skip the soup.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_html&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;browser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;page_source&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>pandas</category><category>selenium</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/selenium-to-soup-to-pandas/</guid><pubDate>Thu, 06 Aug 2020 00:18:54 GMT</pubDate></item><item><title>Pandas String Replacement With a Callback</title><link>https://necromuralist.github.io/posts/pandas-string-replacement-with-a-callback/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+If you want to replace parts of strings in a Pandas Series you can pass in a string, but if you want to keep part of the original sub-string that you are replacing you can call the &lt;a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html"&gt;replace method&lt;/a&gt; while passing in a function that un-packs the &lt;a href="https://docs.python.org/3.6/library/re.html#match-objects"&gt;match&lt;/a&gt; object.
+&lt;/p&gt;
+
+&lt;p&gt;
+As an example, to add paretheses around strings that look like "Also see penguin" you can define a regular expression that has a named group in it.
+&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;PATTERN&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sa"&gt;r&lt;/span&gt;&lt;span class="s2"&gt;"Also see (?P&amp;lt;name&amp;gt;\w+)"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then define a function that expects objects that match the pattern and creates a string using the named-group.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;see_also&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;match&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;re&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;match&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="sd"&gt;"""Add parentheses to Also see&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Args:&lt;/span&gt;
+&lt;span class="sd"&gt;     match: regular expression match object&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
+&lt;span class="sd"&gt;     string with the name from the object and parentheses added&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"(Also see {match['name']})"&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then pass in the pattern and function to the &lt;a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html"&gt;replace method&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"Animal"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Animal&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;replace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PATTERN&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;see_also&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><category>pandas</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/pandas-string-replacement-with-a-callback/</guid><pubDate>Thu, 06 Aug 2020 00:05:10 GMT</pubDate></item><item><title>Smoothing Out a Beautiful Soup Tree</title><link>https://necromuralist.github.io/posts/smoothing-out-a-beautiful-soup-tree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+If you edit the HTML tree in Beautiful Soup you should call the &lt;a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#smooth"&gt;smooth&lt;/a&gt; method to smooth out any funkiness that got introduced.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;tag_id&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;tag_ids_to_destroy&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;tag&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;tag_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;tag&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;decompose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;smooth&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/smoothing-out-a-beautiful-soup-tree/</guid><pubDate>Wed, 05 Aug 2020 23:58:02 GMT</pubDate></item><item><title>Replacing Tags With Beautiful Soup</title><link>https://necromuralist.github.io/posts/replacing-tags-with-beautiful-soup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgc757468" class="outline-2"&gt;
+&lt;h2 id="orgc757468"&gt;Notes&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc757468"&gt;
+&lt;p&gt;
+To replace a tag in Beautful Soup, find the element then call its &lt;a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#replace-with"&gt;replace_with&lt;/a&gt; method passing in either a string or tag.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;element&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;tag_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;element&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;replace_with&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"text"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;tag&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;new_tag&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"b"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;tag&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"be bold"&lt;/span&gt;
+&lt;span class="n"&gt;element&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;replace_with&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tag&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/replacing-tags-with-beautiful-soup/</guid><pubDate>Wed, 05 Aug 2020 23:53:20 GMT</pubDate></item><item><title>Destroying Tags With Beautiful Soup</title><link>https://necromuralist.github.io/posts/destroying-tags-with-beautiful-soup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+There are various ways to edit tags with &lt;a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/"&gt;Beautiful Soup&lt;/a&gt;, The &lt;a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#decompose"&gt;decompose&lt;/a&gt; method both removes the tag from the tree and destroys the object (along with all its descendants in the HTML tree). 
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;element&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;tag_id&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;element&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;decompose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+If you want to destroy tags around the one you found (along with the tag and its descendants in the tree) then call decompose on it's parent or parent's parent (and so on). Or figure out how to find its parent instead - whichever is easier.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;element&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parent&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parent&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;decompose&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;
+After you edit the tree it might be a good idea to call &lt;a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#smooth"&gt;smooth&lt;/a&gt; to clean up a bit.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;smooth&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/destroying-tags-with-beautiful-soup/</guid><pubDate>Wed, 05 Aug 2020 22:57:27 GMT</pubDate></item><item><title>Selenium Headless</title><link>https://necromuralist.github.io/posts/selenium-headless/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+To run the Selenium Firefox webdriver without starting the GUI you need to set the headless option in the &lt;a href="https://www.selenium.dev/selenium/docs/api/py/webdriver_firefox/selenium.webdriver.firefox.options.html#module-selenium.webdriver.firefox.options"&gt;FirefoxOptions&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FirefoxOptions&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;headless&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
+&lt;span class="n"&gt;browser&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Firefox&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;firefox_options&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; There's a method called &lt;code&gt;set_headless&lt;/code&gt; for this class which seems to work, but the documentation says that it is deprecated so it's probably better to do it this way.
+&lt;/p&gt;</description><category>selenium</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/selenium-headless/</guid><pubDate>Wed, 05 Aug 2020 22:42:17 GMT</pubDate></item><item><title>Linear Regression and Binary Data</title><link>https://necromuralist.github.io/posts/linear-regression-and-binary-data/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgef033e1"&gt;Beginning&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgdbb0136"&gt;Beginning&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orga15a01c"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org81eff35"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org84a7073"&gt;Middle&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgde054cb"&gt;Middle&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org17df850"&gt;The Data&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org8dcd8eb"&gt;Encode the Gender&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgbfd88e8"&gt;Fit the Regression&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org38c6e50"&gt;The Data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgb765a56"&gt;Encode the Gender&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org3779a58"&gt;Fit the Regression&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgce12e79"&gt;End&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgace7323"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org093da0d"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orga43cccc"&gt;Sources&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgef033e1" class="outline-2"&gt;
-&lt;h2 id="orgef033e1"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgef033e1"&gt;
+&lt;div id="outline-container-orgdbb0136" class="outline-2"&gt;
+&lt;h2 id="orgdbb0136"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgdbb0136"&gt;
 &lt;p&gt;
 I'm going to look at binary classification (two classes) and linear regression. In particular I'm going to use the &lt;a href="https://necromuralist.github.io/posts/bibliography/isl-credit-data-set/"&gt;Credit Card Balance&lt;/a&gt; data set &lt;a href="https://necromuralist.github.io/posts/bibliography/an-introduction-to-statistical-learning/"&gt;(James et al., 2013)&lt;/a&gt; to look at how to interpret the linear model once we encode gender.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga15a01c" class="outline-3"&gt;
-&lt;h3 id="orga15a01c"&gt;Set Up&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga15a01c"&gt;
+&lt;div id="outline-container-org81eff35" class="outline-3"&gt;
+&lt;h3 id="org81eff35"&gt;Set Up&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org81eff35"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd5eace5" class="outline-4"&gt;
-&lt;h4 id="orgd5eace5"&gt;Imports&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgd5eace5"&gt;
+&lt;div id="outline-container-org91d0f4c" class="outline-4"&gt;
+&lt;h4 id="org91d0f4c"&gt;Imports&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org91d0f4c"&gt;
 &lt;p&gt;
 First, some importing.
 &lt;/p&gt;
@@ -53,17 +199,17 @@ First, some importing.
 &lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;hvplot.pandas&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;statsmodels.api&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;statsmodels&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;statsmodels.formula.api&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;statsmodels_formula&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;statsmodels.api&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;statsmodels&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;statsmodels.formula.api&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;statsmodels_formula&lt;/span&gt;
 
 &lt;span class="c1"&gt;# my stuff&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;graeae&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;EmbedHoloviews&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;CountPercentage&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5332e1f" class="outline-4"&gt;
-&lt;h4 id="org5332e1f"&gt;The Environment&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org5332e1f"&gt;
+&lt;div id="outline-container-org6464f12" class="outline-4"&gt;
+&lt;h4 id="org6464f12"&gt;The Environment&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org6464f12"&gt;
 &lt;p&gt;
 This loads the path to files.
 &lt;/p&gt;
@@ -71,24 +217,24 @@ This loads the path to files.
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgebf0501" class="outline-4"&gt;
-&lt;h4 id="orgebf0501"&gt;Plotting&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgebf0501"&gt;
+&lt;div id="outline-container-org07cc31f" class="outline-4"&gt;
+&lt;h4 id="org07cc31f"&gt;Plotting&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org07cc31f"&gt;
 &lt;p&gt;
 This just sets up some convenience values for plotting.
 &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;SLUG&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"linear-regression-and-binary-data"&lt;/span&gt;
 &lt;span class="n"&gt;Embed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;EmbedHoloviews&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-		&lt;span class="n"&gt;folder_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"files/posts/&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;SLUG&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+		&lt;span class="n"&gt;folder_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"files/posts/{SLUG}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"PLOT_CONSTANTS"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;expanduser&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"rb"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;Plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pickle&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1b1a088" class="outline-4"&gt;
-&lt;h4 id="org1b1a088"&gt;The Data&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org1b1a088"&gt;
+&lt;div id="outline-container-org19446f0" class="outline-4"&gt;
+&lt;h4 id="org19446f0"&gt;The Data&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org19446f0"&gt;
 &lt;p&gt;
 I downloaded the data from the &lt;a href="https://faculty.marshall.usc.edu/gareth-james/ISL/data.html"&gt;ISL Data Set page&lt;/a&gt; previously so I'll load it here.
 &lt;/p&gt;
@@ -105,18 +251,18 @@ I passed in the &lt;code&gt;index_col&lt;/code&gt; argument because the first co
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org84a7073" class="outline-2"&gt;
-&lt;h2 id="org84a7073"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org84a7073"&gt;
+&lt;div id="outline-container-orgde054cb" class="outline-2"&gt;
+&lt;h2 id="orgde054cb"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgde054cb"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org17df850" class="outline-3"&gt;
-&lt;h3 id="org17df850"&gt;The Data&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org17df850"&gt;
+&lt;div id="outline-container-org38c6e50" class="outline-3"&gt;
+&lt;h3 id="org38c6e50"&gt;The Data&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org38c6e50"&gt;
 &lt;p&gt;
 Now that we have the data we can take a quick look at what's there.
 &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;CountPercentage&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Gender&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Gender"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
@@ -165,7 +311,7 @@ Our two classes are "Female" and "Male" and they are roughly, but not quite, equ
 &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance_distributions"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;object type="text/html" data="https://necromuralist.github.io/posts/linear-regression-and-binary-data/balance_distributions.html" style="width:100%" height="800"&gt;
@@ -178,9 +324,9 @@ It looks like there are two populations for each gender. The larger one for both
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8dcd8eb" class="outline-3"&gt;
-&lt;h3 id="org8dcd8eb"&gt;Encode the Gender&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8dcd8eb"&gt;
+&lt;div id="outline-container-orgb765a56" class="outline-3"&gt;
+&lt;h3 id="orgb765a56"&gt;Encode the Gender&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb765a56"&gt;
 &lt;p&gt;
 Since the &lt;code&gt;Gender&lt;/code&gt; data is categorical we need to create a &lt;i&gt;dummy variable&lt;/i&gt; to encode it. So what I'm going to do is encode males as 0 and females as 1 (because of the nature of binary encoding, we could swap the numbers and it would still work).
 &lt;/p&gt;
@@ -192,7 +338,7 @@ Since the &lt;code&gt;Gender&lt;/code&gt; data is categorical we need to create 
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"gender"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Gender&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value_counts&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value_counts&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;pre class="example"&gt;
@@ -203,15 +349,15 @@ Name: gender, dtype: int64
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgbfd88e8" class="outline-3"&gt;
-&lt;h3 id="orgbfd88e8"&gt;Fit the Regression&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbfd88e8"&gt;
+&lt;div id="outline-container-org3779a58" class="outline-3"&gt;
+&lt;h3 id="org3779a58"&gt;Fit the Regression&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3779a58"&gt;
 &lt;p&gt;
 Now I'll fit the model with &lt;a href="https://www.statsmodels.org/stable/index.html"&gt;statsmodels&lt;/a&gt;, which uses r-style arguments (I think it supports regular python arguments too).
 &lt;/p&gt;
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;statsmodels_formula&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ols&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Balance ~ gender"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fit&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summary&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summary&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;pre class="example"&gt;
@@ -268,9 +414,9 @@ We can check this by comparing the &lt;code&gt;coef&lt;/code&gt; entry in the su
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;male_mean&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Gender&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="s2"&gt;"Male"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="n"&gt;female_mean&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Gender&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="s2"&gt;"Female"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average Male Balance: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;male_mean&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;.7&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average Female Balance: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;female_mean&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;0.7&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average difference: &lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;female_mean&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;male_mean&lt;/span&gt;&lt;span class="si"&gt;:&lt;/span&gt;&lt;span class="s2"&gt;0.7&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average Male Balance: {male_mean:.7}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average Female Balance: {female_mean:0.7}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average difference: {female_mean - male_mean:0.7}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
 &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;isclose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;male_mean&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Intercept&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;be_true&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;isclose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;female_mean&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;male_mean&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;be_true&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -298,7 +444,7 @@ Average difference: 19.73312
 &lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;scatter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Gender Model"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;object type="text/html" data="https://necromuralist.github.io/posts/linear-regression-and-binary-data/Gender Model.html" style="width:100%" height="800"&gt;
@@ -312,9 +458,9 @@ I didn't set up a hypothesis test, but if you look at the p-value (the &lt;code&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgce12e79" class="outline-2"&gt;
-&lt;h2 id="orgce12e79"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgce12e79"&gt;
+&lt;div id="outline-container-org093da0d" class="outline-2"&gt;
+&lt;h2 id="org093da0d"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org093da0d"&gt;
 &lt;p&gt;
 So there you have it. If you have the specialized case of binary categorical data you can convert the category to &lt;i&gt;dummy variables&lt;/i&gt; and then fit a linear regression to it. If you encode the values as &lt;i&gt;0&lt;/i&gt; and &lt;i&gt;1&lt;/i&gt; then the &lt;i&gt;y-intercept&lt;/i&gt; will give you the average output value for the category set to 0 and the &lt;i&gt;slope&lt;/i&gt; will give you the difference between the average outputs for the categories. If you use different dummy variables the meanings will change slightly, although you will still be inferring things about the averages. Why is this interesting - predicting the mean for each category?
 &lt;/p&gt;
@@ -333,40 +479,40 @@ I didn't emphasize it, but the p-value for the f-statistic might be valuable whe
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgace7323" class="outline-2"&gt;
-&lt;h2 id="orgace7323"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgace7323"&gt;
+&lt;div id="outline-container-orga43cccc" class="outline-2"&gt;
+&lt;h2 id="orga43cccc"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga43cccc"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/an-introduction-to-statistical-learning/"&gt;An Introduction To Statistical Learning&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/isl-credit-data-set/"&gt;ISL Credit Data Set&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>categorical data</category><category>data</category><category>dummy variables</category><category>linear regression</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/linear-regression-and-binary-data/</guid><pubDate>Sun, 02 Aug 2020 00:31:46 GMT</pubDate></item><item><title>Step One: Get the Behavior</title><link>https://necromuralist.github.io/posts/step-one-get-the-behavior/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org7eba804" class="outline-2"&gt;
-&lt;h2 id="org7eba804"&gt;Note&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7eba804"&gt;
+&lt;/div&gt;</description><category>categorical data</category><category>data</category><category>dummy variables</category><category>linear regression</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/linear-regression-and-binary-data/</guid><pubDate>Sun, 02 Aug 2020 00:31:46 GMT</pubDate></item><item><title>Step One: Get the Behavior</title><link>https://necromuralist.github.io/posts/step-one-get-the-behavior/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgdb35ca2" class="outline-2"&gt;
+&lt;h2 id="orgdb35ca2"&gt;Note&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgdb35ca2"&gt;
 &lt;p&gt;
 The first step of Clicker Training is "Get your rabbit to do what you want it to do", which seems a little ambiguous when you see it on the list, but it breaks down into four basic categories.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb89c143" class="outline-3"&gt;
-&lt;h3 id="orgb89c143"&gt;Capture Something She Does on Her Own&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb89c143"&gt;
+&lt;div id="outline-container-org12a2c7a" class="outline-3"&gt;
+&lt;h3 id="org12a2c7a"&gt;Capture Something She Does on Her Own&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org12a2c7a"&gt;
 &lt;p&gt;
 If you see your rabbit do something that she naturally does, like sit up or come to you at certain times, then click and reward it so you can build it up as something she'll do on cue.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org42c476d" class="outline-3"&gt;
-&lt;h3 id="org42c476d"&gt;Lure With Food&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org42c476d"&gt;
+&lt;div id="outline-container-org65f7250" class="outline-3"&gt;
+&lt;h3 id="org65f7250"&gt;Lure With Food&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org65f7250"&gt;
 &lt;p&gt;
 If your rabbit will take food from your hand you can teach her to go places by having her follow your hand with food in it, although the next category - &lt;i&gt;Follow a Target&lt;/i&gt; - is a preferable way to do this.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org21741b6" class="outline-3"&gt;
-&lt;h3 id="org21741b6"&gt;Follow a Target&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org21741b6"&gt;
+&lt;div id="outline-container-org9b37dac" class="outline-3"&gt;
+&lt;h3 id="org9b37dac"&gt;Follow a Target&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9b37dac"&gt;
 &lt;p&gt;
 Create a target (like a ping-pong ball on the end of a stick) and teach your rabbit to follow it.
 &lt;/p&gt;
@@ -376,9 +522,9 @@ Create a target (like a ping-pong ball on the end of a stick) and teach your rab
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgff19626" class="outline-3"&gt;
-&lt;h3 id="orgff19626"&gt;Shaping&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgff19626"&gt;
+&lt;div id="outline-container-org6598024" class="outline-3"&gt;
+&lt;h3 id="org6598024"&gt;Shaping&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6598024"&gt;
 &lt;p&gt;
 The target training follows the &lt;i&gt;shaping&lt;/i&gt; pattern, wherein you start by rewarding anything that sort of looks like what you want her to do - like just looking at the target when you show it to her, then progressively extending the behavior needed until it's the one that you want. For example:
 &lt;/p&gt;
@@ -392,9 +538,9 @@ The target training follows the &lt;i&gt;shaping&lt;/i&gt; pattern, wherein you 
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6ab23d1" class="outline-2"&gt;
-&lt;h2 id="org6ab23d1"&gt;Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6ab23d1"&gt;
+&lt;div id="outline-container-org0740497" class="outline-2"&gt;
+&lt;h2 id="org0740497"&gt;Source&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0740497"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/clicking-with-your-rabbit/"&gt;Clicking With Your Rabbit&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -403,9 +549,9 @@ The target training follows the &lt;i&gt;shaping&lt;/i&gt; pattern, wherein you 
 This was a project report that looked at using emoticons to create a labeled data set for tweets.
 &lt;/p&gt;
 
-&lt;div id="outline-container-orge595eb1" class="outline-2"&gt;
-&lt;h2 id="orge595eb1"&gt;About the Data&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge595eb1"&gt;
+&lt;div id="outline-container-org2809cea" class="outline-2"&gt;
+&lt;h2 id="org2809cea"&gt;About the Data&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2809cea"&gt;
 &lt;p&gt;
 The authors noted that tweets are different from many other sources used for sentiment analysis - things like movie reviews - in that:
 &lt;/p&gt;
@@ -417,24 +563,24 @@ The authors noted that tweets are different from many other sources used for sen
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7653134" class="outline-2"&gt;
-&lt;h2 id="org7653134"&gt;Using Emoticons as Labels&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7653134"&gt;
+&lt;div id="outline-container-org98a43a1" class="outline-2"&gt;
+&lt;h2 id="org98a43a1"&gt;Using Emoticons as Labels&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org98a43a1"&gt;
 &lt;p&gt;
 The use of emoticons to decide if a tweet is positive, or negative has the benefit of automatically creating a labled dataset, but since they are used as the labels they have to remove them from the training set, removing one of the more useful ways of identifying the tweet sentiment.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org646b59e" class="outline-2"&gt;
-&lt;h2 id="org646b59e"&gt;Getting and Cleaning the Data&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org646b59e"&gt;
+&lt;div id="outline-container-orge1f71a3" class="outline-2"&gt;
+&lt;h2 id="orge1f71a3"&gt;Getting and Cleaning the Data&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge1f71a3"&gt;
 &lt;p&gt;
 The pulled 100 tweets form the API every 2 minutes until they had 800,000 positive and 800,000 negative tweets (after removing some tweets in pre-processing). The API lets you query by emoticon so the used ":)" to grab positive tweets (the API matches any known equivalent emoticon) and ":(" for negative tweets. They removed re-tweets and duplicates as well as any tweet that had both positive and negative emoticons in them. They then replaced usernames with the token &lt;code&gt;USERNAME&lt;/code&gt; and URLs with &lt;code&gt;URL&lt;/code&gt; and limited the number of consecutively repeated characters to 2.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>nlp</category><category>paper</category><category>sentiment analysis</category><category>slipnote</category><category>twitter</category><guid>https://necromuralist.github.io/posts/twitter-sentiment-classification-using-distant-supervison/</guid><pubDate>Fri, 31 Jul 2020 22:16:27 GMT</pubDate></item><item><title>Opinion Mining and Sentiment Analysis</title><link>https://necromuralist.github.io/posts/opinion-mining-and-sentiment-analysis/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org7312ab7" class="outline-2"&gt;
-&lt;h2 id="org7312ab7"&gt;Note&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7312ab7"&gt;
+&lt;/div&gt;</description><category>nlp</category><category>paper</category><category>sentiment analysis</category><category>slipnote</category><category>twitter</category><guid>https://necromuralist.github.io/posts/twitter-sentiment-classification-using-distant-supervison/</guid><pubDate>Fri, 31 Jul 2020 22:16:27 GMT</pubDate></item><item><title>Opinion Mining and Sentiment Analysis</title><link>https://necromuralist.github.io/posts/opinion-mining-and-sentiment-analysis/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org3704c2f" class="outline-2"&gt;
+&lt;h2 id="org3704c2f"&gt;Note&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3704c2f"&gt;
 &lt;p&gt;
 An &lt;i&gt;opinion&lt;/i&gt; is a subjective statement about what a &lt;b&gt;&lt;b&gt;person&lt;/b&gt;&lt;/b&gt; thinks or believes about &lt;b&gt;&lt;b&gt;something&lt;/b&gt;&lt;/b&gt;.
 &lt;/p&gt;
@@ -465,143 +611,4 @@ In addition, to make it meaningful, you can add:
 Sentiment Analysis is a part of Natural Language Processing that looks to transform freeform text into structured data. Opinion is an expression of belief, while sentiment is an expression of feeling. What is sometimes called Sentiment Analysis - the measurement of positive or negative sentiment of a text is really Polarity Classification, a subset of Sentiment Analysis. &lt;a href="https://necromuralist.github.io/posts/bibliography/sentiment-analysis-in-social-networks/"&gt;(Pozzi, Fersini, et al., 2017)&lt;/a&gt;.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>nlp</category><category>sentiment analysis</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/opinion-mining-and-sentiment-analysis/</guid><pubDate>Thu, 30 Jul 2020 20:12:55 GMT</pubDate></item><item><title>Memorizing Binaries</title><link>https://necromuralist.github.io/posts/memorizing-binaries/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-This is one way that you can memorize binary states - not just binary number, since you can encode the binary states as binary numbers.
-&lt;/p&gt;
-
-&lt;ol class="org-ol"&gt;
-&lt;li&gt;Encode as bits (e.g. &lt;i&gt;white=0&lt;/i&gt;, &lt;i&gt;black=1&lt;/i&gt;)&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;
-Arrange the bits into 3x3 grids - 3 bits per row, 3 rows per grid
-&lt;/p&gt;
-
-&lt;p&gt;
-\[
-  000\\
-  110\\
-  101\\
-  \]
-&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;
-Convert each row to decimal numbers.
-&lt;/p&gt;
-
-&lt;p&gt;
-\[
-  000 = 0\\
-  110 = 6\\
-  101 = 5\\
-  \]
-&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;Convert the decimal to a word-image using a system. In the case of the Major System you might get &lt;i&gt;065 = sgl = seagull&lt;/i&gt;.&lt;/li&gt;
-
-&lt;li&gt;Repeat until you have all the bits covered&lt;/li&gt;
-
-&lt;li&gt;Put the images into a Memory Palace, two images per location.&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;div id="outline-container-orgf2fb684" class="outline-2"&gt;
-&lt;h2 id="orgf2fb684"&gt;Bibliography&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf2fb684"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/mnemonic-alphabet-systems/"&gt;Mnemonic Alphabet Systems&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>memory</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/memorizing-binaries/</guid><pubDate>Thu, 30 Jul 2020 06:41:28 GMT</pubDate></item><item><title>Basics Steps of Clicker Training</title><link>https://necromuralist.github.io/posts/basics-steps-of-clicker-training/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-These are the basic steps of clicker training.
-&lt;/p&gt;
-
-&lt;ol class="org-ol"&gt;
-&lt;li&gt;Get your rabbit to do what you want it to do&lt;/li&gt;
-&lt;li&gt;Click the instant she does it&lt;/li&gt;
-&lt;li&gt;Reward your rabbit with a treat&lt;/li&gt;
-&lt;li&gt;Add a cue once she's learned to do it so she knows the name of what she's doing&lt;/li&gt;
-&lt;li&gt;Gradually fade out the clicks and treats&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;div id="outline-container-orgf4157d4" class="outline-2"&gt;
-&lt;h2 id="orgf4157d4"&gt;Links&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf4157d4"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/clicking-basics/"&gt;Clicking Basics&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgccaa37a" class="outline-2"&gt;
-&lt;h2 id="orgccaa37a"&gt;Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgccaa37a"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/clicking-with-your-rabbit/"&gt;Clicking With Your Rabbit&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>clicker training</category><category>rabbit</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/basics-steps-of-clicker-training/</guid><pubDate>Thu, 30 Jul 2020 06:33:37 GMT</pubDate></item><item><title>Why Is Ham Radio Called Ham Radio?</title><link>https://necromuralist.github.io/posts/why-is-ham-radio-called-ham-radio/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-So, why is &lt;a href="https://www.wikiwand.com/en/Amateur_radio"&gt;Amateur Radio called&lt;/a&gt; &lt;i&gt;ham&lt;/i&gt; radio? It appears that the term originated with Telegraph Operators who referred to unskilled operators as "hams", presumably because they were considered "ham-fisted" (or "ham-handed"). When radio first became available to the general population many of the first radio ("wireless telegraph") operators were former telegraph operators and it became the norm for both amateurs and professionals to refer to amateur operators who accidentally interfered with other broadcasts as "hams" and eventually the term was adopted by the amateur radio community as the term for "amateur" radio.
-&lt;/p&gt;
-
-&lt;div id="outline-container-orgbd47385" class="outline-2"&gt;
-&lt;h2 id="orgbd47385"&gt;Citations&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbd47385"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/arrl-ham-radio-license-manual/"&gt;ARRL Ham Radio License Manual&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>etymology</category><category>ham radio</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/why-is-ham-radio-called-ham-radio/</guid><pubDate>Thu, 30 Jul 2020 03:21:08 GMT</pubDate></item><item><title>The Alphabet Peg</title><link>https://necromuralist.github.io/posts/the-alphabet-peg/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-This is a type of Mnemonic Peg System that helps you memorize lists using a pre-built Peg List based on the alphabet. It doesn't have to be the alphabet, it can be any ordered list of words that you already have memorized.
-&lt;/p&gt;
-
-&lt;p&gt;
-First you created a list of words wherein the first letter of each word matches the letters of the alphabet - &lt;i&gt;Ape, Bat, Crane&lt;/i&gt;, etc. Now whenever you need to memorize a list you associate each item on the list with a word in the alphabet list in order. So if you need to memorize &lt;i&gt;a loaf of bread, a container of milk, and a stick of butter&lt;/i&gt; you would do something like this:
-&lt;/p&gt;
-
-&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
-
-
-&lt;colgroup&gt;
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-left"&gt;
-&lt;/colgroup&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th scope="col" class="org-left"&gt;Abecadarium&lt;/th&gt;
-&lt;th scope="col" class="org-left"&gt;List&lt;/th&gt;
-&lt;th scope="col" class="org-left"&gt;Link&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td class="org-left"&gt;Ape&lt;/td&gt;
-&lt;td class="org-left"&gt;Loaf of Bread&lt;/td&gt;
-&lt;td class="org-left"&gt;King Kong climbing the Empire State Building holding a loaf of bread&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td class="org-left"&gt;Bat&lt;/td&gt;
-&lt;td class="org-left"&gt;Container of Milk&lt;/td&gt;
-&lt;td class="org-left"&gt;Supermarket milk jug with a bat in it&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td class="org-left"&gt;Crane&lt;/td&gt;
-&lt;td class="org-left"&gt;Stick of Butter&lt;/td&gt;
-&lt;td class="org-left"&gt;A crane choking on a giant stick of butter&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;
-Once you've made the associations you can remember the list by starting with Ape and working through the alphabet.
-&lt;/p&gt;
-
-&lt;div id="outline-container-org6d3c4b9" class="outline-2"&gt;
-&lt;h2 id="org6d3c4b9"&gt;Bibliography&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6d3c4b9"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/mnemonic-alphabet-systems/"&gt;Mnemonic Alphabet Systems&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>memory</category><category>mnemonic peg system</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/the-alphabet-peg/</guid><pubDate>Thu, 30 Jul 2020 02:54:16 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>nlp</category><category>sentiment analysis</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/opinion-mining-and-sentiment-analysis/</guid><pubDate>Thu, 30 Jul 2020 20:12:55 GMT</pubDate></item></channel></rss>

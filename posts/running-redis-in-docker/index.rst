@@ -1,8 +1,8 @@
 .. title: Running Redis in Docker
 .. slug: running-redis-in-docker
 .. date: 2016-06-19 20:25:26 UTC-07:00
-.. tags: docker redis how-to
-.. category: how-to
+.. tags: docker,redis,how-to
+.. category: Redis
 .. link: 
 .. description: How to run redis in docker.
 .. type: text

@@ -1,8 +1,8 @@
 .. title: Testing KaTex
 .. slug: testing-katex
 .. date: 2016-03-02 14:43:41 UTC-08:00
-.. tags: testing
-.. category: exploration
+.. tags: testing,nikola,katex
+.. category: Nikola
 .. link: 
 .. description: 
 .. type: text

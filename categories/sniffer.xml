@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about sniffer)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/sniffer.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 06 Aug 2020 02:21:29 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Ubertooth 2018</title><link>https://necromuralist.github.io/posts/ubertooth-2018/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org3e6be60" class="outline-2"&gt;
+&lt;h2 id="org3e6be60"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3e6be60"&gt;
+&lt;p&gt;
+One of the problems of relying on search engines is that the more obscure the subject you are interested in, the greater the chance that what you'll get will be either unlocatable or outdated.  These are my notes on setting up the &lt;a href="https://github.com/greatscottgadgets/ubertooth"&gt;ubertooth&lt;/a&gt; on an ubuntu system in September of 2018, which turned out to be a slightly different experience from what I went through earlier in this year so I thought I should try and make a record of it somewhere.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgd3f4515" class="outline-2"&gt;
+&lt;h2 id="orgd3f4515"&gt;The Current Release&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd3f4515"&gt;
+&lt;p&gt;
+The current release for the Ubertooth firmware and code is &lt;a href="https://github.com/greatscottgadgets/ubertooth/releases/tag/2018-08-R1"&gt;2018-08-R1&lt;/a&gt;. Download the &lt;a href="https://github.com/greatscottgadgets/ubertooth/releases/download/2018-08-R1/ubertooth-2018-08-R1.tar.xz"&gt;ubertooth-2018-08-R1.tar.xz&lt;/a&gt; file from that page and untar it. You will also want the matching &lt;a href="https://github.com/greatscottgadgets/libbtbb/releases/tag/2018-08-R1"&gt;libbtb&lt;/a&gt; code.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org3e5f49d" class="outline-2"&gt;
+&lt;h2 id="org3e5f49d"&gt;Building and Installing the Code&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3e5f49d"&gt;
+&lt;p&gt;
+For some reason the instructions on the home page assume you already have the code built and installed, but there's &lt;a href="https://github.com/greatscottgadgets/ubertooth/wiki/Build-Guide"&gt;actually some previous steps you need to do&lt;/a&gt;. 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orge5c1a0d" class="outline-3"&gt;
+&lt;h3 id="orge5c1a0d"&gt;Install the Dependencies&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge5c1a0d"&gt;
+&lt;pre class="example"&gt;
+sudo apt install cmake libusb-1.0-0-dev make gcc g++ libbluetooth-dev \
+pkg-config libpcap-dev python-numpy python-pyside python-qt4
+&lt;/pre&gt;
+
+&lt;p&gt;
+The &lt;code&gt;python-&amp;lt;packages&amp;gt;&lt;/code&gt; can be downloaded from pip, and you really don't need the &lt;code&gt;pyside&lt;/code&gt; and &lt;code&gt;qt4&lt;/code&gt; libraries unless you want to run the spectral scanner, which is kind of their hello-world, which is nice, but the pyside code is actually depracated because qt5 is the current version and it won't work with python 3.6 (the current ubuntu default) so I personally would skip it. &lt;code&gt;numpy&lt;/code&gt; is always a good idea no matter what you end up doing.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgbea7f89" class="outline-3"&gt;
+&lt;h3 id="orgbea7f89"&gt;Build libbtbb&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbea7f89"&gt;
+&lt;p&gt;
+&lt;code&gt;libbtb&lt;/code&gt; is the Bluetooth Baseband Library which you need for ubertooth to decode bluetooth packets. Change into the folder you downloaded earlier and build and install it.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+&lt;/pre&gt;
+
+&lt;pre class="example"&gt;
+[ 88%] Built target btbb
+[ 88%] Built target btaptap
+[100%] Built target pcapdump
+Install the project...
+-- Install configuration: ""
+-- Installing: /usr/local/lib/pkgconfig/libbtbb.pc
+-- Installing: /usr/local/lib/libbtbb.so.1.0
+-- Installing: /usr/local/lib/libbtbb.so.1
+-- Installing: /usr/local/lib/libbtbb.so
+-- Installing: /usr/local/include/btbb.h
+running build
+running build_py
+running install
+running install_lib
+creating //usr/local/lib/python2.7/site-packages/pcapdump
+copying /home/dogen/Downloads/libbtbb-2018-08-R1/build/python/pcaptools/build/lib.linux-x86_64-2.7/pcapdump/pcapdump.py -&amp;gt; //usr/local/lib/python2.7/site-packages/pcapdump
+copying /home/dogen/Downloads/libbtbb-2018-08-R1/build/python/pcaptools/build/lib.linux-x86_64-2.7/pcapdump/__init__.py -&amp;gt; //usr/local/lib/python2.7/site-packages/pcapdump
+byte-compiling //usr/local/lib/python2.7/site-packages/pcapdump/pcapdump.py to pcapdump.pyc
+byte-compiling //usr/local/lib/python2.7/site-packages/pcapdump/__init__.py to __init__.pyc
+running install_egg_info
+Writing //usr/local/lib/python2.7/site-packages/pcapdump-0.0.0-py2.7.egg-info
+-- Installing: /usr/local/bin/btaptap
+&lt;/pre&gt;
+
+&lt;p&gt;
+Now run ldconfig.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo ldconfig
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org9ae0121" class="outline-3"&gt;
+&lt;h3 id="org9ae0121"&gt;Ubertooth Tools&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9ae0121"&gt;
+&lt;p&gt;
+Do the same thing to build the tools. First untar the file you downloaded, change into the &lt;code&gt;host&lt;/code&gt; folder (&lt;code&gt;ubertooth-2018-08-R1/host&lt;/code&gt;) and build and install the code.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+mkdir build
+cd build/
+cmake ..
+make
+sudo make install
+sudo ldconfig
+&lt;/pre&gt;
+
+&lt;p&gt;
+You should now have some command-line tools that start with &lt;code&gt;ubertooth-&lt;/code&gt; (e.g. &lt;code&gt;ubertooth-rx&lt;/code&gt;).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgabc5a89" class="outline-3"&gt;
+&lt;h3 id="orgabc5a89"&gt;Privileges&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgabc5a89"&gt;
+&lt;p&gt;
+You can use &lt;code&gt;setcap&lt;/code&gt; to make it so that you don't need to run things as root. This is how to make it so you can run &lt;code&gt;ubertooth-scan&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo setcap 'CAP_NET_RAW+eip CAP_NET_ADMIN+eip' (which ubertooth-scan)
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org8e4ab55" class="outline-2"&gt;
+&lt;h2 id="org8e4ab55"&gt;Update the Firmware&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org8e4ab55"&gt;
+&lt;p&gt;
+One of the commands installed in the previous step was &lt;code&gt;ubertooth-dfu&lt;/code&gt; which is the &lt;b&gt;&lt;b&gt;Do Firmware Update&lt;/b&gt;&lt;/b&gt; command that we need to update the firmware. First insert the ubertooth USB dongle, then change into the &lt;code&gt;ubertooth-2018-08-R1/ubertooth-one-firmware-bin&lt;/code&gt; folder and run the update command.
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;b&gt;&lt;b&gt;Warning:&lt;/b&gt;&lt;/b&gt; According to the documentation you need to make sure to have an antenna on the ubertooth before inserting it. Also, it too a couple of attempts inserting, removing, and re-inserting the ubertooth before it worked for some reason (you can tell it's ready when there are two green LEDs and one red LED lit up).
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+ubertooth-dfu -d bluetooth_rxtx.dfu -r
+&lt;/pre&gt;
+
+&lt;p&gt;
+As I mentioned before, the GUI for the spectral analysis is out of date and didn't install in my setup, but you can check that the ubertooth is working by just running the spectral analysis without a GUI.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+ubertooth-specan
+&lt;/pre&gt;
+
+&lt;p&gt;
+This should send a timestamp, frequency, RSSI CSV to stdout as the ubertooth sweeps the channels and shows the amount of electromagnetic radiation it sees on each.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org6adab40" class="outline-2"&gt;
+&lt;h2 id="org6adab40"&gt;Spectools&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6adab40"&gt;
+&lt;p&gt;
+Since we can't run the python spectrum analyzer, we should turn to a better alternative, &lt;a href="https://www.kismetwireless.net/spectools/"&gt;spectools&lt;/a&gt;. This was a project to mostly re-create the &lt;a href="https://www.metageek.com/products/wi-spy/"&gt;metageek wi-spy GUI&lt;/a&gt; but it supports the ubertooth. It actually looks like a dead project (the last &lt;i&gt;News&lt;/i&gt; item on their site was from 2012), but it works for now. Luckily ubuntu has this in the repositories so you should be able to just install it with apt.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo apt install spectools
+&lt;/pre&gt;
+
+&lt;p&gt;
+Once you install it you can either run &lt;code&gt;spectool_curses&lt;/code&gt; which will run at the command line but only has one view, or &lt;code&gt;spectool_gtk&lt;/code&gt; which will run in an X-windows environment and show three views of the 2.4 GHz spectrum.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org348dfd6" class="outline-2"&gt;
+&lt;h2 id="org348dfd6"&gt;Kismet&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org348dfd6"&gt;
+&lt;p&gt;
+Now we come to the interesting installation. At this point you probably have all the command-line utilities you need, but kismet provides a convenient interface to start capturing packets. Unfortunately it is going through a major upgrade which makes it incompatible with the ubertooth plugin for it (maybe, there's two plugins and one of them might work, but they don't seem to document it (or much else, for that matter)).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>bluetooth</category><category>how-to</category><category>sniffer</category><category>ubertooth</category><guid>https://necromuralist.github.io/posts/ubertooth-2018/</guid><pubDate>Thu, 27 Sep 2018 04:59:08 GMT</pubDate></item></channel></rss>

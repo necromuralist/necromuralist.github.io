@@ -1,8 +1,8 @@
 .. title: Running MongoDB With Docker
 .. slug: running-mongodb-with-docker
 .. date: 2016-06-19 20:01:17 UTC-07:00
-.. tags: docker mongodb
-.. category: how-to
+.. tags: docker,mongodb
+.. category: MongoDB
 .. link: 
 .. description: How to run MongoDB using Docker on a local machine.
 .. type: text

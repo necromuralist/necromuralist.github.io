@@ -1,8 +1,8 @@
 .. title: Monitoring Events With Chromium
 .. slug: monitoring-events-with-chromium
 .. date: 2016-09-23 16:57:37 UTC-07:00
-.. tags: web developer
-.. category: how-to
+.. tags: web development
+.. category: Web Development
 .. link: 
 .. description: How to monitor events in chromium.
 .. type: text

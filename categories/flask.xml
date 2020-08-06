@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about flask)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/flask.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 06 Aug 2020 02:56:28 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>The Flask Debug Server</title><link>https://necromuralist.github.io/posts/the-flask-debug-server/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org22b3416"&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org9b45c62"&gt;Setup&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orge15f864"&gt;The Environment Variables&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orge213244"&gt;Run It&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org718e632"&gt;The Development server&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orgfbac51f"&gt;Public Server&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orge618665"&gt;Make it repeatable&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org22b3416" class="outline-2"&gt;
+&lt;h2 id="org22b3416"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org22b3416"&gt;
+&lt;p&gt;
+This is documented on the &lt;a href="//flask.pocoo.org/docs/"&gt;Flask site&lt;/a&gt;, but I was trying to help someone debug some old server code that I'd written and couldn't remember how to debug it, so I'm documenting it here as I go through remembering it again so I'll have a single reference to use the next time. Some of the settings look different from what I remember using so I think that Flask has changed a little over time, but since I didn't document it the first time I don't have a record to compare against (well, I probably have some notes in a notebook but it's hard to refer to that when sitting at someone else's desk).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org9b45c62" class="outline-2"&gt;
+&lt;h2 id="org9b45c62"&gt;Setup&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9b45c62"&gt;
+&lt;p&gt;
+The &lt;a href="http://flask.pocoo.org/docs/1.0/quickstart/"&gt;Flask Quickstart&lt;/a&gt; tells you what to do, but for some reason when we googled it, the instructions were different, I think it might have lead us to an older form of the documentation. This is the current version (May 20, 2018.)
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orge15f864" class="outline-3"&gt;
+&lt;h3 id="orge15f864"&gt;The Environment Variables&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge15f864"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org3772546" class="outline-4"&gt;
+&lt;h4 id="org3772546"&gt;The Flask App&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org3772546"&gt;
+&lt;p&gt;
+First you have to tell flask which file contains your flask app by setting the &lt;code&gt;FLASK_APP&lt;/code&gt; environment variable. In my case I'm using &lt;a href="https://github.com/zalando/connexion"&gt;connexion&lt;/a&gt;, an oddly-named adapter that adds support for &lt;a href="https://swagger.io/"&gt;swagger/OpenApi&lt;/a&gt; to Flask. So the file that has the app has this line in it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;application&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;connexion&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FlaskApp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="vm"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+In this case that's a file named &lt;code&gt;api.py&lt;/code&gt; which we'll say is in the &lt;code&gt;server&lt;/code&gt; folder (it isn't, but that's okay) so we need to set our environment accordingly. I use the fish shell so the syntax is slightly different from the Quick Start example. Also - and this caused me a lot of trouble - when I didn't pass in the name of my &lt;code&gt;FlaskApp&lt;/code&gt; instance I got this error:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Error: Failed to find application in module "server.api".  Are you sure it contains a Flask application?  Maybe you wrapped it in a WSGI middleware or you are using a factory function.
+&lt;/pre&gt;
+
+&lt;p&gt;
+So I had to specifically tell flask the name of my app by appending it to the end of the setting (perhaps it is looking for &lt;code&gt;app&lt;/code&gt; specifically, but I called mine &lt;code&gt;application&lt;/code&gt;).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;set&lt;/span&gt; -x FLASK_APP server.api:application
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgc8c949f" class="outline-4"&gt;
+&lt;h4 id="orgc8c949f"&gt;Development Mode&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgc8c949f"&gt;
+&lt;p&gt;
+If you want the server to automatically reload when it detects changes then you should to set the &lt;code&gt;FLASK_ENV&lt;/code&gt; environment variable to &lt;code&gt;development&lt;/code&gt;. This is similar to using &lt;code&gt;FLASK_DEBUG&lt;/code&gt; but I think it adds the reloading. Anyway, it does more than just set debug mode.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;set&lt;/span&gt; -x FLASK_ENV development
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orge213244" class="outline-2"&gt;
+&lt;h2 id="orge213244"&gt;Run It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge213244"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org718e632" class="outline-3"&gt;
+&lt;h3 id="org718e632"&gt;The Development server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org718e632"&gt;
+&lt;p&gt;
+This is the output of the help string for the &lt;a href="http://flask.pocoo.org/docs/1.0/server/#server"&gt;development server&lt;/a&gt;, note that it uses &lt;code&gt;-h&lt;/code&gt; for &lt;code&gt;host&lt;/code&gt; so you need to pass in &lt;code&gt;--help&lt;/code&gt; to see this output or you will get an error.
+&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;flask run --help
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgfbac51f" class="outline-3"&gt;
+&lt;h3 id="orgfbac51f"&gt;Public Server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfbac51f"&gt;
+&lt;p&gt;
+The default server runs on localhost, but since I'm hosting the code on a &lt;a href="https://www.raspberrypi.org/"&gt;raspberry pi&lt;/a&gt; sitting on the network somewhere but debugging it remotely, I need to run it on a public address.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;flask run --host&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0.0.0
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orge618665" class="outline-2"&gt;
+&lt;h2 id="orge618665"&gt;Make it repeatable&lt;/h2&gt;
+&lt;/div&gt;</description><category>flask</category><category>how-to</category><guid>https://necromuralist.github.io/posts/the-flask-debug-server/</guid><pubDate>Sun, 20 May 2018 20:53:54 GMT</pubDate></item><item><title>Flask-Bibliography</title><link>https://necromuralist.github.io/posts/reference/flask-bibliography/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org2d81805" class="outline-2"&gt;
+&lt;h2 id="org2d81805"&gt;Web Sockets&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2d81805"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org08ad455" class="outline-3"&gt;
+&lt;h3 id="org08ad455"&gt;Flask-SocketIO&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org08ad455"&gt;
+&lt;p&gt;
+This combines flask with &lt;a href="https://socket.io"&gt;socket.io&lt;/a&gt; (so there's an extra thing to learn, maybe). The author made a &lt;a href="https://blog.miguelgrinberg.com/post/easy-websockets-with-flask-and-gevent"&gt;blog post&lt;/a&gt; about it that gives a little more background around it and what advantages he thinks it has over flask-sockets. He also gave a talk at PyCon Ireland 2017 that is on &lt;a href="https://www.youtube.com/watch?v=Jwux1TPZUwg&amp;amp;index=1&amp;amp;list=PLNeBS51Q0m98FAWRHwQLjV1vja2ZdWpCb"&gt;YouTube&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://flask-socketio.readthedocs.io/en/latest/"&gt;"Flask-SocketIO Documentation." flask-socketio.readthedocs.io. N. p., 2018. Web. 13 Feb. 2018.&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a href="https://secdevops.ai/weekend-project-part-1-creating-a-real-time-web-based-application-using-flask-vue-and-socket-b71c73f37df7"&gt;"Weekend Project (Part 1): Creating A Real-Time Web-Based Application Using Flask, Vue, And…." SecDevOps. N. p., 2017. Web. 13 Feb. 2018.&lt;/a&gt; This is a two-part article with a fairly complex example.&lt;/li&gt;
+
+&lt;li&gt;&lt;a href="https://www.twilio.com/blog/2014/11/choose-your-own-adventure-presentations-with-reveal-js-python-and-websockets.html"&gt;"Choose Your Own Adventure Presentations With Reveal.Js, Python And Websockets." Twilio.com. N. p., 2014. Web. 13 Feb. 2018.&lt;/a&gt; This example shows how to use twilio and websockets to let viewers decide what the next slide in a presentation will be.&lt;/li&gt;
+
+&lt;li&gt;&lt;a href="http://www.matthieuamiguet.ch/blog/synchronize-clients-flask-application-websockets"&gt;" Synchronize Clients Of A Flask Application With Websockets | Matthieu Amiguet ." Matthieuamiguet.ch. N. p., 2015. Web. 13 Feb. 2018.&lt;/a&gt; An example of how to synchronize sliders across two clients.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org56c71a3" class="outline-3"&gt;
+&lt;h3 id="org56c71a3"&gt;Flask Sockets&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org56c71a3"&gt;
+&lt;p&gt;
+This is a project from &lt;a href="https://www.kennethreitz.org"&gt;Kenneth Reitz&lt;/a&gt;, the guy who made &lt;a href="http://docs.python-requests.org/en/master/"&gt;requests&lt;/a&gt;. On the one hand, it looks much simpler, on the other it doesn't look like it has as many options. Maybe a good starter that would later need to be swapped out for Socket IO if it got complex enough.
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://github.com/kennethreitz/flask-sockets"&gt;"Kennethreitz/Flask-Sockets." GitHub. N. p., 2018. Web. 13 Feb. 2018.&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;a href="https://devcenter.heroku.com/articles/python-websockets"&gt;"Using Websockets On Heroku With Python | Heroku Dev Center." Devcenter.heroku.com. N. p., 2018. Web. 13 Feb. 2018.&lt;/a&gt; This is a more complete example of how to use flask-sockets and deploy it on Heroku.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org2d5c3e8" class="outline-3"&gt;
+&lt;h3 id="org2d5c3e8"&gt;Flask-uWSGI-Websocket&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org2d5c3e8"&gt;
+&lt;p&gt;
+&lt;a href="https://github.com/zeekay/flask-uwsgi-websocket"&gt;This&lt;/a&gt; looks like it's halfway between flask-sockets and flask-socketIO.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>flask</category><guid>https://necromuralist.github.io/posts/reference/flask-bibliography/</guid><pubDate>Tue, 13 Feb 2018 19:44:32 GMT</pubDate></item></channel></rss>
