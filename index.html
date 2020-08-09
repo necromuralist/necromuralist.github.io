@@ -12,12 +12,12 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/" rel="canonical">
-<link href="index-14.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+<link href="index-15.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
 <link href="apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/ham-links/" rel="prefetch" type="text/html">
+<link href="posts/bibliography/isl-default-dataset/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,122 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/bibliography/isl-default-dataset/">ISL Default Dataset</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/bibliography/isl-default-dataset/" rel="bookmark"><time class="published dt-published" datetime="2020-08-07T20:10:29-07:00" itemprop="datePublished" title="2020-08-07 20:10">2020-08-07 20:10</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/bibliography/isl-default-dataset/#org9b67270">Set Up</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/#org8b96692">The Dataset</a>
+<ul>
+<li><a href="posts/bibliography/isl-default-dataset/#org2f542eb">Load It</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/#org2bdc834">Summarize It</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/#orgb316a51">Save It</a></li>
+</ul>
+</li>
+<li><a href="posts/bibliography/isl-default-dataset/#org20f2c14">Citation</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/#org69aa995">Comment</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org9b67270">
+<h2 id="org9b67270">Set Up</h2>
+<div class="outline-text-2" id="text-org9b67270">
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># pypi</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">rpy2.robjects</span> <span class="kn">as</span> <span class="nn">robjects</span>
+<span class="kn">import</span> <span class="nn">rpy2.robjects.packages</span> <span class="kn">as</span> <span class="nn">rpackages</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org8b96692">
+<h2 id="org8b96692">The Dataset</h2>
+<div class="outline-text-2" id="text-org8b96692"></div>
+<div class="outline-3" id="outline-container-org2f542eb">
+<h3 id="org2f542eb">Load It</h3>
+<div class="outline-text-3" id="text-org2f542eb">
+<div class="highlight">
+<pre><span></span><span class="n">base</span> <span class="o">=</span> <span class="n">rpackages</span><span class="o">.</span><span class="n">importr</span><span class="p">(</span><span class="s2">"base"</span><span class="p">)</span>
+<span class="n">utils</span> <span class="o">=</span> <span class="n">rpackages</span><span class="o">.</span><span class="n">importr</span><span class="p">(</span><span class="s2">"utils"</span><span class="p">)</span>
+
+<span class="n">utils</span><span class="o">.</span><span class="n">chooseCRANmirror</span><span class="p">(</span><span class="n">ind</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">utils</span><span class="o">.</span><span class="n">install_packages</span><span class="p">(</span><span class="s2">"ISLR"</span><span class="p">)</span>
+<span class="n">islr</span> <span class="o">=</span> <span class="n">rpackages</span><span class="o">.</span><span class="n">importr</span><span class="p">(</span><span class="s2">"ISLR"</span><span class="p">)</span>
+<span class="n">default</span> <span class="o">=</span> <span class="n">rpackages</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">islr</span><span class="p">)</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">"Default"</span><span class="p">)[</span><span class="s2">"Default"</span><span class="p">]</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">default</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">default</span><span class="o">.</span><span class="n">rx2</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">default</span><span class="o">.</span><span class="n">names</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org2bdc834">
+<h3 id="org2bdc834">Summarize It</h3>
+<div class="outline-text-3" id="text-org2bdc834">
+<div class="highlight">
+<pre><span></span><span class="n">default</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+<pre class="example">
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 10000 entries, 0 to 9999
+Data columns (total 4 columns):
+ #   Column   Non-Null Count  Dtype  
+---  ------   --------------  -----  
+ 0   default  10000 non-null  int32  
+ 1   student  10000 non-null  int32  
+ 2   balance  10000 non-null  float64
+ 3   income   10000 non-null  float64
+dtypes: float64(2), int32(2)
+memory usage: 234.5 KB
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-orgb316a51">
+<h3 id="orgb316a51">Save It</h3>
+<div class="outline-text-3" id="text-orgb316a51">
+<p>The reason for converting the rpy2 object to a pandas DataFrame was to make saving it easier. The rpy2 DataFrame does have a method called <code>to_csvfile</code> but I've never used it before so this seemed safer.</p>
+<div class="highlight">
+<pre><span></span><span class="n">env_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"~/.local/share/env"</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="n">load_dotenv</span><span class="p">(</span><span class="n">env_path</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"ISL_DEFAULT"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="n">default</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org20f2c14">
+<h2 id="org20f2c14">Citation</h2>
+<div class="outline-text-2" id="text-org20f2c14">
+<ul class="org-ul">
+<li>James, G., Witten, D., Hastie, T., and Tibshirani, R. ISLR: Data for an Introduction to Statistical Learning with Applications in R. 2017. [R package version 1.2]. CRAN. [cited 2020 Aug 7]. <a href="https://cran.r-project.org/package=ISLR">https://cran.r-project.org/package=ISLR</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org69aa995">
+<h2 id="org69aa995">Comment</h2>
+<div class="outline-text-2" id="text-org69aa995">
+<p>This is a simulated dataset created for <a href="posts/bibliography/an-introduction-to-statistical-learning/">An Introduction To Statistical Learning</a>. Unlike the <a href="posts/bibliography/isl-credit-data-set/">ISL Credit Data Set</a> dataset this isn't listed for download on the books page which is why I downloaded it through R, although it looks like it is available from the gzipped tar file on the site but it's in the rda format - a binary format that sounds sort of like the <a href="https://docs.python.org/3/library/pickle.html">pickle</a> format but for R.</p>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/ham-links/">Ham Links</a></h1>
@@ -249,6 +365,31 @@
 <span class="n">browser</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Firefox</span><span class="p">(</span><span class="n">firefox_options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 </pre></div>
 <p><b>Note:</b> There's a method called <code>set_headless</code> for this class which seems to work, but the documentation says that it is deprecated so it's probably better to do it this way.</p>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/bibliography/isl-credit-data-set/">ISL Credit Data Set</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/bibliography/isl-credit-data-set/" rel="bookmark"><time class="published dt-published" datetime="2020-08-01T18:11:23-07:00" itemprop="datePublished" title="2020-08-01 18:11">2020-08-01 18:11</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div class="outline-2" id="outline-container-orgab4e711">
+<h2 id="orgab4e711">Bibliography</h2>
+<div class="outline-text-2" id="text-orgab4e711">
+<ul class="org-ul">
+<li>James, G., Witten, D., Hastie, T., and Tibshirani, R. Credit Card Balance Data [Data file]. USC; Marshall School of Business; Los Angeles, California. [cited 2020 Aug 1]. Available from: <a href="https://faculty.marshall.usc.edu/gareth-james/ISL/Credit.csv">https://faculty.marshall.usc.edu/gareth-james/ISL/Credit.csv</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org5a9ad8b">
+<h2 id="org5a9ad8b">Comment</h2>
+<div class="outline-text-2" id="text-org5a9ad8b">
+<p>This is a simulated data set created for <a href="posts/bibliography/an-introduction-to-statistical-learning/">An Introduction To Statistical Learning</a>. There is an R documentation page (man-page-ish) for it <a href="https://vincentarelbundock.github.io/Rdatasets/doc/ISLR/Credit.html">here on github</a>.</p>
+</div>
+</div>
 </div>
 </article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -540,105 +681,9 @@ Average difference: 19.73312
 </div>
 </div>
 </article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/step-one-get-the-behavior/">Step One: Get the Behavior</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/step-one-get-the-behavior/" rel="bookmark"><time class="published dt-published" datetime="2020-07-31T15:41:00-07:00" itemprop="datePublished" title="2020-07-31 15:41">2020-07-31 15:41</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-orgdb35ca2">
-<h2 id="orgdb35ca2">Note</h2>
-<div class="outline-text-2" id="text-orgdb35ca2">
-<p>The first step of Clicker Training is "Get your rabbit to do what you want it to do", which seems a little ambiguous when you see it on the list, but it breaks down into four basic categories.</p>
-</div>
-<div class="outline-3" id="outline-container-org12a2c7a">
-<h3 id="org12a2c7a">Capture Something She Does on Her Own</h3>
-<div class="outline-text-3" id="text-org12a2c7a">
-<p>If you see your rabbit do something that she naturally does, like sit up or come to you at certain times, then click and reward it so you can build it up as something she'll do on cue.</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org65f7250">
-<h3 id="org65f7250">Lure With Food</h3>
-<div class="outline-text-3" id="text-org65f7250">
-<p>If your rabbit will take food from your hand you can teach her to go places by having her follow your hand with food in it, although the next category - <i>Follow a Target</i> - is a preferable way to do this.</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org9b37dac">
-<h3 id="org9b37dac">Follow a Target</h3>
-<div class="outline-text-3" id="text-org9b37dac">
-<p>Create a target (like a ping-pong ball on the end of a stick) and teach your rabbit to follow it.</p>
-<ul class="org-ul">
-<li>Start by putting it near her and clicking when she touches it with her nose or mouth</li>
-<li>Extend it slowly by moving it away from her and rewarding her when she follows it</li>
-</ul>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org6598024">
-<h3 id="org6598024">Shaping</h3>
-<div class="outline-text-3" id="text-org6598024">
-<p>The target training follows the <i>shaping</i> pattern, wherein you start by rewarding anything that sort of looks like what you want her to do - like just looking at the target when you show it to her, then progressively extending the behavior needed until it's the one that you want. For example:</p>
-<ol class="org-ol">
-<li>look at the target</li>
-<li>touch the target</li>
-<li>follow the target a little</li>
-<li>follow the target further</li>
-<li>follow the target into her carrier</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org0740497">
-<h2 id="org0740497">Source</h2>
-<div class="outline-text-2" id="text-org0740497">
-<ul class="org-ul">
-<li><a href="posts/bibliography/clicking-with-your-rabbit/">Clicking With Your Rabbit</a></li>
-</ul>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/twitter-sentiment-classification-using-distant-supervison/">Twitter Sentiment Classification Using Distant Supervison</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/twitter-sentiment-classification-using-distant-supervison/" rel="bookmark"><time class="published dt-published" datetime="2020-07-31T15:16:27-07:00" itemprop="datePublished" title="2020-07-31 15:16">2020-07-31 15:16</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<p>This was a project report that looked at using emoticons to create a labeled data set for tweets.</p>
-<div class="outline-2" id="outline-container-org2809cea">
-<h2 id="org2809cea">About the Data</h2>
-<div class="outline-text-2" id="text-org2809cea">
-<p>The authors noted that tweets are different from many other sources used for sentiment analysis - things like movie reviews - in that:</p>
-<ul class="org-ul">
-<li>they are character limited (140 characters at the time of the paper, it has since doubled)</li>
-<li>there is a huge amount of data to pull - and it is continuously being generated</li>
-<li>there is an unusual amount of slang and non-normal spelling</li>
-<li>it isn't subject specific - you can filter using the API, but twitter itself isn't a single-subject service</li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org98a43a1">
-<h2 id="org98a43a1">Using Emoticons as Labels</h2>
-<div class="outline-text-2" id="text-org98a43a1">
-<p>The use of emoticons to decide if a tweet is positive, or negative has the benefit of automatically creating a labled dataset, but since they are used as the labels they have to remove them from the training set, removing one of the more useful ways of identifying the tweet sentiment.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orge1f71a3">
-<h2 id="orge1f71a3">Getting and Cleaning the Data</h2>
-<div class="outline-text-2" id="text-orge1f71a3">
-<p>The pulled 100 tweets form the API every 2 minutes until they had 800,000 positive and 800,000 negative tweets (after removing some tweets in pre-processing). The API lets you query by emoticon so the used ":)" to grab positive tweets (the API matches any known equivalent emoticon) and ":(" for negative tweets. They removed re-tweets and duplicates as well as any tweet that had both positive and negative emoticons in them. They then replaced usernames with the token <code>USERNAME</code> and URLs with <code>URL</code> and limited the number of consecutively repeated characters to 2.</p>
-</div>
-</div>
-</div>
-</article>
 </div>
 <ul class="pager postindexpager clearfix">
-<li class="next"><a href="index-14.html" rel="next">Older posts</a></li>
+<li class="next"><a href="index-15.html" rel="next">Older posts</a></li>
 </ul>
 <script crossorigin="anonymous" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/x-mathjax-config">
