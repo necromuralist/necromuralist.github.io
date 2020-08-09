@@ -1,0 +1,92 @@
+#+BEGIN_COMMENT
+.. title: ISL Default Dataset
+.. slug: isl-default-dataset
+.. date: 2020-08-07 20:10:29 UTC-07:00
+.. tags: bibilography,data,isl
+.. category: Bibliography
+.. link: 
+.. description: 
+.. type: text
+.. status:
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-fbe47380-c2ca-4a98-abf0-2266041272a1-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+
+* Set Up
+#+begin_src python :results none
+# python
+from pathlib import Path
+import os
+
+# pypi
+from dotenv import load_dotenv
+
+import numpy
+import pandas
+import rpy2.robjects as robjects
+import rpy2.robjects.packages as rpackages
+#+end_src
+
+* The Dataset
+** Load It
+#+begin_src python :results none
+base = rpackages.importr("base")
+utils = rpackages.importr("utils")
+
+utils.chooseCRANmirror(ind=1)
+#+end_src
+
+#+begin_src python :results none
+utils.install_packages("ISLR")
+islr = rpackages.importr("ISLR")
+default = rpackages.data(islr).fetch("Default")["Default"]
+#+end_src
+
+#+begin_src python :results none
+default = pandas.DataFrame.from_dict({key: numpy.asarray(default.rx2(key))
+                                      for key in default.names})
+#+end_src
+
+** Summarize It
+#+begin_src python :results output :exports both
+default.info()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 10000 entries, 0 to 9999
+Data columns (total 4 columns):
+ #   Column   Non-Null Count  Dtype  
+---  ------   --------------  -----  
+ 0   default  10000 non-null  int32  
+ 1   student  10000 non-null  int32  
+ 2   balance  10000 non-null  float64
+ 3   income   10000 non-null  float64
+dtypes: float64(2), int32(2)
+memory usage: 234.5 KB
+#+end_example
+
+** Save It
+   The reason for converting the rpy2 object to a pandas DataFrame was to make saving it easier. The rpy2 DataFrame does have a method called =to_csvfile= but I've never used it before so this seemed safer.
+
+#+begin_src python :results none
+env_path = Path("~/.local/share/env").expanduser()
+load_dotenv(env_path, override=True)
+path = Path(os.environ["ISL_DEFAULT"]).expanduser()
+default.to_csv(path, index=False)
+#+end_src
+* Citation
+  - James, G., Witten, D., Hastie, T., and Tibshirani, R. ISLR: Data for an Introduction to Statistical Learning with Applications in R. 2017. [R package version 1.2]. CRAN. [cited 2020 Aug 7]. https://CRAN.R-project.org/package=ISLR
+
+* Comment
+  This is a simulated dataset created for {{% doc %}}an-introduction-to-statistical-learning{{% /doc %}}. Unlike the {{% doc %}}isl-credit-data-set{{% /doc %}} dataset this isn't listed for download on the books page which is why I downloaded it through R, although it looks like it is available from the gzipped tar file on the site but it's in the rda format - a binary format that sounds sort of like the [[https://docs.python.org/3/library/pickle.html][pickle]] format but for R.
