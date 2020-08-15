@@ -1,0 +1,350 @@
+#+BEGIN_COMMENT
+.. title: Linear Regression Binary Classification
+.. slug: linear-regression-binary-classification
+.. date: 2020-08-10 19:07:53 UTC-07:00
+.. tags: linear regression,data,slipnote,dummy variables,categorical data,classification
+.. category: Data
+.. link: 
+.. description: A note on binary classification with Linear Regression.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-04b55a0a-980d-4e04-88f2-04f733c423ff-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+* Beginning
+** Set Up
+*** Imports
+#+begin_src python :results none
+# python
+from functools import partial
+from pathlib import Path
+
+import os
+import pickle
+
+# pypi
+from dotenv import load_dotenv
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+import holoviews
+import hvplot.pandas
+import numpy
+import pandas
+import statsmodels.api as statsmodels
+import statsmodels.formula.api as statsmodels_formula
+
+# my stuff
+from graeae import CountPercentage, EmbedHoloviews
+#+end_src
+*** The Data
+#+begin_src python :results none
+load_dotenv(Path("~/.local/share/env", override=True).expanduser())
+#+end_src
+
+#+begin_src python :results none
+default = pandas.read_csv(Path(os.environ["ISL_DEFAULT"]).expanduser())
+#+end_src
+*** The Plotting
+#+begin_src python :results none
+SLUG = "linear-regression-binary-classification"
+Embed = partial(EmbedHoloviews,
+                folder_path=f"files/posts/{SLUG}")
+
+with Path(os.environ["TWITTER_PLOT"]).expanduser().open("rb") as reader:
+    Plot = pickle.load(reader)
+#+end_src
+* Middle
+** Looking At the Data
+   The [[https://www.picostat.com/dataset/r-dataset-package-islr-default][ISLR Default]] data set is a simulated set that provides information to help you build models to predict whether a loan will default or not. Let's look at the data.
+
+#+begin_src python :results output :exports both
+default.info()
+#+end_src
+
+#+RESULTS:
+#+begin_example
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 10000 entries, 0 to 9999
+Data columns (total 4 columns):
+ #   Column   Non-Null Count  Dtype  
+---  ------   --------------  -----  
+ 0   default  10000 non-null  int64  
+ 1   student  10000 non-null  int64  
+ 2   balance  10000 non-null  float64
+ 3   income   10000 non-null  float64
+dtypes: float64(2), int64(2)
+memory usage: 312.6 KB
+#+end_example
+
+So you can see that it has 10,000 rows, all non-null, two float and two integer columns. What might not be obvious in looking at the description is that default and student are actually categorical columns. Furthermore, according to the description they are encoded as "No" and "Yes" which doesn't seem like integers. Let's take a look at the =default= column (the target).
+
+#+begin_src python :results output :exports both
+counter = CountPercentage(default.default, value_label="Defaulted")
+counter()
+#+end_src
+
+|   Defaulted |   Count |   Percent (%) |
+|-------------+---------+---------------|
+|           1 |   9,667 |         96.67 |
+|           2 |     333 |          3.33 |
+
+So it's a pretty imbalanced set, you could just predict the target is 1 and you would be right around 97% of the time. I'm going to assume that 1 means "No" (didn't default) and 2 means "Yes" (defaulted). For this exercise we're only going to look at the =default= and =balance= columns so I'll pull those out - =balance= is the amount of money still owed on their credit cards after making a monthly payment. I'm also going to change the =default= values to be 0 and 1 instead of 1 and 2.
+
+#+begin_src python :results output :exports both
+default = default[["default", "balance"]]
+default.loc[:, "default"] = default.default - 1
+
+CountPercentage(default.default, value_label="Defaulted")()
+#+end_src
+
+#+RESULTS:
+: |   Defaulted |   Count |   Percent (%) |
+: |-------------+---------+---------------|
+: |           0 |   9,667 |         96.67 |
+: |           1 |     333 |          3.33 |
+
+|   Defaulted |   Count |   Percent (%) |
+|-------------+---------+---------------|
+|           0 |   9,667 |         96.67 |
+|           1 |     333 |          3.33 |
+
+** Probabilities
+   What this is about is figuring out how you can use linear regression to make binary categorical predictions. The way we're going to do this is create probabilities that a balance will default and then fit a line to it. One problem with this is that the balance is a set of real numbers, so we don't end up with anything meaningful if we use them as is.
+
+#+begin_src python :results output :exports both
+counts = default.balance.value_counts()
+print(counts[counts > 1])
+#+end_src
+
+#+RESULTS:
+: 0.0    499
+: Name: balance, dtype: int64
+
+The only value that appears more than once is 0. I'm going to try and get something more meaningful by rounding. But how should we round?
+
+#+begin_src python :results none
+plot = default.hvplot.kde(y="balance").opts(
+    title="Credit Card Balance Distribution",
+    width=Plot.width,
+    height=Plot.height,
+    color=Plot.tan,
+    fontscale=Plot.font_scale,
+)
+
+output = Embed(plot=plot, file_name="balance_distribution")()
+#+end_src
+
+#+begin_src python :results output html :exports both
+print(output)
+#+end_src
+
+#+RESULTS:
+#+begin_export html
+: <object type="text/html" data="balance_distribution.html" style="width:100%" height=800>
+:   <p>Figure Missing</p>
+: </object>
+#+end_export
+
+So, I kind of cheated and worked with the whole dataset, but anyway, looking at it you can see that there are two populations (possibly those that default and those that don't) and it peters out around 2,500, so doing it by 1,000 increments might not make sense. I'll try 100's and see if that's good enough.
+
+#+begin_src python :results output :exports both
+default.loc[:, "balance"] = (default.balance/100).astype(int) * 100
+counter = CountPercentage(default.balance, value_label="Credit Balance")
+counter()
+#+end_src
+
+|   Credit Balance |   Count |   Percent (%) |
+|------------------+---------+---------------|
+|              700 |     783 |          7.83 |
+|              900 |     779 |          7.79 |
+|              800 |     770 |          7.70 |
+|                0 |     758 |          7.58 |
+|              600 |     755 |          7.55 |
+|            1,000 |     722 |          7.22 |
+|              500 |     668 |          6.68 |
+|            1,100 |     616 |          6.16 |
+|              400 |     586 |          5.86 |
+|            1,200 |     555 |          5.55 |
+|              300 |     530 |          5.30 |
+|            1,300 |     471 |          4.71 |
+|              200 |     423 |          4.23 |
+|            1,400 |     357 |          3.57 |
+|              100 |     316 |          3.16 |
+|            1,500 |     277 |          2.77 |
+|            1,600 |     189 |          1.89 |
+|            1,700 |     157 |          1.57 |
+|            1,800 |     118 |          1.18 |
+|            1,900 |      64 |          0.64 |
+|            2,000 |      47 |          0.47 |
+|            2,100 |      28 |          0.28 |
+|            2,200 |      14 |          0.14 |
+|            2,300 |      10 |          0.10 |
+|            2,400 |       4 |          0.04 |
+|            2,500 |       2 |          0.02 |
+|            2,600 |       1 |          0.01 |
+
+
+Well, it's harder to tell but that might be reasonable.
+
+#+begin_src python :results none
+grouped = default.groupby(["balance", "default"]).agg({"balance": "count"}).rename(
+    columns={"balance": "count"}).reset_index()
+#+end_src
+
+#+begin_src python :results none
+plot = grouped.hvplot.bar(x="balance", y="count", by="default").opts(
+    title="Credit Balance Counts Rounded To 100ths",
+    width=Plot.width,
+    height=Plot.height,
+    fontscale=Plot.font_scale,
+    color=Plot.color_cycle,
+    xrotation=90,
+)
+
+outcome = Embed(plot=plot, file_name="balance_bar")()
+#+end_src
+
+#+begin_src python :results output html :exports both
+print(outcome)
+#+end_src
+
+#+RESULTS:
+#+begin_export html
+<object type="text/html" data="balance_bar.html" style="width:100%" height=800>
+  <p>Figure Missing</p>
+</object>
+#+end_export
+
+That x-axis is a little funky, but the blue is the count of those that didn't default and the red are those that did. So the defaults seem to peak at 1,800 with a spread around it.
+
+** Converting To Probabilities
+   So to get the probabilities what we want is the count of accounts that defaulted for each balance divided by the total number of accounts with a given balance.
+
+#+begin_src python :results none
+defaulted = grouped[grouped.default==1]
+didnt_default = grouped[grouped.default==0]
+#+end_src
+
+#+begin_src python :results none
+joined = didnt_default.set_index("balance").join(
+    defaulted.set_index("balance"),
+    lsuffix="_didnt_default",
+    rsuffix="_defaulted").reset_index().fillna(0)
+#+end_src
+
+#+begin_src python :results none
+joined["total"] = joined.count_didnt_default + joined.count_defaulted
+joined["probability_of_default"] = joined.count_defaulted/joined.total
+joined["predict_yes"] = joined.probability_of_default > 0.5
+#+end_src
+
+#+begin_src python :results none
+plot = joined.hvplot.scatter(x="balance",
+                             y="probability_of_default",
+                             by="predict_yes",
+                             color=Plot.color_cycle,).opts(
+    title="Probability of Default By Balance",
+    width=Plot.width,
+    height=Plot.height,
+    fontscale=Plot.font_scale,
+    xrotation=90,    
+)
+
+outcome = Embed(plot=plot, file_name="probability_vs_balance")()
+#+end_src
+
+#+begin_src python :results output html :exports both
+print(outcome)
+#+end_src
+
+#+RESULTS:
+#+begin_export html
+<object type="text/html" data="probability_vs_balance.html" style="width:100%" height=800>
+  <p>Figure Missing</p>
+</object>
+#+end_export
+
+** Fit a Regression
+So, one of the problems we have here is that by converting the values to probabilities we lost a lot of data (well, not lost, just aggregated them away).
+
+#+begin_src python :results output :exports both
+print(len(joined))
+#+end_src
+
+#+RESULTS:
+: 24
+
+But this isn't a real model, it's just a look at what happens if you fit a line to the probabilities, so I'll just ignore that little fact.
+
+#+begin_src python :results none
+model = LinearRegression().fit(joined.balance.values.reshape(-1, 1),
+                               joined.probability_of_default)
+#+end_src
+
+
+#+begin_src python :results none
+x_s = numpy.linspace(joined.balance.min(), joined.balance.max())
+# predictions = model.predict(x_s)
+#+end_src
+#+begin_src python :results none
+inputs = numpy.linspace(joined.balance.min(), joined.balance.max())
+predictions = model.predict(inputs.reshape(-1, 1))
+
+line = pandas.DataFrame.from_dict(dict(balance=inputs, probability=predictions))
+crossover_point = (line.probability[line.probability > 0.5] - 0.5).abs().idxmin()
+crossover = line.probability.iloc[crossover_point]
+vertical_crossover = line.balance.iloc[crossover_point]
+line_plot = line.hvplot(x="balance", y="probability")
+
+hline = holoviews.HLine(crossover)
+vline = holoviews.VLine(vertical_crossover)
+scatter = joined.hvplot.scatter(x="balance",
+                                y="probability_of_default",
+                                by="predict_yes",
+                                color=Plot.color_cycle,)
+plot = (line_plot * scatter * hline * vline).opts(
+    title="Probability of Default By Balance",
+    width=Plot.width,
+    height=Plot.height,
+    fontscale=Plot.font_scale,
+    xrotation=90,    
+)
+
+outcome = Embed(plot=plot, file_name="probability_vs_balance_with_model")()
+#+end_src
+
+#+begin_src python :results output html :exports both
+print(outcome)
+#+end_src
+
+#+RESULTS:
+#+begin_export html
+<object type="text/html" data="probability_vs_balance_with_model.html" style="width:100%" height=800>
+  <p>Figure Missing</p>
+</object>
+#+end_export
+
+Looking at the plot - the horizontal line is the point at which the model switches from predicting the loan won't default to predicting that it will. Once again, I'm plotting on the training data so the performance shouldn't be take at face value, but what it does show is that it would be possible to create a model using linear regression that predicts whether someone would default on their loan. One problem, though, would be interpreting the model - the y-intercept comes at -0.2 - what does it mean when the probability is negative? What happens when it's greater than one?
+* End
+  I'm not really sure what to make of this. I did it as an exercise because the {{% lancelot "ISLR" %}}an-introduction-to-statistical-learning{{% /lancelot %}} book had it and I thought it might make an interesting thing to replicate - although my plot doesn't look at all like theirs, and they don't document what they did so I'm not really sure that I'm doing anything remotely close to what they did. One thing to note is that given the binary nature of our data, even though we fit a linear model, if we assume that any balance that gives a probability greater than 0.5 is going to defaualt means that we could re-state the model as:
+
+#+begin_src python
+if balance > 2065:
+    defaulted = 1
+else:
+    defaulted = 0
+#+end_src
+Anyway, this isn't something you would normally do, using linear regression to classify data, that is, so it's time to move on.
+* Sources
+  - {{% doc %}}an-introduction-to-statistical-learning{{% /doc %}}
+  - {{% doc %}}isl-default-dataset{{% /doc %}}
