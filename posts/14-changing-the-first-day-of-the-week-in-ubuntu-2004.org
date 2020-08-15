@@ -1,0 +1,75 @@
+#+BEGIN_COMMENT
+.. title: Changing the First Day of the Week in Ubuntu 20.04
+.. slug: changing-the-first-day-of-the-week-in-ubuntu-2004
+.. date: 2020-08-12 19:00:04 UTC-07:00
+.. tags: ubuntu
+.. category: Ubuntu
+.. link: 
+.. description: Changing the first day of the week in Ubuntu 20.04.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+* Beginning
+  I like to have my calendars set up with Monday as the first day of the week, but being that I live in the United States most calendars default to starting the week on Sunday - including the Gnome calendar applet - and while searching pulls up quite a number of pages about how to do it, no one of them quite worked for me so I'm documenting what did work. 
+
+* Making the Changes
+First, over at [[http://www.beginninglinux.com/home/gnome/change-first-day-of-week-to-monday-on-ubuntu-gnome-calendar][Beginning Linux]] they mentioned that you can find out which file to edit using the [[https://man7.org/linux/man-pages/man1/locale.1.html][locale]] command.
+
+#+begin_src sh :exports both
+# run this in the shell
+locale | grep LANG=
+#+end_src
+
+#+RESULTS:
+: LANG=en_US.UTF-8
+
+The second line above (~LANG=en_US.UTF-8~) is the output of the command and what we need to note here is that =en_US.UTF-8= means that there's a file in =/usr/share/i81n/locales/= named =en_US= that's being used for my configuration so I made a copy of that file (in case I messed something up) and the opened it up in emacs (any changes you make in this directory have to be done as root). 
+
+Now, what that Beginning Linux post and most other posts say to do is to change the line ~first_weekday 1~ (meaning start on Sunday) to ~first_weekday 2~ (start on Monday). The problem with this is that the =en_US= file no longer has that line in it, so you have to add it. Not a big deal, I thought, so I added it as the last line in the file and re-generated the configuration using the [[http://manpages.ubuntu.com/manpages/focal/man8/locale-gen.8.html][locale-gen]] command.
+
+#+begin_src sh
+sudo locale-gen
+#+end_src
+
+Which gave me errors like this:
+
+#+begin_example
+Generating locales (this might take a while)...
+  en_AG.UTF-8...failed to set locale!
+en_US:180: syntax error: not inside a locale definition section
+ done
+#+end_example
+
+It turns out that the file is actually broken into sections and you can't just stick the line any old place, you have to stick it in the right block. If you look in one of the other files that has the line (pick one by grepping =first_weekday=) you'll see that the block we want starts with  =LC_TIME= and ends with =END LC_TIME= so I put the line in at the end of the block like so:
+
+#+begin_example
+% Define the first day of the week to be displayed in a calendar.
+% This weekday is relative to the date defined in the <week> keyword.
+
+first_weekday 2
+END LC_TIME
+#+end_example
+
+I copied the comments frome one of the Ukranian settings files. I picked Ukranian because I thought UK stood for United Kingdom, but it turns out they use GB to indicate Great Britain instead - anyway, it works. The comment suggests that you might also be able to change the =week= definition instead of adding this line, but here's what that line looks like.
+
+#+begin_example
+week 7;19971130;1
+#+end_example
+
+It seems safer to stick with the =first_weekday=.
+
+Next I re-ran the locale-gen command.
+
+#+begin_example
+sudo locale-gen
+#+end_example
+
+And this time it ran without errors. 
+
+So, all fixed, then, right? Well, not quite, because this doesn't update the GUI. There are, once again, many pages telling you how to reload the GUI without logging out, but some, like the Beginning Linux page use names of processes or commands that don't seem to exist any more, or, in one case caused the GUI to raise an error message so I decided it wasn't really worth it to mess with the GUI like that when all you have to do is log out and back in - or not care about it until the next time you log in. 
+* The End
+Part of the motivation for writing this is that it took me more time searching for what worked than it did to make the actual change so maybe next time I'll remember that I wrote this down if I ever have to do this again, which I'm sure I will.
+
+  As a final note I should mention that the accepted answer to this post [[https://askubuntu.com/questions/197613/monday-as-first-day-in-gnome-shell-instead-of-sunday][on Stack Overflow]] pretty much tells you what to do, it's only missing telling you how to double-check which file to edit, but I didn't find it until after I'd made the changes. Also this page on [[https://linuxconfig.org/how-to-restart-gui-on-ubuntu-20-04-focal-fossa][Linux Config]] has things to try to restart the GUI without logging out, but trying Method 3 (restarting the gnome-shell) is what gave me the error, but if for some reason you really can't log out and you need the week to start on Monday right now, maybe it's something to try.
