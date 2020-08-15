@@ -1,5 +1,713 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sun, 09 Aug 2020 04:20:14 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>ISL Default Dataset</title><link>https://necromuralist.github.io/posts/bibliography/isl-default-dataset/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey</title><link>https://necromuralist.github.io/</link><description>A common place.</description><atom:link href="https://necromuralist.github.io/rss.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sat, 15 Aug 2020 05:47:07 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Changing the First Day of the Week in Ubuntu 20.04</title><link>https://necromuralist.github.io/posts/changing-the-first-day-of-the-week-in-ubuntu-2004/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org50e59f3" class="outline-2"&gt;
+&lt;h2 id="org50e59f3"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org50e59f3"&gt;
+&lt;p&gt;
+I like to have my calendars set up with Monday as the first day of the week, but being that I live in the United States most calendars default to starting the week on Sunday - including the Gnome calendar applet - and while searching pulls up quite a number of pages about how to do it, no one of them quite worked for me so I'm documenting what did work. 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgdbb179d" class="outline-2"&gt;
+&lt;h2 id="orgdbb179d"&gt;Making the Changes&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgdbb179d"&gt;
+&lt;p&gt;
+First, over at &lt;a href="http://www.beginninglinux.com/home/gnome/change-first-day-of-week-to-monday-on-ubuntu-gnome-calendar"&gt;Beginning Linux&lt;/a&gt; they mentioned that you can find out which file to edit using the &lt;a href="https://man7.org/linux/man-pages/man1/locale.1.html"&gt;locale&lt;/a&gt; command.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# run this in the shell&lt;/span&gt;
+locale &lt;span class="p"&gt;|&lt;/span&gt; grep &lt;span class="nv"&gt;LANG&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+LANG=en_US.UTF-8
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+The second line above (&lt;code&gt;LANG=en_US.UTF-8&lt;/code&gt;) is the output of the command and what we need to note here is that &lt;code&gt;en_US.UTF-8&lt;/code&gt; means that there's a file in &lt;code&gt;/usr/share/i81n/locales/&lt;/code&gt; named &lt;code&gt;en_US&lt;/code&gt; that's being used for my configuration so I made a copy of that file (in case I messed something up) and the opened it up in emacs (any changes you make in this directory have to be done as root). 
+&lt;/p&gt;
+
+&lt;p&gt;
+Now, what that Beginning Linux post and most other posts say to do is to change the line &lt;code&gt;first_weekday 1&lt;/code&gt; (meaning start on Sunday) to &lt;code&gt;first_weekday 2&lt;/code&gt; (start on Monday). The problem with this is that the &lt;code&gt;en_US&lt;/code&gt; file no longer has that line in it, so you have to add it. Not a big deal, I thought, so I added it as the last line in the file and re-generated the configuration using the &lt;a href="http://manpages.ubuntu.com/manpages/focal/man8/locale-gen.8.html"&gt;locale-gen&lt;/a&gt; command.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo locale-gen
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which gave me errors like this:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Generating locales (this might take a while)...
+  en_AG.UTF-8...failed to set locale!
+en_US:180: syntax error: not inside a locale definition section
+ done
+&lt;/pre&gt;
+
+&lt;p&gt;
+It turns out that the file is actually broken into sections and you can't just stick the line any old place, you have to stick it in the right block. If you look in one of the other files that has the line (pick one by grepping &lt;code&gt;first_weekday&lt;/code&gt;) you'll see that the block we want starts with  &lt;code&gt;LC_TIME&lt;/code&gt; and ends with &lt;code&gt;END LC_TIME&lt;/code&gt; so I put the line in at the end of the block like so:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+% Define the first day of the week to be displayed in a calendar.
+% This weekday is relative to the date defined in the &amp;lt;week&amp;gt; keyword.
+
+first_weekday 2
+END LC_TIME
+&lt;/pre&gt;
+
+&lt;p&gt;
+I copied the comments frome one of the Ukranian settings files. I picked Ukranian because I thought UK stood for United Kingdom, but it turns out they use GB to indicate Great Britain instead - anyway, it works. The comment suggests that you might also be able to change the &lt;code&gt;week&lt;/code&gt; definition instead of adding this line, but here's what that line looks like.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+week 7;19971130;1
+&lt;/pre&gt;
+
+&lt;p&gt;
+It seems safer to stick with the &lt;code&gt;first_weekday&lt;/code&gt;.
+&lt;/p&gt;
+
+&lt;p&gt;
+Next I re-ran the locale-gen command.
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+sudo locale-gen
+&lt;/pre&gt;
+
+&lt;p&gt;
+And this time it ran without errors. 
+&lt;/p&gt;
+
+&lt;p&gt;
+So, all fixed, then, right? Well, not quite, because this doesn't update the GUI. There are, once again, many pages telling you how to reload the GUI without logging out, but some, like the Beginning Linux page use names of processes or commands that don't seem to exist any more, or, in one case caused the GUI to raise an error message so I decided it wasn't really worth it to mess with the GUI like that when all you have to do is log out and back in - or not care about it until the next time you log in. 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org8a10a9b" class="outline-2"&gt;
+&lt;h2 id="org8a10a9b"&gt;The End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org8a10a9b"&gt;
+&lt;p&gt;
+Part of the motivation for writing this is that it took me more time searching for what worked than it did to make the actual change so maybe next time I'll remember that I wrote this down if I ever have to do this again, which I'm sure I will.
+&lt;/p&gt;
+
+&lt;p&gt;
+As a final note I should mention that the accepted answer to this post &lt;a href="https://askubuntu.com/questions/197613/monday-as-first-day-in-gnome-shell-instead-of-sunday"&gt;on Stack Overflow&lt;/a&gt; pretty much tells you what to do, it's only missing telling you how to double-check which file to edit, but I didn't find it until after I'd made the changes. Also this page on &lt;a href="https://linuxconfig.org/how-to-restart-gui-on-ubuntu-20-04-focal-fossa"&gt;Linux Config&lt;/a&gt; has things to try to restart the GUI without logging out, but trying Method 3 (restarting the gnome-shell) is what gave me the error, but if for some reason you really can't log out and you need the week to start on Monday right now, maybe it's something to try.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>ubuntu</category><guid>https://necromuralist.github.io/posts/changing-the-first-day-of-the-week-in-ubuntu-2004/</guid><pubDate>Thu, 13 Aug 2020 02:00:04 GMT</pubDate></item><item><title>Head First Design Patterns</title><link>https://necromuralist.github.io/posts/bibliography/head-first-design-patterns/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgb1deab2" class="outline-2"&gt;
+&lt;h2 id="orgb1deab2"&gt;Cite&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb1deab2"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Freeman E, Robson E, Sierra K, Bates B, editors. Head First design patterns. Sebastopol, CA: O’Reilly; 2004. 638 p.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>design patterns</category><category>software engineering</category><guid>https://necromuralist.github.io/posts/bibliography/head-first-design-patterns/</guid><pubDate>Tue, 11 Aug 2020 06:01:11 GMT</pubDate></item><item><title>Linear Regression Binary Classification</title><link>https://necromuralist.github.io/posts/linear-regression-binary-classification/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#org628e5b2"&gt;Beginning&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#org6319f8d"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#org250ece8"&gt;Middle&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#orgd9401ba"&gt;Looking At the Data&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#org79b2753"&gt;Probabilities&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#orgb9bd386"&gt;Converting To Probabilities&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#org932d3bf"&gt;Fit a Regression&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#orgc266fa2"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-binary-classification/#org0a0f4cc"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org628e5b2" class="outline-2"&gt;
+&lt;h2 id="org628e5b2"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org628e5b2"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org6319f8d" class="outline-3"&gt;
+&lt;h3 id="org6319f8d"&gt;Set Up&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6319f8d"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org65b7d28" class="outline-4"&gt;
+&lt;h4 id="org65b7d28"&gt;Imports&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org65b7d28"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# python&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pathlib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pickle&lt;/span&gt;
+
+&lt;span class="c1"&gt;# pypi&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;dotenv&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;load_dotenv&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;sklearn.model_selection&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;train_test_split&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;sklearn.linear_model&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;LinearRegression&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;holoviews&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;hvplot.pandas&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;statsmodels.api&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;statsmodels&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;statsmodels.formula.api&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;statsmodels_formula&lt;/span&gt;
+
+&lt;span class="c1"&gt;# my stuff&lt;/span&gt;
+&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;graeae&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;CountPercentage&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;EmbedHoloviews&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org8cb9f61" class="outline-4"&gt;
+&lt;h4 id="org8cb9f61"&gt;The Data&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org8cb9f61"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;load_dotenv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"~/.local/share/env"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;override&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;expanduser&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"ISL_DEFAULT"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;expanduser&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7f45445" class="outline-4"&gt;
+&lt;h4 id="org7f45445"&gt;The Plotting&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org7f45445"&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;SLUG&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"linear-regression-binary-classification"&lt;/span&gt;
+&lt;span class="n"&gt;Embed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;EmbedHoloviews&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+		&lt;span class="n"&gt;folder_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"files/posts/{SLUG}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"TWITTER_PLOT"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;expanduser&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"rb"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;Plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pickle&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org250ece8" class="outline-2"&gt;
+&lt;h2 id="org250ece8"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org250ece8"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgd9401ba" class="outline-3"&gt;
+&lt;h3 id="orgd9401ba"&gt;Looking At the Data&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgd9401ba"&gt;
+&lt;p&gt;
+The &lt;a href="https://www.picostat.com/dataset/r-dataset-package-islr-default"&gt;ISLR Default&lt;/a&gt; data set is a simulated set that provides information to help you build models to predict whether a loan will default or not. Let's look at the data.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+&amp;lt;class 'pandas.core.frame.DataFrame'&amp;gt;
+RangeIndex: 10000 entries, 0 to 9999
+Data columns (total 4 columns):
+ #   Column   Non-Null Count  Dtype  
+---  ------   --------------  -----  
+ 0   default  10000 non-null  int64  
+ 1   student  10000 non-null  int64  
+ 2   balance  10000 non-null  float64
+ 3   income   10000 non-null  float64
+dtypes: float64(2), int64(2)
+memory usage: 312.6 KB
+&lt;/pre&gt;
+
+&lt;p&gt;
+So you can see that it has 10,000 rows, all non-null, two float and two integer columns. What might not be obvious in looking at the description is that default and student are actually categorical columns. Furthermore, according to the description they are encoded as "No" and "Yes" which doesn't seem like integers. Let's take a look at the &lt;code&gt;default&lt;/code&gt; column (the target).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;CountPercentage&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Defaulted"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-right"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-right"&gt;Defaulted&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Count&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Percent (%)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-right"&gt;1&lt;/td&gt;
+&lt;td class="org-left"&gt;9,667&lt;/td&gt;
+&lt;td class="org-right"&gt;96.67&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-right"&gt;2&lt;/td&gt;
+&lt;td class="org-left"&gt;333&lt;/td&gt;
+&lt;td class="org-right"&gt;3.33&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;
+So it's a pretty imbalanced set, you could just predict the target is 1 and you would be right around 97% of the time. I'm going to assume that 1 means "No" (didn't default) and 2 means "Yes" (defaulted). For this exercise we're only going to look at the &lt;code&gt;default&lt;/code&gt; and &lt;code&gt;balance&lt;/code&gt; columns so I'll pull those out - &lt;code&gt;balance&lt;/code&gt; is the amount of money still owed on their credit cards after making a monthly payment. I'm also going to change the &lt;code&gt;default&lt;/code&gt; values to be 0 and 1 instead of 1 and 2.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="s2"&gt;"default"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loc&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="s2"&gt;"default"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="n"&gt;CountPercentage&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Defaulted"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+|   Defaulted |   Count |   Percent (%) |
+|-------------+---------+---------------|
+|           0 |   9,667 |         96.67 |
+|           1 |     333 |          3.33 |
+&lt;/pre&gt;
+
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-right"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-right"&gt;Defaulted&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Count&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Percent (%)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-right"&gt;0&lt;/td&gt;
+&lt;td class="org-left"&gt;9,667&lt;/td&gt;
+&lt;td class="org-right"&gt;96.67&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-right"&gt;1&lt;/td&gt;
+&lt;td class="org-left"&gt;333&lt;/td&gt;
+&lt;td class="org-right"&gt;3.33&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org79b2753" class="outline-3"&gt;
+&lt;h3 id="org79b2753"&gt;Probabilities&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org79b2753"&gt;
+&lt;p&gt;
+What this is about is figuring out how you can use linear regression to make binary categorical predictions. The way we're going to do this is create probabilities that a balance will default and then fit a line to it. One problem with this is that the balance is a set of real numbers, so we don't end up with anything meaningful if we use them as is.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;counts&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value_counts&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counts&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;counts&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+0.0    499
+Name: balance, dtype: int64
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+The only value that appears more than once is 0. I'm going to try and get something more meaningful by rounding. But how should we round?
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hvplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kde&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Credit Card Balance Distribution"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tan&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;fontscale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;font_scale&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance_distribution"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+: &lt;object type="text/html" data="https://necromuralist.github.io/posts/linear-regression-binary-classification/balance_distribution.html" style="width:100%" height="800"&gt;
+:   &lt;p&gt;Figure Missing&lt;/p&gt;
+: &lt;/object&gt;
+
+&lt;p&gt;
+So, I kind of cheated and worked with the whole dataset, but anyway, looking at it you can see that there are two populations (possibly those that default and those that don't) and it peters out around 2,500, so doing it by 1,000 increments might not make sense. I'll try 100's and see if that's good enough.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loc&lt;/span&gt;&lt;span class="p"&gt;[:,&lt;/span&gt; &lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;astype&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;
+&lt;span class="n"&gt;counter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;CountPercentage&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Credit Balance"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-right"&gt;
+
+&lt;col class="org-right"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;Credit Balance&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Count&lt;/th&gt;
+&lt;th scope="col" class="org-right"&gt;Percent (%)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;700&lt;/td&gt;
+&lt;td class="org-right"&gt;783&lt;/td&gt;
+&lt;td class="org-right"&gt;7.83&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;900&lt;/td&gt;
+&lt;td class="org-right"&gt;779&lt;/td&gt;
+&lt;td class="org-right"&gt;7.79&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;800&lt;/td&gt;
+&lt;td class="org-right"&gt;770&lt;/td&gt;
+&lt;td class="org-right"&gt;7.70&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;0&lt;/td&gt;
+&lt;td class="org-right"&gt;758&lt;/td&gt;
+&lt;td class="org-right"&gt;7.58&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;600&lt;/td&gt;
+&lt;td class="org-right"&gt;755&lt;/td&gt;
+&lt;td class="org-right"&gt;7.55&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,000&lt;/td&gt;
+&lt;td class="org-right"&gt;722&lt;/td&gt;
+&lt;td class="org-right"&gt;7.22&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;500&lt;/td&gt;
+&lt;td class="org-right"&gt;668&lt;/td&gt;
+&lt;td class="org-right"&gt;6.68&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,100&lt;/td&gt;
+&lt;td class="org-right"&gt;616&lt;/td&gt;
+&lt;td class="org-right"&gt;6.16&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;400&lt;/td&gt;
+&lt;td class="org-right"&gt;586&lt;/td&gt;
+&lt;td class="org-right"&gt;5.86&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,200&lt;/td&gt;
+&lt;td class="org-right"&gt;555&lt;/td&gt;
+&lt;td class="org-right"&gt;5.55&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;300&lt;/td&gt;
+&lt;td class="org-right"&gt;530&lt;/td&gt;
+&lt;td class="org-right"&gt;5.30&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,300&lt;/td&gt;
+&lt;td class="org-right"&gt;471&lt;/td&gt;
+&lt;td class="org-right"&gt;4.71&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;200&lt;/td&gt;
+&lt;td class="org-right"&gt;423&lt;/td&gt;
+&lt;td class="org-right"&gt;4.23&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,400&lt;/td&gt;
+&lt;td class="org-right"&gt;357&lt;/td&gt;
+&lt;td class="org-right"&gt;3.57&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;100&lt;/td&gt;
+&lt;td class="org-right"&gt;316&lt;/td&gt;
+&lt;td class="org-right"&gt;3.16&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,500&lt;/td&gt;
+&lt;td class="org-right"&gt;277&lt;/td&gt;
+&lt;td class="org-right"&gt;2.77&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,600&lt;/td&gt;
+&lt;td class="org-right"&gt;189&lt;/td&gt;
+&lt;td class="org-right"&gt;1.89&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,700&lt;/td&gt;
+&lt;td class="org-right"&gt;157&lt;/td&gt;
+&lt;td class="org-right"&gt;1.57&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,800&lt;/td&gt;
+&lt;td class="org-right"&gt;118&lt;/td&gt;
+&lt;td class="org-right"&gt;1.18&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;1,900&lt;/td&gt;
+&lt;td class="org-right"&gt;64&lt;/td&gt;
+&lt;td class="org-right"&gt;0.64&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;2,000&lt;/td&gt;
+&lt;td class="org-right"&gt;47&lt;/td&gt;
+&lt;td class="org-right"&gt;0.47&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;2,100&lt;/td&gt;
+&lt;td class="org-right"&gt;28&lt;/td&gt;
+&lt;td class="org-right"&gt;0.28&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;2,200&lt;/td&gt;
+&lt;td class="org-right"&gt;14&lt;/td&gt;
+&lt;td class="org-right"&gt;0.14&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;2,300&lt;/td&gt;
+&lt;td class="org-right"&gt;10&lt;/td&gt;
+&lt;td class="org-right"&gt;0.10&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;2,400&lt;/td&gt;
+&lt;td class="org-right"&gt;4&lt;/td&gt;
+&lt;td class="org-right"&gt;0.04&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;2,500&lt;/td&gt;
+&lt;td class="org-right"&gt;2&lt;/td&gt;
+&lt;td class="org-right"&gt;0.02&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;2,600&lt;/td&gt;
+&lt;td class="org-right"&gt;1&lt;/td&gt;
+&lt;td class="org-right"&gt;0.01&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+&lt;p&gt;
+Well, it's harder to tell but that might be reasonable.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;groupby&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"default"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;agg&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"count"&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rename&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"count"&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reset_index&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hvplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"count"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;by&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"default"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Credit Balance Counts Rounded To 100ths"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;fontscale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;font_scale&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_cycle&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;xrotation&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;90&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;outcome&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance_bar"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outcome&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;object type="text/html" data="https://necromuralist.github.io/posts/linear-regression-binary-classification/balance_bar.html" style="width:100%" height="800"&gt;
+  &lt;p&gt;Figure Missing&lt;/p&gt;
+&lt;/object&gt;
+
+&lt;p&gt;
+That x-axis is a little funky, but the blue is the count of those that didn't default and the red are those that did. So the defaults seem to peak at 1,800 with a spread around it.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgb9bd386" class="outline-3"&gt;
+&lt;h3 id="orgb9bd386"&gt;Converting To Probabilities&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb9bd386"&gt;
+&lt;p&gt;
+So to get the probabilities what we want is the count of accounts that defaulted for each balance divided by the total number of accounts with a given balance.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;defaulted&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;didnt_default&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;grouped&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;joined&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;didnt_default&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;defaulted&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;set_index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="n"&gt;lsuffix&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"_didnt_default"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;rsuffix&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"_defaulted"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reset_index&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fillna&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"total"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;count_didnt_default&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;count_defaulted&lt;/span&gt;
+&lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"probability_of_default"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;count_defaulted&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;total&lt;/span&gt;
+&lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"predict_yes"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;probability_of_default&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hvplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;scatter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+			     &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"probability_of_default"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+			     &lt;span class="n"&gt;by&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"predict_yes"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+			     &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_cycle&lt;/span&gt;&lt;span class="p"&gt;,)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Probability of Default By Balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;fontscale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;font_scale&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;xrotation&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;90&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;    
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;outcome&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"probability_vs_balance"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outcome&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;object type="text/html" data="https://necromuralist.github.io/posts/linear-regression-binary-classification/probability_vs_balance.html" style="width:100%" height="800"&gt;
+  &lt;p&gt;Figure Missing&lt;/p&gt;
+&lt;/object&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org932d3bf" class="outline-3"&gt;
+&lt;h3 id="org932d3bf"&gt;Fit a Regression&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org932d3bf"&gt;
+&lt;p&gt;
+So, one of the problems we have here is that by converting the values to probabilities we lost a lot of data (well, not lost, just aggregated them away).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+24
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+But this isn't a real model, it's just a look at what happens if you fit a line to the probabilities, so I'll just ignore that little fact.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;LinearRegression&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reshape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+			       &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;probability_of_default&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;x_s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linspace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;span class="c1"&gt;# predictions = model.predict(x_s)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;inputs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;linspace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;span class="n"&gt;predictions&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;predict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;inputs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;reshape&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+&lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;DataFrame&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;from_dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;inputs&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;probability&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;predictions&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;crossover_point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;probability&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;probability&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mf"&gt;0.5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;abs&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;idxmin&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;crossover&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;probability&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;iloc&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;crossover_point&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;vertical_crossover&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;iloc&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;crossover_point&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;line_plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hvplot&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"probability"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;hline&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;holoviews&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;HLine&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;crossover&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;vline&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;holoviews&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;VLine&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;vertical_crossover&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;scatter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;joined&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hvplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;scatter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+				&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"probability_of_default"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+				&lt;span class="n"&gt;by&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"predict_yes"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+				&lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_cycle&lt;/span&gt;&lt;span class="p"&gt;,)&lt;/span&gt;
+&lt;span class="n"&gt;plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;line_plot&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;scatter&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;hline&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;vline&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Probability of Default By Balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;fontscale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;font_scale&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;xrotation&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;90&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;    
+&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;outcome&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"probability_vs_balance_with_model"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outcome&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;object type="text/html" data="https://necromuralist.github.io/posts/linear-regression-binary-classification/probability_vs_balance_with_model.html" style="width:100%" height="800"&gt;
+  &lt;p&gt;Figure Missing&lt;/p&gt;
+&lt;/object&gt;
+
+&lt;p&gt;
+Looking at the plot - the horizontal line is the point at which the model switches from predicting the loan won't default to predicting that it will. Once again, I'm plotting on the training data so the performance shouldn't be take at face value, but what it does show is that it would be possible to create a model using linear regression that predicts whether someone would default on their loan. One problem, though, would be interpreting the model - the y-intercept comes at -0.2 - what does it mean when the probability is negative? What happens when it's greater than one?
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgc266fa2" class="outline-2"&gt;
+&lt;h2 id="orgc266fa2"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc266fa2"&gt;
+&lt;p&gt;
+I'm not really sure what to make of this. I did it as an exercise because the &lt;a href="https://necromuralist.github.io/posts/bibliography/an-introduction-to-statistical-learning/"&gt;ISLR&lt;/a&gt; book had it and I thought it might make an interesting thing to replicate - although my plot doesn't look at all like theirs, and they don't document what they did so I'm not really sure that I'm doing anything remotely close to what they did. One thing to note is that given the binary nature of our data, even though we fit a linear model, if we assume that any balance that gives a probability greater than 0.5 is going to defaualt means that we could re-state the model as:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;balance&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;2065&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;defaulted&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;defaulted&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;
+Anyway, this isn't something you would normally do, using linear regression to classify data, that is, so it's time to move on.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org0a0f4cc" class="outline-2"&gt;
+&lt;h2 id="org0a0f4cc"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0a0f4cc"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/an-introduction-to-statistical-learning/"&gt;An Introduction To Statistical Learning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/isl-default-dataset/"&gt;ISL Default Dataset&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>categorical data</category><category>classification</category><category>data</category><category>dummy variables</category><category>linear regression</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/linear-regression-binary-classification/</guid><pubDate>Tue, 11 Aug 2020 02:07:53 GMT</pubDate></item><item><title>ISL Default Dataset</title><link>https://necromuralist.github.io/posts/bibliography/isl-default-dataset/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
@@ -269,374 +977,4 @@ After you edit the tree it might be a good idea to call &lt;a href="https://www.
 &lt;/p&gt;
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;soup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;smooth&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/destroying-tags-with-beautiful-soup/</guid><pubDate>Wed, 05 Aug 2020 22:57:27 GMT</pubDate></item><item><title>Selenium Headless</title><link>https://necromuralist.github.io/posts/selenium-headless/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-To run the Selenium Firefox webdriver without starting the GUI you need to set the headless option in the &lt;a href="https://www.selenium.dev/selenium/docs/api/py/webdriver_firefox/selenium.webdriver.firefox.options.html#module-selenium.webdriver.firefox.options"&gt;FirefoxOptions&lt;/a&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;selenium&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;
-
-&lt;span class="n"&gt;options&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;FirefoxOptions&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;headless&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;
-&lt;span class="n"&gt;browser&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;webdriver&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Firefox&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;firefox_options&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; There's a method called &lt;code&gt;set_headless&lt;/code&gt; for this class which seems to work, but the documentation says that it is deprecated so it's probably better to do it this way.
-&lt;/p&gt;</description><category>selenium</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/selenium-headless/</guid><pubDate>Wed, 05 Aug 2020 22:42:17 GMT</pubDate></item><item><title>ISL Credit Data Set</title><link>https://necromuralist.github.io/posts/bibliography/isl-credit-data-set/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgab4e711" class="outline-2"&gt;
-&lt;h2 id="orgab4e711"&gt;Bibliography&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgab4e711"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;James, G., Witten, D., Hastie, T., and Tibshirani, R. Credit Card Balance Data [Data file]. USC; Marshall School of Business; Los Angeles, California. [cited 2020 Aug 1]. Available from: &lt;a href="https://faculty.marshall.usc.edu/gareth-james/ISL/Credit.csv"&gt;https://faculty.marshall.usc.edu/gareth-james/ISL/Credit.csv&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org5a9ad8b" class="outline-2"&gt;
-&lt;h2 id="org5a9ad8b"&gt;Comment&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5a9ad8b"&gt;
-&lt;p&gt;
-This is a simulated data set created for &lt;a href="https://necromuralist.github.io/posts/bibliography/an-introduction-to-statistical-learning/"&gt;An Introduction To Statistical Learning&lt;/a&gt;. There is an R documentation page (man-page-ish) for it &lt;a href="https://vincentarelbundock.github.io/Rdatasets/doc/ISLR/Credit.html"&gt;here on github&lt;/a&gt;.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>bibilography</category><category>data</category><category>isl</category><guid>https://necromuralist.github.io/posts/bibliography/isl-credit-data-set/</guid><pubDate>Sun, 02 Aug 2020 01:11:23 GMT</pubDate></item><item><title>Linear Regression and Binary Data</title><link>https://necromuralist.github.io/posts/linear-regression-and-binary-data/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgdbb0136"&gt;Beginning&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org81eff35"&gt;Set Up&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgde054cb"&gt;Middle&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org38c6e50"&gt;The Data&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orgb765a56"&gt;Encode the Gender&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org3779a58"&gt;Fit the Regression&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#org093da0d"&gt;End&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/linear-regression-and-binary-data/#orga43cccc"&gt;Sources&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgdbb0136" class="outline-2"&gt;
-&lt;h2 id="orgdbb0136"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgdbb0136"&gt;
-&lt;p&gt;
-I'm going to look at binary classification (two classes) and linear regression. In particular I'm going to use the &lt;a href="https://necromuralist.github.io/posts/bibliography/isl-credit-data-set/"&gt;Credit Card Balance&lt;/a&gt; data set &lt;a href="https://necromuralist.github.io/posts/bibliography/an-introduction-to-statistical-learning/"&gt;(James et al., 2013)&lt;/a&gt; to look at how to interpret the linear model once we encode gender.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org81eff35" class="outline-3"&gt;
-&lt;h3 id="org81eff35"&gt;Set Up&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org81eff35"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org91d0f4c" class="outline-4"&gt;
-&lt;h4 id="org91d0f4c"&gt;Imports&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org91d0f4c"&gt;
-&lt;p&gt;
-First, some importing.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# python&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;pathlib&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;
-
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;math&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pickle&lt;/span&gt;
-
-&lt;span class="c1"&gt;# pypi&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;dotenv&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;load_dotenv&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;expects&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;be_true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;expect&lt;/span&gt;
-&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;hvplot.pandas&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;statsmodels.api&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;statsmodels&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;statsmodels.formula.api&lt;/span&gt; &lt;span class="kn"&gt;as&lt;/span&gt; &lt;span class="nn"&gt;statsmodels_formula&lt;/span&gt;
-
-&lt;span class="c1"&gt;# my stuff&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;graeae&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;EmbedHoloviews&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;CountPercentage&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org6464f12" class="outline-4"&gt;
-&lt;h4 id="org6464f12"&gt;The Environment&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org6464f12"&gt;
-&lt;p&gt;
-This loads the path to files.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;load_dotenv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;".env"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org07cc31f" class="outline-4"&gt;
-&lt;h4 id="org07cc31f"&gt;Plotting&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org07cc31f"&gt;
-&lt;p&gt;
-This just sets up some convenience values for plotting.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;SLUG&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"linear-regression-and-binary-data"&lt;/span&gt;
-&lt;span class="n"&gt;Embed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;partial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;EmbedHoloviews&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-		&lt;span class="n"&gt;folder_path&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"files/posts/{SLUG}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-
-&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"PLOT_CONSTANTS"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;expanduser&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"rb"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;Plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pickle&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;reader&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org19446f0" class="outline-4"&gt;
-&lt;h4 id="org19446f0"&gt;The Data&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org19446f0"&gt;
-&lt;p&gt;
-I downloaded the data from the &lt;a href="https://faculty.marshall.usc.edu/gareth-james/ISL/data.html"&gt;ISL Data Set page&lt;/a&gt; previously so I'll load it here.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Path&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"CREDIT"&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;expanduser&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;index_col&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-I passed in the &lt;code&gt;index_col&lt;/code&gt; argument because the first column is a index column with no header, so it just looks goofy if you don't. There are several columns but I only want &lt;code&gt;Gender&lt;/code&gt; and &lt;code&gt;Balance&lt;/code&gt; (the credit card balance).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="s2"&gt;"Gender"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Balance"&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgde054cb" class="outline-2"&gt;
-&lt;h2 id="orgde054cb"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgde054cb"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org38c6e50" class="outline-3"&gt;
-&lt;h3 id="org38c6e50"&gt;The Data&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org38c6e50"&gt;
-&lt;p&gt;
-Now that we have the data we can take a quick look at what's there.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;CountPercentage&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Gender&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Gender"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
-
-
-&lt;colgroup&gt;
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-right"&gt;
-
-&lt;col class="org-right"&gt;
-&lt;/colgroup&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th scope="col" class="org-left"&gt;Gender&lt;/th&gt;
-&lt;th scope="col" class="org-right"&gt;Count&lt;/th&gt;
-&lt;th scope="col" class="org-right"&gt;Percent (%)&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td class="org-left"&gt;Female&lt;/td&gt;
-&lt;td class="org-right"&gt;207&lt;/td&gt;
-&lt;td class="org-right"&gt;51.75&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td class="org-left"&gt;Male&lt;/td&gt;
-&lt;td class="org-right"&gt;193&lt;/td&gt;
-&lt;td class="org-right"&gt;48.25&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;
-Our two classes are "Female" and "Male" and they are roughly, but not quite, equal in number. Now I'll look at the balance.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hvplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;kde&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;by&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Gender"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_cycle&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;fontscale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;font_scale&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Credit Card Balance Distribution by Gender"&lt;/span&gt;
-&lt;span class="p"&gt;)&lt;/span&gt;
-
-&lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"balance_distributions"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;object type="text/html" data="https://necromuralist.github.io/posts/linear-regression-and-binary-data/balance_distributions.html" style="width:100%" height="800"&gt;
-  &lt;p&gt;Figure Missing&lt;/p&gt;
-&lt;/object&gt;
-
-&lt;p&gt;
-It looks like there are two populations for each gender. The larger one for both genders is centered near 0 and then both genders have a secondary population that carries a balance.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgb765a56" class="outline-3"&gt;
-&lt;h3 id="orgb765a56"&gt;Encode the Gender&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb765a56"&gt;
-&lt;p&gt;
-Since the &lt;code&gt;Gender&lt;/code&gt; data is categorical we need to create a &lt;i&gt;dummy variable&lt;/i&gt; to encode it. So what I'm going to do is encode males as 0 and females as 1 (because of the nature of binary encoding, we could swap the numbers and it would still work).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;Male&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;Female&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"gender"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Gender&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;value_counts&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-1    207
-0    193
-Name: gender, dtype: int64
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org3779a58" class="outline-3"&gt;
-&lt;h3 id="org3779a58"&gt;Fit the Regression&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3779a58"&gt;
-&lt;p&gt;
-Now I'll fit the model with &lt;a href="https://www.statsmodels.org/stable/index.html"&gt;statsmodels&lt;/a&gt;, which uses r-style arguments (I think it supports regular python arguments too).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;statsmodels_formula&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ols&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Balance ~ gender"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fit&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;summary&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-                            OLS Regression Results                            
-==============================================================================
-Dep. Variable:                Balance   R-squared:                       0.000
-Model:                            OLS   Adj. R-squared:                 -0.002
-Method:                 Least Squares   F-statistic:                    0.1836
-Date:                Sun, 02 Aug 2020   Prob (F-statistic):              0.669
-Time:                        16:55:01   Log-Likelihood:                -3019.3
-No. Observations:                 400   AIC:                             6043.
-Df Residuals:                     398   BIC:                             6051.
-Df Model:                           1                                         
-Covariance Type:            nonrobust                                         
-==============================================================================
-                 coef    std err          t      P&amp;gt;|t|      [0.025      0.975]
-------------------------------------------------------------------------------
-Intercept    509.8031     33.128     15.389      0.000     444.675     574.931
-gender        19.7331     46.051      0.429      0.669     -70.801     110.267
-==============================================================================
-Omnibus:                       28.438   Durbin-Watson:                   1.940
-Prob(Omnibus):                  0.000   Jarque-Bera (JB):               27.346
-Skew:                           0.583   Prob(JB):                     1.15e-06
-Kurtosis:                       2.471   Cond. No.                         2.66
-==============================================================================
-
-Warnings:
-[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
-&lt;/pre&gt;
-
-&lt;p&gt;
-The model is something like this:
-&lt;/p&gt;
-
-&lt;p&gt;
-\[
- balance = \beta_0 + \beta_1 \times gender
-\]
-&lt;/p&gt;
-
-&lt;p&gt;
-Since we encoded Male as 0 and Female as 1, when the gender is Male the second term drops out and all you have is \(\beta_0\), while for females you have have the full equation. How do you interpret the \(\beta\)s? 
-&lt;/p&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;\(\beta_0\) is the average balance that males carry&lt;/li&gt;
-&lt;li&gt;\(\beta_0 + \beta_1\) is the average balance that females carry&lt;/li&gt;
-&lt;li&gt;\(\beta_1\) is the difference between the average balances&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-We can check this by comparing the &lt;code&gt;coef&lt;/code&gt; entry in the summary table that I printed. The &lt;code&gt;Intercept&lt;/code&gt; is \(\beta_0\) and &lt;code&gt;gender&lt;/code&gt; is \(\beta_1\)
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;male_mean&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Gender&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="s2"&gt;"Male"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="n"&gt;female_mean&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Gender&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="s2"&gt;"Female"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Balance&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;mean&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average Male Balance: {male_mean:.7}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average Female Balance: {female_mean:0.7}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"Average difference: {female_mean - male_mean:0.7}"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-
-&lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;isclose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;male_mean&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Intercept&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;be_true&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;math&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;isclose&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;female_mean&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;male_mean&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;be_true&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-Average Male Balance: 509.8031
-Average Female Balance: 529.5362
-Average difference: 19.73312
-&lt;/pre&gt;
-
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sort_values&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;by&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Balance"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"prediction"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;predict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;gender&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;scatter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hvplot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;scatter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Balance"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"prediction"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;by&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Gender"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-			       &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;color_cycle&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;opts&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Gender Model"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;fontscale&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Plot&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;font_scale&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-&lt;span class="p"&gt;)&lt;/span&gt;
-
-&lt;span class="n"&gt;output&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Embed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;plot&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;scatter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Gender Model"&lt;/span&gt;&lt;span class="p"&gt;)()&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;object type="text/html" data="https://necromuralist.github.io/posts/linear-regression-and-binary-data/Gender Model.html" style="width:100%" height="800"&gt;
-  &lt;p&gt;Figure Missing&lt;/p&gt;
-&lt;/object&gt;
-
-&lt;p&gt;
-I didn't set up a hypothesis test, but if you look at the p-value (the &lt;code&gt;P&amp;gt;|t|&lt;/code&gt; column in the summary) for &lt;code&gt;gender&lt;/code&gt; you can see that it's much larger than 0.05 or whatever level you would normally choose, so it's probable that &lt;code&gt;gender&lt;/code&gt; isn't significant, so the average balance for both genders is really the same, given the deviation, but this is just about interpreting the coefficients, not deciding the validity of this particular model.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org093da0d" class="outline-2"&gt;
-&lt;h2 id="org093da0d"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org093da0d"&gt;
-&lt;p&gt;
-So there you have it. If you have the specialized case of binary categorical data you can convert the category to &lt;i&gt;dummy variables&lt;/i&gt; and then fit a linear regression to it. If you encode the values as &lt;i&gt;0&lt;/i&gt; and &lt;i&gt;1&lt;/i&gt; then the &lt;i&gt;y-intercept&lt;/i&gt; will give you the average output value for the category set to 0 and the &lt;i&gt;slope&lt;/i&gt; will give you the difference between the average outputs for the categories. If you use different dummy variables the meanings will change slightly, although you will still be inferring things about the averages. Why is this interesting - predicting the mean for each category?
-&lt;/p&gt;
-
-&lt;p&gt;
-Logistic regression also relies on dummy variables for categorical encodings and this shows a preliminary step that helps us:
-&lt;/p&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;encode the dummy variables&lt;/li&gt;
-&lt;li&gt;build a linear model using statsmodels&lt;/li&gt;
-&lt;li&gt;view summary information about the model&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-I didn't emphasize it, but the p-value for the f-statistic might be valuable when deciding whether the categorical data is different enough to use as a feature.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orga43cccc" class="outline-2"&gt;
-&lt;h2 id="orga43cccc"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga43cccc"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/an-introduction-to-statistical-learning/"&gt;An Introduction To Statistical Learning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/isl-credit-data-set/"&gt;ISL Credit Data Set&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>categorical data</category><category>data</category><category>dummy variables</category><category>linear regression</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/linear-regression-and-binary-data/</guid><pubDate>Sun, 02 Aug 2020 00:31:46 GMT</pubDate></item></channel></rss>
+&lt;/pre&gt;&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/destroying-tags-with-beautiful-soup/</guid><pubDate>Wed, 05 Aug 2020 22:57:27 GMT</pubDate></item></channel></rss>
