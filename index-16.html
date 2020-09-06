@@ -53,6 +53,762 @@
 <div class="postindex">
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/linear-regression-binary-classification/">Linear Regression Binary Classification</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/linear-regression-binary-classification/" rel="bookmark"><time class="published dt-published" datetime="2020-08-10T19:07:53-07:00" itemprop="datePublished" title="2020-08-10 19:07">2020-08-10 19:07</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/linear-regression-binary-classification/#org628e5b2">Beginning</a>
+<ul>
+<li><a href="posts/linear-regression-binary-classification/#org6319f8d">Set Up</a></li>
+</ul>
+</li>
+<li><a href="posts/linear-regression-binary-classification/#org250ece8">Middle</a>
+<ul>
+<li><a href="posts/linear-regression-binary-classification/#orgd9401ba">Looking At the Data</a></li>
+<li><a href="posts/linear-regression-binary-classification/#org79b2753">Probabilities</a></li>
+<li><a href="posts/linear-regression-binary-classification/#orgb9bd386">Converting To Probabilities</a></li>
+<li><a href="posts/linear-regression-binary-classification/#org932d3bf">Fit a Regression</a></li>
+</ul>
+</li>
+<li><a href="posts/linear-regression-binary-classification/#orgc266fa2">End</a></li>
+<li><a href="posts/linear-regression-binary-classification/#org0a0f4cc">Sources</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org628e5b2">
+<h2 id="org628e5b2">Beginning</h2>
+<div class="outline-text-2" id="text-org628e5b2"></div>
+<div class="outline-3" id="outline-container-org6319f8d">
+<h3 id="org6319f8d">Set Up</h3>
+<div class="outline-text-3" id="text-org6319f8d"></div>
+<div class="outline-4" id="outline-container-org65b7d28">
+<h4 id="org65b7d28">Imports</h4>
+<div class="outline-text-4" id="text-org65b7d28">
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="c1"># pypi</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="kn">import</span> <span class="nn">holoviews</span>
+<span class="kn">import</span> <span class="nn">hvplot.pandas</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="kn">as</span> <span class="nn">statsmodels</span>
+<span class="kn">import</span> <span class="nn">statsmodels.formula.api</span> <span class="kn">as</span> <span class="nn">statsmodels_formula</span>
+
+<span class="c1"># my stuff</span>
+<span class="kn">from</span> <span class="nn">graeae</span> <span class="kn">import</span> <span class="n">CountPercentage</span><span class="p">,</span> <span class="n">EmbedHoloviews</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-4" id="outline-container-org8cb9f61">
+<h4 id="org8cb9f61">The Data</h4>
+<div class="outline-text-4" id="text-org8cb9f61">
+<div class="highlight">
+<pre><span></span><span class="n">load_dotenv</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"~/.local/share/env"</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">())</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">default</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"ISL_DEFAULT"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-4" id="outline-container-org7f45445">
+<h4 id="org7f45445">The Plotting</h4>
+<div class="outline-text-4" id="text-org7f45445">
+<div class="highlight">
+<pre><span></span><span class="n">SLUG</span> <span class="o">=</span> <span class="s2">"linear-regression-binary-classification"</span>
+<span class="n">Embed</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">EmbedHoloviews</span><span class="p">,</span>
+                <span class="n">folder_path</span><span class="o">=</span><span class="n">f</span><span class="s2">"files/posts/{SLUG}"</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"TWITTER_PLOT"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
+    <span class="n">Plot</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org250ece8">
+<h2 id="org250ece8">Middle</h2>
+<div class="outline-text-2" id="text-org250ece8"></div>
+<div class="outline-3" id="outline-container-orgd9401ba">
+<h3 id="orgd9401ba">Looking At the Data</h3>
+<div class="outline-text-3" id="text-orgd9401ba">
+<p>The <a href="https://www.picostat.com/dataset/r-dataset-package-islr-default">ISLR Default</a> data set is a simulated set that provides information to help you build models to predict whether a loan will default or not. Let's look at the data.</p>
+<div class="highlight">
+<pre><span></span><span class="n">default</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+<pre class="example">
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 10000 entries, 0 to 9999
+Data columns (total 4 columns):
+ #   Column   Non-Null Count  Dtype  
+---  ------   --------------  -----  
+ 0   default  10000 non-null  int64  
+ 1   student  10000 non-null  int64  
+ 2   balance  10000 non-null  float64
+ 3   income   10000 non-null  float64
+dtypes: float64(2), int64(2)
+memory usage: 312.6 KB
+</pre>
+<p>So you can see that it has 10,000 rows, all non-null, two float and two integer columns. What might not be obvious in looking at the description is that default and student are actually categorical columns. Furthermore, according to the description they are encoded as "No" and "Yes" which doesn't seem like integers. Let's take a look at the <code>default</code> column (the target).</p>
+<div class="highlight">
+<pre><span></span><span class="n">counter</span> <span class="o">=</span> <span class="n">CountPercentage</span><span class="p">(</span><span class="n">default</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="n">value_label</span><span class="o">=</span><span class="s2">"Defaulted"</span><span class="p">)</span>
+<span class="n">counter</span><span class="p">()</span>
+</pre></div>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-right">
+<col class="org-left">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-right" scope="col">Defaulted</th>
+<th class="org-left" scope="col">Count</th>
+<th class="org-right" scope="col">Percent (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">9,667</td>
+<td class="org-right">96.67</td>
+</tr>
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">333</td>
+<td class="org-right">3.33</td>
+</tr>
+</tbody>
+</table>
+<p>So it's a pretty imbalanced set, you could just predict the target is 1 and you would be right around 97% of the time. I'm going to assume that 1 means "No" (didn't default) and 2 means "Yes" (defaulted). For this exercise we're only going to look at the <code>default</code> and <code>balance</code> columns so I'll pull those out - <code>balance</code> is the amount of money still owed on their credit cards after making a monthly payment. I'm also going to change the <code>default</code> values to be 0 and 1 instead of 1 and 2.</p>
+<div class="highlight">
+<pre><span></span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span><span class="p">[[</span><span class="s2">"default"</span><span class="p">,</span> <span class="s2">"balance"</span><span class="p">]]</span>
+<span class="n">default</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"default"</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span><span class="o">.</span><span class="n">default</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="n">CountPercentage</span><span class="p">(</span><span class="n">default</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="n">value_label</span><span class="o">=</span><span class="s2">"Defaulted"</span><span class="p">)()</span>
+</pre></div>
+<pre class="example">
+|   Defaulted |   Count |   Percent (%) |
+|-------------+---------+---------------|
+|           0 |   9,667 |         96.67 |
+|           1 |     333 |          3.33 |
+</pre>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-right">
+<col class="org-left">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-right" scope="col">Defaulted</th>
+<th class="org-left" scope="col">Count</th>
+<th class="org-right" scope="col">Percent (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">9,667</td>
+<td class="org-right">96.67</td>
+</tr>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">333</td>
+<td class="org-right">3.33</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org79b2753">
+<h3 id="org79b2753">Probabilities</h3>
+<div class="outline-text-3" id="text-org79b2753">
+<p>What this is about is figuring out how you can use linear regression to make binary categorical predictions. The way we're going to do this is create probabilities that a balance will default and then fit a line to it. One problem with this is that the balance is a set of real numbers, so we don't end up with anything meaningful if we use them as is.</p>
+<div class="highlight">
+<pre><span></span><span class="n">counts</span> <span class="o">=</span> <span class="n">default</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">counts</span><span class="p">[</span><span class="n">counts</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div>
+<pre class="example">
+0.0    499
+Name: balance, dtype: int64
+</pre>
+<p>The only value that appears more than once is 0. I'm going to try and get something more meaningful by rounding. But how should we round?</p>
+<div class="highlight">
+<pre><span></span><span class="n">plot</span> <span class="o">=</span> <span class="n">default</span><span class="o">.</span><span class="n">hvplot</span><span class="o">.</span><span class="n">kde</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="s2">"balance"</span><span class="p">)</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Credit Card Balance Distribution"</span><span class="p">,</span>
+    <span class="n">width</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">tan</span><span class="p">,</span>
+    <span class="n">fontscale</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">Embed</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">"balance_distribution"</span><span class="p">)()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+: <object data="posts/linear-regression-binary-classification/balance_distribution.html" height="800" style="width:100%" type="text/html">:
+<p>Figure Missing</p>
+:</object>
+<p>So, I kind of cheated and worked with the whole dataset, but anyway, looking at it you can see that there are two populations (possibly those that default and those that don't) and it peters out around 2,500, so doing it by 1,000 increments might not make sense. I'll try 100's and see if that's good enough.</p>
+<div class="highlight">
+<pre><span></span><span class="n">default</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"balance"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">default</span><span class="o">.</span><span class="n">balance</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">counter</span> <span class="o">=</span> <span class="n">CountPercentage</span><span class="p">(</span><span class="n">default</span><span class="o">.</span><span class="n">balance</span><span class="p">,</span> <span class="n">value_label</span><span class="o">=</span><span class="s2">"Credit Balance"</span><span class="p">)</span>
+<span class="n">counter</span><span class="p">()</span>
+</pre></div>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-right">
+<col class="org-right"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">Credit Balance</th>
+<th class="org-right" scope="col">Count</th>
+<th class="org-right" scope="col">Percent (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">700</td>
+<td class="org-right">783</td>
+<td class="org-right">7.83</td>
+</tr>
+<tr>
+<td class="org-left">900</td>
+<td class="org-right">779</td>
+<td class="org-right">7.79</td>
+</tr>
+<tr>
+<td class="org-left">800</td>
+<td class="org-right">770</td>
+<td class="org-right">7.70</td>
+</tr>
+<tr>
+<td class="org-left">0</td>
+<td class="org-right">758</td>
+<td class="org-right">7.58</td>
+</tr>
+<tr>
+<td class="org-left">600</td>
+<td class="org-right">755</td>
+<td class="org-right">7.55</td>
+</tr>
+<tr>
+<td class="org-left">1,000</td>
+<td class="org-right">722</td>
+<td class="org-right">7.22</td>
+</tr>
+<tr>
+<td class="org-left">500</td>
+<td class="org-right">668</td>
+<td class="org-right">6.68</td>
+</tr>
+<tr>
+<td class="org-left">1,100</td>
+<td class="org-right">616</td>
+<td class="org-right">6.16</td>
+</tr>
+<tr>
+<td class="org-left">400</td>
+<td class="org-right">586</td>
+<td class="org-right">5.86</td>
+</tr>
+<tr>
+<td class="org-left">1,200</td>
+<td class="org-right">555</td>
+<td class="org-right">5.55</td>
+</tr>
+<tr>
+<td class="org-left">300</td>
+<td class="org-right">530</td>
+<td class="org-right">5.30</td>
+</tr>
+<tr>
+<td class="org-left">1,300</td>
+<td class="org-right">471</td>
+<td class="org-right">4.71</td>
+</tr>
+<tr>
+<td class="org-left">200</td>
+<td class="org-right">423</td>
+<td class="org-right">4.23</td>
+</tr>
+<tr>
+<td class="org-left">1,400</td>
+<td class="org-right">357</td>
+<td class="org-right">3.57</td>
+</tr>
+<tr>
+<td class="org-left">100</td>
+<td class="org-right">316</td>
+<td class="org-right">3.16</td>
+</tr>
+<tr>
+<td class="org-left">1,500</td>
+<td class="org-right">277</td>
+<td class="org-right">2.77</td>
+</tr>
+<tr>
+<td class="org-left">1,600</td>
+<td class="org-right">189</td>
+<td class="org-right">1.89</td>
+</tr>
+<tr>
+<td class="org-left">1,700</td>
+<td class="org-right">157</td>
+<td class="org-right">1.57</td>
+</tr>
+<tr>
+<td class="org-left">1,800</td>
+<td class="org-right">118</td>
+<td class="org-right">1.18</td>
+</tr>
+<tr>
+<td class="org-left">1,900</td>
+<td class="org-right">64</td>
+<td class="org-right">0.64</td>
+</tr>
+<tr>
+<td class="org-left">2,000</td>
+<td class="org-right">47</td>
+<td class="org-right">0.47</td>
+</tr>
+<tr>
+<td class="org-left">2,100</td>
+<td class="org-right">28</td>
+<td class="org-right">0.28</td>
+</tr>
+<tr>
+<td class="org-left">2,200</td>
+<td class="org-right">14</td>
+<td class="org-right">0.14</td>
+</tr>
+<tr>
+<td class="org-left">2,300</td>
+<td class="org-right">10</td>
+<td class="org-right">0.10</td>
+</tr>
+<tr>
+<td class="org-left">2,400</td>
+<td class="org-right">4</td>
+<td class="org-right">0.04</td>
+</tr>
+<tr>
+<td class="org-left">2,500</td>
+<td class="org-right">2</td>
+<td class="org-right">0.02</td>
+</tr>
+<tr>
+<td class="org-left">2,600</td>
+<td class="org-right">1</td>
+<td class="org-right">0.01</td>
+</tr>
+</tbody>
+</table>
+<p>Well, it's harder to tell but that might be reasonable.</p>
+<div class="highlight">
+<pre><span></span><span class="n">grouped</span> <span class="o">=</span> <span class="n">default</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"balance"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s2">"balance"</span><span class="p">:</span> <span class="s2">"count"</span><span class="p">})</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"balance"</span><span class="p">:</span> <span class="s2">"count"</span><span class="p">})</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">plot</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">hvplot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"balance"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"count"</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">"default"</span><span class="p">)</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Credit Balance Counts Rounded To 100ths"</span><span class="p">,</span>
+    <span class="n">width</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+    <span class="n">fontscale</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">color_cycle</span><span class="p">,</span>
+    <span class="n">xrotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">outcome</span> <span class="o">=</span> <span class="n">Embed</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">"balance_bar"</span><span class="p">)()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
+</pre></div>
+<object data="posts/linear-regression-binary-classification/balance_bar.html" height="800" style="width:100%" type="text/html">
+<p>Figure Missing</p>
+</object>
+<p>That x-axis is a little funky, but the blue is the count of those that didn't default and the red are those that did. So the defaults seem to peak at 1,800 with a spread around it.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgb9bd386">
+<h3 id="orgb9bd386">Converting To Probabilities</h3>
+<div class="outline-text-3" id="text-orgb9bd386">
+<p>So to get the probabilities what we want is the count of accounts that defaulted for each balance divided by the total number of accounts with a given balance.</p>
+<div class="highlight">
+<pre><span></span><span class="n">defaulted</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="n">grouped</span><span class="o">.</span><span class="n">default</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">didnt_default</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="n">grouped</span><span class="o">.</span><span class="n">default</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">joined</span> <span class="o">=</span> <span class="n">didnt_default</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"balance"</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">defaulted</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"balance"</span><span class="p">),</span>
+    <span class="n">lsuffix</span><span class="o">=</span><span class="s2">"_didnt_default"</span><span class="p">,</span>
+    <span class="n">rsuffix</span><span class="o">=</span><span class="s2">"_defaulted"</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">joined</span><span class="p">[</span><span class="s2">"total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">joined</span><span class="o">.</span><span class="n">count_didnt_default</span> <span class="o">+</span> <span class="n">joined</span><span class="o">.</span><span class="n">count_defaulted</span>
+<span class="n">joined</span><span class="p">[</span><span class="s2">"probability_of_default"</span><span class="p">]</span> <span class="o">=</span> <span class="n">joined</span><span class="o">.</span><span class="n">count_defaulted</span><span class="o">/</span><span class="n">joined</span><span class="o">.</span><span class="n">total</span>
+<span class="n">joined</span><span class="p">[</span><span class="s2">"predict_yes"</span><span class="p">]</span> <span class="o">=</span> <span class="n">joined</span><span class="o">.</span><span class="n">probability_of_default</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">plot</span> <span class="o">=</span> <span class="n">joined</span><span class="o">.</span><span class="n">hvplot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"balance"</span><span class="p">,</span>
+                             <span class="n">y</span><span class="o">=</span><span class="s2">"probability_of_default"</span><span class="p">,</span>
+                             <span class="n">by</span><span class="o">=</span><span class="s2">"predict_yes"</span><span class="p">,</span>
+                             <span class="n">color</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">color_cycle</span><span class="p">,)</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Probability of Default By Balance"</span><span class="p">,</span>
+    <span class="n">width</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+    <span class="n">fontscale</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span>
+    <span class="n">xrotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>    
+<span class="p">)</span>
+
+<span class="n">outcome</span> <span class="o">=</span> <span class="n">Embed</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">"probability_vs_balance"</span><span class="p">)()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
+</pre></div>
+<object data="posts/linear-regression-binary-classification/probability_vs_balance.html" height="800" style="width:100%" type="text/html">
+<p>Figure Missing</p>
+</object></div>
+</div>
+<div class="outline-3" id="outline-container-org932d3bf">
+<h3 id="org932d3bf">Fit a Regression</h3>
+<div class="outline-text-3" id="text-org932d3bf">
+<p>So, one of the problems we have here is that by converting the values to probabilities we lost a lot of data (well, not lost, just aggregated them away).</p>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">joined</span><span class="p">))</span>
+</pre></div>
+<pre class="example">
+24
+</pre>
+<p>But this isn't a real model, it's just a look at what happens if you fit a line to the probabilities, so I'll just ignore that little fact.</p>
+<div class="highlight">
+<pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">joined</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                               <span class="n">joined</span><span class="o">.</span><span class="n">probability_of_default</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">x_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">joined</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">joined</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="c1"># predictions = model.predict(x_s)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">inputs</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">joined</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">joined</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">line</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">balance</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="n">predictions</span><span class="p">))</span>
+<span class="n">crossover_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">probability</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">probability</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span>
+<span class="n">crossover</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">probability</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">crossover_point</span><span class="p">]</span>
+<span class="n">vertical_crossover</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">crossover_point</span><span class="p">]</span>
+<span class="n">line_plot</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">hvplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"balance"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"probability"</span><span class="p">)</span>
+
+<span class="n">hline</span> <span class="o">=</span> <span class="n">holoviews</span><span class="o">.</span><span class="n">HLine</span><span class="p">(</span><span class="n">crossover</span><span class="p">)</span>
+<span class="n">vline</span> <span class="o">=</span> <span class="n">holoviews</span><span class="o">.</span><span class="n">VLine</span><span class="p">(</span><span class="n">vertical_crossover</span><span class="p">)</span>
+<span class="n">scatter</span> <span class="o">=</span> <span class="n">joined</span><span class="o">.</span><span class="n">hvplot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"balance"</span><span class="p">,</span>
+                                <span class="n">y</span><span class="o">=</span><span class="s2">"probability_of_default"</span><span class="p">,</span>
+                                <span class="n">by</span><span class="o">=</span><span class="s2">"predict_yes"</span><span class="p">,</span>
+                                <span class="n">color</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">color_cycle</span><span class="p">,)</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="p">(</span><span class="n">line_plot</span> <span class="o">*</span> <span class="n">scatter</span> <span class="o">*</span> <span class="n">hline</span> <span class="o">*</span> <span class="n">vline</span><span class="p">)</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Probability of Default By Balance"</span><span class="p">,</span>
+    <span class="n">width</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+    <span class="n">fontscale</span><span class="o">=</span><span class="n">Plot</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span>
+    <span class="n">xrotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>    
+<span class="p">)</span>
+
+<span class="n">outcome</span> <span class="o">=</span> <span class="n">Embed</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">"probability_vs_balance_with_model"</span><span class="p">)()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
+</pre></div>
+<object data="posts/linear-regression-binary-classification/probability_vs_balance_with_model.html" height="800" style="width:100%" type="text/html">
+<p>Figure Missing</p>
+</object>
+<p>Looking at the plot - the horizontal line is the point at which the model switches from predicting the loan won't default to predicting that it will. Once again, I'm plotting on the training data so the performance shouldn't be take at face value, but what it does show is that it would be possible to create a model using linear regression that predicts whether someone would default on their loan. One problem, though, would be interpreting the model - the y-intercept comes at -0.2 - what does it mean when the probability is negative? What happens when it's greater than one?</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgc266fa2">
+<h2 id="orgc266fa2">End</h2>
+<div class="outline-text-2" id="text-orgc266fa2">
+<p>I'm not really sure what to make of this. I did it as an exercise because the <a href="posts/bibliography/an-introduction-to-statistical-learning/">ISLR</a> book had it and I thought it might make an interesting thing to replicate - although my plot doesn't look at all like theirs, and they don't document what they did so I'm not really sure that I'm doing anything remotely close to what they did. One thing to note is that given the binary nature of our data, even though we fit a linear model, if we assume that any balance that gives a probability greater than 0.5 is going to defaualt means that we could re-state the model as:</p>
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">balance</span> <span class="o">&gt;</span> <span class="mi">2065</span><span class="p">:</span>
+    <span class="n">defaulted</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">defaulted</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+<p>Anyway, this isn't something you would normally do, using linear regression to classify data, that is, so it's time to move on.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org0a0f4cc">
+<h2 id="org0a0f4cc">Sources</h2>
+<div class="outline-text-2" id="text-org0a0f4cc">
+<ul class="org-ul">
+<li><a href="posts/bibliography/an-introduction-to-statistical-learning/">An Introduction To Statistical Learning</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/">ISL Default Dataset</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/bibliography/isl-default-dataset/">ISL Default Dataset</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/bibliography/isl-default-dataset/" rel="bookmark"><time class="published dt-published" datetime="2020-08-07T20:10:29-07:00" itemprop="datePublished" title="2020-08-07 20:10">2020-08-07 20:10</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/bibliography/isl-default-dataset/#org9b67270">Set Up</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/#org8b96692">The Dataset</a>
+<ul>
+<li><a href="posts/bibliography/isl-default-dataset/#org2f542eb">Load It</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/#org2bdc834">Summarize It</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/#orgb316a51">Save It</a></li>
+</ul>
+</li>
+<li><a href="posts/bibliography/isl-default-dataset/#org20f2c14">Citation</a></li>
+<li><a href="posts/bibliography/isl-default-dataset/#org69aa995">Comment</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org9b67270">
+<h2 id="org9b67270">Set Up</h2>
+<div class="outline-text-2" id="text-org9b67270">
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># pypi</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">rpy2.robjects</span> <span class="kn">as</span> <span class="nn">robjects</span>
+<span class="kn">import</span> <span class="nn">rpy2.robjects.packages</span> <span class="kn">as</span> <span class="nn">rpackages</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org8b96692">
+<h2 id="org8b96692">The Dataset</h2>
+<div class="outline-text-2" id="text-org8b96692"></div>
+<div class="outline-3" id="outline-container-org2f542eb">
+<h3 id="org2f542eb">Load It</h3>
+<div class="outline-text-3" id="text-org2f542eb">
+<div class="highlight">
+<pre><span></span><span class="n">base</span> <span class="o">=</span> <span class="n">rpackages</span><span class="o">.</span><span class="n">importr</span><span class="p">(</span><span class="s2">"base"</span><span class="p">)</span>
+<span class="n">utils</span> <span class="o">=</span> <span class="n">rpackages</span><span class="o">.</span><span class="n">importr</span><span class="p">(</span><span class="s2">"utils"</span><span class="p">)</span>
+
+<span class="n">utils</span><span class="o">.</span><span class="n">chooseCRANmirror</span><span class="p">(</span><span class="n">ind</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">utils</span><span class="o">.</span><span class="n">install_packages</span><span class="p">(</span><span class="s2">"ISLR"</span><span class="p">)</span>
+<span class="n">islr</span> <span class="o">=</span> <span class="n">rpackages</span><span class="o">.</span><span class="n">importr</span><span class="p">(</span><span class="s2">"ISLR"</span><span class="p">)</span>
+<span class="n">default</span> <span class="o">=</span> <span class="n">rpackages</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">islr</span><span class="p">)</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">"Default"</span><span class="p">)[</span><span class="s2">"Default"</span><span class="p">]</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">default</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">default</span><span class="o">.</span><span class="n">rx2</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">default</span><span class="o">.</span><span class="n">names</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org2bdc834">
+<h3 id="org2bdc834">Summarize It</h3>
+<div class="outline-text-3" id="text-org2bdc834">
+<div class="highlight">
+<pre><span></span><span class="n">default</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+<pre class="example">
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 10000 entries, 0 to 9999
+Data columns (total 4 columns):
+ #   Column   Non-Null Count  Dtype  
+---  ------   --------------  -----  
+ 0   default  10000 non-null  int32  
+ 1   student  10000 non-null  int32  
+ 2   balance  10000 non-null  float64
+ 3   income   10000 non-null  float64
+dtypes: float64(2), int32(2)
+memory usage: 234.5 KB
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-orgb316a51">
+<h3 id="orgb316a51">Save It</h3>
+<div class="outline-text-3" id="text-orgb316a51">
+<p>The reason for converting the rpy2 object to a pandas DataFrame was to make saving it easier. The rpy2 DataFrame does have a method called <code>to_csvfile</code> but I've never used it before so this seemed safer.</p>
+<div class="highlight">
+<pre><span></span><span class="n">env_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"~/.local/share/env"</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="n">load_dotenv</span><span class="p">(</span><span class="n">env_path</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"ISL_DEFAULT"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="n">default</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org20f2c14">
+<h2 id="org20f2c14">Citation</h2>
+<div class="outline-text-2" id="text-org20f2c14">
+<ul class="org-ul">
+<li>James, G., Witten, D., Hastie, T., and Tibshirani, R. ISLR: Data for an Introduction to Statistical Learning with Applications in R. 2017. [R package version 1.2]. CRAN. [cited 2020 Aug 7]. <a href="https://cran.r-project.org/package=ISLR">https://cran.r-project.org/package=ISLR</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org69aa995">
+<h2 id="org69aa995">Comment</h2>
+<div class="outline-text-2" id="text-org69aa995">
+<p>This is a simulated dataset created for <a href="posts/bibliography/an-introduction-to-statistical-learning/">An Introduction To Statistical Learning</a>. Unlike the <a href="posts/bibliography/isl-credit-data-set/">ISL Credit Data Set</a> dataset this isn't listed for download on the books page which is why I downloaded it through R, although it looks like it is available from the gzipped tar file on the site but it's in the rda format - a binary format that sounds sort of like the <a href="https://docs.python.org/3/library/pickle.html">pickle</a> format but for R.</p>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/ham-links/">Ham Links</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/ham-links/" rel="bookmark"><time class="published dt-published" datetime="2020-08-05T19:19:47-07:00" itemprop="datePublished" title="2020-08-05 19:19">2020-08-05 19:19</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div class="outline-2" id="outline-container-orgaf48c3c">
+<h2 id="orgaf48c3c"><a href="http://www.arrl.org/">Amateur Radio Relay League</a></h2>
+<div class="outline-text-2" id="text-orgaf48c3c">
+<ul class="org-ul">
+<li><a href="http://www.arrl.org/ham-radio-license-manual">License Manual</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/selenium-to-soup-to-pandas/">Selenium To Soup To Pandas</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/selenium-to-soup-to-pandas/" rel="bookmark"><time class="published dt-published" datetime="2020-08-05T17:18:54-07:00" itemprop="datePublished" title="2020-08-05 17:18">2020-08-05 17:18</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<p><a href="https://pandas.pydata.org/">Pandas</a> has a <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_html.html">read_html</a> function that will automatically convert HTML tables that it finds into DataFrames, but if you need to do a little cleaning up of the tables first or are doing some exploration of the HTML it can be useful to work with it in <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#">Beautiful Soup</a> first, and if the table is being rendered on the page with Javascript it can be useful to use <a href="https://www.selenium.dev/selenium/docs/api/py/index.html">Selenium</a> to grab the page for you so that it's rendered.</p>
+<p>Start selenium (headless) and grab the page.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">selenium</span> <span class="kn">import</span> <span class="n">webdriver</span>
+
+<span class="n">options</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">FirefoxOptions</span><span class="p">()</span>
+<span class="n">options</span><span class="o">.</span><span class="n">headless</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">browser</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Firefox</span><span class="p">(</span><span class="n">firefox_options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+
+<span class="n">browser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">URL</span><span class="p">)</span>
+</pre></div>
+<p>Give it to Beautiful Soup.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">browser</span><span class="o">.</span><span class="n">page_source</span><span class="p">)</span>
+</pre></div>
+<p>Do stuff with the soup (not shown).</p>
+<p>Optionally grab the table you want - in this case I want the last one.</p>
+<div class="highlight">
+<pre><span></span><span class="n">soup_table</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"table"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+<p>But if there's one or you just want the first one you could use <code>find</code> instead.</p>
+<div class="highlight">
+<pre><span></span><span class="n">soup_table</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"table"</span><span class="p">)</span>
+</pre></div>
+<p>Pass it to pandas.</p>
+<div class="highlight">
+<pre><span></span><span class="n">tables</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">soup_table</span><span class="p">))</span>
+</pre></div>
+<p><code>tables</code> is a list of DataFrames - one for each table that pandas found - even if there's only one so now it might be useful to get the one you want.</p>
+<div class="highlight">
+<pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+<p>From what I understand from the documentation, pandas is using Beautiful Soup to parse the HTML, so if the tables come out okay and you don't need to mess around with the HTML tree beforehand you can just skip the soup.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="n">table</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="n">browser</span><span class="o">.</span><span class="n">page_source</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/pandas-string-replacement-with-a-callback/">Pandas String Replacement With a Callback</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/pandas-string-replacement-with-a-callback/" rel="bookmark"><time class="published dt-published" datetime="2020-08-05T17:05:10-07:00" itemprop="datePublished" title="2020-08-05 17:05">2020-08-05 17:05</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<p>If you want to replace parts of strings in a Pandas Series you can pass in a string, but if you want to keep part of the original sub-string that you are replacing you can call the <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html">replace method</a> while passing in a function that un-packs the <a href="https://docs.python.org/3.6/library/re.html#match-objects">match</a> object.</p>
+<p>As an example, to add paretheses around strings that look like "Also see penguin" you can define a regular expression that has a named group in it.</p>
+<div class="highlight">
+<pre><span></span><span class="n">PATTERN</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"Also see (?P&lt;name&gt;\w+)"</span>
+</pre></div>
+<p>Then define a function that expects objects that match the pattern and creates a string using the named-group.</p>
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">see_also</span><span class="p">(</span><span class="n">match</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Add parentheses to Also see</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     match: regular expression match object</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">     string with the name from the object and parentheses added</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">f</span><span class="s2">"(Also see {match['name']})"</span>
+</pre></div>
+<p>Then pass in the pattern and function to the <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html">replace method</a>.</p>
+<div class="highlight">
+<pre><span></span><span class="n">table</span><span class="p">[</span><span class="s2">"Animal"</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">Animal</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">PATTERN</span><span class="p">,</span> <span class="n">see_also</span><span class="p">)</span>
+</pre></div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/smoothing-out-a-beautiful-soup-tree/">Smoothing Out a Beautiful Soup Tree</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/smoothing-out-a-beautiful-soup-tree/" rel="bookmark"><time class="published dt-published" datetime="2020-08-05T16:58:02-07:00" itemprop="datePublished" title="2020-08-05 16:58">2020-08-05 16:58</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<p>If you edit the HTML tree in Beautiful Soup you should call the <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#smooth">smooth</a> method to smooth out any funkiness that got introduced.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">tag_id</span> <span class="ow">in</span> <span class="n">tag_ids_to_destroy</span><span class="p">:</span>
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">tag_id</span><span class="p">)</span>
+    <span class="n">tag</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span>
+
+<span class="n">soup</span><span class="o">.</span><span class="n">smooth</span><span class="p">()</span>
+</pre></div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/replacing-tags-with-beautiful-soup/">Replacing Tags With Beautiful Soup</a></h1>
 <div class="metadata">
 <p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
