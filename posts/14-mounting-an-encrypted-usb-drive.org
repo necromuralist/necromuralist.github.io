@@ -1,0 +1,95 @@
+#+BEGIN_COMMENT
+.. title: Mounting An Encrypted USB Drive From the Command Line
+.. slug: mounting-an-encrypted-usb-drive
+.. date: 2020-09-24 18:26:30 UTC-07:00
+.. tags: ubuntu,how-to
+.. category: How-To
+.. link: 
+.. description: Mounting a luks encrypted USB drive from the command line.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* Beginning
+  I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:
+
+  - I didn't know the =/dev= file to use
+  - Like many Stack Overflow threads there's a lot of noise that isn't relevant to me
+  - I want to be able to remember how to do this without having to search for it and click through different links to figure out which one has the right information for me
+
+So, here's the subset of steps that I did to mount the drive.
+
+* Middle
+** Find the USB Device Name
+   The first think to do is to make sure that the USB device is recognized by the operating system.
+
+#+begin_src bash
+lsusb
+#+end_src
+
+Which produced a lot of listings, the most relevant one being:
+
+#+begin_src bash
+Bus 001 Device 002: ID 1058:0748 Western Digital Technologies, Inc. My Passport (WDBKXH, WDBY8L)
+#+end_src
+
+Which is the drive I wanted to unencrypt and mount. The next thing is to find the file name (in this case I know the name of the device - "My Passport" - so I used =grep=, otherwise I'd use =less=).
+
+#+begin_src bash
+sudo fdisk -l | grep "My Passport" -B 1
+#+end_src
+
+Which currently gives this:
+
+#+begin_src bash
+Partition 2 does not start on physical sector boundary.
+Disk /dev/sdb: 931.49 GiB, 1000170586112 bytes, 1953458176 sectors
+Disk model: My Passport 0748
+#+end_src
+
+It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want (I think it said =/dev/sdb1= before I mounted it, but anyway, just check it).
+** Unlock the Drive
+Next unlock the drive. When you do this it will create a file in =/dev/mapper/= that you'll need so it would be a good idea to see what's there before you run it.
+
+#+begin_src bash
+ls /dev/mapper/
+#+end_src
+
+And then do the decrypting.
+
+#+begin_src bash
+udiskctl unlock -b /dev/sdb1
+#+end_src
+
+This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).
+
+** Mount the Drive
+   If the last command went okay you now need to mount it. There's going to be a file in =/dev/mapper= that you need to know. When I did it there was only one new file (=luks-3eea956c-e684-4bcb-a640-97d0c8c5a700=) so I didn't have to do anything special to get it.
+
+#+begin_src bash
+udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
+#+end_src
+
+If you run the command =lsblk -e7= it will show you a tree with the =/dev/mapper/= file mapped to the mount point where you can access it.
+
+#+begin_src bash
+sdb                                             8:16   0 931.5G  0 disk  
+└─sdb1                                          8:17   0 931.5G  0 part  
+  └─luks-3eea956c-e684-4bcb-a640-97d0c8c5a700 253:3    0 931.5G  0 crypt /media/hades/WDData
+#+end_src
+
+So in this case the drive is accessible at =/media/hades/WDData= (it's always the same place but I wanted to document the =lsblk -e7= command).
+* End
+  So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udiskctl.
+
+#+begin_src bash
+sudo fdisk -l
+udiskctl unlock -b /dev/sdb1
+udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
+#+end_src
+** Sources
+   - [[https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/][sourcedigit.com]] - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"
+   - [[https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line][Stack Overflow]] - "Mount encrypted volumes from command line?"
