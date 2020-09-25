@@ -1,26 +1,254 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about slipnote)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/slipnote.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Wed, 09 Sep 2020 00:40:23 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Peter Elbow's Believing Game</title><link>https://necromuralist.github.io/posts/peter-elbows-believing-game/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about slipnote)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/slipnote.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 22 Sep 2020 23:51:59 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Precision, Recall, and the F-Measure</title><link>https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgee8b44a"&gt;Description&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org18be2e1"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org83a04ba"&gt;The Metrics&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orge5eb8d5"&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgeb935d7"&gt;Positive and Negative&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org323ed15"&gt;Accuracy&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orge40045e"&gt;Precision&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org70e895a"&gt;Recall&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgc0f1234"&gt;F-Measure&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgb89ea19"&gt;F1 Measure&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgc82cd0c"&gt;The Game&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgfa980a8"&gt;Hedgehogs and Foxes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#org6eedad4"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org53ee952"&gt;References&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgee8b44a" class="outline-2"&gt;
-&lt;h2 id="orgee8b44a"&gt;Description&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgee8b44a"&gt;
+&lt;div id="outline-container-org18be2e1" class="outline-2"&gt;
+&lt;h2 id="org18be2e1"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org18be2e1"&gt;
+&lt;p&gt;
+When we are looking at how well a model (or a person) is doing it's often best to have a numeric value that we can calculate to make it easy to see how well it is doing. The first thing many people reach for is measuring &lt;i&gt;accuracy&lt;/i&gt; but this isn't always the best metric. Unbalanced data sets can distort this metric, for instance. If 90% of the data is spam then a model that always guessed that an email is spam will have decent accuracy, but really won't be all that useful (except for pointing out that you have too much spam). To remedy this and other problems I'll look at some alternative metrics (&lt;i&gt;precision&lt;/i&gt;, &lt;i&gt;recall&lt;/i&gt;, and the &lt;i&gt;f-measure&lt;/i&gt;) which are useful for deciding how well classification models are doing.
+&lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge5eb8d5" class="outline-3"&gt;
-&lt;h3 id="orge5eb8d5"&gt;Background&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge5eb8d5"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org83a04ba" class="outline-2"&gt;
+&lt;h2 id="org83a04ba"&gt;The Metrics&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org83a04ba"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgeb935d7" class="outline-3"&gt;
+&lt;h3 id="orgeb935d7"&gt;Positive and Negative&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgeb935d7"&gt;
+&lt;p&gt;
+First some terminology. We're going to assume that we want to label data as either being something or not being that thing. e.g. guilty or not guilty, duck or not a duck, etc. The label for things that are the thing is called &lt;i&gt;Positive&lt;/i&gt; and the label for things that aren't the thing is &lt;i&gt;Negative&lt;/i&gt;.
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;Term&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Acronym&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;True Positive&lt;/td&gt;
+&lt;td class="org-left"&gt;TP&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it positive and it was positive&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;False Positive&lt;/td&gt;
+&lt;td class="org-left"&gt;FP&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it positive and it was negative&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;True Negative&lt;/td&gt;
+&lt;td class="org-left"&gt;TN&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it negative and it was negative&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;False Negative&lt;/td&gt;
+&lt;td class="org-left"&gt;FN&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it negative and it was positive&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;
+This is sometimes represented using a matrix.
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt; &lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Actually Positive&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Actually Negative&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;b&gt;Predicted Positive&lt;/b&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;True Positive&lt;/i&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;False Positive&lt;/i&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;b&gt;Predicted Negative&lt;/b&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;False Negative&lt;/i&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;True Negative&lt;/i&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org323ed15" class="outline-3"&gt;
+&lt;h3 id="org323ed15"&gt;Accuracy&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org323ed15"&gt;
+&lt;p&gt;
+Okay, I said we aren't going to use accuracy, but just to be complete… accuracy asks &lt;i&gt;what fraction of the anwsers did you get correct?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+This is probably what most of us are familiar with from being graded in school.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orge40045e" class="outline-3"&gt;
+&lt;h3 id="orge40045e"&gt;Precision&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge40045e"&gt;
+&lt;p&gt;
+&lt;i&gt;How much of what was predicted positive was really positive?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Precision} = \frac{TP}{TP+FP}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+Since we have the count of false-positives in the denominator, your score will go down the more negatives you label positive (e.g. the more innocents you convict, the lower the score).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org70e895a" class="outline-3"&gt;
+&lt;h3 id="org70e895a"&gt;Recall&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org70e895a"&gt;
+&lt;p&gt;
+&lt;i&gt;How many of the positives did you catch?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Recall} = \frac{TP}{TP + FN}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+Here your score will go down the more positives you miss (the more guilty you find innocent).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgc0f1234" class="outline-3"&gt;
+&lt;h3 id="orgc0f1234"&gt;F-Measure&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc0f1234"&gt;
+&lt;p&gt;
+So, in some cases you might want to favor &lt;i&gt;Precision&lt;/i&gt; over &lt;i&gt;Recall&lt;/i&gt; and vice-versa, but what if you don't really want one over the other? The &lt;i&gt;F-Measure&lt;/i&gt; allows us to combine them into one metric.
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+F_{\beta} = \frac{(\beta^2 + 1) Precision \times Recall}{\beta^2 Precision + Recall}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+To make it simpler I'll just use &lt;i&gt;P&lt;/i&gt; for precision and &lt;i&gt;R&lt;/i&gt; for recall from here on.
+&lt;/p&gt;
+
+&lt;p&gt;
+\(\beta\) in the equation is a parameter that we can tune to favor precision or recall. If you'll notice, \(\beta\) in the numerator affects both precision and recall equally, while it only affects precision in the denominator, so the larger it is, the more precision diminishes the score.
+&lt;/p&gt;
+
+\begin{align}
+\beta &amp;gt; 1 &amp;amp;: \textit{Favor Recall}\\
+\beta &amp;lt; 1 &amp;amp;: \textit{Favor Precision}\\
+\end{align}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgb89ea19" class="outline-3"&gt;
+&lt;h3 id="orgb89ea19"&gt;F1 Measure&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb89ea19"&gt;
+&lt;p&gt;
+If you look at the inequalities for the effects of \(\beta\) on the F-Measure you might notice that they don't include 1. That's because when \(\beta\) is 1 it doesn't favor either precision or recall, giving a case that combines both of them and treating them equally.
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+F_1 = \frac{2PR}{P + R}
+\]
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org53ee952" class="outline-2"&gt;
+&lt;h2 id="org53ee952"&gt;References&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org53ee952"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bib-speech-and-language-processing-jurafsky-martin/"&gt;Speech and Language Processing&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/wikipedia-on-f1-score/"&gt;Wikipedia on the F1 Score&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>metrics</category><category>nlp</category><category>slipnote</category><category>statistics</category><guid>https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/</guid><pubDate>Thu, 10 Sep 2020 21:08:25 GMT</pubDate></item><item><title>Peter Elbow's Believing Game</title><link>https://necromuralist.github.io/posts/peter-elbows-believing-game/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgd7d03a9"&gt;Description&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#org40f6e0d"&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#org25c386f"&gt;The Game&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#org4d1ff9e"&gt;Hedgehogs and Foxes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgadccc6d"&gt;Einstellung and Shoshin&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgccb5936"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgd7d03a9" class="outline-2"&gt;
+&lt;h2 id="orgd7d03a9"&gt;Description&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd7d03a9"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org40f6e0d" class="outline-3"&gt;
+&lt;h3 id="org40f6e0d"&gt;Background&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org40f6e0d"&gt;
 &lt;p&gt;
 In his paper &lt;a href="https://necromuralist.github.io/posts/bibliography/the-believing-game/"&gt;on The Believing Game&lt;/a&gt; Peter Elbow proposes that in addition to the traditional "Doubting Game" (skeptical thinking) we should also engage in the "Believing Game" which involves understanding an argument by accepting it as true. He argues that while the skeptical, scientific, method (searching for flaws) is valuable it needs to be augmented by an accepting method (searching for virtues) as well. The Doubting Game has dominated because of its usefulness but it can lead us to nurture blind spots that are protected by our skepticism. By accepting the arguments of someone whose position we dislike we can, potentially find flaws in our own thinking.
 &lt;/p&gt;
@@ -62,15 +290,14 @@ An important point that Elbow makes is that there are two levels at which we hav
 &lt;/table&gt;
 
 &lt;p&gt;
-Within the sciences you can see many cases where adopting a believing mindset ultimately proved useful, leading to &lt;a href="https://www.wikiwand.com/en/Paradigm_shift"&gt;paradigm shifts&lt;/a&gt; - the switch from &lt;a href="https://www.wikiwand.com/en/Geocentric_model"&gt;the Earth as the center of the cosmos&lt;/a&gt; to having &lt;a href="https://www.wikiwand.com/en/Copernican_heliocentrism"&gt;the Earth orbit the Sun&lt;/a&gt;, &lt;a href="https://www.wikiwand.com/en/Miasma_theory"&gt;miasma theory&lt;/a&gt; switching to &lt;a href="https://www.wikiwand.com/en/Germ_theory_of_disease"&gt;germ theory&lt;/a&gt;, and the acceptance of &lt;a href="https://www.wikiwand.com/en/Plate_tectonics"&gt;Plate Tectonics&lt;/a&gt;, but Elbow says that it is also helpful to play the Believing Game even if you ultimately don't accept the underlying premise, because without the suspension of disbelief you won't fully understand what's being proposed and ultimately "They may seem wrong or crazy–they may be wrong or crazy–but nevertheless they may still be able to see something that none of us can see."
-still able to see something that none of us can see.
+Within the sciences you can see many cases where adopting a believing mindset ultimately proved useful, leading to &lt;a href="https://www.wikiwand.com/en/Paradigm_shift"&gt;paradigm shifts&lt;/a&gt; - the switch from &lt;a href="https://www.wikiwand.com/en/Geocentric_model"&gt;the Earth as the center of the cosmos&lt;/a&gt; to having &lt;a href="https://www.wikiwand.com/en/Copernican_heliocentrism"&gt;the Earth orbit the Sun&lt;/a&gt;, &lt;a href="https://www.wikiwand.com/en/Miasma_theory"&gt;miasma theory&lt;/a&gt; switching to &lt;a href="https://www.wikiwand.com/en/Germ_theory_of_disease"&gt;germ theory&lt;/a&gt;, and the acceptance of &lt;a href="https://www.wikiwand.com/en/Plate_tectonics"&gt;Plate Tectonics&lt;/a&gt;, among other examples - but Elbow says that it is also helpful to play the Believing Game even if you ultimately don't accept the underlying premise, because without the suspension of disbelief you won't fully understand what's being proposed and ultimately "They may seem wrong or crazy–they may be wrong or crazy–but nevertheless they may still be able to see something that none of us can see."
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc82cd0c" class="outline-2"&gt;
-&lt;h2 id="orgc82cd0c"&gt;The Game&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc82cd0c"&gt;
+&lt;div id="outline-container-org25c386f" class="outline-2"&gt;
+&lt;h2 id="org25c386f"&gt;The Game&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org25c386f"&gt;
 &lt;p&gt;
 &lt;a href="https://necromuralist.github.io/posts/bibliography/they-sayi-say/"&gt;Graff &amp;amp; Birkstein&lt;/a&gt; propose a concrete version of the Believing Game as a game:
 &lt;/p&gt;
@@ -82,18 +309,25 @@ To get a feel for Peter Elbow's "believing game," write a summary of some belief
 &lt;/blockquote&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfa980a8" class="outline-2"&gt;
-&lt;h2 id="orgfa980a8"&gt;Hedgehogs and Foxes&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgfa980a8"&gt;
+&lt;div id="outline-container-org4d1ff9e" class="outline-2"&gt;
+&lt;h2 id="org4d1ff9e"&gt;Hedgehogs and Foxes&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4d1ff9e"&gt;
 &lt;p&gt;
-Besides paradigm shift this puts me in mind of &lt;a href="https://necromuralist.github.io/posts/bibliography/the-peculiar-blindness-of-experts/"&gt;an article in the Atlantic&lt;/a&gt; about how experts tend to make horrible predictions because they hold to a specific view and bend conflicting information to fit their view (Hedgehogs) while those who tend to be cross-disciplined generalists who are able to take in information from other experts and update their prior beliefs when conflicting information comes in (Foxes) make better predictions than the specialized "experts".
+Besides paradigm shifts this also makes me think of &lt;a href="https://necromuralist.github.io/posts/bibliography/the-peculiar-blindness-of-experts/"&gt;an article in the Atlantic&lt;/a&gt; about how experts tend to make horrible predictions because they hold to a specific view and bend conflicting information to fit their view (Hedgehogs) while those who tend to be cross-disciplined generalists who are able to take in information from other experts and update their prior beliefs when conflicting information comes in (Foxes) make better predictions than the specialized "experts".
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-
-&lt;div id="outline-container-org6eedad4" class="outline-2"&gt;
-&lt;h2 id="org6eedad4"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6eedad4"&gt;
+&lt;div id="outline-container-orgadccc6d" class="outline-2"&gt;
+&lt;h2 id="orgadccc6d"&gt;Einstellung and Shoshin&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgadccc6d"&gt;
+&lt;p&gt;
+Now I'm straying way into left field, but thinking of the Hedgehogs and Foxes puts me in the mind of the &lt;a href="https://en.wikipedia.org/wiki/Einstellung_effect?oldformat=true"&gt;Einstellung Effect&lt;/a&gt; wherein people become stuck trying to apply the same solution even when it is no longe applicable, whereas those lacking experience in the problem can sometimes see possibilities that are not as obvious to the experienced. The point of reading Elbow's paper was to get an idea of how to write effective summaries of other people's work, but instead I think I've talked myself into believing it's a way to keep a "beginner's mind".
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgccb5936" class="outline-2"&gt;
+&lt;h2 id="orgccb5936"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgccb5936"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/the-believing-game/"&gt;The Believing Game&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/the-peculiar-blindness-of-experts/"&gt;The Peculiar Blindness of Experts&lt;/a&gt;&lt;/li&gt;
@@ -1159,35 +1393,4 @@ From what I understand from the documentation, pandas is using Beautiful Soup to
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;pandas&lt;/span&gt;
 
 &lt;span class="n"&gt;table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pandas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_html&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;browser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;page_source&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>pandas</category><category>selenium</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/selenium-to-soup-to-pandas/</guid><pubDate>Thu, 06 Aug 2020 00:18:54 GMT</pubDate></item><item><title>Pandas String Replacement With a Callback</title><link>https://necromuralist.github.io/posts/pandas-string-replacement-with-a-callback/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-If you want to replace parts of strings in a Pandas Series you can pass in a string, but if you want to keep part of the original sub-string that you are replacing you can call the &lt;a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html"&gt;replace method&lt;/a&gt; while passing in a function that un-packs the &lt;a href="https://docs.python.org/3.6/library/re.html#match-objects"&gt;match&lt;/a&gt; object.
-&lt;/p&gt;
-
-&lt;p&gt;
-As an example, to add paretheses around strings that look like "Also see penguin" you can define a regular expression that has a named group in it.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;PATTERN&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sa"&gt;r&lt;/span&gt;&lt;span class="s2"&gt;"Also see (?P&amp;lt;name&amp;gt;\w+)"&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Then define a function that expects objects that match the pattern and creates a string using the named-group.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;see_also&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;match&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;re&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;match&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="sd"&gt;"""Add parentheses to Also see&lt;/span&gt;
-
-&lt;span class="sd"&gt;    Args:&lt;/span&gt;
-&lt;span class="sd"&gt;     match: regular expression match object&lt;/span&gt;
-
-&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
-&lt;span class="sd"&gt;     string with the name from the object and parentheses added&lt;/span&gt;
-&lt;span class="sd"&gt;    """&lt;/span&gt;
-    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;"(Also see {match['name']})"&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Then pass in the pattern and function to the &lt;a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.str.replace.html"&gt;replace method&lt;/a&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"Animal"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;table&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Animal&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;str&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;replace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;PATTERN&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;see_also&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</description><category>pandas</category><category>slipnote</category><guid>https://necromuralist.github.io/posts/pandas-string-replacement-with-a-callback/</guid><pubDate>Thu, 06 Aug 2020 00:05:10 GMT</pubDate></item></channel></rss>
+&lt;/pre&gt;&lt;/div&gt;</description><category>beautiful soup</category><category>html</category><category>pandas</category><category>selenium</category><category>slipnote</category><category>web-scraping</category><guid>https://necromuralist.github.io/posts/selenium-to-soup-to-pandas/</guid><pubDate>Thu, 06 Aug 2020 00:18:54 GMT</pubDate></item></channel></rss>

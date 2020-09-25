@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+<head>
+<meta charset="utf-8">
+<meta content="The precision, recall, and f-measure metrics." name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>Precision, Recall, and the F-Measure | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<link href="../../apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+<link href="../../favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+<link href="../../favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+<link href="../../site.webmanifest" rel="manifest">
+<meta content="Cloistered Monkey" name="author">
+<link href="../bibliography/neural-correlates-of-maintaining-ones-political-beliefs-in-the-face-of-counterevidence/" rel="prev" title="Neural correlates of maintaining one's political beliefs in the face of counterevidence" type="text/html">
+<link href="../wikipedia-on-f1-score/" rel="next" title="Wikipedia on the F1 Score" type="text/html">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="Precision, Recall, and the F-Measure" property="og:title">
+<meta content="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/" property="og:url">
+<meta content="The precision, recall, and f-measure metrics." property="og:description">
+<meta content="article" property="og:type">
+<meta content="2020-09-10T14:08:25-07:00" property="article:published_time">
+<meta content="metrics" property="article:tag">
+<meta content="nlp" property="article:tag">
+<meta content="slipnote" property="article:tag">
+<meta content="statistics" property="article:tag">
+</head>
+<body>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="../../"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="../../machine-learning-projects/">Machine Learning</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
+</li>
+</ul>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
+<!-- 
+<button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-search"></span>
+</button>
+-->
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
+<!-- End of custom search -->
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
+</ul>
+</div>
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">Precision, Recall, and the F-Measure</a></h1>
+<div class="metadata">
+<p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author"><a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2020-09-10T14:08:25-07:00" itemprop="datePublished" title="2020-09-10 14:08">2020-09-10 14:08</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
+</div>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org18be2e1">Beginning</a></li>
+<li><a href="#org83a04ba">The Metrics</a>
+<ul>
+<li><a href="#orgeb935d7">Positive and Negative</a></li>
+<li><a href="#org323ed15">Accuracy</a></li>
+<li><a href="#orge40045e">Precision</a></li>
+<li><a href="#org70e895a">Recall</a></li>
+<li><a href="#orgc0f1234">F-Measure</a></li>
+<li><a href="#orgb89ea19">F1 Measure</a></li>
+</ul>
+</li>
+<li><a href="#org53ee952">References</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org18be2e1">
+<h2 id="org18be2e1">Beginning</h2>
+<div class="outline-text-2" id="text-org18be2e1">
+<p>When we are looking at how well a model (or a person) is doing it's often best to have a numeric value that we can calculate to make it easy to see how well it is doing. The first thing many people reach for is measuring <i>accuracy</i> but this isn't always the best metric. Unbalanced data sets can distort this metric, for instance. If 90% of the data is spam then a model that always guessed that an email is spam will have decent accuracy, but really won't be all that useful (except for pointing out that you have too much spam). To remedy this and other problems I'll look at some alternative metrics (<i>precision</i>, <i>recall</i>, and the <i>f-measure</i>) which are useful for deciding how well classification models are doing.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org83a04ba">
+<h2 id="org83a04ba">The Metrics</h2>
+<div class="outline-text-2" id="text-org83a04ba"></div>
+<div class="outline-3" id="outline-container-orgeb935d7">
+<h3 id="orgeb935d7">Positive and Negative</h3>
+<div class="outline-text-3" id="text-orgeb935d7">
+<p>First some terminology. We're going to assume that we want to label data as either being something or not being that thing. e.g. guilty or not guilty, duck or not a duck, etc. The label for things that are the thing is called <i>Positive</i> and the label for things that aren't the thing is <i>Negative</i>.</p>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+<col class="org-left"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">Term</th>
+<th class="org-left" scope="col">Acronym</th>
+<th class="org-left" scope="col">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">True Positive</td>
+<td class="org-left">TP</td>
+<td class="org-left">We labeled it positive and it was positive</td>
+</tr>
+<tr>
+<td class="org-left">False Positive</td>
+<td class="org-left">FP</td>
+<td class="org-left">We labeled it positive and it was negative</td>
+</tr>
+<tr>
+<td class="org-left">True Negative</td>
+<td class="org-left">TN</td>
+<td class="org-left">We labeled it negative and it was negative</td>
+</tr>
+<tr>
+<td class="org-left">False Negative</td>
+<td class="org-left">FN</td>
+<td class="org-left">We labeled it negative and it was positive</td>
+</tr>
+</tbody>
+</table>
+<p>This is sometimes represented using a matrix.</p>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+<col class="org-left"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">&nbsp;</th>
+<th class="org-left" scope="col">Actually Positive</th>
+<th class="org-left" scope="col">Actually Negative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><b>Predicted Positive</b></td>
+<td class="org-left"><i>True Positive</i></td>
+<td class="org-left"><i>False Positive</i></td>
+</tr>
+<tr>
+<td class="org-left"><b>Predicted Negative</b></td>
+<td class="org-left"><i>False Negative</i></td>
+<td class="org-left"><i>True Negative</i></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org323ed15">
+<h3 id="org323ed15">Accuracy</h3>
+<div class="outline-text-3" id="text-org323ed15">
+<p>Okay, I said we aren't going to use accuracy, but just to be complete… accuracy asks <i>what fraction of the anwsers did you get correct?</i></p>
+<p>\[ \textrm{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} \]</p>
+<p>This is probably what most of us are familiar with from being graded in school.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orge40045e">
+<h3 id="orge40045e">Precision</h3>
+<div class="outline-text-3" id="text-orge40045e">
+<p><i>How much of what was predicted positive was really positive?</i></p>
+<p>\[ \textrm{Precision} = \frac{TP}{TP+FP} \]</p>
+<p>Since we have the count of false-positives in the denominator, your score will go down the more negatives you label positive (e.g. the more innocents you convict, the lower the score).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org70e895a">
+<h3 id="org70e895a">Recall</h3>
+<div class="outline-text-3" id="text-org70e895a">
+<p><i>How many of the positives did you catch?</i></p>
+<p>\[ \textrm{Recall} = \frac{TP}{TP + FN} \]</p>
+<p>Here your score will go down the more positives you miss (the more guilty you find innocent).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgc0f1234">
+<h3 id="orgc0f1234">F-Measure</h3>
+<div class="outline-text-3" id="text-orgc0f1234">
+<p>So, in some cases you might want to favor <i>Precision</i> over <i>Recall</i> and vice-versa, but what if you don't really want one over the other? The <i>F-Measure</i> allows us to combine them into one metric.</p>
+<p>\[ F_{\beta} = \frac{(\beta^2 + 1) Precision \times Recall}{\beta^2 Precision + Recall} \]</p>
+<p>To make it simpler I'll just use <i>P</i> for precision and <i>R</i> for recall from here on.</p>
+<p>\(\beta\) in the equation is a parameter that we can tune to favor precision or recall. If you'll notice, \(\beta\) in the numerator affects both precision and recall equally, while it only affects precision in the denominator, so the larger it is, the more precision diminishes the score.</p>
+\begin{align} \beta &gt; 1 &amp;: \textit{Favor Recall}\\ \beta &lt; 1 &amp;: \textit{Favor Precision}\\ \end{align}</div>
+</div>
+<div class="outline-3" id="outline-container-orgb89ea19">
+<h3 id="orgb89ea19">F1 Measure</h3>
+<div class="outline-text-3" id="text-orgb89ea19">
+<p>If you look at the inequalities for the effects of \(\beta\) on the F-Measure you might notice that they don't include 1. That's because when \(\beta\) is 1 it doesn't favor either precision or recall, giving a case that combines both of them and treating them equally.</p>
+<p>\[ F_1 = \frac{2PR}{P + R} \]</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org53ee952">
+<h2 id="org53ee952">References</h2>
+<div class="outline-text-2" id="text-org53ee952">
+<ul class="org-ul">
+<li><a href="../bib-speech-and-language-processing-jurafsky-martin/">Speech and Language Processing</a></li>
+<li><a href="../wikipedia-on-f1-score/">Wikipedia on the F1 Score</a></li>
+</ul>
+</div>
+</div>
+</div>
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
+<li><a class="tag p-category" href="../../categories/metrics/" rel="tag">metrics</a></li>
+<li><a class="tag p-category" href="../../categories/nlp/" rel="tag">nlp</a></li>
+<li><a class="tag p-category" href="../../categories/slipnote/" rel="tag">slipnote</a></li>
+<li><a class="tag p-category" href="../../categories/statistics/" rel="tag">statistics</a></li>
+</ul>
+<ul class="pager hidden-print">
+<li class="previous"><a href="../bibliography/neural-correlates-of-maintaining-ones-political-beliefs-in-the-face-of-counterevidence/" rel="prev" title="Neural correlates of maintaining one's political beliefs in the face of counterevidence">Previous post</a></li>
+<li class="next"><a href="../wikipedia-on-f1-score/" rel="next" title="Wikipedia on the F1 Score">Next post</a></li>
+</ul>
+</nav>
+</aside>
+<script crossorigin="anonymous" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+</script></article>
+<!--End of body content-->
+<footer id="footer">Contents © 2020 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+</div>
+</div>
+<script src="../../assets/js/all-nocdn.js"></script>
+<script>
+
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+</script>
+</body>
+</html>
