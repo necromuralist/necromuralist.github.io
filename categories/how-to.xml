@@ -1,5 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about how-to)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/how-to.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 13 Aug 2020 02:30:44 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Opening Remote Files In Emacs Using SSH</title><link>https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about how-to)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/how-to.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Fri, 25 Sep 2020 02:33:53 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Mounting An Encrypted USB Drive From the Command Line</title><link>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org68f3032"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org579e05d"&gt;Middle&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org7d4f470"&gt;Find the USB Device Name&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org3339004"&gt;Unlock the Drive&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org6b34b21"&gt;Mount the Drive&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org85365c8"&gt;End&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orga4cdb3a"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org68f3032" class="outline-2"&gt;
+&lt;h2 id="org68f3032"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org68f3032"&gt;
+&lt;p&gt;
+I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;I didn't know the &lt;code&gt;/dev&lt;/code&gt; file to use&lt;/li&gt;
+&lt;li&gt;Like many Stack Overflow threads there's a lot of noise that isn't relevant to me&lt;/li&gt;
+&lt;li&gt;I want to be able to remember how to do this without having to search for it and click through different links to figure out which one has the right information for me&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+So, here's the subset of steps that I did to mount the drive.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org579e05d" class="outline-2"&gt;
+&lt;h2 id="org579e05d"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org579e05d"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7d4f470" class="outline-3"&gt;
+&lt;h3 id="org7d4f470"&gt;Find the USB Device Name&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7d4f470"&gt;
+&lt;p&gt;
+The first think to do is to make sure that the USB device is recognized by the operating system.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lsusb
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which produced a lot of listings, the most relevant one being:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Bus 001 Device 002: ID 1058:0748 Western Digital Technologies, Inc. My Passport (WDBKXH, WDBY8L)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which is the drive I wanted to unencrypt and mount. The next thing is to find the file name (in this case I know the name of the device - "My Passport" - so I used &lt;code&gt;grep&lt;/code&gt;, otherwise I'd use &lt;code&gt;less&lt;/code&gt;).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo fdisk -l | grep "My Passport" -B 1
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which currently gives this:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Partition 2 does not start on physical sector boundary.
+Disk /dev/sdb: 931.49 GiB, 1000170586112 bytes, 1953458176 sectors
+Disk model: My Passport 0748
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want (I think it said &lt;code&gt;/dev/sdb1&lt;/code&gt; before I mounted it, but anyway, just check it).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org3339004" class="outline-3"&gt;
+&lt;h3 id="org3339004"&gt;Unlock the Drive&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3339004"&gt;
+&lt;p&gt;
+Next unlock the drive. When you do this it will create a file in &lt;code&gt;/dev/mapper/&lt;/code&gt; that you'll need so it would be a good idea to see what's there before you run it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ls /dev/mapper/
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+And then do the decrypting.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;udiskctl unlock -b /dev/sdb1
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org6b34b21" class="outline-3"&gt;
+&lt;h3 id="org6b34b21"&gt;Mount the Drive&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6b34b21"&gt;
+&lt;p&gt;
+If the last command went okay you now need to mount it. There's going to be a file in &lt;code&gt;/dev/mapper&lt;/code&gt; that you need to know. When I did it there was only one new file (&lt;code&gt;luks-3eea956c-e684-4bcb-a640-97d0c8c5a700&lt;/code&gt;) so I didn't have to do anything special to get it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+If you run the command &lt;code&gt;lsblk -e7&lt;/code&gt; it will show you a tree with the &lt;code&gt;/dev/mapper/&lt;/code&gt; file mapped to the mount point where you can access it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sdb                                             8:16   0 931.5G  0 disk  
+└─sdb1                                          8:17   0 931.5G  0 part  
+  └─luks-3eea956c-e684-4bcb-a640-97d0c8c5a700 253:3    0 931.5G  0 crypt /media/hades/WDData
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+So in this case the drive is accessible at &lt;code&gt;/media/hades/WDData&lt;/code&gt; (it's always the same place but I wanted to document the &lt;code&gt;lsblk -e7&lt;/code&gt; command).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org85365c8" class="outline-2"&gt;
+&lt;h2 id="org85365c8"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org85365c8"&gt;
+&lt;p&gt;
+So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udiskctl.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo fdisk -l
+udiskctl unlock -b /dev/sdb1
+udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orga4cdb3a" class="outline-3"&gt;
+&lt;h3 id="orga4cdb3a"&gt;Sources&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga4cdb3a"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/"&gt;sourcedigit.com&lt;/a&gt; - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line"&gt;Stack Overflow&lt;/a&gt; - "Mount encrypted volumes from command line?"&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>how-to</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</guid><pubDate>Fri, 25 Sep 2020 01:26:30 GMT</pubDate></item><item><title>Opening Remote Files In Emacs Using SSH</title><link>https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
@@ -313,33 +463,33 @@ Once you change the settings BeyondPod will move the files and restart and at th
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>android</category><category>how-to</category><guid>https://necromuralist.github.io/posts/moving-beyondpod-files-to-the-sdcard-android-9/</guid><pubDate>Sun, 27 Jan 2019 21:23:01 GMT</pubDate></item><item><title>Ubertooth 2018</title><link>https://necromuralist.github.io/posts/ubertooth-2018/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org3e6be60" class="outline-2"&gt;
-&lt;h2 id="org3e6be60"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3e6be60"&gt;
+&lt;/div&gt;</description><category>android</category><category>how-to</category><guid>https://necromuralist.github.io/posts/moving-beyondpod-files-to-the-sdcard-android-9/</guid><pubDate>Sun, 27 Jan 2019 21:23:01 GMT</pubDate></item><item><title>Ubertooth 2018</title><link>https://necromuralist.github.io/posts/ubertooth-2018/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org3ba6749" class="outline-2"&gt;
+&lt;h2 id="org3ba6749"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3ba6749"&gt;
 &lt;p&gt;
 One of the problems of relying on search engines is that the more obscure the subject you are interested in, the greater the chance that what you'll get will be either unlocatable or outdated.  These are my notes on setting up the &lt;a href="https://github.com/greatscottgadgets/ubertooth"&gt;ubertooth&lt;/a&gt; on an ubuntu system in September of 2018, which turned out to be a slightly different experience from what I went through earlier in this year so I thought I should try and make a record of it somewhere.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgd3f4515" class="outline-2"&gt;
-&lt;h2 id="orgd3f4515"&gt;The Current Release&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd3f4515"&gt;
+&lt;div id="outline-container-org93531a9" class="outline-2"&gt;
+&lt;h2 id="org93531a9"&gt;The Current Release&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org93531a9"&gt;
 &lt;p&gt;
 The current release for the Ubertooth firmware and code is &lt;a href="https://github.com/greatscottgadgets/ubertooth/releases/tag/2018-08-R1"&gt;2018-08-R1&lt;/a&gt;. Download the &lt;a href="https://github.com/greatscottgadgets/ubertooth/releases/download/2018-08-R1/ubertooth-2018-08-R1.tar.xz"&gt;ubertooth-2018-08-R1.tar.xz&lt;/a&gt; file from that page and untar it. You will also want the matching &lt;a href="https://github.com/greatscottgadgets/libbtbb/releases/tag/2018-08-R1"&gt;libbtb&lt;/a&gt; code.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3e5f49d" class="outline-2"&gt;
-&lt;h2 id="org3e5f49d"&gt;Building and Installing the Code&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3e5f49d"&gt;
+&lt;div id="outline-container-org06774d0" class="outline-2"&gt;
+&lt;h2 id="org06774d0"&gt;Building and Installing the Code&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org06774d0"&gt;
 &lt;p&gt;
 For some reason the instructions on the home page assume you already have the code built and installed, but there's &lt;a href="https://github.com/greatscottgadgets/ubertooth/wiki/Build-Guide"&gt;actually some previous steps you need to do&lt;/a&gt;. 
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge5c1a0d" class="outline-3"&gt;
-&lt;h3 id="orge5c1a0d"&gt;Install the Dependencies&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge5c1a0d"&gt;
+&lt;div id="outline-container-orgab51b78" class="outline-3"&gt;
+&lt;h3 id="orgab51b78"&gt;Install the Dependencies&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgab51b78"&gt;
 &lt;pre class="example"&gt;
 sudo apt install cmake libusb-1.0-0-dev make gcc g++ libbluetooth-dev \
 pkg-config libpcap-dev python-numpy python-pyside python-qt4
@@ -351,9 +501,9 @@ The &lt;code&gt;python-&amp;lt;packages&amp;gt;&lt;/code&gt; can be downloaded f
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgbea7f89" class="outline-3"&gt;
-&lt;h3 id="orgbea7f89"&gt;Build libbtbb&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbea7f89"&gt;
+&lt;div id="outline-container-orgad56eb9" class="outline-3"&gt;
+&lt;h3 id="orgad56eb9"&gt;Build libbtbb&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgad56eb9"&gt;
 &lt;p&gt;
 &lt;code&gt;libbtb&lt;/code&gt; is the Bluetooth Baseband Library which you need for ubertooth to decode bluetooth packets. Change into the folder you downloaded earlier and build and install it.
 &lt;/p&gt;
@@ -401,9 +551,9 @@ sudo ldconfig
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org9ae0121" class="outline-3"&gt;
-&lt;h3 id="org9ae0121"&gt;Ubertooth Tools&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9ae0121"&gt;
+&lt;div id="outline-container-org5a66c86" class="outline-3"&gt;
+&lt;h3 id="org5a66c86"&gt;Ubertooth Tools&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5a66c86"&gt;
 &lt;p&gt;
 Do the same thing to build the tools. First untar the file you downloaded, change into the &lt;code&gt;host&lt;/code&gt; folder (&lt;code&gt;ubertooth-2018-08-R1/host&lt;/code&gt;) and build and install the code.
 &lt;/p&gt;
@@ -423,9 +573,9 @@ You should now have some command-line tools that start with &lt;code&gt;ubertoot
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgabc5a89" class="outline-3"&gt;
-&lt;h3 id="orgabc5a89"&gt;Privileges&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgabc5a89"&gt;
+&lt;div id="outline-container-org1c9b318" class="outline-3"&gt;
+&lt;h3 id="org1c9b318"&gt;Privileges&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org1c9b318"&gt;
 &lt;p&gt;
 You can use &lt;code&gt;setcap&lt;/code&gt; to make it so that you don't need to run things as root. This is how to make it so you can run &lt;code&gt;ubertooth-scan&lt;/code&gt;.
 &lt;/p&gt;
@@ -437,9 +587,9 @@ sudo setcap 'CAP_NET_RAW+eip CAP_NET_ADMIN+eip' (which ubertooth-scan)
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8e4ab55" class="outline-2"&gt;
-&lt;h2 id="org8e4ab55"&gt;Update the Firmware&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8e4ab55"&gt;
+&lt;div id="outline-container-org0537abb" class="outline-2"&gt;
+&lt;h2 id="org0537abb"&gt;Update the Firmware&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0537abb"&gt;
 &lt;p&gt;
 One of the commands installed in the previous step was &lt;code&gt;ubertooth-dfu&lt;/code&gt; which is the &lt;b&gt;&lt;b&gt;Do Firmware Update&lt;/b&gt;&lt;/b&gt; command that we need to update the firmware. First insert the ubertooth USB dongle, then change into the &lt;code&gt;ubertooth-2018-08-R1/ubertooth-one-firmware-bin&lt;/code&gt; folder and run the update command.
 &lt;/p&gt;
@@ -466,9 +616,9 @@ This should send a timestamp, frequency, RSSI CSV to stdout as the ubertooth swe
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org6adab40" class="outline-2"&gt;
-&lt;h2 id="org6adab40"&gt;Spectools&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6adab40"&gt;
+&lt;div id="outline-container-org823a9d7" class="outline-2"&gt;
+&lt;h2 id="org823a9d7"&gt;Spectools&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org823a9d7"&gt;
 &lt;p&gt;
 Since we can't run the python spectrum analyzer, we should turn to a better alternative, &lt;a href="https://www.kismetwireless.net/spectools/"&gt;spectools&lt;/a&gt;. This was a project to mostly re-create the &lt;a href="https://www.metageek.com/products/wi-spy/"&gt;metageek wi-spy GUI&lt;/a&gt; but it supports the ubertooth. It actually looks like a dead project (the last &lt;i&gt;News&lt;/i&gt; item on their site was from 2012), but it works for now. Luckily ubuntu has this in the repositories so you should be able to just install it with apt.
 &lt;/p&gt;
@@ -482,9 +632,9 @@ Once you install it you can either run &lt;code&gt;spectool_curses&lt;/code&gt; 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org348dfd6" class="outline-2"&gt;
-&lt;h2 id="org348dfd6"&gt;Kismet&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org348dfd6"&gt;
+&lt;div id="outline-container-orgc07b8fa" class="outline-2"&gt;
+&lt;h2 id="orgc07b8fa"&gt;Kismet&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc07b8fa"&gt;
 &lt;p&gt;
 Now we come to the interesting installation. At this point you probably have all the command-line utilities you need, but kismet provides a convenient interface to start capturing packets. Unfortunately it is going through a major upgrade which makes it incompatible with the ubertooth plugin for it (maybe, there's two plugins and one of them might work, but they don't seem to document it (or much else, for that matter)).
 &lt;/p&gt;
@@ -584,9 +734,9 @@ Which seems like an improvement anyway.
 The only problem now is that I keep forgetting what to type in every time I want to use an underscore, which is why I'm making this post.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>emacs</category><category>how-to</category><category>orgm-ode</category><guid>https://necromuralist.github.io/posts/disabling-subscripting-in-org-mode/</guid><pubDate>Fri, 03 Aug 2018 15:12:01 GMT</pubDate></item><item><title>The Linux IPv6 Router Advertisement Daemon (radvd)</title><link>https://necromuralist.github.io/posts/the-linux-ipv6-router-advertisement-daemon-radvd/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org5d63286" class="outline-2"&gt;
-&lt;h2 id="org5d63286"&gt;Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5d63286"&gt;
+&lt;/div&gt;</description><category>emacs</category><category>how-to</category><category>orgm-ode</category><guid>https://necromuralist.github.io/posts/disabling-subscripting-in-org-mode/</guid><pubDate>Fri, 03 Aug 2018 15:12:01 GMT</pubDate></item><item><title>The Linux IPv6 Router Advertisement Daemon (radvd)</title><link>https://necromuralist.github.io/posts/the-linux-ipv6-router-advertisement-daemon-radvd/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org81d0acd" class="outline-2"&gt;
+&lt;h2 id="org81d0acd"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org81d0acd"&gt;
 &lt;p&gt;
 &lt;a href="http://www.litech.org/radvd/"&gt;radvd&lt;/a&gt; (the router advertisement daemon) sends IPv6 advertisements and responds to node IPv6 requests. Here's the description from the man page.
 &lt;/p&gt;
@@ -599,9 +749,9 @@ The only problem now is that I keep forgetting what to type in every time I want
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8707990" class="outline-2"&gt;
-&lt;h2 id="org8707990"&gt;Installation and Setup&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8707990"&gt;
+&lt;div id="outline-container-org7a23eba" class="outline-2"&gt;
+&lt;h2 id="org7a23eba"&gt;Installation and Setup&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7a23eba"&gt;
 &lt;p&gt;
 Setting &lt;b&gt;radvd&lt;/b&gt; is suspiciously easy compared to other linux services. First you install it.
 &lt;/p&gt;
@@ -638,9 +788,9 @@ You can see in the output that there's a line with &lt;code&gt;/etc/radvd.conf d
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8c5f914" class="outline-3"&gt;
-&lt;h3 id="org8c5f914"&gt;The Configuration File&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8c5f914"&gt;
+&lt;div id="outline-container-org3e25360" class="outline-3"&gt;
+&lt;h3 id="org3e25360"&gt;The Configuration File&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3e25360"&gt;
 &lt;p&gt;
 Now create a configuration file (named &lt;code&gt;radvd.conf&lt;/code&gt;). Here's an example.
 &lt;/p&gt;
@@ -701,9 +851,9 @@ So the warning about the configuration file went away, now we have to fix the &l
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgbb41949" class="outline-3"&gt;
-&lt;h3 id="orgbb41949"&gt;Enable IPv6 Forwarding&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbb41949"&gt;
+&lt;div id="outline-container-org9a2660b" class="outline-3"&gt;
+&lt;h3 id="org9a2660b"&gt;Enable IPv6 Forwarding&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9a2660b"&gt;
 &lt;p&gt;
 For now you can enable it at the command line.
 &lt;/p&gt;
@@ -753,9 +903,9 @@ Now the next time you power on the computer it should be enabled.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org4d66bc5" class="outline-2"&gt;
-&lt;h2 id="org4d66bc5"&gt;Checking&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4d66bc5"&gt;
+&lt;div id="outline-container-org65f1bc7" class="outline-2"&gt;
+&lt;h2 id="org65f1bc7"&gt;Checking&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org65f1bc7"&gt;
 &lt;p&gt;
 To check if it's working you can put another device on the LAN and check &lt;code&gt;ifconfig&lt;/code&gt;. In our &lt;code&gt;radvd.conf&lt;/code&gt; file we defined the prefix for the address:
 &lt;/p&gt;
@@ -774,9 +924,9 @@ inet6 2001:db7::a80c:1a05:eaac:c1e8  prefixlen 64  scopeid 0x0&amp;lt;global&amp
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge6eb123" class="outline-2"&gt;
-&lt;h2 id="orge6eb123"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge6eb123"&gt;
+&lt;div id="outline-container-org90b2db0" class="outline-2"&gt;
+&lt;h2 id="org90b2db0"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org90b2db0"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;a href="https://www.linux.com/learn/intro-to-linux/2017/12/ipv6-auto-configuration-linux"&gt;IPv6 auto-configuration&lt;/a&gt; - how to setup &lt;b&gt;radvd&lt;/b&gt; (from linux.com)&lt;/li&gt;
 &lt;/ul&gt;
@@ -952,18 +1102,18 @@ Now re-open the network settings and click on the switch again. With any luck th
 &lt;li&gt;Add VPN Password: &lt;a href="https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10"&gt;https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>how-to</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/openvpn-on-ubuntu-1804/</guid><pubDate>Wed, 11 Jul 2018 01:11:39 GMT</pubDate></item><item><title>TCPDump On an External Hard Drive</title><link>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgace4f24" class="outline-2"&gt;
-&lt;h2 id="orgace4f24"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgace4f24"&gt;
+&lt;/div&gt;</description><category>how-to</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/openvpn-on-ubuntu-1804/</guid><pubDate>Wed, 11 Jul 2018 01:11:39 GMT</pubDate></item><item><title>TCPDump On an External Hard Drive</title><link>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org1bbd0b6" class="outline-2"&gt;
+&lt;h2 id="org1bbd0b6"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1bbd0b6"&gt;
 &lt;p&gt;
 I'm using &lt;a href="http://www.tcpdump.org/"&gt;tcpdump&lt;/a&gt; to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgcd4ec6f" class="outline-2"&gt;
-&lt;h2 id="orgcd4ec6f"&gt;Setting Up The Drive&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcd4ec6f"&gt;
+&lt;div id="outline-container-org1d6df4f" class="outline-2"&gt;
+&lt;h2 id="org1d6df4f"&gt;Setting Up The Drive&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1d6df4f"&gt;
 &lt;p&gt;
 The first thing I wanted to do was format the drive. First I needed to get the name.
 &lt;/p&gt;
@@ -1059,9 +1209,9 @@ Shows that it's now &lt;code&gt;ext4&lt;/code&gt; and it has the label &lt;code&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgb821961" class="outline-2"&gt;
-&lt;h2 id="orgb821961"&gt;Mounting It&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb821961"&gt;
+&lt;div id="outline-container-orgadd652e" class="outline-2"&gt;
+&lt;h2 id="orgadd652e"&gt;Mounting It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgadd652e"&gt;
 &lt;p&gt;
 First make a directory for it.
 &lt;/p&gt;
@@ -1100,9 +1250,9 @@ So we can see that it's mounted at &lt;code&gt;/media/westerndigital/&lt;/code&g
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfc4059f" class="outline-2"&gt;
-&lt;h2 id="orgfc4059f"&gt;Running TCP Dump with Rotating files&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgfc4059f"&gt;
+&lt;div id="outline-container-org877798a" class="outline-2"&gt;
+&lt;h2 id="org877798a"&gt;Running TCP Dump with Rotating files&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org877798a"&gt;
 &lt;p&gt;
 First I needed to put the wireless interface into monitor mode.
 &lt;/p&gt;
@@ -1246,44 +1396,44 @@ The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out o
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org22b3416"&gt;Background&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org9b45c62"&gt;Setup&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org7a9b116"&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org714ebcc"&gt;Setup&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orge15f864"&gt;The Environment Variables&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orgaa2933a"&gt;The Environment Variables&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orge213244"&gt;Run It&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orgd250f77"&gt;Run It&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org718e632"&gt;The Development server&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orgfbac51f"&gt;Public Server&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org8997676"&gt;The Development server&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org90dc55e"&gt;Public Server&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#orge618665"&gt;Make it repeatable&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/the-flask-debug-server/#org52e2a48"&gt;Make it repeatable&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org22b3416" class="outline-2"&gt;
-&lt;h2 id="org22b3416"&gt;Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org22b3416"&gt;
+&lt;div id="outline-container-org7a9b116" class="outline-2"&gt;
+&lt;h2 id="org7a9b116"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7a9b116"&gt;
 &lt;p&gt;
 This is documented on the &lt;a href="//flask.pocoo.org/docs/"&gt;Flask site&lt;/a&gt;, but I was trying to help someone debug some old server code that I'd written and couldn't remember how to debug it, so I'm documenting it here as I go through remembering it again so I'll have a single reference to use the next time. Some of the settings look different from what I remember using so I think that Flask has changed a little over time, but since I didn't document it the first time I don't have a record to compare against (well, I probably have some notes in a notebook but it's hard to refer to that when sitting at someone else's desk).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9b45c62" class="outline-2"&gt;
-&lt;h2 id="org9b45c62"&gt;Setup&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9b45c62"&gt;
+&lt;div id="outline-container-org714ebcc" class="outline-2"&gt;
+&lt;h2 id="org714ebcc"&gt;Setup&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org714ebcc"&gt;
 &lt;p&gt;
 The &lt;a href="http://flask.pocoo.org/docs/1.0/quickstart/"&gt;Flask Quickstart&lt;/a&gt; tells you what to do, but for some reason when we googled it, the instructions were different, I think it might have lead us to an older form of the documentation. This is the current version (May 20, 2018.)
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge15f864" class="outline-3"&gt;
-&lt;h3 id="orge15f864"&gt;The Environment Variables&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge15f864"&gt;
+&lt;div id="outline-container-orgaa2933a" class="outline-3"&gt;
+&lt;h3 id="orgaa2933a"&gt;The Environment Variables&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgaa2933a"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3772546" class="outline-4"&gt;
-&lt;h4 id="org3772546"&gt;The Flask App&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org3772546"&gt;
+&lt;div id="outline-container-orgfc35000" class="outline-4"&gt;
+&lt;h4 id="orgfc35000"&gt;The Flask App&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgfc35000"&gt;
 &lt;p&gt;
 First you have to tell flask which file contains your flask app by setting the &lt;code&gt;FLASK_APP&lt;/code&gt; environment variable. In my case I'm using &lt;a href="https://github.com/zalando/connexion"&gt;connexion&lt;/a&gt;, an oddly-named adapter that adds support for &lt;a href="https://swagger.io/"&gt;swagger/OpenApi&lt;/a&gt; to Flask. So the file that has the app has this line in it.
 &lt;/p&gt;
@@ -1307,9 +1457,9 @@ So I had to specifically tell flask the name of my app by appending it to the en
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc8c949f" class="outline-4"&gt;
-&lt;h4 id="orgc8c949f"&gt;Development Mode&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgc8c949f"&gt;
+&lt;div id="outline-container-org9f02e7b" class="outline-4"&gt;
+&lt;h4 id="org9f02e7b"&gt;Development Mode&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org9f02e7b"&gt;
 &lt;p&gt;
 If you want the server to automatically reload when it detects changes then you should to set the &lt;code&gt;FLASK_ENV&lt;/code&gt; environment variable to &lt;code&gt;development&lt;/code&gt;. This is similar to using &lt;code&gt;FLASK_DEBUG&lt;/code&gt; but I think it adds the reloading. Anyway, it does more than just set debug mode.
 &lt;/p&gt;
@@ -1320,13 +1470,13 @@ If you want the server to automatically reload when it detects changes then you 
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge213244" class="outline-2"&gt;
-&lt;h2 id="orge213244"&gt;Run It&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge213244"&gt;
+&lt;div id="outline-container-orgd250f77" class="outline-2"&gt;
+&lt;h2 id="orgd250f77"&gt;Run It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd250f77"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org718e632" class="outline-3"&gt;
-&lt;h3 id="org718e632"&gt;The Development server&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org718e632"&gt;
+&lt;div id="outline-container-org8997676" class="outline-3"&gt;
+&lt;h3 id="org8997676"&gt;The Development server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8997676"&gt;
 &lt;p&gt;
 This is the output of the help string for the &lt;a href="http://flask.pocoo.org/docs/1.0/server/#server"&gt;development server&lt;/a&gt;, note that it uses &lt;code&gt;-h&lt;/code&gt; for &lt;code&gt;host&lt;/code&gt; so you need to pass in &lt;code&gt;--help&lt;/code&gt; to see this output or you will get an error.
 &lt;/p&gt;
@@ -1334,9 +1484,9 @@ This is the output of the help string for the &lt;a href="http://flask.pocoo.org
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfbac51f" class="outline-3"&gt;
-&lt;h3 id="orgfbac51f"&gt;Public Server&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgfbac51f"&gt;
+&lt;div id="outline-container-org90dc55e" class="outline-3"&gt;
+&lt;h3 id="org90dc55e"&gt;Public Server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org90dc55e"&gt;
 &lt;p&gt;
 The default server runs on localhost, but since I'm hosting the code on a &lt;a href="https://www.raspberrypi.org/"&gt;raspberry pi&lt;/a&gt; sitting on the network somewhere but debugging it remotely, I need to run it on a public address.
 &lt;/p&gt;
@@ -1346,221 +1496,6 @@ The default server runs on localhost, but since I'm hosting the code on a &lt;a 
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge618665" class="outline-2"&gt;
-&lt;h2 id="orge618665"&gt;Make it repeatable&lt;/h2&gt;
-&lt;/div&gt;</description><category>flask</category><category>how-to</category><guid>https://necromuralist.github.io/posts/the-flask-debug-server/</guid><pubDate>Sun, 20 May 2018 20:53:54 GMT</pubDate></item><item><title>bokeh org-mode</title><link>https://necromuralist.github.io/posts/bokeh-org-mode/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org737b840" class="outline-2"&gt;
-&lt;h2 id="org737b840"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org737b840"&gt;
-&lt;p&gt;
-This is an illustration of how to use bokeh with org-mode in nikola. There is a more extensive and flexible explanation of how to do this in &lt;a href="http://cherian.net/posts/bokeh-org-mode.html"&gt;this post&lt;/a&gt; on &lt;a href="http://cherian.net"&gt;cherian.net&lt;/a&gt; but I made these notes to understand how it works and to have a simpler example to refer to.
-&lt;/p&gt;
-
-&lt;p&gt;
-I was interested in doing this because I'm trying to re-work some of what I did for the Coursera &lt;b&gt;Data Science With Python&lt;/b&gt; specialization by changing the data-sets and building them as blog posts. I might convert the posts to restructured text at some point, but while I'm working with them I'm using org-mode. Also, while most of the time I use &lt;a href="https://matplotlib.org"&gt;matplotlib&lt;/a&gt; for plotting since this is going to be a blog-first approach I decided to go with &lt;a href="https://bokeh.pydata.org/en/latest/"&gt;bokeh&lt;/a&gt;. I had &lt;a href="https://necromuralist.github.io/data_science/posts/bokeh-test/"&gt;previously written&lt;/a&gt; about how to get &lt;b&gt;bokeh&lt;/b&gt; into &lt;a href="https://getnikola.com"&gt;Nikola&lt;/a&gt; using restructured text, but as an intermediate step I want to do the work in org-mode and still be able to see the output as I'm working. 
-&lt;/p&gt;
-
-&lt;p&gt;
-The magic mix for this seems to be to use:
-&lt;/p&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://getnikola.com"&gt;Nikola&lt;/a&gt; to build the HTML posts&lt;/li&gt;
-&lt;li&gt;&lt;a href="http://orgmode.org"&gt;org-mode&lt;/a&gt;, an emacs mode to format the posts&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://plugins.getnikola.com/v7/orgmode/"&gt;the orgmode-plugin&lt;/a&gt; for nikola&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; to get &lt;a href="https://jupyter.org"&gt;jupyter/ipython&lt;/a&gt; in the org-mode posts&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#userguide-quickstart"&gt;bokeh&lt;/a&gt; to make the plots&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org8811eb3" class="outline-2"&gt;
-&lt;h2 id="org8811eb3"&gt;Creating the Bokeh Plot&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8811eb3"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgde317b2" class="outline-3"&gt;
-&lt;h3 id="orgde317b2"&gt;Imports&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgde317b2"&gt;
-&lt;p&gt;
-These are the dependencies. It's really all &lt;code&gt;bokeh&lt;/code&gt;, &lt;code&gt;numpy&lt;/code&gt; is just there to generate the data-values.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# from pypi&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;bokeh.models&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;HoverTool&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;bokeh.plotting&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ColumnDataSource&lt;/span&gt;
-&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;bokeh.embed&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;autoload_static&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;file_html&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;bokeh.resources&lt;/span&gt;
-&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;numpy&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-I probably should save bokeh to this repository to keep the post from breaking in the future, but I'm lazy so I'm just going to import it from a CDN.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;bokeh&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bokeh&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;resources&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;CDN&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgc5e8e94" class="outline-3"&gt;
-&lt;h3 id="orgc5e8e94"&gt;The Data&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc5e8e94"&gt;
-&lt;p&gt;
-To get a simple example going I'm just going to use some random outputs generated by numpy.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;arange&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;Y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;numpy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;random&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;randint&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-In order to create a data-structure that bokeh can use (similar to a &lt;a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html"&gt;pandas dataframe&lt;/a&gt;) you need to use a &lt;a href="https://bokeh.pydata.org/en/0.10.0/docs/reference/models/sources.html"&gt;ColumnDataSource&lt;/a&gt;.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ColumnDataSource&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-    &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;X&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="n"&gt;desc&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"a"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"b"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"c"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"d"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"e"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"f"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"g"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"h"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"i"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"j"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
-&lt;span class="p"&gt;))&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-The keys in the data-dict are essentially the column headers.
-&lt;/p&gt;
-
-&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
-
-
-&lt;colgroup&gt;
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-left"&gt;
-&lt;/colgroup&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th scope="col" class="org-left"&gt;Key&lt;/th&gt;
-&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td class="org-left"&gt;x&lt;/td&gt;
-&lt;td class="org-left"&gt;the x-axis values&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td class="org-left"&gt;y&lt;/td&gt;
-&lt;td class="org-left"&gt;the y-axis values&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td class="org-left"&gt;desc&lt;/td&gt;
-&lt;td class="org-left"&gt;The labels for the tooltip&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;
-Now to get some tool-tips to pop up when you hover over the plot, I'll create a &lt;code&gt;HoverTool&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;hover&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;HoverTool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tooltips&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;
-    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'index'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'$index'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
-    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'(x, y)'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'($x, $y)'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
-    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'desc'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'@desc'&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
-&lt;span class="p"&gt;])&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-The &lt;code&gt;tooltips&lt;/code&gt; list maps the labels that will show up in the tooltip (the first argument to each tuple) to variables in the &lt;code&gt;ColumnDataSource&lt;/code&gt; (if preceded by an &lt;code&gt;@&lt;/code&gt;) or generated value (if preceded by a &lt;code&gt;$&lt;/code&gt;) The &lt;code&gt;index&lt;/code&gt; value is the index in the array where the data point sits (so for the first point it will be 0, the second will be 1, etc.). The &lt;code&gt;(x, y)&lt;/code&gt; values are the coordinate locations of your pointer when you hover over the data points, and the &lt;code&gt;desc&lt;/code&gt; will be replaced by the label I set in the &lt;code&gt;ColumnDataSource&lt;/code&gt; for a particular data-point.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org6e51526" class="outline-3"&gt;
-&lt;h3 id="org6e51526"&gt;The Plot&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6e51526"&gt;
-&lt;p&gt;
-Now I'll create the actual plot (&lt;code&gt;figure&lt;/code&gt;).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;fig&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;figure&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Random Example"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x_axis_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"x"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y_axis_label&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"y"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-	     &lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;hover&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
-&lt;span class="n"&gt;fig&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'x'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'y'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;span class="n"&gt;fig&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;circle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'x'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'y'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org76c9961" class="outline-2"&gt;
-&lt;h2 id="org76c9961"&gt;Getting the Bokeh Plot Into The Post&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org76c9961"&gt;
-&lt;p&gt;
-Finally I'll save the javascript and HTML files needed and then output the blob needed to embed the plot into this post. The &lt;code&gt;autoload_static&lt;/code&gt; function takes the bokeh plot object (&lt;code&gt;fig&lt;/code&gt;), the bokeh javascript that I loaded earlier (&lt;code&gt;bokeh&lt;/code&gt;), and the name of the javascript file that you want it to creat (&lt;code&gt;test.js&lt;/code&gt;) and returns the javascript to save (&lt;code&gt;javascript&lt;/code&gt;) and the HTML fragment that will include the javascript (&lt;code&gt;source&lt;/code&gt;). Note that because of the way nikola structures things I have to create a folder named &lt;code&gt;files/posts/bokeh-org-mode&lt;/code&gt; and save the files there. Since nikola will automatically look in this folder the name you pass into &lt;code&gt;autoload_static&lt;/code&gt; should just be the filename without the path, but when you save the javascript file you will save it there so you need to add the relative path. If my explanation seems a little convoluted, just look at the code below, it's fairly simple.
-&lt;/p&gt;
-
-&lt;p&gt;
-First I'll create a variable to hold the path to the folder to save the files in. All files for nikola posts go into sub-folders of &lt;code&gt;files/posts/&lt;/code&gt; and since the source file for this post is called &lt;code&gt;bokeh-org-mode.org&lt;/code&gt;, the files to include in it go into the folder &lt;code&gt;files/posts/bokeh-org-mode&lt;/code&gt; (&lt;code&gt;files/posts/&lt;/code&gt; plus the slug for the post).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;FOLDER_PATH&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"../files/posts/bokeh-org-mode/"&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org7059e29" class="outline-3"&gt;
-&lt;h3 id="org7059e29"&gt;The Javascript&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org7059e29"&gt;
-&lt;p&gt;
-Now, I'll create the javascript source for the plot.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;FILE_NAME&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"test.js"&lt;/span&gt;
-&lt;span class="n"&gt;javascript&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;autoload_static&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fig&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bokeh&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;FILE_NAME&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-
-&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;FOLDER_PATH&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;FILE_NAME&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"w"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;writer&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-    &lt;span class="n"&gt;writer&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;write&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;javascript&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-The &lt;code&gt;javascript&lt;/code&gt; variable holds the actual javascript source code (which then gets saved) while the &lt;code&gt;source&lt;/code&gt; variable holds the string with the HTML to embed the javascript into this post (which I show at the end of this post).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgfcee027" class="outline-3"&gt;
-&lt;h3 id="orgfcee027"&gt;Embedding the Plot&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgfcee027"&gt;
-&lt;p&gt;
-Finally, we need to print out the string that is stored in the &lt;code&gt;source&lt;/code&gt; variable which then tells org-mode to embed the files into this post. I'll output the full org-block so you can see the header arguments.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC python :session bokeh :results output raw :exports results
-print('''#+BEGIN_EXPORT html
-{}
-#+END_EXPORT'''.format(source))
-#+END_SRC
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;script src="https://necromuralist.github.io/posts/bokeh-org-mode/test.js" id="99045dff-710a-4c8e-8565-6fd31b538349" data-bokeh-model-id="f46a6fe0-7aab-47d9-aae0-d14718763236" data-bokeh-doc-id="99649b1a-8c14-49b7-a6ef-c61b3ec6dbae"&gt;&lt;/script&gt;
-
-&lt;p&gt;
-And there you have it. I don't have a lot to say about it, other than that if you hover over the data with your cursor and then look up above at the &lt;code&gt;ColumnDataSource&lt;/code&gt; above, you'll see that the variables match the inputs
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org4d3a49c" class="outline-2"&gt;
-&lt;h2 id="org4d3a49c"&gt;Summary&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4d3a49c"&gt;
-&lt;p&gt;
-To get a bokeh figure into an org-mode document in nikola:
-&lt;/p&gt;
-
-&lt;ol class="org-ol"&gt;
-&lt;li&gt;Create the bokeh plot.&lt;/li&gt;
-&lt;li&gt;Create a folder in the &lt;code&gt;files/posts/&lt;/code&gt; folder that matches the slug for the post.&lt;/li&gt;
-&lt;li&gt;Use &lt;code&gt;autoload_static&lt;/code&gt; to convert the bokeh object to javascript and create the HTML tag to embed it.&lt;/li&gt;
-&lt;li&gt;Save the javascript in the &lt;code&gt;files/posts/&amp;lt;slug&amp;gt;/&lt;/code&gt; folder that you created&lt;/li&gt;
-&lt;li&gt;Print the HTML fragment in an org-mode &lt;code&gt;#+BEGIN_EXPORT html&lt;/code&gt; block.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>bokeh</category><category>how-to</category><category>org-mode</category><guid>https://necromuralist.github.io/posts/bokeh-org-mode/</guid><pubDate>Thu, 26 Apr 2018 04:59:50 GMT</pubDate></item></channel></rss>
+&lt;div id="outline-container-org52e2a48" class="outline-2"&gt;
+&lt;h2 id="org52e2a48"&gt;Make it repeatable&lt;/h2&gt;
+&lt;/div&gt;</description><category>flask</category><category>how-to</category><guid>https://necromuralist.github.io/posts/the-flask-debug-server/</guid><pubDate>Sun, 20 May 2018 20:53:54 GMT</pubDate></item></channel></rss>

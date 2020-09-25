@@ -1,0 +1,86 @@
+#+BEGIN_COMMENT
+.. title: Precision, Recall, and the F-Measure
+.. slug: precision-recall-and-the-f-measure
+.. date: 2020-09-10 14:08:25 UTC-07:00
+.. tags: statistics,nlp,metrics,slipnote
+.. category: Metrics
+.. link: 
+.. description: The precision, recall, and f-measure metrics.
+.. type: text
+.. status: 
+.. updated: 
+.. has_math: true
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* Beginning
+When we are looking at how well a model (or a person) is doing it's often best to have a numeric value that we can calculate to make it easy to see how well it is doing. The first thing many people reach for is measuring /accuracy/ but this isn't always the best metric. Unbalanced data sets can distort this metric, for instance. If 90% of the data is spam then a model that always guessed that an email is spam will have decent accuracy, but really won't be all that useful (except for pointing out that you have too much spam). To remedy this and other problems I'll look at some alternative metrics (/precision/, /recall/, and the /f-measure/) which are useful for deciding how well classification models are doing.
+* The Metrics
+** Positive and Negative
+First some terminology. We're going to assume that we want to label data as either being something or not being that thing. e.g. guilty or not guilty, duck or not a duck, etc. The label for things that are the thing is called /Positive/ and the label for things that aren't the thing is /Negative/.
+
+| Term           | Acronym | Description                                |
+|----------------+---------+--------------------------------------------|
+| True Positive  | TP      | We labeled it positive and it was positive |
+| False Positive | FP      | We labeled it positive and it was negative |
+| True Negative  | TN      | We labeled it negative and it was negative |
+| False Negative | FN      | We labeled it negative and it was positive |
+
+This is sometimes represented using a matrix.
+
+|                    | Actually Positive | Actually Negative |
+|--------------------+-------------------+-------------------|
+| *Predicted Positive* | /True Positive/   | /False Positive/  |
+| *Predicted Negative* | /False Negative/  | /True Negative/   |
+** Accuracy
+   Okay, I said we aren't going to use accuracy, but just to be complete... accuracy asks /what fraction of the anwsers did you get correct?/
+
+\[
+\textrm{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\]
+
+This is probably what most of us are familiar with from being graded in school.
+
+** Precision
+   /How much of what was predicted positive was really positive?/
+
+\[
+\textrm{Precision} = \frac{TP}{TP+FP}
+\]
+
+Since we have the count of false-positives in the denominator, your score will go down the more negatives you label positive (e.g. the more innocents you convict, the lower the score).
+
+** Recall
+   /How many of the positives did you catch?/
+
+\[
+\textrm{Recall} = \frac{TP}{TP + FN}
+\]
+
+Here your score will go down the more positives you miss (the more guilty you find innocent).
+
+** F-Measure
+   So, in some cases you might want to favor /Precision/ over /Recall/ and vice-versa, but what if you don't really want one over the other? The /F-Measure/ allows us to combine them into one metric.
+
+\[
+F_{\beta} = \frac{(\beta^2 + 1) Precision \times Recall}{\beta^2 Precision + Recall}
+\]
+
+To make it simpler I'll just use /P/ for precision and /R/ for recall from here on.
+
+\(\beta\) in the equation is a parameter that we can tune to favor precision or recall. If you'll notice, \(\beta\) in the numerator affects both precision and recall equally, while it only affects precision in the denominator, so the larger it is, the more precision diminishes the score.
+
+\begin{align}
+\beta > 1 &: \textit{Favor Recall}\\
+\beta < 1 &: \textit{Favor Precision}\\
+\end{align}
+** F1 Measure
+   If you look at the inequalities for the effects of \(\beta\) on the F-Measure you might notice that they don't include 1. That's because when \(\beta\) is 1 it doesn't favor either precision or recall, giving a case that combines both of them and treating them equally.
+
+\[
+F_1 = \frac{2PR}{P + R}
+\]
+
+* References
+ - {{% doc %}}bib-speech-and-language-processing-jurafsky-martin{{% /doc %}}
+ - {{% doc %}}wikipedia-on-f1-score{{% /doc %}}

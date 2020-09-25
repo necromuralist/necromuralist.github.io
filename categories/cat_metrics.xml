@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about Metrics)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_metrics.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 10 Sep 2020 23:50:18 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Precision, Recall, and the F-Measure</title><link>https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org18be2e1"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org83a04ba"&gt;The Metrics&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgeb935d7"&gt;Positive and Negative&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org323ed15"&gt;Accuracy&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orge40045e"&gt;Precision&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org70e895a"&gt;Recall&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgc0f1234"&gt;F-Measure&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgb89ea19"&gt;F1 Measure&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org53ee952"&gt;References&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org18be2e1" class="outline-2"&gt;
+&lt;h2 id="org18be2e1"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org18be2e1"&gt;
+&lt;p&gt;
+When we are looking at how well a model (or a person) is doing it's often best to have a numeric value that we can calculate to make it easy to see how well it is doing. The first thing many people reach for is measuring &lt;i&gt;accuracy&lt;/i&gt; but this isn't always the best metric. Unbalanced data sets can distort this metric, for instance. If 90% of the data is spam then a model that always guessed that an email is spam will have decent accuracy, but really won't be all that useful (except for pointing out that you have too much spam). To remedy this and other problems I'll look at some alternative metrics (&lt;i&gt;precision&lt;/i&gt;, &lt;i&gt;recall&lt;/i&gt;, and the &lt;i&gt;f-measure&lt;/i&gt;) which are useful for deciding how well classification models are doing.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org83a04ba" class="outline-2"&gt;
+&lt;h2 id="org83a04ba"&gt;The Metrics&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org83a04ba"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgeb935d7" class="outline-3"&gt;
+&lt;h3 id="orgeb935d7"&gt;Positive and Negative&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgeb935d7"&gt;
+&lt;p&gt;
+First some terminology. We're going to assume that we want to label data as either being something or not being that thing. e.g. guilty or not guilty, duck or not a duck, etc. The label for things that are the thing is called &lt;i&gt;Positive&lt;/i&gt; and the label for things that aren't the thing is &lt;i&gt;Negative&lt;/i&gt;.
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;Term&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Acronym&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;True Positive&lt;/td&gt;
+&lt;td class="org-left"&gt;TP&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it positive and it was positive&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;False Positive&lt;/td&gt;
+&lt;td class="org-left"&gt;FP&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it positive and it was negative&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;True Negative&lt;/td&gt;
+&lt;td class="org-left"&gt;TN&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it negative and it was negative&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;False Negative&lt;/td&gt;
+&lt;td class="org-left"&gt;FN&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it negative and it was positive&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;
+This is sometimes represented using a matrix.
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt; &lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Actually Positive&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Actually Negative&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;b&gt;Predicted Positive&lt;/b&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;True Positive&lt;/i&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;False Positive&lt;/i&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;b&gt;Predicted Negative&lt;/b&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;False Negative&lt;/i&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;True Negative&lt;/i&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org323ed15" class="outline-3"&gt;
+&lt;h3 id="org323ed15"&gt;Accuracy&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org323ed15"&gt;
+&lt;p&gt;
+Okay, I said we aren't going to use accuracy, but just to be complete… accuracy asks &lt;i&gt;what fraction of the anwsers did you get correct?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+This is probably what most of us are familiar with from being graded in school.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orge40045e" class="outline-3"&gt;
+&lt;h3 id="orge40045e"&gt;Precision&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge40045e"&gt;
+&lt;p&gt;
+&lt;i&gt;How much of what was predicted positive was really positive?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Precision} = \frac{TP}{TP+FP}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+Since we have the count of false-positives in the denominator, your score will go down the more negatives you label positive (e.g. the more innocents you convict, the lower the score).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org70e895a" class="outline-3"&gt;
+&lt;h3 id="org70e895a"&gt;Recall&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org70e895a"&gt;
+&lt;p&gt;
+&lt;i&gt;How many of the positives did you catch?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Recall} = \frac{TP}{TP + FN}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+Here your score will go down the more positives you miss (the more guilty you find innocent).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgc0f1234" class="outline-3"&gt;
+&lt;h3 id="orgc0f1234"&gt;F-Measure&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc0f1234"&gt;
+&lt;p&gt;
+So, in some cases you might want to favor &lt;i&gt;Precision&lt;/i&gt; over &lt;i&gt;Recall&lt;/i&gt; and vice-versa, but what if you don't really want one over the other? The &lt;i&gt;F-Measure&lt;/i&gt; allows us to combine them into one metric.
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+F_{\beta} = \frac{(\beta^2 + 1) Precision \times Recall}{\beta^2 Precision + Recall}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+To make it simpler I'll just use &lt;i&gt;P&lt;/i&gt; for precision and &lt;i&gt;R&lt;/i&gt; for recall from here on.
+&lt;/p&gt;
+
+&lt;p&gt;
+\(\beta\) in the equation is a parameter that we can tune to favor precision or recall. If you'll notice, \(\beta\) in the numerator affects both precision and recall equally, while it only affects precision in the denominator, so the larger it is, the more precision diminishes the score.
+&lt;/p&gt;
+
+\begin{align}
+\beta &amp;gt; 1 &amp;amp;: \textit{Favor Recall}\\
+\beta &amp;lt; 1 &amp;amp;: \textit{Favor Precision}\\
+\end{align}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgb89ea19" class="outline-3"&gt;
+&lt;h3 id="orgb89ea19"&gt;F1 Measure&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb89ea19"&gt;
+&lt;p&gt;
+If you look at the inequalities for the effects of \(\beta\) on the F-Measure you might notice that they don't include 1. That's because when \(\beta\) is 1 it doesn't favor either precision or recall, giving a case that combines both of them and treating them equally.
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+F_1 = \frac{2PR}{P + R}
+\]
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org53ee952" class="outline-2"&gt;
+&lt;h2 id="org53ee952"&gt;References&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org53ee952"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bib-speech-and-language-processing-jurafsky-martin/"&gt;Speech and Language Processing&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/wikipedia-on-f1-score/"&gt;Wikipedia on the F1 Score&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>metrics</category><category>nlp</category><category>slipnote</category><category>statistics</category><guid>https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/</guid><pubDate>Thu, 10 Sep 2020 21:08:25 GMT</pubDate></item></channel></rss>

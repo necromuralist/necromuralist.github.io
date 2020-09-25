@@ -1,5 +1,443 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Wed, 09 Sep 2020 01:44:53 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Neural correlates of maintaining one's political beliefs in the face of counterevidence</title><link>https://necromuralist.github.io/posts/bibliography/neural-correlates-of-maintaining-ones-political-beliefs-in-the-face-of-counterevidence/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orge2fbb9e" class="outline-2"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Fri, 25 Sep 2020 02:33:53 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Mounting An Encrypted USB Drive From the Command Line</title><link>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org68f3032"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org579e05d"&gt;Middle&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org7d4f470"&gt;Find the USB Device Name&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org3339004"&gt;Unlock the Drive&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org6b34b21"&gt;Mount the Drive&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org85365c8"&gt;End&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orga4cdb3a"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org68f3032" class="outline-2"&gt;
+&lt;h2 id="org68f3032"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org68f3032"&gt;
+&lt;p&gt;
+I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;I didn't know the &lt;code&gt;/dev&lt;/code&gt; file to use&lt;/li&gt;
+&lt;li&gt;Like many Stack Overflow threads there's a lot of noise that isn't relevant to me&lt;/li&gt;
+&lt;li&gt;I want to be able to remember how to do this without having to search for it and click through different links to figure out which one has the right information for me&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+So, here's the subset of steps that I did to mount the drive.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org579e05d" class="outline-2"&gt;
+&lt;h2 id="org579e05d"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org579e05d"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7d4f470" class="outline-3"&gt;
+&lt;h3 id="org7d4f470"&gt;Find the USB Device Name&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7d4f470"&gt;
+&lt;p&gt;
+The first think to do is to make sure that the USB device is recognized by the operating system.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lsusb
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which produced a lot of listings, the most relevant one being:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Bus 001 Device 002: ID 1058:0748 Western Digital Technologies, Inc. My Passport (WDBKXH, WDBY8L)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which is the drive I wanted to unencrypt and mount. The next thing is to find the file name (in this case I know the name of the device - "My Passport" - so I used &lt;code&gt;grep&lt;/code&gt;, otherwise I'd use &lt;code&gt;less&lt;/code&gt;).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo fdisk -l | grep "My Passport" -B 1
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which currently gives this:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Partition 2 does not start on physical sector boundary.
+Disk /dev/sdb: 931.49 GiB, 1000170586112 bytes, 1953458176 sectors
+Disk model: My Passport 0748
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want (I think it said &lt;code&gt;/dev/sdb1&lt;/code&gt; before I mounted it, but anyway, just check it).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org3339004" class="outline-3"&gt;
+&lt;h3 id="org3339004"&gt;Unlock the Drive&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3339004"&gt;
+&lt;p&gt;
+Next unlock the drive. When you do this it will create a file in &lt;code&gt;/dev/mapper/&lt;/code&gt; that you'll need so it would be a good idea to see what's there before you run it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ls /dev/mapper/
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+And then do the decrypting.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;udiskctl unlock -b /dev/sdb1
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org6b34b21" class="outline-3"&gt;
+&lt;h3 id="org6b34b21"&gt;Mount the Drive&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6b34b21"&gt;
+&lt;p&gt;
+If the last command went okay you now need to mount it. There's going to be a file in &lt;code&gt;/dev/mapper&lt;/code&gt; that you need to know. When I did it there was only one new file (&lt;code&gt;luks-3eea956c-e684-4bcb-a640-97d0c8c5a700&lt;/code&gt;) so I didn't have to do anything special to get it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+If you run the command &lt;code&gt;lsblk -e7&lt;/code&gt; it will show you a tree with the &lt;code&gt;/dev/mapper/&lt;/code&gt; file mapped to the mount point where you can access it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sdb                                             8:16   0 931.5G  0 disk  
+└─sdb1                                          8:17   0 931.5G  0 part  
+  └─luks-3eea956c-e684-4bcb-a640-97d0c8c5a700 253:3    0 931.5G  0 crypt /media/hades/WDData
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+So in this case the drive is accessible at &lt;code&gt;/media/hades/WDData&lt;/code&gt; (it's always the same place but I wanted to document the &lt;code&gt;lsblk -e7&lt;/code&gt; command).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org85365c8" class="outline-2"&gt;
+&lt;h2 id="org85365c8"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org85365c8"&gt;
+&lt;p&gt;
+So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udiskctl.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo fdisk -l
+udiskctl unlock -b /dev/sdb1
+udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orga4cdb3a" class="outline-3"&gt;
+&lt;h3 id="orga4cdb3a"&gt;Sources&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga4cdb3a"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/"&gt;sourcedigit.com&lt;/a&gt; - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line"&gt;Stack Overflow&lt;/a&gt; - "Mount encrypted volumes from command line?"&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>how-to</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</guid><pubDate>Fri, 25 Sep 2020 01:26:30 GMT</pubDate></item><item><title>Introductory Statistics with Randomization and Simulation</title><link>https://necromuralist.github.io/posts/introductory-statistics-with-randomization-and-simulation/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgf5d1ddb" class="outline-2"&gt;
+&lt;h2 id="orgf5d1ddb"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf5d1ddb"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Diez DM, Barr CD, Çetinkaya-Rundel M. Introductory statistics with randomization and simulation. OpenIntro.org; 2014. 348 p.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>simulation</category><category>statistics</category><guid>https://necromuralist.github.io/posts/introductory-statistics-with-randomization-and-simulation/</guid><pubDate>Tue, 22 Sep 2020 23:53:36 GMT</pubDate></item><item><title>Making Comics</title><link>https://necromuralist.github.io/posts/making-comics/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org06406ee" class="outline-2"&gt;
+&lt;h2 id="org06406ee"&gt;Biblography&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org06406ee"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Barry L. Making comics. Montreal, Quebec: Drawn &amp;amp; Quarterly; 2019. 198 p.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>comics</category><guid>https://necromuralist.github.io/posts/making-comics/</guid><pubDate>Mon, 21 Sep 2020 01:17:42 GMT</pubDate></item><item><title>A Mind For Numbers</title><link>https://necromuralist.github.io/posts/a-mind-for-numbers/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgd4209a7" class="outline-2"&gt;
+&lt;h2 id="orgd4209a7"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd4209a7"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Oakley BA. A mind for numbers: how to excel at math and science (even if you flunked algebra). New York: Jeremy P. Tarcher/Penguin; 2014. 316 p.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orge0813f3" class="outline-2"&gt;
+&lt;h2 id="orge0813f3"&gt;Notes&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge0813f3"&gt;
+&lt;p&gt;
+This is a tour of ideas to help students learn how to learn, with an emphasis on math and science. She covers things varying from how to study, to procrastination, to test-taking. Her ten rules are (paraphrased):
+&lt;/p&gt;
+
+&lt;ol class="org-ol"&gt;
+&lt;li&gt;Recall things early and often to make them stick&lt;/li&gt;
+&lt;li&gt;Used spaced repetition when recalling&lt;/li&gt;
+&lt;li&gt;Interleave different types of problems so you don't overlearn one type.&lt;/li&gt;
+&lt;li&gt;Build things into chunks of larger concepts&lt;/li&gt;
+&lt;li&gt;Explain it like a five year old and use analogies to learn abstract ideas&lt;/li&gt;
+&lt;li&gt;Test yourself&lt;/li&gt;
+&lt;li&gt;Focus on one thing at a time&lt;/li&gt;
+&lt;li&gt;Take breaks&lt;/li&gt;
+&lt;li&gt;Eat frogs first (do the important but unpleasant things first)&lt;/li&gt;
+&lt;li&gt;Use mental contrasting (comparing where you are now to where you expect to be) to motivate yourself&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;
+There's more in her book than those ten things, but these are the main points, and they sort of touch on her other points even if not stated. She particularly emphasizes chunking and the switching between "focused" and "diffused" modes of thinking, and many of the ideas address how to use both modes while learning.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>learning</category><guid>https://necromuralist.github.io/posts/a-mind-for-numbers/</guid><pubDate>Thu, 17 Sep 2020 21:37:40 GMT</pubDate></item><item><title>Wikipedia on the F1 Score</title><link>https://necromuralist.github.io/posts/wikipedia-on-f1-score/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org2af35ff" class="outline-2"&gt;
+&lt;h2 id="org2af35ff"&gt;Citation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2af35ff"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;F1 score. In: Wikipedia [Internet]. 2020 [cited 2020 Sep 10]. Available from: &lt;a href="https://en.wikipedia.org/w/index.php?title=F1_score&amp;amp;oldid=976442604"&gt;https://en.wikipedia.org/w/index.php?title=F1_score&amp;amp;oldid=976442604&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org44bf56e" class="outline-2"&gt;
+&lt;h2 id="org44bf56e"&gt;Comments&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org44bf56e"&gt;
+&lt;p&gt;
+Covers the F1 Score, \(F_\beta\), and other related scores (including precison and recall) as well as giving applications and criticisms (with alternative metrics suggested).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>bibliography</category><category>classification</category><category>metrics</category><guid>https://necromuralist.github.io/posts/wikipedia-on-f1-score/</guid><pubDate>Thu, 10 Sep 2020 23:41:55 GMT</pubDate></item><item><title>Precision, Recall, and the F-Measure</title><link>https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org18be2e1"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org83a04ba"&gt;The Metrics&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgeb935d7"&gt;Positive and Negative&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org323ed15"&gt;Accuracy&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orge40045e"&gt;Precision&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org70e895a"&gt;Recall&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgc0f1234"&gt;F-Measure&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#orgb89ea19"&gt;F1 Measure&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/#org53ee952"&gt;References&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org18be2e1" class="outline-2"&gt;
+&lt;h2 id="org18be2e1"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org18be2e1"&gt;
+&lt;p&gt;
+When we are looking at how well a model (or a person) is doing it's often best to have a numeric value that we can calculate to make it easy to see how well it is doing. The first thing many people reach for is measuring &lt;i&gt;accuracy&lt;/i&gt; but this isn't always the best metric. Unbalanced data sets can distort this metric, for instance. If 90% of the data is spam then a model that always guessed that an email is spam will have decent accuracy, but really won't be all that useful (except for pointing out that you have too much spam). To remedy this and other problems I'll look at some alternative metrics (&lt;i&gt;precision&lt;/i&gt;, &lt;i&gt;recall&lt;/i&gt;, and the &lt;i&gt;f-measure&lt;/i&gt;) which are useful for deciding how well classification models are doing.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org83a04ba" class="outline-2"&gt;
+&lt;h2 id="org83a04ba"&gt;The Metrics&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org83a04ba"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgeb935d7" class="outline-3"&gt;
+&lt;h3 id="orgeb935d7"&gt;Positive and Negative&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgeb935d7"&gt;
+&lt;p&gt;
+First some terminology. We're going to assume that we want to label data as either being something or not being that thing. e.g. guilty or not guilty, duck or not a duck, etc. The label for things that are the thing is called &lt;i&gt;Positive&lt;/i&gt; and the label for things that aren't the thing is &lt;i&gt;Negative&lt;/i&gt;.
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt;Term&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Acronym&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;True Positive&lt;/td&gt;
+&lt;td class="org-left"&gt;TP&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it positive and it was positive&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;False Positive&lt;/td&gt;
+&lt;td class="org-left"&gt;FP&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it positive and it was negative&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;True Negative&lt;/td&gt;
+&lt;td class="org-left"&gt;TN&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it negative and it was negative&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;False Negative&lt;/td&gt;
+&lt;td class="org-left"&gt;FN&lt;/td&gt;
+&lt;td class="org-left"&gt;We labeled it negative and it was positive&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;
+This is sometimes represented using a matrix.
+&lt;/p&gt;
+
+&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
+
+
+&lt;colgroup&gt;
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+
+&lt;col class="org-left"&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th scope="col" class="org-left"&gt; &lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Actually Positive&lt;/th&gt;
+&lt;th scope="col" class="org-left"&gt;Actually Negative&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;b&gt;Predicted Positive&lt;/b&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;True Positive&lt;/i&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;False Positive&lt;/i&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td class="org-left"&gt;&lt;b&gt;Predicted Negative&lt;/b&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;False Negative&lt;/i&gt;&lt;/td&gt;
+&lt;td class="org-left"&gt;&lt;i&gt;True Negative&lt;/i&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org323ed15" class="outline-3"&gt;
+&lt;h3 id="org323ed15"&gt;Accuracy&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org323ed15"&gt;
+&lt;p&gt;
+Okay, I said we aren't going to use accuracy, but just to be complete… accuracy asks &lt;i&gt;what fraction of the anwsers did you get correct?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+This is probably what most of us are familiar with from being graded in school.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orge40045e" class="outline-3"&gt;
+&lt;h3 id="orge40045e"&gt;Precision&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge40045e"&gt;
+&lt;p&gt;
+&lt;i&gt;How much of what was predicted positive was really positive?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Precision} = \frac{TP}{TP+FP}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+Since we have the count of false-positives in the denominator, your score will go down the more negatives you label positive (e.g. the more innocents you convict, the lower the score).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org70e895a" class="outline-3"&gt;
+&lt;h3 id="org70e895a"&gt;Recall&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org70e895a"&gt;
+&lt;p&gt;
+&lt;i&gt;How many of the positives did you catch?&lt;/i&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+\textrm{Recall} = \frac{TP}{TP + FN}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+Here your score will go down the more positives you miss (the more guilty you find innocent).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgc0f1234" class="outline-3"&gt;
+&lt;h3 id="orgc0f1234"&gt;F-Measure&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc0f1234"&gt;
+&lt;p&gt;
+So, in some cases you might want to favor &lt;i&gt;Precision&lt;/i&gt; over &lt;i&gt;Recall&lt;/i&gt; and vice-versa, but what if you don't really want one over the other? The &lt;i&gt;F-Measure&lt;/i&gt; allows us to combine them into one metric.
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+F_{\beta} = \frac{(\beta^2 + 1) Precision \times Recall}{\beta^2 Precision + Recall}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+To make it simpler I'll just use &lt;i&gt;P&lt;/i&gt; for precision and &lt;i&gt;R&lt;/i&gt; for recall from here on.
+&lt;/p&gt;
+
+&lt;p&gt;
+\(\beta\) in the equation is a parameter that we can tune to favor precision or recall. If you'll notice, \(\beta\) in the numerator affects both precision and recall equally, while it only affects precision in the denominator, so the larger it is, the more precision diminishes the score.
+&lt;/p&gt;
+
+\begin{align}
+\beta &amp;gt; 1 &amp;amp;: \textit{Favor Recall}\\
+\beta &amp;lt; 1 &amp;amp;: \textit{Favor Precision}\\
+\end{align}
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgb89ea19" class="outline-3"&gt;
+&lt;h3 id="orgb89ea19"&gt;F1 Measure&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb89ea19"&gt;
+&lt;p&gt;
+If you look at the inequalities for the effects of \(\beta\) on the F-Measure you might notice that they don't include 1. That's because when \(\beta\) is 1 it doesn't favor either precision or recall, giving a case that combines both of them and treating them equally.
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+F_1 = \frac{2PR}{P + R}
+\]
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org53ee952" class="outline-2"&gt;
+&lt;h2 id="org53ee952"&gt;References&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org53ee952"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bib-speech-and-language-processing-jurafsky-martin/"&gt;Speech and Language Processing&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/wikipedia-on-f1-score/"&gt;Wikipedia on the F1 Score&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>metrics</category><category>nlp</category><category>slipnote</category><category>statistics</category><guid>https://necromuralist.github.io/posts/precision-recall-and-the-f-measure/</guid><pubDate>Thu, 10 Sep 2020 21:08:25 GMT</pubDate></item><item><title>Neural correlates of maintaining one's political beliefs in the face of counterevidence</title><link>https://necromuralist.github.io/posts/bibliography/neural-correlates-of-maintaining-ones-political-beliefs-in-the-face-of-counterevidence/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orge2fbb9e" class="outline-2"&gt;
 &lt;h2 id="orge2fbb9e"&gt;Citation&lt;/h2&gt;
 &lt;div class="outline-text-2" id="text-orge2fbb9e"&gt;
 &lt;ul class="org-ul"&gt;
@@ -132,24 +570,25 @@ IARPA saw Tetlock's study and set up a prediction tournament to test expert team
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgee8b44a"&gt;Description&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgd7d03a9"&gt;Description&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orge5eb8d5"&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#org40f6e0d"&gt;Background&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgc82cd0c"&gt;The Game&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgfa980a8"&gt;Hedgehogs and Foxes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#org6eedad4"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#org25c386f"&gt;The Game&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#org4d1ff9e"&gt;Hedgehogs and Foxes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgadccc6d"&gt;Einstellung and Shoshin&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/peter-elbows-believing-game/#orgccb5936"&gt;Sources&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgee8b44a" class="outline-2"&gt;
-&lt;h2 id="orgee8b44a"&gt;Description&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgee8b44a"&gt;
+&lt;div id="outline-container-orgd7d03a9" class="outline-2"&gt;
+&lt;h2 id="orgd7d03a9"&gt;Description&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd7d03a9"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge5eb8d5" class="outline-3"&gt;
-&lt;h3 id="orge5eb8d5"&gt;Background&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge5eb8d5"&gt;
+&lt;div id="outline-container-org40f6e0d" class="outline-3"&gt;
+&lt;h3 id="org40f6e0d"&gt;Background&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org40f6e0d"&gt;
 &lt;p&gt;
 In his paper &lt;a href="https://necromuralist.github.io/posts/bibliography/the-believing-game/"&gt;on The Believing Game&lt;/a&gt; Peter Elbow proposes that in addition to the traditional "Doubting Game" (skeptical thinking) we should also engage in the "Believing Game" which involves understanding an argument by accepting it as true. He argues that while the skeptical, scientific, method (searching for flaws) is valuable it needs to be augmented by an accepting method (searching for virtues) as well. The Doubting Game has dominated because of its usefulness but it can lead us to nurture blind spots that are protected by our skepticism. By accepting the arguments of someone whose position we dislike we can, potentially find flaws in our own thinking.
 &lt;/p&gt;
@@ -191,15 +630,14 @@ An important point that Elbow makes is that there are two levels at which we hav
 &lt;/table&gt;
 
 &lt;p&gt;
-Within the sciences you can see many cases where adopting a believing mindset ultimately proved useful, leading to &lt;a href="https://www.wikiwand.com/en/Paradigm_shift"&gt;paradigm shifts&lt;/a&gt; - the switch from &lt;a href="https://www.wikiwand.com/en/Geocentric_model"&gt;the Earth as the center of the cosmos&lt;/a&gt; to having &lt;a href="https://www.wikiwand.com/en/Copernican_heliocentrism"&gt;the Earth orbit the Sun&lt;/a&gt;, &lt;a href="https://www.wikiwand.com/en/Miasma_theory"&gt;miasma theory&lt;/a&gt; switching to &lt;a href="https://www.wikiwand.com/en/Germ_theory_of_disease"&gt;germ theory&lt;/a&gt;, and the acceptance of &lt;a href="https://www.wikiwand.com/en/Plate_tectonics"&gt;Plate Tectonics&lt;/a&gt;, but Elbow says that it is also helpful to play the Believing Game even if you ultimately don't accept the underlying premise, because without the suspension of disbelief you won't fully understand what's being proposed and ultimately "They may seem wrong or crazy–they may be wrong or crazy–but nevertheless they may still be able to see something that none of us can see."
-still able to see something that none of us can see.
+Within the sciences you can see many cases where adopting a believing mindset ultimately proved useful, leading to &lt;a href="https://www.wikiwand.com/en/Paradigm_shift"&gt;paradigm shifts&lt;/a&gt; - the switch from &lt;a href="https://www.wikiwand.com/en/Geocentric_model"&gt;the Earth as the center of the cosmos&lt;/a&gt; to having &lt;a href="https://www.wikiwand.com/en/Copernican_heliocentrism"&gt;the Earth orbit the Sun&lt;/a&gt;, &lt;a href="https://www.wikiwand.com/en/Miasma_theory"&gt;miasma theory&lt;/a&gt; switching to &lt;a href="https://www.wikiwand.com/en/Germ_theory_of_disease"&gt;germ theory&lt;/a&gt;, and the acceptance of &lt;a href="https://www.wikiwand.com/en/Plate_tectonics"&gt;Plate Tectonics&lt;/a&gt;, among other examples - but Elbow says that it is also helpful to play the Believing Game even if you ultimately don't accept the underlying premise, because without the suspension of disbelief you won't fully understand what's being proposed and ultimately "They may seem wrong or crazy–they may be wrong or crazy–but nevertheless they may still be able to see something that none of us can see."
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc82cd0c" class="outline-2"&gt;
-&lt;h2 id="orgc82cd0c"&gt;The Game&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc82cd0c"&gt;
+&lt;div id="outline-container-org25c386f" class="outline-2"&gt;
+&lt;h2 id="org25c386f"&gt;The Game&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org25c386f"&gt;
 &lt;p&gt;
 &lt;a href="https://necromuralist.github.io/posts/bibliography/they-sayi-say/"&gt;Graff &amp;amp; Birkstein&lt;/a&gt; propose a concrete version of the Believing Game as a game:
 &lt;/p&gt;
@@ -211,18 +649,25 @@ To get a feel for Peter Elbow's "believing game," write a summary of some belief
 &lt;/blockquote&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfa980a8" class="outline-2"&gt;
-&lt;h2 id="orgfa980a8"&gt;Hedgehogs and Foxes&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgfa980a8"&gt;
+&lt;div id="outline-container-org4d1ff9e" class="outline-2"&gt;
+&lt;h2 id="org4d1ff9e"&gt;Hedgehogs and Foxes&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4d1ff9e"&gt;
 &lt;p&gt;
-Besides paradigm shift this puts me in mind of &lt;a href="https://necromuralist.github.io/posts/bibliography/the-peculiar-blindness-of-experts/"&gt;an article in the Atlantic&lt;/a&gt; about how experts tend to make horrible predictions because they hold to a specific view and bend conflicting information to fit their view (Hedgehogs) while those who tend to be cross-disciplined generalists who are able to take in information from other experts and update their prior beliefs when conflicting information comes in (Foxes) make better predictions than the specialized "experts".
+Besides paradigm shifts this also makes me think of &lt;a href="https://necromuralist.github.io/posts/bibliography/the-peculiar-blindness-of-experts/"&gt;an article in the Atlantic&lt;/a&gt; about how experts tend to make horrible predictions because they hold to a specific view and bend conflicting information to fit their view (Hedgehogs) while those who tend to be cross-disciplined generalists who are able to take in information from other experts and update their prior beliefs when conflicting information comes in (Foxes) make better predictions than the specialized "experts".
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-
-&lt;div id="outline-container-org6eedad4" class="outline-2"&gt;
-&lt;h2 id="org6eedad4"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6eedad4"&gt;
+&lt;div id="outline-container-orgadccc6d" class="outline-2"&gt;
+&lt;h2 id="orgadccc6d"&gt;Einstellung and Shoshin&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgadccc6d"&gt;
+&lt;p&gt;
+Now I'm straying way into left field, but thinking of the Hedgehogs and Foxes puts me in the mind of the &lt;a href="https://en.wikipedia.org/wiki/Einstellung_effect?oldformat=true"&gt;Einstellung Effect&lt;/a&gt; wherein people become stuck trying to apply the same solution even when it is no longe applicable, whereas those lacking experience in the problem can sometimes see possibilities that are not as obvious to the experienced. The point of reading Elbow's paper was to get an idea of how to write effective summaries of other people's work, but instead I think I've talked myself into believing it's a way to keep a "beginner's mind".
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgccb5936" class="outline-2"&gt;
+&lt;h2 id="orgccb5936"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgccb5936"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/the-believing-game/"&gt;The Believing Game&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/the-peculiar-blindness-of-experts/"&gt;The Peculiar Blindness of Experts&lt;/a&gt;&lt;/li&gt;
@@ -232,392 +677,4 @@ Besides paradigm shift this puts me in mind of &lt;a href="https://necromuralist
 &lt;/div&gt;</description><category>slipnote</category><category>writing</category><guid>https://necromuralist.github.io/posts/peter-elbows-believing-game/</guid><pubDate>Sun, 06 Sep 2020 23:12:22 GMT</pubDate></item><item><title>The Believing Game</title><link>https://necromuralist.github.io/posts/bibliography/the-believing-game/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;ul class="org-ul"&gt;
 &lt;li&gt;Elbow, Peter, "The Believing Game–Methodological Believing" (2008). The Journal of the Assembly for Expanded Perspectives on Learning. 5.
 Retrieved from &lt;a href="https://scholarworks.umass.edu/eng_faculty_pubs/5"&gt;https://scholarworks.umass.edu/eng_faculty_pubs/5&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</description><category>bibliography</category><category>writing</category><guid>https://necromuralist.github.io/posts/bibliography/the-believing-game/</guid><pubDate>Sun, 06 Sep 2020 23:11:21 GMT</pubDate></item><item><title>They Say: Her Point Is</title><link>https://necromuralist.github.io/posts/they-say-her-point-is/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-her-point-is/#orgdb90bdc"&gt;Introducing Summaries and Quotations&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-her-point-is/#org6c375fb"&gt;Verbs&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-her-point-is/#org3ffbcd6"&gt;Making a Claim&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-her-point-is/#org75b8877"&gt;Expressing Agreement&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-her-point-is/#org4927928"&gt;Questioning or Disagreeing&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-her-point-is/#org9af6c3d"&gt;Making Recommendations&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-her-point-is/#org3463e91"&gt;Source&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgdb90bdc" class="outline-2"&gt;
-&lt;h2 id="orgdb90bdc"&gt;Introducing Summaries and Quotations&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgdb90bdc"&gt;
-&lt;blockquote&gt;
-&lt;p&gt;
-She advocates __.
-&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;
-They celebrate the fact that __.
-&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;
-__, he admits.
-&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org6c375fb" class="outline-2"&gt;
-&lt;h2 id="org6c375fb"&gt;Verbs&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6c375fb"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org3ffbcd6" class="outline-3"&gt;
-&lt;h3 id="org3ffbcd6"&gt;Making a Claim&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3ffbcd6"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;argue&lt;/li&gt;
-&lt;li&gt;assert&lt;/li&gt;
-&lt;li&gt;believe&lt;/li&gt;
-&lt;li&gt;claim&lt;/li&gt;
-&lt;li&gt;emphasize&lt;/li&gt;
-&lt;li&gt;insist&lt;/li&gt;
-&lt;li&gt;observe&lt;/li&gt;
-&lt;li&gt;remind us&lt;/li&gt;
-&lt;li&gt;report&lt;/li&gt;
-&lt;li&gt;suggest&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org75b8877" class="outline-3"&gt;
-&lt;h3 id="org75b8877"&gt;Expressing Agreement&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org75b8877"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;acknowledge&lt;/li&gt;
-&lt;li&gt;admire&lt;/li&gt;
-&lt;li&gt;agree&lt;/li&gt;
-&lt;li&gt;celebrate the fact that&lt;/li&gt;
-&lt;li&gt;corroborate&lt;/li&gt;
-&lt;li&gt;do not deny&lt;/li&gt;
-&lt;li&gt;endorse&lt;/li&gt;
-&lt;li&gt;extol&lt;/li&gt;
-&lt;li&gt;praise&lt;/li&gt;
-&lt;li&gt;reaffirm&lt;/li&gt;
-&lt;li&gt;support&lt;/li&gt;
-&lt;li&gt;verify&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org4927928" class="outline-3"&gt;
-&lt;h3 id="org4927928"&gt;Questioning or Disagreeing&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org4927928"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;complain&lt;/li&gt;
-&lt;li&gt;complicate&lt;/li&gt;
-&lt;li&gt;contend&lt;/li&gt;
-&lt;li&gt;contradict&lt;/li&gt;
-&lt;li&gt;deny&lt;/li&gt;
-&lt;li&gt;deplore the tendency to&lt;/li&gt;
-&lt;li&gt;qualify&lt;/li&gt;
-&lt;li&gt;question&lt;/li&gt;
-&lt;li&gt;refute&lt;/li&gt;
-&lt;li&gt;reject&lt;/li&gt;
-&lt;li&gt;renounce&lt;/li&gt;
-&lt;li&gt;repudiate&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org9af6c3d" class="outline-3"&gt;
-&lt;h3 id="org9af6c3d"&gt;Making Recommendations&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9af6c3d"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;advocate&lt;/li&gt;
-&lt;li&gt;call for&lt;/li&gt;
-&lt;li&gt;demand&lt;/li&gt;
-&lt;li&gt;encourage&lt;/li&gt;
-&lt;li&gt;exhort&lt;/li&gt;
-&lt;li&gt;implore&lt;/li&gt;
-&lt;li&gt;plead&lt;/li&gt;
-&lt;li&gt;recommend&lt;/li&gt;
-&lt;li&gt;urge&lt;/li&gt;
-&lt;li&gt;warn&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org3463e91" class="outline-2"&gt;
-&lt;h2 id="org3463e91"&gt;Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3463e91"&gt;
-&lt;p&gt;
-&lt;a href="https://necromuralist.github.io/posts/bibliography/they-sayi-say/"&gt;They Say/I Say&lt;/a&gt;
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>slipnote</category><category>template</category><category>writing</category><guid>https://necromuralist.github.io/posts/they-say-her-point-is/</guid><pubDate>Sun, 06 Sep 2020 22:00:56 GMT</pubDate></item><item><title>They Say Templates</title><link>https://necromuralist.github.io/posts/they-say-templates/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-templates/#org0226b79"&gt;Introducting What "They Say"&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-templates/#orgbe29f7a"&gt;Introducing Standard Views&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-templates/#org24539ca"&gt;Making What "They Say" Something You Say&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-templates/#orgd9fe6fb"&gt;Introduce Somenthing Implied or Assumed&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-templates/#org774d17b"&gt;Introduce an Ongoing Debate&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-templates/#org3062579"&gt;Keep It In View&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-templates/#orgd8bbcaf"&gt;The Zinczenko Template&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/they-say-templates/#org76cbc55"&gt;Source&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;
-These are templates for stating what arguments or ideas you are responding to - what "they say".
-&lt;/p&gt;
-
-&lt;div id="outline-container-org0226b79" class="outline-2"&gt;
-&lt;h2 id="org0226b79"&gt;Introducting What "They Say"&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0226b79"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;It has become common today to dismiss __.&lt;/li&gt;
-&lt;li&gt;In their recent work, Y and Z have offered harsh critiques of &lt;span class="underline"&gt;_ for _&lt;/span&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-This is specifically for refuting criticisms of another's work.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgbe29f7a" class="outline-2"&gt;
-&lt;h2 id="orgbe29f7a"&gt;Introducing Standard Views&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbe29f7a"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;span class="underline"&gt;_ have always believed that _&lt;/span&gt;.&lt;/li&gt;
-&lt;li&gt;Conventional wisdom has it that __.&lt;/li&gt;
-&lt;li&gt;Common sense seems to dictate that __.&lt;/li&gt;
-&lt;li&gt;The standard way of thinking about topic X has it that __.&lt;/li&gt;
-&lt;li&gt;It is often said that __.&lt;/li&gt;
-&lt;li&gt;My whole life I have heard it said that __.&lt;/li&gt;
-&lt;li&gt;You would think that __.&lt;/li&gt;
-&lt;li&gt;Many people assume that __.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-This is to challenge widely accepted beliefs.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org24539ca" class="outline-2"&gt;
-&lt;h2 id="org24539ca"&gt;Making What "They Say" Something You Say&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org24539ca"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;I've always believed that __.&lt;/li&gt;
-&lt;li&gt;When I was a child, I used to think that __.&lt;/li&gt;
-&lt;li&gt;Although I should know better by now, I cannot help thinking that __.&lt;/li&gt;
-&lt;li&gt;At the same time that I believe &lt;span class="underline"&gt;_, I also believe _&lt;/span&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-This is a way to respond to what you used to believe or are ambivalent about.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgd9fe6fb" class="outline-2"&gt;
-&lt;h2 id="orgd9fe6fb"&gt;Introduce Somenthing Implied or Assumed&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd9fe6fb"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;Although none of them have ever said so directly, &lt;span class="underline"&gt;_ have often given me the impression that _&lt;/span&gt;.&lt;/li&gt;
-&lt;li&gt;One implication of X's treatment of &lt;span class="underline"&gt;_ is that _&lt;/span&gt;.&lt;/li&gt;
-&lt;li&gt;Although X does not say so directly, she apparently assumes that __.&lt;/li&gt;
-&lt;li&gt;While they rarely admit as much, __ often take for granted that.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-These help you to look beyond what is being explicitly stated and look for the unstated assumptions and implications of what "they" are saying.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org774d17b" class="outline-2"&gt;
-&lt;h2 id="org774d17b"&gt;Introduce an Ongoing Debate&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org774d17b"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;In discussions of X, one controversial issue has been &lt;span class="underline"&gt;_. On the one hand, _&lt;/span&gt; argues &lt;span class="underline"&gt;_. On the other hand, _&lt;/span&gt; contends &lt;span class="underline"&gt;_. Others even maintain _&lt;/span&gt;. My own view is __.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-This both allows you to acknowledge that there isn't a unanimous consensus on the subject and also gives you a chance to explore which side you believe to be correct.
-&lt;/p&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;When it comes to the topic of &lt;span class="underline"&gt;_, most of us will readily agree that _&lt;/span&gt;. Where this agreement usually ends, however, is on the question of &lt;span class="underline"&gt;_. Whereas some are convinced that _&lt;/span&gt;, others maintain that __.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-This opening shows where people agree and disagree on the subject.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org3062579" class="outline-2"&gt;
-&lt;h2 id="org3062579"&gt;Keep It In View&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3062579"&gt;
-&lt;p&gt;
-Don't just say what you are reacting to just once, remind the reader if it later using what the authors call "return" sentences.
-&lt;/p&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;In conclusion, then, as I suggested earlier, defenders of &lt;span class="underline"&gt;_ can't have it both ways. Their assertion that _&lt;/span&gt; is contradicted by their claim that __.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgd8bbcaf" class="outline-2"&gt;
-&lt;h2 id="orgd8bbcaf"&gt;The Zinczenko Template&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd8bbcaf"&gt;
-&lt;p&gt;
-This is based on a fragment from "Don't Blame the Eater" by David Zinczenko.
-&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;
-If ever there was an idea custom-made for a Jay Leno monologue, this was it: &lt;span class="underline"&gt;_. Isn't that like _&lt;/span&gt;? Whatever happened to __?
-&lt;/p&gt;
-
-&lt;p&gt;
-I happen to sympathize with &lt;span class="underline"&gt;_, though, perhaps because _&lt;/span&gt;.
-&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org76cbc55" class="outline-2"&gt;
-&lt;h2 id="org76cbc55"&gt;Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org76cbc55"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/bibliography/they-sayi-say/"&gt;They Say/I Say&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>slipnote</category><category>templates</category><guid>https://necromuralist.github.io/posts/they-say-templates/</guid><pubDate>Sun, 06 Sep 2020 00:02:44 GMT</pubDate></item><item><title>They Say/I Say</title><link>https://necromuralist.github.io/posts/bibliography/they-sayi-say/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;ul class="org-ul"&gt;
-&lt;li&gt;Graff G, Birkenstein C, Durst RK. They say / I say: the moves that matter in academic writing with readings. Fourth edition. New York: W. W. Norton &amp;amp; Company; 2018. 772 p.&lt;/li&gt;
-&lt;/ul&gt;</description><category>bibliography</category><category>writing</category><guid>https://necromuralist.github.io/posts/bibliography/they-sayi-say/</guid><pubDate>Sat, 05 Sep 2020 19:06:41 GMT</pubDate></item><item><title>Dobzhansky Template</title><link>https://necromuralist.github.io/posts/dobzhansky-template/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-In the book &lt;a href="https://necromuralist.github.io/posts/bibliography/narrative-is-everything/"&gt;Narrative Is Everything&lt;/a&gt;, Randy Olson states that to make your message clearer you need to work it down to one thing. To help with this he suggests that you use what he calls the Dobzhansky Template (named after &lt;a href="https://www.wikiwand.com/en/Theodosius_Dobzhansky"&gt;Theodosius Dobzhansky&lt;/a&gt;).
-&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;
-Nothing in &lt;span class="underline"&gt;__&lt;/span&gt; makes sense, except in the light of &lt;span class="underline"&gt;__&lt;/span&gt;.
-&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;
-As an example, Dobzhansky himself wrote an essay called "Nothing in Biology Makes Sense Except in the Light Of Evolution".
-&lt;/p&gt;</description><category>slipnote</category><category>story</category><guid>https://necromuralist.github.io/posts/dobzhansky-template/</guid><pubDate>Sat, 05 Sep 2020 00:28:57 GMT</pubDate></item><item><title>Measuring Narrative</title><link>https://necromuralist.github.io/posts/measuring-narrative/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-The book &lt;a href="https://necromuralist.github.io/posts/bibliography/narrative-is-everything/"&gt;Narrative Is Everything&lt;/a&gt; has two metrics that the author, Randy Olson suggests using to measure the narrative quality of a text.
-&lt;/p&gt;
-
-&lt;div id="outline-container-org2e6b548" class="outline-2"&gt;
-&lt;h2 id="org2e6b548"&gt;Narrative Index&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2e6b548"&gt;
-&lt;p&gt;
-This is the ration of &lt;i&gt;Buts&lt;/i&gt; to &lt;i&gt;Ands&lt;/i&gt;. Although it's stated as a ratio of word counts, it isn't exactly that straightforward as the actual words &lt;i&gt;and&lt;/i&gt; or &lt;i&gt;but&lt;/i&gt; might not be used, but it's a rough way to examine long texts (he recommends not using it if there are fewer than 1,000 words).
-&lt;/p&gt;
-
-&lt;p&gt;
-\[
-\textrm{Narrative Index} = \frac{\textit{number of 'buts'}}{\textit{number of ands}} \times 100
-\]
-&lt;/p&gt;
-
-&lt;p&gt;
-The higher the value the better the narrative quality.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgaa3260e" class="outline-2"&gt;
-&lt;h2 id="orgaa3260e"&gt;And Frequency&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgaa3260e"&gt;
-&lt;p&gt;
-This is just a measure of the fraction of the words in a text that are the word &lt;i&gt;and&lt;/i&gt;.
-&lt;/p&gt;
-
-&lt;p&gt;
-\[
-\textrm{And Frequency} = \frac{\textit{number of 'ands'}}{\textit{total word count}}
-\]
-&lt;/p&gt;
-
-&lt;p&gt;
-Well-edited texts have an &lt;i&gt;And Frequency&lt;/i&gt; of about 2.5%.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>slipnote</category><category>story</category><guid>https://necromuralist.github.io/posts/measuring-narrative/</guid><pubDate>Sat, 05 Sep 2020 00:22:11 GMT</pubDate></item><item><title>ABT Narrative Template</title><link>https://necromuralist.github.io/posts/abt-narrative-template/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-Randy Olson in his book &lt;a href="https://necromuralist.github.io/posts/bibliography/narrative-is-everything/"&gt;Narrative Is Everything&lt;/a&gt; offers up a form that he asserts is the best way to structure communications - &lt;code&gt;__ And __ But __, Therefore __.&lt;/code&gt; The idea is that you should start by creating a context so the reader knows what's going on, then follow it with a statement that introduces a problem (the "but") and finally finishes with a resolution. Although he calls it &lt;b&gt;ABT&lt;/b&gt; some of his alternative three-word forms are a little easier to understand.
-&lt;/p&gt;
-
-&lt;table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides"&gt;
-
-
-&lt;colgroup&gt;
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-left"&gt;
-
-&lt;col class="org-left"&gt;
-&lt;/colgroup&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th scope="col" class="org-left"&gt;Hero's Journey&lt;/th&gt;
-&lt;th scope="col" class="org-left"&gt;Template&lt;/th&gt;
-&lt;th scope="col" class="org-left"&gt;Comedy&lt;/th&gt;
-&lt;th scope="col" class="org-left"&gt;Science&lt;/th&gt;
-&lt;th scope="col" class="org-left"&gt;Argument&lt;/th&gt;
-&lt;th scope="col" class="org-left"&gt;Business&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td class="org-left"&gt;The ordinary world&lt;/td&gt;
-&lt;td class="org-left"&gt;Agreement&lt;/td&gt;
-&lt;td class="org-left"&gt;Setup&lt;/td&gt;
-&lt;td class="org-left"&gt;Hypothesis&lt;/td&gt;
-&lt;td class="org-left"&gt;They Say&lt;/td&gt;
-&lt;td class="org-left"&gt;Situation&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td class="org-left"&gt;The other world&lt;/td&gt;
-&lt;td class="org-left"&gt;Contradiction&lt;/td&gt;
-&lt;td class="org-left"&gt;Twist&lt;/td&gt;
-&lt;td class="org-left"&gt;Experiment&lt;/td&gt;
-&lt;td class="org-left"&gt;I Say&lt;/td&gt;
-&lt;td class="org-left"&gt;Conflict&lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;tr&gt;
-&lt;td class="org-left"&gt;The return&lt;/td&gt;
-&lt;td class="org-left"&gt;Consequence&lt;/td&gt;
-&lt;td class="org-left"&gt;Punchline&lt;/td&gt;
-&lt;td class="org-left"&gt;Discussion&lt;/td&gt;
-&lt;td class="org-left"&gt;We Say&lt;/td&gt;
-&lt;td class="org-left"&gt;Resolution&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
-
-&lt;p&gt;
-Although I think there's one more form that he talks about but I didn't see it given a specific use-case.
-&lt;/p&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;Context&lt;/li&gt;
-&lt;li&gt;Conflict&lt;/li&gt;
-&lt;li&gt;Consequence&lt;/li&gt;
-&lt;/ul&gt;</description><category>slipnote</category><category>story</category><guid>https://necromuralist.github.io/posts/abt-narrative-template/</guid><pubDate>Sat, 05 Sep 2020 00:08:00 GMT</pubDate></item></channel></rss>
+&lt;/ul&gt;</description><category>bibliography</category><category>writing</category><guid>https://necromuralist.github.io/posts/bibliography/the-believing-game/</guid><pubDate>Sun, 06 Sep 2020 23:11:21 GMT</pubDate></item></channel></rss>

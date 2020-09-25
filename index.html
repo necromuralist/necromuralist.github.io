@@ -12,12 +12,12 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/" rel="canonical">
-<link href="index-17.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+<link href="index-18.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
 <link href="apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/bibliography/neural-correlates-of-maintaining-ones-political-beliefs-in-the-face-of-counterevidence/" rel="prefetch" type="text/html">
+<link href="posts/mounting-an-encrypted-usb-drive/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,384 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/mounting-an-encrypted-usb-drive/">Mounting An Encrypted USB Drive From the Command Line</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/mounting-an-encrypted-usb-drive/" rel="bookmark"><time class="published dt-published" datetime="2020-09-24T18:26:30-07:00" itemprop="datePublished" title="2020-09-24 18:26">2020-09-24 18:26</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org68f3032">Beginning</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org579e05d">Middle</a>
+<ul>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org7d4f470">Find the USB Device Name</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org3339004">Unlock the Drive</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org6b34b21">Mount the Drive</a></li>
+</ul>
+</li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org85365c8">End</a>
+<ul>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orga4cdb3a">Sources</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org68f3032">
+<h2 id="org68f3032">Beginning</h2>
+<div class="outline-text-2" id="text-org68f3032">
+<p>I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:</p>
+<ul class="org-ul">
+<li>I didn't know the <code>/dev</code> file to use</li>
+<li>Like many Stack Overflow threads there's a lot of noise that isn't relevant to me</li>
+<li>I want to be able to remember how to do this without having to search for it and click through different links to figure out which one has the right information for me</li>
+</ul>
+<p>So, here's the subset of steps that I did to mount the drive.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org579e05d">
+<h2 id="org579e05d">Middle</h2>
+<div class="outline-text-2" id="text-org579e05d"></div>
+<div class="outline-3" id="outline-container-org7d4f470">
+<h3 id="org7d4f470">Find the USB Device Name</h3>
+<div class="outline-text-3" id="text-org7d4f470">
+<p>The first think to do is to make sure that the USB device is recognized by the operating system.</p>
+<div class="highlight">
+<pre><span></span>lsusb
+</pre></div>
+<p>Which produced a lot of listings, the most relevant one being:</p>
+<div class="highlight">
+<pre><span></span>Bus 001 Device 002: ID 1058:0748 Western Digital Technologies, Inc. My Passport (WDBKXH, WDBY8L)
+</pre></div>
+<p>Which is the drive I wanted to unencrypt and mount. The next thing is to find the file name (in this case I know the name of the device - "My Passport" - so I used <code>grep</code>, otherwise I'd use <code>less</code>).</p>
+<div class="highlight">
+<pre><span></span>sudo fdisk -l | grep "My Passport" -B 1
+</pre></div>
+<p>Which currently gives this:</p>
+<div class="highlight">
+<pre><span></span>Partition 2 does not start on physical sector boundary.
+Disk /dev/sdb: 931.49 GiB, 1000170586112 bytes, 1953458176 sectors
+Disk model: My Passport 0748
+</pre></div>
+<p>It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want (I think it said <code>/dev/sdb1</code> before I mounted it, but anyway, just check it).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org3339004">
+<h3 id="org3339004">Unlock the Drive</h3>
+<div class="outline-text-3" id="text-org3339004">
+<p>Next unlock the drive. When you do this it will create a file in <code>/dev/mapper/</code> that you'll need so it would be a good idea to see what's there before you run it.</p>
+<div class="highlight">
+<pre><span></span>ls /dev/mapper/
+</pre></div>
+<p>And then do the decrypting.</p>
+<div class="highlight">
+<pre><span></span>udiskctl unlock -b /dev/sdb1
+</pre></div>
+<p>This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org6b34b21">
+<h3 id="org6b34b21">Mount the Drive</h3>
+<div class="outline-text-3" id="text-org6b34b21">
+<p>If the last command went okay you now need to mount it. There's going to be a file in <code>/dev/mapper</code> that you need to know. When I did it there was only one new file (<code>luks-3eea956c-e684-4bcb-a640-97d0c8c5a700</code>) so I didn't have to do anything special to get it.</p>
+<div class="highlight">
+<pre><span></span>udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
+</pre></div>
+<p>If you run the command <code>lsblk -e7</code> it will show you a tree with the <code>/dev/mapper/</code> file mapped to the mount point where you can access it.</p>
+<div class="highlight">
+<pre><span></span>sdb                                             8:16   0 931.5G  0 disk  
+└─sdb1                                          8:17   0 931.5G  0 part  
+  └─luks-3eea956c-e684-4bcb-a640-97d0c8c5a700 253:3    0 931.5G  0 crypt /media/hades/WDData
+</pre></div>
+<p>So in this case the drive is accessible at <code>/media/hades/WDData</code> (it's always the same place but I wanted to document the <code>lsblk -e7</code> command).</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org85365c8">
+<h2 id="org85365c8">End</h2>
+<div class="outline-text-2" id="text-org85365c8">
+<p>So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udiskctl.</p>
+<div class="highlight">
+<pre><span></span>sudo fdisk -l
+udiskctl unlock -b /dev/sdb1
+udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-orga4cdb3a">
+<h3 id="orga4cdb3a">Sources</h3>
+<div class="outline-text-3" id="text-orga4cdb3a">
+<ul class="org-ul">
+<li><a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/">sourcedigit.com</a> - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"</li>
+<li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">Stack Overflow</a> - "Mount encrypted volumes from command line?"</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/introductory-statistics-with-randomization-and-simulation/">Introductory Statistics with Randomization and Simulation</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/introductory-statistics-with-randomization-and-simulation/" rel="bookmark"><time class="published dt-published" datetime="2020-09-22T16:53:36-07:00" itemprop="datePublished" title="2020-09-22 16:53">2020-09-22 16:53</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div class="outline-2" id="outline-container-orgf5d1ddb">
+<h2 id="orgf5d1ddb">Citation</h2>
+<div class="outline-text-2" id="text-orgf5d1ddb">
+<ul class="org-ul">
+<li>Diez DM, Barr CD, Çetinkaya-Rundel M. Introductory statistics with randomization and simulation. OpenIntro.org; 2014. 348 p.</li>
+</ul>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/making-comics/">Making Comics</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/making-comics/" rel="bookmark"><time class="published dt-published" datetime="2020-09-20T18:17:42-07:00" itemprop="datePublished" title="2020-09-20 18:17">2020-09-20 18:17</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div class="outline-2" id="outline-container-org06406ee">
+<h2 id="org06406ee">Biblography</h2>
+<div class="outline-text-2" id="text-org06406ee">
+<ul class="org-ul">
+<li>Barry L. Making comics. Montreal, Quebec: Drawn & Quarterly; 2019. 198 p.</li>
+</ul>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/a-mind-for-numbers/">A Mind For Numbers</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/a-mind-for-numbers/" rel="bookmark"><time class="published dt-published" datetime="2020-09-17T14:37:40-07:00" itemprop="datePublished" title="2020-09-17 14:37">2020-09-17 14:37</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div class="outline-2" id="outline-container-orgd4209a7">
+<h2 id="orgd4209a7">Citation</h2>
+<div class="outline-text-2" id="text-orgd4209a7">
+<ul class="org-ul">
+<li>Oakley BA. A mind for numbers: how to excel at math and science (even if you flunked algebra). New York: Jeremy P. Tarcher/Penguin; 2014. 316 p.</li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orge0813f3">
+<h2 id="orge0813f3">Notes</h2>
+<div class="outline-text-2" id="text-orge0813f3">
+<p>This is a tour of ideas to help students learn how to learn, with an emphasis on math and science. She covers things varying from how to study, to procrastination, to test-taking. Her ten rules are (paraphrased):</p>
+<ol class="org-ol">
+<li>Recall things early and often to make them stick</li>
+<li>Used spaced repetition when recalling</li>
+<li>Interleave different types of problems so you don't overlearn one type.</li>
+<li>Build things into chunks of larger concepts</li>
+<li>Explain it like a five year old and use analogies to learn abstract ideas</li>
+<li>Test yourself</li>
+<li>Focus on one thing at a time</li>
+<li>Take breaks</li>
+<li>Eat frogs first (do the important but unpleasant things first)</li>
+<li>Use mental contrasting (comparing where you are now to where you expect to be) to motivate yourself</li>
+</ol>
+<p>There's more in her book than those ten things, but these are the main points, and they sort of touch on her other points even if not stated. She particularly emphasizes chunking and the switching between "focused" and "diffused" modes of thinking, and many of the ideas address how to use both modes while learning.</p>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/wikipedia-on-f1-score/">Wikipedia on the F1 Score</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/wikipedia-on-f1-score/" rel="bookmark"><time class="published dt-published" datetime="2020-09-10T16:41:55-07:00" itemprop="datePublished" title="2020-09-10 16:41">2020-09-10 16:41</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div class="outline-2" id="outline-container-org2af35ff">
+<h2 id="org2af35ff">Citation</h2>
+<div class="outline-text-2" id="text-org2af35ff">
+<ul class="org-ul">
+<li>F1 score. In: Wikipedia [Internet]. 2020 [cited 2020 Sep 10]. Available from: <a href="https://en.wikipedia.org/w/index.php?title=F1_score&amp;oldid=976442604">https://en.wikipedia.org/w/index.php?title=F1_score&amp;oldid=976442604</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org44bf56e">
+<h2 id="org44bf56e">Comments</h2>
+<div class="outline-text-2" id="text-org44bf56e">
+<p>Covers the F1 Score, \(F_\beta\), and other related scores (including precison and recall) as well as giving applications and criticisms (with alternative metrics suggested).</p>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/precision-recall-and-the-f-measure/">Precision, Recall, and the F-Measure</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/precision-recall-and-the-f-measure/" rel="bookmark"><time class="published dt-published" datetime="2020-09-10T14:08:25-07:00" itemprop="datePublished" title="2020-09-10 14:08">2020-09-10 14:08</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/precision-recall-and-the-f-measure/#org18be2e1">Beginning</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org83a04ba">The Metrics</a>
+<ul>
+<li><a href="posts/precision-recall-and-the-f-measure/#orgeb935d7">Positive and Negative</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org323ed15">Accuracy</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#orge40045e">Precision</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org70e895a">Recall</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#orgc0f1234">F-Measure</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#orgb89ea19">F1 Measure</a></li>
+</ul>
+</li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org53ee952">References</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org18be2e1">
+<h2 id="org18be2e1">Beginning</h2>
+<div class="outline-text-2" id="text-org18be2e1">
+<p>When we are looking at how well a model (or a person) is doing it's often best to have a numeric value that we can calculate to make it easy to see how well it is doing. The first thing many people reach for is measuring <i>accuracy</i> but this isn't always the best metric. Unbalanced data sets can distort this metric, for instance. If 90% of the data is spam then a model that always guessed that an email is spam will have decent accuracy, but really won't be all that useful (except for pointing out that you have too much spam). To remedy this and other problems I'll look at some alternative metrics (<i>precision</i>, <i>recall</i>, and the <i>f-measure</i>) which are useful for deciding how well classification models are doing.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org83a04ba">
+<h2 id="org83a04ba">The Metrics</h2>
+<div class="outline-text-2" id="text-org83a04ba"></div>
+<div class="outline-3" id="outline-container-orgeb935d7">
+<h3 id="orgeb935d7">Positive and Negative</h3>
+<div class="outline-text-3" id="text-orgeb935d7">
+<p>First some terminology. We're going to assume that we want to label data as either being something or not being that thing. e.g. guilty or not guilty, duck or not a duck, etc. The label for things that are the thing is called <i>Positive</i> and the label for things that aren't the thing is <i>Negative</i>.</p>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+<col class="org-left"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">Term</th>
+<th class="org-left" scope="col">Acronym</th>
+<th class="org-left" scope="col">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">True Positive</td>
+<td class="org-left">TP</td>
+<td class="org-left">We labeled it positive and it was positive</td>
+</tr>
+<tr>
+<td class="org-left">False Positive</td>
+<td class="org-left">FP</td>
+<td class="org-left">We labeled it positive and it was negative</td>
+</tr>
+<tr>
+<td class="org-left">True Negative</td>
+<td class="org-left">TN</td>
+<td class="org-left">We labeled it negative and it was negative</td>
+</tr>
+<tr>
+<td class="org-left">False Negative</td>
+<td class="org-left">FN</td>
+<td class="org-left">We labeled it negative and it was positive</td>
+</tr>
+</tbody>
+</table>
+<p>This is sometimes represented using a matrix.</p>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-left">
+<col class="org-left"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">&nbsp;</th>
+<th class="org-left" scope="col">Actually Positive</th>
+<th class="org-left" scope="col">Actually Negative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><b>Predicted Positive</b></td>
+<td class="org-left"><i>True Positive</i></td>
+<td class="org-left"><i>False Positive</i></td>
+</tr>
+<tr>
+<td class="org-left"><b>Predicted Negative</b></td>
+<td class="org-left"><i>False Negative</i></td>
+<td class="org-left"><i>True Negative</i></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org323ed15">
+<h3 id="org323ed15">Accuracy</h3>
+<div class="outline-text-3" id="text-org323ed15">
+<p>Okay, I said we aren't going to use accuracy, but just to be complete… accuracy asks <i>what fraction of the anwsers did you get correct?</i></p>
+<p>\[ \textrm{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} \]</p>
+<p>This is probably what most of us are familiar with from being graded in school.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orge40045e">
+<h3 id="orge40045e">Precision</h3>
+<div class="outline-text-3" id="text-orge40045e">
+<p><i>How much of what was predicted positive was really positive?</i></p>
+<p>\[ \textrm{Precision} = \frac{TP}{TP+FP} \]</p>
+<p>Since we have the count of false-positives in the denominator, your score will go down the more negatives you label positive (e.g. the more innocents you convict, the lower the score).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org70e895a">
+<h3 id="org70e895a">Recall</h3>
+<div class="outline-text-3" id="text-org70e895a">
+<p><i>How many of the positives did you catch?</i></p>
+<p>\[ \textrm{Recall} = \frac{TP}{TP + FN} \]</p>
+<p>Here your score will go down the more positives you miss (the more guilty you find innocent).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgc0f1234">
+<h3 id="orgc0f1234">F-Measure</h3>
+<div class="outline-text-3" id="text-orgc0f1234">
+<p>So, in some cases you might want to favor <i>Precision</i> over <i>Recall</i> and vice-versa, but what if you don't really want one over the other? The <i>F-Measure</i> allows us to combine them into one metric.</p>
+<p>\[ F_{\beta} = \frac{(\beta^2 + 1) Precision \times Recall}{\beta^2 Precision + Recall} \]</p>
+<p>To make it simpler I'll just use <i>P</i> for precision and <i>R</i> for recall from here on.</p>
+<p>\(\beta\) in the equation is a parameter that we can tune to favor precision or recall. If you'll notice, \(\beta\) in the numerator affects both precision and recall equally, while it only affects precision in the denominator, so the larger it is, the more precision diminishes the score.</p>
+\begin{align} \beta &gt; 1 &amp;: \textit{Favor Recall}\\ \beta &lt; 1 &amp;: \textit{Favor Precision}\\ \end{align}</div>
+</div>
+<div class="outline-3" id="outline-container-orgb89ea19">
+<h3 id="orgb89ea19">F1 Measure</h3>
+<div class="outline-text-3" id="text-orgb89ea19">
+<p>If you look at the inequalities for the effects of \(\beta\) on the F-Measure you might notice that they don't include 1. That's because when \(\beta\) is 1 it doesn't favor either precision or recall, giving a case that combines both of them and treating them equally.</p>
+<p>\[ F_1 = \frac{2PR}{P + R} \]</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org53ee952">
+<h2 id="org53ee952">References</h2>
+<div class="outline-text-2" id="text-org53ee952">
+<ul class="org-ul">
+<li><a href="posts/bib-speech-and-language-processing-jurafsky-martin/">Speech and Language Processing</a></li>
+<li><a href="posts/wikipedia-on-f1-score/">Wikipedia on the F1 Score</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/bibliography/neural-correlates-of-maintaining-ones-political-beliefs-in-the-face-of-counterevidence/">Neural correlates of maintaining one's political beliefs in the face of counterevidence</a></h1>
@@ -184,23 +562,24 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/peter-elbows-believing-game/#orgee8b44a">Description</a>
+<li><a href="posts/peter-elbows-believing-game/#orgd7d03a9">Description</a>
 <ul>
-<li><a href="posts/peter-elbows-believing-game/#orge5eb8d5">Background</a></li>
+<li><a href="posts/peter-elbows-believing-game/#org40f6e0d">Background</a></li>
 </ul>
 </li>
-<li><a href="posts/peter-elbows-believing-game/#orgc82cd0c">The Game</a></li>
-<li><a href="posts/peter-elbows-believing-game/#orgfa980a8">Hedgehogs and Foxes</a></li>
-<li><a href="posts/peter-elbows-believing-game/#org6eedad4">Sources</a></li>
+<li><a href="posts/peter-elbows-believing-game/#org25c386f">The Game</a></li>
+<li><a href="posts/peter-elbows-believing-game/#org4d1ff9e">Hedgehogs and Foxes</a></li>
+<li><a href="posts/peter-elbows-believing-game/#orgadccc6d">Einstellung and Shoshin</a></li>
+<li><a href="posts/peter-elbows-believing-game/#orgccb5936">Sources</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgee8b44a">
-<h2 id="orgee8b44a">Description</h2>
-<div class="outline-text-2" id="text-orgee8b44a"></div>
-<div class="outline-3" id="outline-container-orge5eb8d5">
-<h3 id="orge5eb8d5">Background</h3>
-<div class="outline-text-3" id="text-orge5eb8d5">
+<div class="outline-2" id="outline-container-orgd7d03a9">
+<h2 id="orgd7d03a9">Description</h2>
+<div class="outline-text-2" id="text-orgd7d03a9"></div>
+<div class="outline-3" id="outline-container-org40f6e0d">
+<h3 id="org40f6e0d">Background</h3>
+<div class="outline-text-3" id="text-org40f6e0d">
 <p>In his paper <a href="posts/bibliography/the-believing-game/">on The Believing Game</a> Peter Elbow proposes that in addition to the traditional "Doubting Game" (skeptical thinking) we should also engage in the "Believing Game" which involves understanding an argument by accepting it as true. He argues that while the skeptical, scientific, method (searching for flaws) is valuable it needs to be augmented by an accepting method (searching for virtues) as well. The Doubting Game has dominated because of its usefulness but it can lead us to nurture blind spots that are protected by our skepticism. By accepting the arguments of someone whose position we dislike we can, potentially find flaws in our own thinking.</p>
 <p>An important point that Elbow makes is that there are two levels at which we have to look at arguments - the logic behind the arguments and the actual thing that is being argued for or against. It is possible to make a flawed argument for a good idea and a sound argument for a bad idea. The Doubting Game is a search for flaws in the argument while the Believing Game is a way to examine the underlying position that the argument is trying to make.</p>
 <table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
@@ -228,28 +607,34 @@
 </tr>
 </tbody>
 </table>
-<p>Within the sciences you can see many cases where adopting a believing mindset ultimately proved useful, leading to <a href="https://www.wikiwand.com/en/Paradigm_shift">paradigm shifts</a> - the switch from <a href="https://www.wikiwand.com/en/Geocentric_model">the Earth as the center of the cosmos</a> to having <a href="https://www.wikiwand.com/en/Copernican_heliocentrism">the Earth orbit the Sun</a>, <a href="https://www.wikiwand.com/en/Miasma_theory">miasma theory</a> switching to <a href="https://www.wikiwand.com/en/Germ_theory_of_disease">germ theory</a>, and the acceptance of <a href="https://www.wikiwand.com/en/Plate_tectonics">Plate Tectonics</a>, but Elbow says that it is also helpful to play the Believing Game even if you ultimately don't accept the underlying premise, because without the suspension of disbelief you won't fully understand what's being proposed and ultimately "They may seem wrong or crazy–they may be wrong or crazy–but nevertheless they may still be able to see something that none of us can see." still able to see something that none of us can see.</p>
+<p>Within the sciences you can see many cases where adopting a believing mindset ultimately proved useful, leading to <a href="https://www.wikiwand.com/en/Paradigm_shift">paradigm shifts</a> - the switch from <a href="https://www.wikiwand.com/en/Geocentric_model">the Earth as the center of the cosmos</a> to having <a href="https://www.wikiwand.com/en/Copernican_heliocentrism">the Earth orbit the Sun</a>, <a href="https://www.wikiwand.com/en/Miasma_theory">miasma theory</a> switching to <a href="https://www.wikiwand.com/en/Germ_theory_of_disease">germ theory</a>, and the acceptance of <a href="https://www.wikiwand.com/en/Plate_tectonics">Plate Tectonics</a>, among other examples - but Elbow says that it is also helpful to play the Believing Game even if you ultimately don't accept the underlying premise, because without the suspension of disbelief you won't fully understand what's being proposed and ultimately "They may seem wrong or crazy–they may be wrong or crazy–but nevertheless they may still be able to see something that none of us can see."</p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgc82cd0c">
-<h2 id="orgc82cd0c">The Game</h2>
-<div class="outline-text-2" id="text-orgc82cd0c">
+<div class="outline-2" id="outline-container-org25c386f">
+<h2 id="org25c386f">The Game</h2>
+<div class="outline-text-2" id="text-org25c386f">
 <p><a href="posts/bibliography/they-sayi-say/">Graff & Birkstein</a> propose a concrete version of the Believing Game as a game:</p>
 <blockquote>
 <p>To get a feel for Peter Elbow's "believing game," write a summary of some belief that you strongly disagree with. Then write a summary of the position that you actually hold on this topic. Give both summaries to a classmate or two, and see if they can tell which position you endorse. If you've succeeded, they won't be able to tell.</p>
 </blockquote>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfa980a8">
-<h2 id="orgfa980a8">Hedgehogs and Foxes</h2>
-<div class="outline-text-2" id="text-orgfa980a8">
-<p>Besides paradigm shift this puts me in mind of <a href="posts/bibliography/the-peculiar-blindness-of-experts/">an article in the Atlantic</a> about how experts tend to make horrible predictions because they hold to a specific view and bend conflicting information to fit their view (Hedgehogs) while those who tend to be cross-disciplined generalists who are able to take in information from other experts and update their prior beliefs when conflicting information comes in (Foxes) make better predictions than the specialized "experts".</p>
+<div class="outline-2" id="outline-container-org4d1ff9e">
+<h2 id="org4d1ff9e">Hedgehogs and Foxes</h2>
+<div class="outline-text-2" id="text-org4d1ff9e">
+<p>Besides paradigm shifts this also makes me think of <a href="posts/bibliography/the-peculiar-blindness-of-experts/">an article in the Atlantic</a> about how experts tend to make horrible predictions because they hold to a specific view and bend conflicting information to fit their view (Hedgehogs) while those who tend to be cross-disciplined generalists who are able to take in information from other experts and update their prior beliefs when conflicting information comes in (Foxes) make better predictions than the specialized "experts".</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6eedad4">
-<h2 id="org6eedad4">Sources</h2>
-<div class="outline-text-2" id="text-org6eedad4">
+<div class="outline-2" id="outline-container-orgadccc6d">
+<h2 id="orgadccc6d">Einstellung and Shoshin</h2>
+<div class="outline-text-2" id="text-orgadccc6d">
+<p>Now I'm straying way into left field, but thinking of the Hedgehogs and Foxes puts me in the mind of the <a href="https://en.wikipedia.org/wiki/Einstellung_effect?oldformat=true">Einstellung Effect</a> wherein people become stuck trying to apply the same solution even when it is no longe applicable, whereas those lacking experience in the problem can sometimes see possibilities that are not as obvious to the experienced. The point of reading Elbow's paper was to get an idea of how to write effective summaries of other people's work, but instead I think I've talked myself into believing it's a way to keep a "beginner's mind".</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgccb5936">
+<h2 id="orgccb5936">Sources</h2>
+<div class="outline-text-2" id="text-orgccb5936">
 <ul class="org-ul">
 <li><a href="posts/bibliography/the-believing-game/">The Believing Game</a></li>
 <li><a href="posts/bibliography/the-peculiar-blindness-of-experts/">The Peculiar Blindness of Experts</a></li>
@@ -273,371 +658,9 @@
 </ul>
 </div>
 </article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/they-say-her-point-is/">They Say: Her Point Is</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/they-say-her-point-is/" rel="bookmark"><time class="published dt-published" datetime="2020-09-06T15:00:56-07:00" itemprop="datePublished" title="2020-09-06 15:00">2020-09-06 15:00</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/they-say-her-point-is/#orgdb90bdc">Introducing Summaries and Quotations</a></li>
-<li><a href="posts/they-say-her-point-is/#org6c375fb">Verbs</a>
-<ul>
-<li><a href="posts/they-say-her-point-is/#org3ffbcd6">Making a Claim</a></li>
-<li><a href="posts/they-say-her-point-is/#org75b8877">Expressing Agreement</a></li>
-<li><a href="posts/they-say-her-point-is/#org4927928">Questioning or Disagreeing</a></li>
-<li><a href="posts/they-say-her-point-is/#org9af6c3d">Making Recommendations</a></li>
-</ul>
-</li>
-<li><a href="posts/they-say-her-point-is/#org3463e91">Source</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgdb90bdc">
-<h2 id="orgdb90bdc">Introducing Summaries and Quotations</h2>
-<div class="outline-text-2" id="text-orgdb90bdc">
-<blockquote>
-<p>She advocates __.</p>
-</blockquote>
-<blockquote>
-<p>They celebrate the fact that __.</p>
-</blockquote>
-<blockquote>
-<p>__, he admits.</p>
-</blockquote>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org6c375fb">
-<h2 id="org6c375fb">Verbs</h2>
-<div class="outline-text-2" id="text-org6c375fb"></div>
-<div class="outline-3" id="outline-container-org3ffbcd6">
-<h3 id="org3ffbcd6">Making a Claim</h3>
-<div class="outline-text-3" id="text-org3ffbcd6">
-<ul class="org-ul">
-<li>argue</li>
-<li>assert</li>
-<li>believe</li>
-<li>claim</li>
-<li>emphasize</li>
-<li>insist</li>
-<li>observe</li>
-<li>remind us</li>
-<li>report</li>
-<li>suggest</li>
-</ul>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org75b8877">
-<h3 id="org75b8877">Expressing Agreement</h3>
-<div class="outline-text-3" id="text-org75b8877">
-<ul class="org-ul">
-<li>acknowledge</li>
-<li>admire</li>
-<li>agree</li>
-<li>celebrate the fact that</li>
-<li>corroborate</li>
-<li>do not deny</li>
-<li>endorse</li>
-<li>extol</li>
-<li>praise</li>
-<li>reaffirm</li>
-<li>support</li>
-<li>verify</li>
-</ul>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org4927928">
-<h3 id="org4927928">Questioning or Disagreeing</h3>
-<div class="outline-text-3" id="text-org4927928">
-<ul class="org-ul">
-<li>complain</li>
-<li>complicate</li>
-<li>contend</li>
-<li>contradict</li>
-<li>deny</li>
-<li>deplore the tendency to</li>
-<li>qualify</li>
-<li>question</li>
-<li>refute</li>
-<li>reject</li>
-<li>renounce</li>
-<li>repudiate</li>
-</ul>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org9af6c3d">
-<h3 id="org9af6c3d">Making Recommendations</h3>
-<div class="outline-text-3" id="text-org9af6c3d">
-<ul class="org-ul">
-<li>advocate</li>
-<li>call for</li>
-<li>demand</li>
-<li>encourage</li>
-<li>exhort</li>
-<li>implore</li>
-<li>plead</li>
-<li>recommend</li>
-<li>urge</li>
-<li>warn</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org3463e91">
-<h2 id="org3463e91">Source</h2>
-<div class="outline-text-2" id="text-org3463e91">
-<p><a href="posts/bibliography/they-sayi-say/">They Say/I Say</a></p>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/they-say-templates/">They Say Templates</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/they-say-templates/" rel="bookmark"><time class="published dt-published" datetime="2020-09-05T17:02:44-07:00" itemprop="datePublished" title="2020-09-05 17:02">2020-09-05 17:02</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/they-say-templates/#org0226b79">Introducting What "They Say"</a></li>
-<li><a href="posts/they-say-templates/#orgbe29f7a">Introducing Standard Views</a></li>
-<li><a href="posts/they-say-templates/#org24539ca">Making What "They Say" Something You Say</a></li>
-<li><a href="posts/they-say-templates/#orgd9fe6fb">Introduce Somenthing Implied or Assumed</a></li>
-<li><a href="posts/they-say-templates/#org774d17b">Introduce an Ongoing Debate</a></li>
-<li><a href="posts/they-say-templates/#org3062579">Keep It In View</a></li>
-<li><a href="posts/they-say-templates/#orgd8bbcaf">The Zinczenko Template</a></li>
-<li><a href="posts/they-say-templates/#org76cbc55">Source</a></li>
-</ul>
-</div>
-</div>
-<p>These are templates for stating what arguments or ideas you are responding to - what "they say".</p>
-<div class="outline-2" id="outline-container-org0226b79">
-<h2 id="org0226b79">Introducting What "They Say"</h2>
-<div class="outline-text-2" id="text-org0226b79">
-<ul class="org-ul">
-<li>It has become common today to dismiss __.</li>
-<li>In their recent work, Y and Z have offered harsh critiques of <span class="underline">_ for _</span>.</li>
-</ul>
-<p>This is specifically for refuting criticisms of another's work.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgbe29f7a">
-<h2 id="orgbe29f7a">Introducing Standard Views</h2>
-<div class="outline-text-2" id="text-orgbe29f7a">
-<ul class="org-ul">
-<li><span class="underline">_ have always believed that _</span>.</li>
-<li>Conventional wisdom has it that __.</li>
-<li>Common sense seems to dictate that __.</li>
-<li>The standard way of thinking about topic X has it that __.</li>
-<li>It is often said that __.</li>
-<li>My whole life I have heard it said that __.</li>
-<li>You would think that __.</li>
-<li>Many people assume that __.</li>
-</ul>
-<p>This is to challenge widely accepted beliefs.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org24539ca">
-<h2 id="org24539ca">Making What "They Say" Something You Say</h2>
-<div class="outline-text-2" id="text-org24539ca">
-<ul class="org-ul">
-<li>I've always believed that __.</li>
-<li>When I was a child, I used to think that __.</li>
-<li>Although I should know better by now, I cannot help thinking that __.</li>
-<li>At the same time that I believe <span class="underline">_, I also believe _</span>.</li>
-</ul>
-<p>This is a way to respond to what you used to believe or are ambivalent about.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgd9fe6fb">
-<h2 id="orgd9fe6fb">Introduce Somenthing Implied or Assumed</h2>
-<div class="outline-text-2" id="text-orgd9fe6fb">
-<ul class="org-ul">
-<li>Although none of them have ever said so directly, <span class="underline">_ have often given me the impression that _</span>.</li>
-<li>One implication of X's treatment of <span class="underline">_ is that _</span>.</li>
-<li>Although X does not say so directly, she apparently assumes that __.</li>
-<li>While they rarely admit as much, __ often take for granted that.</li>
-</ul>
-<p>These help you to look beyond what is being explicitly stated and look for the unstated assumptions and implications of what "they" are saying.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org774d17b">
-<h2 id="org774d17b">Introduce an Ongoing Debate</h2>
-<div class="outline-text-2" id="text-org774d17b">
-<ul class="org-ul">
-<li>In discussions of X, one controversial issue has been <span class="underline">_. On the one hand, _</span> argues <span class="underline">_. On the other hand, _</span> contends <span class="underline">_. Others even maintain _</span>. My own view is __.</li>
-</ul>
-<p>This both allows you to acknowledge that there isn't a unanimous consensus on the subject and also gives you a chance to explore which side you believe to be correct.</p>
-<ul class="org-ul">
-<li>When it comes to the topic of <span class="underline">_, most of us will readily agree that _</span>. Where this agreement usually ends, however, is on the question of <span class="underline">_. Whereas some are convinced that _</span>, others maintain that __.</li>
-</ul>
-<p>This opening shows where people agree and disagree on the subject.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org3062579">
-<h2 id="org3062579">Keep It In View</h2>
-<div class="outline-text-2" id="text-org3062579">
-<p>Don't just say what you are reacting to just once, remind the reader if it later using what the authors call "return" sentences.</p>
-<ul class="org-ul">
-<li>In conclusion, then, as I suggested earlier, defenders of <span class="underline">_ can't have it both ways. Their assertion that _</span> is contradicted by their claim that __.</li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgd8bbcaf">
-<h2 id="orgd8bbcaf">The Zinczenko Template</h2>
-<div class="outline-text-2" id="text-orgd8bbcaf">
-<p>This is based on a fragment from "Don't Blame the Eater" by David Zinczenko.</p>
-<blockquote>
-<p>If ever there was an idea custom-made for a Jay Leno monologue, this was it: <span class="underline">_. Isn't that like _</span>? Whatever happened to __?</p>
-<p>I happen to sympathize with <span class="underline">_, though, perhaps because _</span>.</p>
-</blockquote>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org76cbc55">
-<h2 id="org76cbc55">Source</h2>
-<div class="outline-text-2" id="text-org76cbc55">
-<ul class="org-ul">
-<li><a href="posts/bibliography/they-sayi-say/">They Say/I Say</a></li>
-</ul>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/bibliography/they-sayi-say/">They Say/I Say</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/bibliography/they-sayi-say/" rel="bookmark"><time class="published dt-published" datetime="2020-09-05T12:06:41-07:00" itemprop="datePublished" title="2020-09-05 12:06">2020-09-05 12:06</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<ul class="org-ul">
-<li>Graff G, Birkenstein C, Durst RK. They say / I say: the moves that matter in academic writing with readings. Fourth edition. New York: W. W. Norton & Company; 2018. 772 p.</li>
-</ul>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/dobzhansky-template/">Dobzhansky Template</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/dobzhansky-template/" rel="bookmark"><time class="published dt-published" datetime="2020-09-04T17:28:57-07:00" itemprop="datePublished" title="2020-09-04 17:28">2020-09-04 17:28</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<p>In the book <a href="posts/bibliography/narrative-is-everything/">Narrative Is Everything</a>, Randy Olson states that to make your message clearer you need to work it down to one thing. To help with this he suggests that you use what he calls the Dobzhansky Template (named after <a href="https://www.wikiwand.com/en/Theodosius_Dobzhansky">Theodosius Dobzhansky</a>).</p>
-<blockquote>
-<p>Nothing in <span class="underline">__</span> makes sense, except in the light of <span class="underline">__</span>.</p>
-</blockquote>
-<p>As an example, Dobzhansky himself wrote an essay called "Nothing in Biology Makes Sense Except in the Light Of Evolution".</p>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/measuring-narrative/">Measuring Narrative</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/measuring-narrative/" rel="bookmark"><time class="published dt-published" datetime="2020-09-04T17:22:11-07:00" itemprop="datePublished" title="2020-09-04 17:22">2020-09-04 17:22</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<p>The book <a href="posts/bibliography/narrative-is-everything/">Narrative Is Everything</a> has two metrics that the author, Randy Olson suggests using to measure the narrative quality of a text.</p>
-<div class="outline-2" id="outline-container-org2e6b548">
-<h2 id="org2e6b548">Narrative Index</h2>
-<div class="outline-text-2" id="text-org2e6b548">
-<p>This is the ration of <i>Buts</i> to <i>Ands</i>. Although it's stated as a ratio of word counts, it isn't exactly that straightforward as the actual words <i>and</i> or <i>but</i> might not be used, but it's a rough way to examine long texts (he recommends not using it if there are fewer than 1,000 words).</p>
-<p>\[ \textrm{Narrative Index} = \frac{\textit{number of 'buts'}}{\textit{number of ands}} \times 100 \]</p>
-<p>The higher the value the better the narrative quality.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgaa3260e">
-<h2 id="orgaa3260e">And Frequency</h2>
-<div class="outline-text-2" id="text-orgaa3260e">
-<p>This is just a measure of the fraction of the words in a text that are the word <i>and</i>.</p>
-<p>\[ \textrm{And Frequency} = \frac{\textit{number of 'ands'}}{\textit{total word count}} \]</p>
-<p>Well-edited texts have an <i>And Frequency</i> of about 2.5%.</p>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/abt-narrative-template/">ABT Narrative Template</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/abt-narrative-template/" rel="bookmark"><time class="published dt-published" datetime="2020-09-04T17:08:00-07:00" itemprop="datePublished" title="2020-09-04 17:08">2020-09-04 17:08</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<p>Randy Olson in his book <a href="posts/bibliography/narrative-is-everything/">Narrative Is Everything</a> offers up a form that he asserts is the best way to structure communications - <code>__ And __ But __, Therefore __.</code> The idea is that you should start by creating a context so the reader knows what's going on, then follow it with a statement that introduces a problem (the "but") and finally finishes with a resolution. Although he calls it <b>ABT</b> some of his alternative three-word forms are a little easier to understand.</p>
-<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
-<colgroup>
-<col class="org-left">
-<col class="org-left">
-<col class="org-left">
-<col class="org-left">
-<col class="org-left">
-<col class="org-left"></colgroup>
-<thead>
-<tr>
-<th class="org-left" scope="col">Hero's Journey</th>
-<th class="org-left" scope="col">Template</th>
-<th class="org-left" scope="col">Comedy</th>
-<th class="org-left" scope="col">Science</th>
-<th class="org-left" scope="col">Argument</th>
-<th class="org-left" scope="col">Business</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="org-left">The ordinary world</td>
-<td class="org-left">Agreement</td>
-<td class="org-left">Setup</td>
-<td class="org-left">Hypothesis</td>
-<td class="org-left">They Say</td>
-<td class="org-left">Situation</td>
-</tr>
-<tr>
-<td class="org-left">The other world</td>
-<td class="org-left">Contradiction</td>
-<td class="org-left">Twist</td>
-<td class="org-left">Experiment</td>
-<td class="org-left">I Say</td>
-<td class="org-left">Conflict</td>
-</tr>
-<tr>
-<td class="org-left">The return</td>
-<td class="org-left">Consequence</td>
-<td class="org-left">Punchline</td>
-<td class="org-left">Discussion</td>
-<td class="org-left">We Say</td>
-<td class="org-left">Resolution</td>
-</tr>
-</tbody>
-</table>
-<p>Although I think there's one more form that he talks about but I didn't see it given a specific use-case.</p>
-<ul class="org-ul">
-<li>Context</li>
-<li>Conflict</li>
-<li>Consequence</li>
-</ul>
-</div>
-</article>
 </div>
 <ul class="pager postindexpager clearfix">
-<li class="next"><a href="index-17.html" rel="next">Older posts</a></li>
+<li class="next"><a href="index-18.html" rel="next">Older posts</a></li>
 </ul>
 <script crossorigin="anonymous" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/x-mathjax-config">
