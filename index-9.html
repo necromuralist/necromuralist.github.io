@@ -64,13 +64,13 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/tensorflow-tutorials/#orgb36cce7">Github</a></li>
+<li><a href="posts/tensorflow-tutorials/#org5addccc">Github</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgb36cce7">
-<h2 id="orgb36cce7">Github</h2>
-<div class="outline-text-2" id="text-orgb36cce7">
+<div class="outline-2" id="outline-container-org5addccc">
+<h2 id="org5addccc">Github</h2>
+<div class="outline-text-2" id="text-org5addccc">
 <p>These are tutorials I found on github.</p>
 <ul class="org-ul">
 <li><a href="https://github.com/aymericdamien/TensorFlow-Examples">TensorFlow Examples</a></li>
@@ -92,15 +92,15 @@
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org93b381f">
-<h2 id="org93b381f">Introduction</h2>
-<div class="outline-text-2" id="text-org93b381f">
+<div class="outline-2" id="outline-container-org605fbdc">
+<h2 id="org605fbdc">Introduction</h2>
+<div class="outline-text-2" id="text-org605fbdc">
 <p>I was looking for a way to update python dependencies that I'd installed with <a href="https://pip.pypa.io/en/stable/">pip</a> when I stumbled upon <a href="https://github.com/jazzband/pip-tools/">pip-tools</a>. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9016e45">
-<h2 id="org9016e45">First pipdeptree</h2>
-<div class="outline-text-2" id="text-org9016e45">
+<div class="outline-2" id="outline-container-org1119748">
+<h2 id="org1119748">First pipdeptree</h2>
+<div class="outline-text-2" id="text-org1119748">
 <p><code>pip-tools</code> installs a command named <code>pip-compile</code> which will use either the requirements you put in your <code>setup.py</code> file or a special file named <code>requirements.in</code> (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than <code>setup.py</code>, since it makes it clearer and more likely that I'll keep it up to date. The <code>requirements.in</code> file is a list of your dependencies but unlike the <code>requirements.txt</code> file, it doesn't have version numbers, the version numbers are added when you call the <code>pip-compile</code> command.</p>
 <p>So where does the <code>requirements.in</code> file come from? You have to make it. <i>But if you're editing things by hand, doesn't this kind of make it less likely you'll maintain it?</i> Yes, which is where <a href="https://github.com/naiquevin/pipdeptree"><code>pipdeptree</code></a> comes in. <code>pipdeptree</code> will list all the python dependencies you installed as well as everything those dependencies pulled in as their dependencies. It's usefull to take a look at how a dependency you didn't directly install got into your virtual environment. You can install it from pypi.</p>
 <div class="highlight">
@@ -285,9 +285,9 @@ ws4py
 pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" &gt; requirements.in
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-org7c689c1">
-<h2 id="org7c689c1">pip-compile</h2>
-<div class="outline-text-2" id="text-org7c689c1">
+<div class="outline-2" id="outline-container-orgb1832af">
+<h2 id="orgb1832af">pip-compile</h2>
+<div class="outline-text-2" id="text-orgb1832af">
 <p><code>pip-compile</code> will read in the <code>requirements.in</code> file and add the version numbers and can create a <code>requirements.txt</code> file. It will automatically look for the <code>requirements.in</code> file or you can explicitly pass in the filename.</p>
 <div class="highlight">
 <pre><span></span>pip-compile <span class="p">|</span> head
@@ -307,9 +307,9 @@ blinker==1.4              # via nikola
 <p>You'll notice it adds in the dependencies of the dependencies and shows what requries them.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org96702d9">
-<h2 id="org96702d9">Well, that was a lot of work just for that.</h2>
-<div class="outline-text-2" id="text-org96702d9">
+<div class="outline-2" id="outline-container-org809c5d8">
+<h2 id="org809c5d8">Well, that was a lot of work just for that.</h2>
+<div class="outline-text-2" id="text-org809c5d8">
 <p>If we stopped at this point we'd have:</p>
 <ul class="org-ul">
 <li>a way to check who installed what using <code>pipdeptree</code> (as well as a way to plot the dependencies as a graph)</li>
@@ -318,9 +318,9 @@ blinker==1.4              # via nikola
 </ul>
 <p>I think that's kind of nice already, especially if you end up with a lot of dependencies. Try working with <a href="http://www.sphinx-doc.org/en/master/">sphinx</a> and <a href="http://scikit-learn.org/stable/">scikit-learn</a> and you'll see things start to explode. But of course, there's always more.</p>
 </div>
-<div class="outline-3" id="outline-container-orge4fd23d">
-<h3 id="orge4fd23d">Upgrade</h3>
-<div class="outline-text-3" id="text-orge4fd23d">
+<div class="outline-3" id="outline-container-orgb578727">
+<h3 id="orgb578727">Upgrade</h3>
+<div class="outline-text-3" id="text-orgb578727">
 <p>You can run <code>pip-compile</code> with the <code>--upgrade</code> option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).</p>
 <div class="highlight">
 <pre><span></span>pip-compile --upgrade <span class="p">|</span> head
@@ -340,9 +340,9 @@ blinker==1.4              # via nikola
 <p>This will upgrade your installation but not update the <code>requirements.txt</code> file, so you can test it out and see if everything works before updating the <code>requirements.txt</code>. If things don't work out, you could reinstall from the <code>requirements.txt</code> file, but see the next section for another way.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org01317df">
-<h3 id="org01317df">Sync</h3>
-<div class="outline-text-3" id="text-org01317df">
+<div class="outline-3" id="outline-container-orgd3dffa6">
+<h3 id="orgd3dffa6">Sync</h3>
+<div class="outline-text-3" id="text-orgd3dffa6">
 <p><code>pip-tools</code> also installed a command called <code>pip-sync</code> which will keep you in sync with what is in the requirements file, so as long as <code>requirements.txt</code> is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the <code>--upgrade</code> option in that it will only install the exact version in the requirements file.</p>
 <div class="highlight">
 <pre><span></span>pip-sync
@@ -370,9 +370,9 @@ Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgefac465">
-<h2 id="orgefac465">Conclusion</h2>
-<div class="outline-text-2" id="text-orgefac465">
+<div class="outline-2" id="outline-container-org43ed6c7">
+<h2 id="org43ed6c7">Conclusion</h2>
+<div class="outline-text-2" id="text-org43ed6c7">
 <p>So there you have it, how to keep dependencies synced. The <a href="https://pypi.org/project/pip-tools/">README</a> for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.</p>
 </div>
 </div>
@@ -387,9 +387,9 @@ Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org2e9f6cf">
-<h2 id="org2e9f6cf">Introduction</h2>
-<div class="outline-text-2" id="text-org2e9f6cf">
+<div class="outline-2" id="outline-container-orgeecece1">
+<h2 id="orgeecece1">Introduction</h2>
+<div class="outline-text-2" id="text-orgeecece1">
 <p>I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.</p>
 <pre class="example">
 iwconfig wlan0 mode monitor
@@ -399,18 +399,18 @@ Error for wireless request "Set Mode" (8B06) :
 <p>Looking around on the web I found <a href="https://www.reddit.com/r/raspberry_pi/comments/4ah4oi/psa_the_raspberry_pi_3s_embedded_wifi_card_does/">this reddit post</a> as well as some Stack Overflow posts that said that monitor mode isn't supported on the Raspberry Pi. There is a project called <a href="https://github.com/seemoo-lab/nexmon">nexmon</a> that apparently lets up add a firmware patch to enable it, which I'll probably try later, but before I tried that I remembered that I have a Realtek 8812AU USB WiFi adapter that I bought a while ago for an old desktop I had that I wasn't using so I decided to try it.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfa79f22">
-<h2 id="orgfa79f22">What I tried</h2>
-<div class="outline-text-2" id="text-orgfa79f22"></div>
-<div class="outline-3" id="outline-container-orge93a9ff">
-<h3 id="orge93a9ff">Plug-and-Pray</h3>
-<div class="outline-text-3" id="text-orge93a9ff">
+<div class="outline-2" id="outline-container-org593f4f0">
+<h2 id="org593f4f0">What I tried</h2>
+<div class="outline-text-2" id="text-org593f4f0"></div>
+<div class="outline-3" id="outline-container-org6b5cbcd">
+<h3 id="org6b5cbcd">Plug-and-Pray</h3>
+<div class="outline-text-3" id="text-org6b5cbcd">
 <p>The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although <code>lsusb</code> showed it, <code>iwconfig</code> didn't show it as an interface. Back to the internet.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org050fc72">
-<h3 id="org050fc72">Github</h3>
-<div class="outline-text-3" id="text-org050fc72">
+<div class="outline-3" id="outline-container-org2f9424b">
+<h3 id="org2f9424b">Github</h3>
+<div class="outline-text-3" id="text-org2f9424b">
 <p>Next I found <a href="https://github.com/diederikdehaas/rtl8812AU">a repository on github</a> that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:</p>
 <pre class="example">
 CONFIG_PLATFORM_I386_PC = n
@@ -429,9 +429,9 @@ Consult /var/lib/dkms/rtl8812AU/4.3.20/build/make.log for more information.
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org958818a">
-<h2 id="org958818a">What fixed it</h2>
-<div class="outline-text-2" id="text-org958818a">
+<div class="outline-2" id="outline-container-org2664695">
+<h2 id="org2664695">What fixed it</h2>
+<div class="outline-text-2" id="text-org2664695">
 <p>The solution was in <a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make">this StackOverflow post</a> - the <code>make</code> program is being pointed to a folder named <code>arm7l</code> (thats 'arm seven ell') but it should actually be pointed to one named <code>arm</code>. The simple solution is to create an alias with the correct name.</p>
 <pre class="example">
 sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.4.38-v7+/arch/armv7l
@@ -439,9 +439,9 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 <p>This turns out to fix the build problem and after a reboot the network interface showed up.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgdcc3f79">
-<h2 id="orgdcc3f79">Conclusion</h2>
-<div class="outline-text-2" id="text-orgdcc3f79">
+<div class="outline-2" id="outline-container-org0031249">
+<h2 id="org0031249">Conclusion</h2>
+<div class="outline-text-2" id="text-org0031249">
 <p>The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that <code>iwconfig</code> will put it in monitor mode but <code>airmon-ng</code> doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, <code>iw</code> always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.</p>
 </div>
 </div>
@@ -460,13 +460,13 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/reference/wireless-bibliography/#orgbd86712">Benchmarking</a></li>
+<li><a href="posts/reference/wireless-bibliography/#org3e1c685">Benchmarking</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgbd86712">
-<h2 id="orgbd86712">Benchmarking</h2>
-<div class="outline-text-2" id="text-orgbd86712">
+<div class="outline-2" id="outline-container-org3e1c685">
+<h2 id="org3e1c685">Benchmarking</h2>
+<div class="outline-text-2" id="text-org3e1c685">
 <ul class="org-ul">
 <li>[R1] Rehman S, Turletti T, Dabbous W. A Roadmap for Benchmarking in Wireless Networks. 2011 Aug 9; (<a href="https://www.researchgate.net/publication/279405375_A_Roadmap_for_Benchmarking_in_Wireless_Networks">ResearchGate Link</a>)</li>
 </ul>
@@ -487,15 +487,15 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/reference/packet-capturing-bibliography/#org61fa2cb">Packet Capturing</a></li>
-<li><a href="posts/reference/packet-capturing-bibliography/#orgf5e3937">Merging PCAP Files</a></li>
-<li><a href="posts/reference/packet-capturing-bibliography/#org0a6f3a0">Key</a></li>
+<li><a href="posts/reference/packet-capturing-bibliography/#org49ce4df">Packet Capturing</a></li>
+<li><a href="posts/reference/packet-capturing-bibliography/#orge4263fd">Merging PCAP Files</a></li>
+<li><a href="posts/reference/packet-capturing-bibliography/#org7683a11">Key</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org61fa2cb">
-<h2 id="org61fa2cb">Packet Capturing</h2>
-<div class="outline-text-2" id="text-org61fa2cb">
+<div class="outline-2" id="outline-container-org49ce4df">
+<h2 id="org49ce4df">Packet Capturing</h2>
+<div class="outline-text-2" id="text-org49ce4df">
 <ul class="org-ul">
 <li>[R3] Schulman A, Levin D, Spring N. On the fidelity of 802.11 packet traces. InInternational Conference on Passive and Active Network Measurement 2008 Apr 29 (pp. 132-141). Springer, Berlin, Heidelberg. (<a href="https://pdfs.semanticscholar.org/8cea/05cc5c93684a0d8923a3c4eddaed234361b0.pdf">PDF Link</a>)</li>
 <li>[R4] Kashyap A, Paul U, Das SR. Deconstructing interference relations in WiFi networks. InSensor Mesh and Ad Hoc Communications and Networks (SECON), 2010 7th Annual IEEE Communications Society Conference on 2010 Jun 21 (pp. 1-9). IEEE. (<a href="http://www.wings.cs.sunysb.edu/pdfs/2010-secon.pdf">PDF Link</a>)</li>
@@ -504,9 +504,9 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf5e3937">
-<h2 id="orgf5e3937">Merging PCAP Files</h2>
-<div class="outline-text-2" id="text-orgf5e3937">
+<div class="outline-2" id="outline-container-orge4263fd">
+<h2 id="orge4263fd">Merging PCAP Files</h2>
+<div class="outline-text-2" id="text-orge4263fd">
 <ul class="org-ul">
 <li>
 <p>[R1] Veselý V. <a href="https://www.researchgate.net/publication/260745050_Extended_Comparison_Study_on_Merging_PCAP_Files">Extended Comparison Study on Merging PCAP Files</a>. ElectroScope. 2012 Oct 1;2012:1–6.</p>
@@ -519,9 +519,9 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0a6f3a0">
-<h2 id="org0a6f3a0">Key</h2>
-<div class="outline-text-2" id="text-org0a6f3a0">
+<div class="outline-2" id="outline-container-org7683a11">
+<h2 id="org7683a11">Key</h2>
+<div class="outline-text-2" id="text-org7683a11">
 <ul class="org-ul">
 <li>[R&lt;number&gt;] - Research Paper</li>
 </ul>
@@ -538,12 +538,12 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-orgab17277">
-<h2 id="orgab17277">Packet Capturing</h2>
-<div class="outline-text-2" id="text-orgab17277"></div>
-<div class="outline-3" id="outline-container-org5593837">
-<h3 id="org5593837"><a href="http://staff.washington.edu/corey/gulp/">Gulp</a></h3>
-<div class="outline-text-3" id="text-org5593837">
+<div class="outline-2" id="outline-container-org2b85a7e">
+<h2 id="org2b85a7e">Packet Capturing</h2>
+<div class="outline-text-2" id="text-org2b85a7e"></div>
+<div class="outline-3" id="outline-container-org840cf68">
+<h3 id="org840cf68"><a href="http://staff.washington.edu/corey/gulp/">Gulp</a></h3>
+<div class="outline-text-3" id="text-org840cf68">
 <p>Gulp purports to be better at capturing packets than tcpdump (although they can work together).</p>
 <p>There is more than one version out there:</p>
 <p>- <a href="//github.com/gsson/gulp">This one</a> says it applied a patch to it five years ago.</p>
@@ -553,152 +553,152 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 </ul>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org1169b35">
-<h3 id="org1169b35"><a href="https://www.tcpdump.org">tcpdump</a></h3>
-<div class="outline-text-3" id="text-org1169b35">
+<div class="outline-3" id="outline-container-org7d75699">
+<h3 id="org7d75699"><a href="https://www.tcpdump.org">tcpdump</a></h3>
+<div class="outline-text-3" id="text-org7d75699">
 <p>More easily obtainable and better documentation available (although still not enough).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org20c8875">
-<h3 id="org20c8875"><a href="http://ssldump.sourceforge.net">ssldump</a></h3>
-<div class="outline-text-3" id="text-org20c8875">
+<div class="outline-3" id="outline-container-orgaaf30ab">
+<h3 id="orgaaf30ab"><a href="http://ssldump.sourceforge.net">ssldump</a></h3>
+<div class="outline-text-3" id="text-orgaaf30ab">
 <p>Captures packets and decodes SSL/TLS packets.</p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5b647d4">
-<h2 id="org5b647d4">Packet Examining</h2>
-<div class="outline-text-2" id="text-org5b647d4"></div>
-<div class="outline-3" id="outline-container-orgfda0c5d">
-<h3 id="orgfda0c5d"><a href="https://github.com/mschiffm/cppip">Compressed PCAP Packet Indexing Prograpm (cppip)</a></h3>
-<div class="outline-text-3" id="text-orgfda0c5d">
+<div class="outline-2" id="outline-container-org571d666">
+<h2 id="org571d666">Packet Examining</h2>
+<div class="outline-text-2" id="text-org571d666"></div>
+<div class="outline-3" id="outline-container-org6c86223">
+<h3 id="org6c86223"><a href="https://github.com/mschiffm/cppip">Compressed PCAP Packet Indexing Prograpm (cppip)</a></h3>
+<div class="outline-text-3" id="text-org6c86223">
 <p>This adds indexing to <a href="http://www.htslib.org/doc/bgzip.html">bgzip</a> compressed LibPCAP files which then lets you extract them while the original files are still compressed.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org8c6a46f">
-<h3 id="org8c6a46f"><a href="https://linux.die.net/man/8/tcpslice">tcpslice</a></h3>
-<div class="outline-text-3" id="text-org8c6a46f">
+<div class="outline-3" id="outline-container-org8ec2e42">
+<h3 id="org8ec2e42"><a href="https://linux.die.net/man/8/tcpslice">tcpslice</a></h3>
+<div class="outline-text-3" id="text-org8ec2e42">
 <p>This lets you extract part of or combine files created by tcpdump when using file rotation.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgec2b3c9">
-<h3 id="orgec2b3c9"><a href="https://github.com/jpr5/ngrep">ngrep</a></h3>
-<div class="outline-text-3" id="text-orgec2b3c9">
+<div class="outline-3" id="outline-container-orge6e0688">
+<h3 id="orge6e0688"><a href="https://github.com/jpr5/ngrep">ngrep</a></h3>
+<div class="outline-text-3" id="text-orge6e0688">
 <p>Describes itself as like GNU grep but for packets.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org8a628e1">
-<h3 id="org8a628e1"><a href="https://github.com/signed0/pylibpcap">pylibpcap</a>, <a href="https://github.com/pynetwork/pypcap">pypcap</a></h3>
-<div class="outline-text-3" id="text-org8a628e1">
+<div class="outline-3" id="outline-container-org3b60925">
+<h3 id="org3b60925"><a href="https://github.com/signed0/pylibpcap">pylibpcap</a>, <a href="https://github.com/pynetwork/pypcap">pypcap</a></h3>
+<div class="outline-text-3" id="text-org3b60925">
 <p>Python code to work with libpcap.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgf42e18c">
-<h3 id="orgf42e18c">WireShark</h3>
-<div class="outline-text-3" id="text-orgf42e18c">
+<div class="outline-3" id="outline-container-org8cb3834">
+<h3 id="org8cb3834">WireShark</h3>
+<div class="outline-text-3" id="text-org8cb3834">
 <p>These are installed when you install wireshark.</p>
 </div>
-<div class="outline-4" id="outline-container-org8edf477">
-<h4 id="org8edf477"><a href="https://www.wireshark.org/docs/man-pages/tshark.html">tshark</a>/<a href="https://www.wireshark.org">wireshark</a></h4>
-<div class="outline-text-4" id="text-org8edf477">
+<div class="outline-4" id="outline-container-org8fc953d">
+<h4 id="org8fc953d"><a href="https://www.wireshark.org/docs/man-pages/tshark.html">tshark</a>/<a href="https://www.wireshark.org">wireshark</a></h4>
+<div class="outline-text-4" id="text-org8fc953d">
 <p>Packet capturing and examining (better documented than most of the other programs)</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org2757fa0">
-<h4 id="org2757fa0"><a href="https://www.wireshark.org/docs/man-pages/reordercap.html">reordercap</a></h4>
-<div class="outline-text-4" id="text-org2757fa0">
+<div class="outline-4" id="outline-container-org118cbfa">
+<h4 id="org118cbfa"><a href="https://www.wireshark.org/docs/man-pages/reordercap.html">reordercap</a></h4>
+<div class="outline-text-4" id="text-org118cbfa">
 <p>Reorders the packets by timestamp.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgc532c9c">
-<h4 id="orgc532c9c"><a href="https://www.wireshark.org/docs/man-pages/capinfos.html">capinfos</a></h4>
-<div class="outline-text-4" id="text-orgc532c9c">
+<div class="outline-4" id="outline-container-orgeaf353a">
+<h4 id="orgeaf353a"><a href="https://www.wireshark.org/docs/man-pages/capinfos.html">capinfos</a></h4>
+<div class="outline-text-4" id="text-orgeaf353a">
 <p>This prints summary information about packe files (works with gzipped files).</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org5e6a26f">
-<h4 id="org5e6a26f"><a href="https://www.wireshark.org/docs/man-pages/mergecap.html">mergecap</a></h4>
-<div class="outline-text-4" id="text-org5e6a26f">
+<div class="outline-4" id="outline-container-org96b2c76">
+<h4 id="org96b2c76"><a href="https://www.wireshark.org/docs/man-pages/mergecap.html">mergecap</a></h4>
+<div class="outline-text-4" id="text-org96b2c76">
 <p>Merges multiple packet files together. Mergecap will try to keep timestamps in order when merging, but it assumes each individual file to merge is already in order.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org43997dd">
-<h2 id="org43997dd">Packet Flows</h2>
-<div class="outline-text-2" id="text-org43997dd"></div>
-<div class="outline-3" id="outline-container-org787326a">
-<h3 id="org787326a"><a href="http://tcpick.sourceforge.net">tcpick</a></h3>
-<div class="outline-text-3" id="text-org787326a">
+<div class="outline-2" id="outline-container-orgb662d34">
+<h2 id="orgb662d34">Packet Flows</h2>
+<div class="outline-text-2" id="text-orgb662d34"></div>
+<div class="outline-3" id="outline-container-org1988692">
+<h3 id="org1988692"><a href="http://tcpick.sourceforge.net">tcpick</a></h3>
+<div class="outline-text-3" id="text-org1988692">
 <p>Track, reassemble, reorder TCP streams.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgf8353ae">
-<h3 id="orgf8353ae"><a href="http://www.tcptrace.org">tcptrace</a></h3>
-<div class="outline-text-3" id="text-orgf8353ae">
+<div class="outline-3" id="outline-container-org397ac31">
+<h3 id="org397ac31"><a href="http://www.tcptrace.org">tcptrace</a></h3>
+<div class="outline-text-3" id="text-org397ac31">
 <p>Gives connection information taken from a capture file.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org288000e">
-<h3 id="org288000e"><a href="https://github.com/simsong/tcpflow">tcpflow</a></h3>
-<div class="outline-text-3" id="text-org288000e">
+<div class="outline-3" id="outline-container-org0dae45a">
+<h3 id="org0dae45a"><a href="https://github.com/simsong/tcpflow">tcpflow</a></h3>
+<div class="outline-text-3" id="text-org0dae45a">
 <p>Separates out TCP flows into separate files.</p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6c58bde">
-<h2 id="org6c58bde">Capture Summarizing</h2>
-<div class="outline-text-2" id="text-org6c58bde"></div>
-<div class="outline-3" id="outline-container-orgb7eebe9">
-<h3 id="orgb7eebe9"><a href="https://www.wireshark.org/docs/man-pages/capinfos.html">capinfos</a></h3>
+<div class="outline-2" id="outline-container-orgdb34961">
+<h2 id="orgdb34961">Capture Summarizing</h2>
+<div class="outline-text-2" id="text-orgdb34961"></div>
+<div class="outline-3" id="outline-container-org1aa7ee3">
+<h3 id="org1aa7ee3"><a href="https://www.wireshark.org/docs/man-pages/capinfos.html">capinfos</a></h3>
 </div>
-<div class="outline-3" id="outline-container-org7da3ba6">
-<h3 id="org7da3ba6"><a href="https://github.com/kohler/ipsumdump">ipsumdump</a></h3>
-<div class="outline-text-3" id="text-org7da3ba6">
+<div class="outline-3" id="outline-container-orge7f613e">
+<h3 id="orge7f613e"><a href="https://github.com/kohler/ipsumdump">ipsumdump</a></h3>
+<div class="outline-text-3" id="text-orge7f613e">
 <p>Summarizes packet information in ASCII format</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orge8d017f">
-<h3 id="orge8d017f"><a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html">tcpdstat</a></h3>
-<div class="outline-text-3" id="text-orge8d017f">
+<div class="outline-3" id="outline-container-orgf003e79">
+<h3 id="orgf003e79"><a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html">tcpdstat</a></h3>
+<div class="outline-text-3" id="text-orgf003e79">
 <p>Gives summary statistics for a pcap file</p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6b12f54">
-<h2 id="org6b12f54">Network Monitoring</h2>
-<div class="outline-text-2" id="text-org6b12f54"></div>
-<div class="outline-3" id="outline-container-org516dd38">
-<h3 id="org516dd38"><a href="https://www.ntop.org">ntop</a></h3>
-<div class="outline-text-3" id="text-org516dd38">
+<div class="outline-2" id="outline-container-org92db534">
+<h2 id="org92db534">Network Monitoring</h2>
+<div class="outline-text-2" id="text-org92db534"></div>
+<div class="outline-3" id="outline-container-org339e51c">
+<h3 id="org339e51c"><a href="https://www.ntop.org">ntop</a></h3>
+<div class="outline-text-3" id="text-org339e51c">
 <p>Like top but for the network.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orga21e5ee">
-<h3 id="orga21e5ee"><a href="http://man7.org/linux/man-pages/man8/ss.8.html">ss (socket statistics)</a></h3>
-<div class="outline-text-3" id="text-orga21e5ee">
+<div class="outline-3" id="outline-container-org853be4b">
+<h3 id="org853be4b"><a href="http://man7.org/linux/man-pages/man8/ss.8.html">ss (socket statistics)</a></h3>
+<div class="outline-text-3" id="text-org853be4b">
 <p>Part of <a href="https://en.wikipedia.org/wiki/Iproute2">iproute2</a></p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2a1bec7">
-<h2 id="org2a1bec7">Miscellaneous</h2>
-<div class="outline-text-2" id="text-org2a1bec7"></div>
-<div class="outline-3" id="outline-container-org111d2e5">
-<h3 id="org111d2e5"><a href="http://tcpreplay.appneta.com/">tcpreplay</a></h3>
-<div class="outline-text-3" id="text-org111d2e5">
+<div class="outline-2" id="outline-container-org1516a3e">
+<h2 id="org1516a3e">Miscellaneous</h2>
+<div class="outline-text-2" id="text-org1516a3e"></div>
+<div class="outline-3" id="outline-container-org95916ce">
+<h3 id="org95916ce"><a href="http://tcpreplay.appneta.com/">tcpreplay</a></h3>
+<div class="outline-text-3" id="text-org95916ce">
 <p>A suite of programs to edit and replay pcap files.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgfcc75a6">
-<h3 id="orgfcc75a6"><a href="https://en.wikipedia.org/wiki/Netcat">netcat</a></h3>
-<div class="outline-text-3" id="text-orgfcc75a6">
+<div class="outline-3" id="outline-container-org8fafde9">
+<h3 id="org8fafde9"><a href="https://en.wikipedia.org/wiki/Netcat">netcat</a></h3>
+<div class="outline-text-3" id="text-org8fafde9">
 <p>Read from and write to TCP/UDP network connections.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org262f90e">
-<h3 id="org262f90e"><a href="https://linux.die.net/man/1/socat">socat</a></h3>
-<div class="outline-text-3" id="text-org262f90e">
+<div class="outline-3" id="outline-container-org1bddb0d">
+<h3 id="org1bddb0d"><a href="https://linux.die.net/man/1/socat">socat</a></h3>
+<div class="outline-text-3" id="text-org1bddb0d">
 <p>Route data between byte streams.</p>
 </div>
 </div>
@@ -718,39 +718,39 @@ sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/the-flask-debug-server/#org7a9b116">Background</a></li>
-<li><a href="posts/the-flask-debug-server/#org714ebcc">Setup</a>
+<li><a href="posts/the-flask-debug-server/#orga84fc58">Background</a></li>
+<li><a href="posts/the-flask-debug-server/#org7de12b2">Setup</a>
 <ul>
-<li><a href="posts/the-flask-debug-server/#orgaa2933a">The Environment Variables</a></li>
+<li><a href="posts/the-flask-debug-server/#org2a0fac7">The Environment Variables</a></li>
 </ul>
 </li>
-<li><a href="posts/the-flask-debug-server/#orgd250f77">Run It</a>
+<li><a href="posts/the-flask-debug-server/#orgb84b271">Run It</a>
 <ul>
-<li><a href="posts/the-flask-debug-server/#org8997676">The Development server</a></li>
-<li><a href="posts/the-flask-debug-server/#org90dc55e">Public Server</a></li>
+<li><a href="posts/the-flask-debug-server/#org9eda306">The Development server</a></li>
+<li><a href="posts/the-flask-debug-server/#orgb6bcbf2">Public Server</a></li>
 </ul>
 </li>
-<li><a href="posts/the-flask-debug-server/#org52e2a48">Make it repeatable</a></li>
+<li><a href="posts/the-flask-debug-server/#org6b134b7">Make it repeatable</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org7a9b116">
-<h2 id="org7a9b116">Background</h2>
-<div class="outline-text-2" id="text-org7a9b116">
+<div class="outline-2" id="outline-container-orga84fc58">
+<h2 id="orga84fc58">Background</h2>
+<div class="outline-text-2" id="text-orga84fc58">
 <p>This is documented on the <a href="//flask.pocoo.org/docs/">Flask site</a>, but I was trying to help someone debug some old server code that I'd written and couldn't remember how to debug it, so I'm documenting it here as I go through remembering it again so I'll have a single reference to use the next time. Some of the settings look different from what I remember using so I think that Flask has changed a little over time, but since I didn't document it the first time I don't have a record to compare against (well, I probably have some notes in a notebook but it's hard to refer to that when sitting at someone else's desk).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org714ebcc">
-<h2 id="org714ebcc">Setup</h2>
-<div class="outline-text-2" id="text-org714ebcc">
+<div class="outline-2" id="outline-container-org7de12b2">
+<h2 id="org7de12b2">Setup</h2>
+<div class="outline-text-2" id="text-org7de12b2">
 <p>The <a href="http://flask.pocoo.org/docs/1.0/quickstart/">Flask Quickstart</a> tells you what to do, but for some reason when we googled it, the instructions were different, I think it might have lead us to an older form of the documentation. This is the current version (May 20, 2018.)</p>
 </div>
-<div class="outline-3" id="outline-container-orgaa2933a">
-<h3 id="orgaa2933a">The Environment Variables</h3>
-<div class="outline-text-3" id="text-orgaa2933a"></div>
-<div class="outline-4" id="outline-container-orgfc35000">
-<h4 id="orgfc35000">The Flask App</h4>
-<div class="outline-text-4" id="text-orgfc35000">
+<div class="outline-3" id="outline-container-org2a0fac7">
+<h3 id="org2a0fac7">The Environment Variables</h3>
+<div class="outline-text-3" id="text-org2a0fac7"></div>
+<div class="outline-4" id="outline-container-orgc43b57f">
+<h4 id="orgc43b57f">The Flask App</h4>
+<div class="outline-text-4" id="text-orgc43b57f">
 <p>First you have to tell flask which file contains your flask app by setting the <code>FLASK_APP</code> environment variable. In my case I'm using <a href="https://github.com/zalando/connexion">connexion</a>, an oddly-named adapter that adds support for <a href="https://swagger.io/">swagger/OpenApi</a> to Flask. So the file that has the app has this line in it.</p>
 <div class="highlight">
 <pre><span></span><span class="n">application</span> <span class="o">=</span> <span class="n">connexion</span><span class="o">.</span><span class="n">FlaskApp</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -765,9 +765,9 @@ Error: Failed to find application in module "server.api".  Are you sure it conta
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org9f02e7b">
-<h4 id="org9f02e7b">Development Mode</h4>
-<div class="outline-text-4" id="text-org9f02e7b">
+<div class="outline-4" id="outline-container-org943f5b8">
+<h4 id="org943f5b8">Development Mode</h4>
+<div class="outline-text-4" id="text-org943f5b8">
 <p>If you want the server to automatically reload when it detects changes then you should to set the <code>FLASK_ENV</code> environment variable to <code>development</code>. This is similar to using <code>FLASK_DEBUG</code> but I think it adds the reloading. Anyway, it does more than just set debug mode.</p>
 <div class="highlight">
 <pre><span></span><span class="nb">set</span> -x FLASK_ENV development
@@ -776,21 +776,21 @@ Error: Failed to find application in module "server.api".  Are you sure it conta
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgd250f77">
-<h2 id="orgd250f77">Run It</h2>
-<div class="outline-text-2" id="text-orgd250f77"></div>
-<div class="outline-3" id="outline-container-org8997676">
-<h3 id="org8997676">The Development server</h3>
-<div class="outline-text-3" id="text-org8997676">
+<div class="outline-2" id="outline-container-orgb84b271">
+<h2 id="orgb84b271">Run It</h2>
+<div class="outline-text-2" id="text-orgb84b271"></div>
+<div class="outline-3" id="outline-container-org9eda306">
+<h3 id="org9eda306">The Development server</h3>
+<div class="outline-text-3" id="text-org9eda306">
 <p>This is the output of the help string for the <a href="http://flask.pocoo.org/docs/1.0/server/#server">development server</a>, note that it uses <code>-h</code> for <code>host</code> so you need to pass in <code>--help</code> to see this output or you will get an error.</p>
 <div class="highlight">
 <pre><span></span>flask run --help
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org90dc55e">
-<h3 id="org90dc55e">Public Server</h3>
-<div class="outline-text-3" id="text-org90dc55e">
+<div class="outline-3" id="outline-container-orgb6bcbf2">
+<h3 id="orgb6bcbf2">Public Server</h3>
+<div class="outline-text-3" id="text-orgb6bcbf2">
 <p>The default server runs on localhost, but since I'm hosting the code on a <a href="https://www.raspberrypi.org/">raspberry pi</a> sitting on the network somewhere but debugging it remotely, I need to run it on a public address.</p>
 <div class="highlight">
 <pre><span></span>flask run --host<span class="o">=</span><span class="m">0</span>.0.0.0
@@ -798,8 +798,8 @@ Error: Failed to find application in module "server.api".  Are you sure it conta
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org52e2a48">
-<h2 id="org52e2a48">Make it repeatable</h2>
+<div class="outline-2" id="outline-container-org6b134b7">
+<h2 id="org6b134b7">Make it repeatable</h2>
 </div>
 </div>
 </article>
@@ -813,63 +813,63 @@ Error: Failed to find application in module "server.api".  Are you sure it conta
 </header>
 <div class="p-summary entry-summary">
 <p>These are notes I made while surfing the web looking into <a href="http://www.tcpdump.org/">TCP Dump</a>. You will most likely need to use <code>sudo</code> to run most of the commands, but I'm leaving it off to make it shorter.</p>
-<div class="outline-2" id="outline-container-orgb2d9292">
-<h2 id="orgb2d9292">About TCP Dump</h2>
-<div class="outline-text-2" id="text-orgb2d9292">
+<div class="outline-2" id="outline-container-org325388d">
+<h2 id="org325388d">About TCP Dump</h2>
+<div class="outline-text-2" id="text-org325388d">
 <ul class="org-ul">
 <li>It has more filtering capabilities and can filter while capturing packets, but it doesn't have the analytical tools that something like wireshark has<sup><a class="footref" href="posts/tcp-dump-notes/#fn.1" id="fnr.1">1</a></sup>.</li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org1549858">
-<h2 id="org1549858">Some Examples</h2>
-<div class="outline-text-2" id="text-org1549858"></div>
-<div class="outline-3" id="outline-container-org9a4aede">
-<h3 id="org9a4aede">Listing interfaces</h3>
-<div class="outline-text-3" id="text-org9a4aede">
+<div class="outline-2" id="outline-container-org343e174">
+<h2 id="org343e174">Some Examples</h2>
+<div class="outline-text-2" id="text-org343e174"></div>
+<div class="outline-3" id="outline-container-org8d9658b">
+<h3 id="org8d9658b">Listing interfaces</h3>
+<div class="outline-text-3" id="text-org8d9658b">
 <p>You can ask <code>tcpdump</code> which interfaces it is able to listen to<sup><a class="footref" href="posts/tcp-dump-notes/#fn.2" id="fnr.2">2</a></sup>.</p>
 <pre class="example">
 tcpdump -D
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orge2046fa">
-<h3 id="orge2046fa">Capture packets on an interface</h3>
-<div class="outline-text-3" id="text-orge2046fa">
+<div class="outline-3" id="outline-container-orgd54c20b">
+<h3 id="orgd54c20b">Capture packets on an interface</h3>
+<div class="outline-text-3" id="text-orgd54c20b">
 <p>To capture packets on an interface you pass its name to the <code>-i</code> flag<sup><a class="footref" href="posts/tcp-dump-notes/#fn.2" id="fnr.2.100">2</a></sup> (here the interface I'll use is <code>eno1</code>).</p>
 <pre class="example">
 tcpdump -i eno1
 </pre></div>
-<div class="outline-4" id="outline-container-org334db25">
-<h4 id="org334db25">Save the packet capture to a file</h4>
-<div class="outline-text-4" id="text-org334db25">
+<div class="outline-4" id="outline-container-org6a12d03">
+<h4 id="org6a12d03">Save the packet capture to a file</h4>
+<div class="outline-text-4" id="text-org6a12d03">
 <p>The default behavior is for <code>tcpdump</code> to send the output to standard output, to have it save the packets to a files use the <code>-w</code> flag<sup><a class="footref" href="posts/tcp-dump-notes/#fn.2" id="fnr.2.100">2</a></sup> (you can call it anything, I'll call it <code>dump.pcap</code>).</p>
 <pre class="example">
 tcpdump -i eno1 -w dump.pcap
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org107889f">
-<h4 id="org107889f">Increase the verbosity of the capture</h4>
-<div class="outline-text-4" id="text-org107889f">
+<div class="outline-4" id="outline-container-org888defd">
+<h4 id="org888defd">Increase the verbosity of the capture</h4>
+<div class="outline-text-4" id="text-org888defd">
 <p>To increase the amount if information that's captured, pass multiple <code>v</code> arguments<sup><a class="footref" href="posts/tcp-dump-notes/#fn.2" id="fnr.2.100">2</a></sup> (in this case I'll use <code>-vvv</code>).</p>
 <pre class="example">
 tcpdump -i eno1 -vvv -w dump.pcap
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgd52af55">
-<h3 id="orgd52af55">Filtering</h3>
-<div class="outline-text-3" id="text-orgd52af55"></div>
-<div class="outline-4" id="outline-container-orge792409">
-<h4 id="orge792409">By IP address</h4>
-<div class="outline-text-4" id="text-orge792409">
+<div class="outline-3" id="outline-container-org738b856">
+<h3 id="org738b856">Filtering</h3>
+<div class="outline-text-3" id="text-org738b856"></div>
+<div class="outline-4" id="outline-container-org8d2887b">
+<h4 id="org8d2887b">By IP address</h4>
+<div class="outline-text-4" id="text-org8d2887b">
 <p>You can get all the packets being sent or received by a host using the <code>host</code> argument<sup><a class="footref" href="posts/tcp-dump-notes/#fn.3" id="fnr.3">3</a></sup>.</p>
 <pre class="example">
 tcpdump host 192.168.1.12
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orge5e917e">
-<h4 id="orge5e917e">By Sender IP Address</h4>
-<div class="outline-text-4" id="text-orge5e917e">
+<div class="outline-4" id="outline-container-org7f79ee8">
+<h4 id="org7f79ee8">By Sender IP Address</h4>
+<div class="outline-text-4" id="text-org7f79ee8">
 <p>You can filter out all the packets except those that are being sent by a host using the <code>src host</code> argument<sup><a class="footref" href="posts/tcp-dump-notes/#fn.2" id="fnr.2.100">2</a></sup>.</p>
 <pre class="example">
 tcpdump -i eno1 src host 192.168.1.12
@@ -877,17 +877,17 @@ tcpdump -i eno1 src host 192.168.1.12
 <p>You can leave off the <code>host</code> argument and just use <code>src</code><sup><a class="footref" href="posts/tcp-dump-notes/#fn.3" id="fnr.3.100">3</a></sup></p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orge8c0a37">
-<h4 id="orge8c0a37">By Target IP Address</h4>
-<div class="outline-text-4" id="text-orge8c0a37">
+<div class="outline-4" id="outline-container-org49810c5">
+<h4 id="org49810c5">By Target IP Address</h4>
+<div class="outline-text-4" id="text-org49810c5">
 <p>To filter out all the packets except those that are going to a specific target use the <code>dst host</code> argument<sup><a class="footref" href="posts/tcp-dump-notes/#fn.2" id="fnr.2.100">2</a></sup>.</p>
 <pre class="example">
 tcpdump -i eno1 dst host 192.168.1.1
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org00f3884">
-<h4 id="org00f3884">Sender and Target IP Addresses</h4>
-<div class="outline-text-4" id="text-org00f3884">
+<div class="outline-4" id="outline-container-org1f2a463">
+<h4 id="org1f2a463">Sender and Target IP Addresses</h4>
+<div class="outline-text-4" id="text-org1f2a463">
 <p>You can combine parameters using the logical operators <code>and</code>, <code>or</code>, and <code>not</code><sup><a class="footref" href="posts/tcp-dump-notes/#fn.3" id="fnr.3.100">3</a></sup>.</p>
 <pre class="example">
 tcpdump 'src 192.168.1.1 and dst 192.168.1.12'
@@ -895,17 +895,17 @@ tcpdump 'src 192.168.1.1 and dst 192.168.1.12'
 <p>The single quotes are optional and are just used to group the arguments together.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org0a3f775">
-<h4 id="org0a3f775">By Subnet</h4>
-<div class="outline-text-4" id="text-org0a3f775">
+<div class="outline-4" id="outline-container-org4d67518">
+<h4 id="org4d67518">By Subnet</h4>
+<div class="outline-text-4" id="text-org4d67518">
 <p>You can grab all the packets on a network or subnet using the <code>net</code> argument and <a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation">CIDR</a> notation<sup><a class="footref" href="posts/tcp-dump-notes/#fn.3" id="fnr.3.100">3</a></sup>. This example grabs all the packets on the <code>192.168.1.*</code> subnet.</p>
 <pre class="example">
 tcpdump net 192.168.1.0/24
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org738268e">
-<h4 id="org738268e">By port and/or protocol</h4>
-<div class="outline-text-4" id="text-org738268e">
+<div class="outline-4" id="outline-container-orgba6546b">
+<h4 id="orgba6546b">By port and/or protocol</h4>
+<div class="outline-text-4" id="text-orgba6546b">
 <p>If you want to only catch activity on a certain <a href="https://en.wikipedia.org/wiki/Port_(computer_networking)">port</a> and by a certain protocol then you use the <code>port</code> argument and the name of the protocol (e.g. <code>udp</code>)<sup><a class="footref" href="posts/tcp-dump-notes/#fn.3" id="fnr.3.100">3</a></sup>. This would catch all the <code>tcp</code> traffic over SSH.</p>
 <pre class="example">
 tcpdump tcp port 22
@@ -915,9 +915,9 @@ tcpdump tcp port 22
 tcpdump tcp port 22,80
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org5478b89">
-<h4 id="org5478b89">Turn off hostname and port translation</h4>
-<div class="outline-text-4" id="text-org5478b89">
+<div class="outline-4" id="outline-container-orgbfbba74">
+<h4 id="orgbfbba74">Turn off hostname and port translation</h4>
+<div class="outline-text-4" id="text-orgbfbba74">
 <p>The default behavior for <code>tcpdump</code> is to translate the hostnames and ports to something human-readable if possible. To turn this off you pass in the <code>-n</code> argument<sup><a class="footref" href="posts/tcp-dump-notes/#fn.3" id="fnr.3.100">3</a></sup>. Since this stops having to look things up it will reduce the amount of overhead needed by <code>tcpdump</code>.</p>
 <pre class="example">
 tcpdump -n -i eno1 port 22
@@ -925,9 +925,9 @@ tcpdump -n -i eno1 port 22
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf02cbde">
-<h2 id="orgf02cbde">Links</h2>
-<div class="outline-text-2" id="text-orgf02cbde">
+<div class="outline-2" id="outline-container-org93a5a0e">
+<h2 id="org93a5a0e">Links</h2>
+<div class="outline-text-2" id="text-org93a5a0e">
 <ul class="org-ul">
 <li>(Wireshark Revealed<sup><a class="footref" href="posts/tcp-dump-notes/#fn.5" id="fnr.5">5</a></sup>) <a href="http://www.tcpdump.org/">The tcpdump website</a></li>
 <li>(Wireshark Revealed<sup><a class="footref" href="posts/tcp-dump-notes/#fn.5" id="fnr.5.100">5</a></sup>) <a href="http://danielmiessler.com/study/tcpdump/">A friendly tutorial</a></li>
@@ -935,9 +935,9 @@ tcpdump -n -i eno1 port 22
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org50e59f0">
-<h2 id="org50e59f0">Sources</h2>
-<div class="outline-text-2" id="text-org50e59f0"></div>
+<div class="outline-2" id="outline-container-orgf602d42">
+<h2 id="orgf602d42">Sources</h2>
+<div class="outline-text-2" id="text-orgf602d42"></div>
 </div>
 <div id="footnotes">
 <h2 class="footnotes">Footnotes:</h2>
@@ -981,48 +981,48 @@ tcpdump -n -i eno1 port 22
 </header>
 <div class="p-summary entry-summary">
 <p>These are the parts that will make up the model.</p>
-<div class="outline-2" id="outline-container-org347a7d4">
-<h2 id="org347a7d4">Imports</h2>
-<div class="outline-text-2" id="text-org347a7d4"></div>
-<div class="outline-3" id="outline-container-orgc8563a4">
-<h3 id="orgc8563a4">The Sequential Model</h3>
-<div class="outline-text-3" id="text-orgc8563a4">
+<div class="outline-2" id="outline-container-org0d40ded">
+<h2 id="org0d40ded">Imports</h2>
+<div class="outline-text-2" id="text-org0d40ded"></div>
+<div class="outline-3" id="outline-container-org1a11cba">
+<h3 id="org1a11cba">The Sequential Model</h3>
+<div class="outline-text-3" id="text-org1a11cba">
 <p>The Keras <a href="https://keras.io/getting-started/sequential-model-guide/">Sequential Model</a> is a stack of layers that will make up the neural network.</p>
 <div class="highlight">
 <pre><span></span>from keras.models import Sequential
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgddafbfb">
-<h3 id="orgddafbfb">The Dense Layers</h3>
-<div class="outline-text-3" id="text-orgddafbfb">
+<div class="outline-3" id="outline-container-org8430b7d">
+<h3 id="org8430b7d">The Dense Layers</h3>
+<div class="outline-text-3" id="text-org8430b7d">
 <p>The Keras <a href="https://keras.io/layers/core/">Dense</a> layer is a densely-connected layer within our neural network.</p>
 <div class="highlight">
 <pre><span></span>from keras.layers.core import Activation
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org2a3463b">
-<h3 id="org2a3463b">Activation</h3>
-<div class="outline-text-3" id="text-org2a3463b">
+<div class="outline-3" id="outline-container-org95a9aab">
+<h3 id="org95a9aab">Activation</h3>
+<div class="outline-text-3" id="text-org95a9aab">
 <p>The <a href="https://keras.io/layers/core/#activation">Activation</a> represents the activation function for each layer (e.g. <b>relu</b>).</p>
 <div class="highlight">
 <pre><span></span>from keras.layers.core import Activation
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org69647c0">
-<h3 id="org69647c0">Adam</h3>
-<div class="outline-text-3" id="text-org69647c0">
+<div class="outline-3" id="outline-container-org56e5be6">
+<h3 id="org56e5be6">Adam</h3>
+<div class="outline-text-3" id="text-org56e5be6">
 <p>To tune the model to the data we'll use the <a href="https://keras.io/optimizers/#adam">Adam</a> optimizer</p>
 <div class="highlight">
 <pre><span></span>from keras.optimizers import Adam
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org9ab4607">
-<h3 id="org9ab4607">Categorical Converter</h3>
-<div class="outline-text-3" id="text-org9ab4607">
+<div class="outline-3" id="outline-container-org491ebe0">
+<h3 id="org491ebe0">Categorical Converter</h3>
+<div class="outline-text-3" id="text-org491ebe0">
 <p>Finally, since our problem is a classification problem (identify which of 10 digits an image represents) I'll import the Keras <a href="https://keras.io/utils/#to_categorical"><code>to_categorical</code></a> function to enable classification of our data.</p>
 <div class="highlight">
 <pre><span></span>from keras.utils import np_utils
@@ -1053,9 +1053,9 @@ tcpdump -n -i eno1 port 22
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org737b840">
-<h2 id="org737b840">Introduction</h2>
-<div class="outline-text-2" id="text-org737b840">
+<div class="outline-2" id="outline-container-orgcac34b0">
+<h2 id="orgcac34b0">Introduction</h2>
+<div class="outline-text-2" id="text-orgcac34b0">
 <p>This is an illustration of how to use bokeh with org-mode in nikola. There is a more extensive and flexible explanation of how to do this in <a href="http://cherian.net/posts/bokeh-org-mode.html">this post</a> on <a href="http://cherian.net">cherian.net</a> but I made these notes to understand how it works and to have a simpler example to refer to.</p>
 <p>I was interested in doing this because I'm trying to re-work some of what I did for the Coursera <b>Data Science With Python</b> specialization by changing the data-sets and building them as blog posts. I might convert the posts to restructured text at some point, but while I'm working with them I'm using org-mode. Also, while most of the time I use <a href="https://matplotlib.org">matplotlib</a> for plotting since this is going to be a blog-first approach I decided to go with <a href="https://bokeh.pydata.org/en/latest/">bokeh</a>. I had <a href="https://necromuralist.github.io/data_science/posts/bokeh-test/">previously written</a> about how to get <b>bokeh</b> into <a href="https://getnikola.com">Nikola</a> using restructured text, but as an intermediate step I want to do the work in org-mode and still be able to see the output as I'm working.</p>
 <p>The magic mix for this seems to be to use:</p>
@@ -1068,12 +1068,12 @@ tcpdump -n -i eno1 port 22
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org8811eb3">
-<h2 id="org8811eb3">Creating the Bokeh Plot</h2>
-<div class="outline-text-2" id="text-org8811eb3"></div>
-<div class="outline-3" id="outline-container-orgde317b2">
-<h3 id="orgde317b2">Imports</h3>
-<div class="outline-text-3" id="text-orgde317b2">
+<div class="outline-2" id="outline-container-orgd3cdb16">
+<h2 id="orgd3cdb16">Creating the Bokeh Plot</h2>
+<div class="outline-text-2" id="text-orgd3cdb16"></div>
+<div class="outline-3" id="outline-container-org05d1e2e">
+<h3 id="org05d1e2e">Imports</h3>
+<div class="outline-text-3" id="text-org05d1e2e">
 <p>These are the dependencies. It's really all <code>bokeh</code>, <code>numpy</code> is just there to generate the data-values.</p>
 <div class="highlight">
 <pre><span></span><span class="c1"># from pypi</span>
@@ -1089,9 +1089,9 @@ tcpdump -n -i eno1 port 22
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgc5e8e94">
-<h3 id="orgc5e8e94">The Data</h3>
-<div class="outline-text-3" id="text-orgc5e8e94">
+<div class="outline-3" id="outline-container-org401276d">
+<h3 id="org401276d">The Data</h3>
+<div class="outline-text-3" id="text-org401276d">
 <p>To get a simple example going I'm just going to use some random outputs generated by numpy.</p>
 <div class="highlight">
 <pre><span></span><span class="n">X</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
@@ -1142,9 +1142,9 @@ tcpdump -n -i eno1 port 22
 <p>The <code>tooltips</code> list maps the labels that will show up in the tooltip (the first argument to each tuple) to variables in the <code>ColumnDataSource</code> (if preceded by an <code>@</code>) or generated value (if preceded by a <code>$</code>) The <code>index</code> value is the index in the array where the data point sits (so for the first point it will be 0, the second will be 1, etc.). The <code>(x, y)</code> values are the coordinate locations of your pointer when you hover over the data points, and the <code>desc</code> will be replaced by the label I set in the <code>ColumnDataSource</code> for a particular data-point.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org6e51526">
-<h3 id="org6e51526">The Plot</h3>
-<div class="outline-text-3" id="text-org6e51526">
+<div class="outline-3" id="outline-container-org88fb859">
+<h3 id="org88fb859">The Plot</h3>
+<div class="outline-text-3" id="text-org88fb859">
 <p>Now I'll create the actual plot (<code>figure</code>).</p>
 <div class="highlight">
 <pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Random Example"</span><span class="p">,</span> <span class="n">x_axis_label</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">y_axis_label</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span>
@@ -1155,18 +1155,18 @@ tcpdump -n -i eno1 port 22
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org76c9961">
-<h2 id="org76c9961">Getting the Bokeh Plot Into The Post</h2>
-<div class="outline-text-2" id="text-org76c9961">
+<div class="outline-2" id="outline-container-org2f4aa32">
+<h2 id="org2f4aa32">Getting the Bokeh Plot Into The Post</h2>
+<div class="outline-text-2" id="text-org2f4aa32">
 <p>Finally I'll save the javascript and HTML files needed and then output the blob needed to embed the plot into this post. The <code>autoload_static</code> function takes the bokeh plot object (<code>fig</code>), the bokeh javascript that I loaded earlier (<code>bokeh</code>), and the name of the javascript file that you want it to creat (<code>test.js</code>) and returns the javascript to save (<code>javascript</code>) and the HTML fragment that will include the javascript (<code>source</code>). Note that because of the way nikola structures things I have to create a folder named <code>files/posts/bokeh-org-mode</code> and save the files there. Since nikola will automatically look in this folder the name you pass into <code>autoload_static</code> should just be the filename without the path, but when you save the javascript file you will save it there so you need to add the relative path. If my explanation seems a little convoluted, just look at the code below, it's fairly simple.</p>
 <p>First I'll create a variable to hold the path to the folder to save the files in. All files for nikola posts go into sub-folders of <code>files/posts/</code> and since the source file for this post is called <code>bokeh-org-mode.org</code>, the files to include in it go into the folder <code>files/posts/bokeh-org-mode</code> (<code>files/posts/</code> plus the slug for the post).</p>
 <div class="highlight">
 <pre><span></span><span class="n">FOLDER_PATH</span> <span class="o">=</span> <span class="s2">"../files/posts/bokeh-org-mode/"</span>
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org7059e29">
-<h3 id="org7059e29">The Javascript</h3>
-<div class="outline-text-3" id="text-org7059e29">
+<div class="outline-3" id="outline-container-org98ac9eb">
+<h3 id="org98ac9eb">The Javascript</h3>
+<div class="outline-text-3" id="text-org98ac9eb">
 <p>Now, I'll create the javascript source for the plot.</p>
 <div class="highlight">
 <pre><span></span><span class="n">FILE_NAME</span> <span class="o">=</span> <span class="s2">"test.js"</span>
@@ -1178,9 +1178,9 @@ tcpdump -n -i eno1 port 22
 <p>The <code>javascript</code> variable holds the actual javascript source code (which then gets saved) while the <code>source</code> variable holds the string with the HTML to embed the javascript into this post (which I show at the end of this post).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgfcee027">
-<h3 id="orgfcee027">Embedding the Plot</h3>
-<div class="outline-text-3" id="text-orgfcee027">
+<div class="outline-3" id="outline-container-org289c9bb">
+<h3 id="org289c9bb">Embedding the Plot</h3>
+<div class="outline-text-3" id="text-org289c9bb">
 <p>Finally, we need to print out the string that is stored in the <code>source</code> variable which then tells org-mode to embed the files into this post. I'll output the full org-block so you can see the header arguments.</p>
 <div class="highlight">
 <pre><span></span>#+BEGIN_SRC python :session bokeh :results output raw :exports results
@@ -1194,9 +1194,9 @@ print('''#+BEGIN_EXPORT html
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org4d3a49c">
-<h2 id="org4d3a49c">Summary</h2>
-<div class="outline-text-2" id="text-org4d3a49c">
+<div class="outline-2" id="outline-container-orgd537a3e">
+<h2 id="orgd537a3e">Summary</h2>
+<div class="outline-text-2" id="text-orgd537a3e">
 <p>To get a bokeh figure into an org-mode document in nikola:</p>
 <ol class="org-ol">
 <li>Create the bokeh plot.</li>

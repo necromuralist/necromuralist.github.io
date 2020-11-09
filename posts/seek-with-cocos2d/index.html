@@ -74,21 +74,21 @@
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
 <p>This is an implementation of Craig Reynold's flocking behavior based on the book <a href="https://www.packtpub.com/game-development/python-game-programming-example">Python Game Programming By Example</a>. Reynolds mentions many variations for flocking. This will implement a basic boid that flocks to the mouse pointer.</p>
-<div class="outline-2" id="outline-container-org8bfc975">
-<h2 id="org8bfc975">Imports</h2>
-<div class="outline-text-2" id="text-org8bfc975">
+<div class="outline-2" id="outline-container-org653bcf3">
+<h2 id="org653bcf3">Imports</h2>
+<div class="outline-text-2" id="text-org653bcf3">
 <div class="highlight">
 <pre><span></span><span class="c1"># third party</span>
 <span class="kn">from</span> <span class="nn">cocos.cocosnode</span> <span class="kn">import</span> <span class="n">CocosNode</span>
 <span class="kn">from</span> <span class="nn">cocos.euclid</span> <span class="kn">import</span> <span class="n">Vector2</span>
 <span class="kn">import</span> <span class="nn">cocos</span>
-<span class="kn">import</span> <span class="nn">cocos.particle_systems</span> <span class="kn">as</span> <span class="nn">particle_system</span>
+<span class="kn">import</span> <span class="nn">cocos.particle_systems</span> <span class="k">as</span> <span class="nn">particle_system</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org53b3789">
-<h2 id="org53b3789">Constants</h2>
-<div class="outline-text-2" id="text-org53b3789">
+<div class="outline-2" id="outline-container-org8882eaf">
+<h2 id="org8882eaf">Constants</h2>
+<div class="outline-text-2" id="text-org8882eaf">
 <div class="highlight">
 <pre><span></span><span class="n">CHASE</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">RUN_AWAY</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
@@ -96,28 +96,28 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0b6d217">
-<h2 id="org0b6d217">The Boid</h2>
-<div class="outline-text-2" id="text-org0b6d217"></div>
-<div class="outline-3" id="outline-container-org12fe9d2">
-<h3 id="org12fe9d2">Boid Settings</h3>
-<div class="outline-text-3" id="text-org12fe9d2">
+<div class="outline-2" id="outline-container-orga8a69c8">
+<h2 id="orga8a69c8">The Boid</h2>
+<div class="outline-text-2" id="text-orga8a69c8"></div>
+<div class="outline-3" id="outline-container-orgfc6868a">
+<h3 id="orgfc6868a">Boid Settings</h3>
+<div class="outline-text-3" id="text-orgfc6868a">
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">BoidSettings</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""a settings object"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">slowing_radius</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slowing_radius</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""list of required attributes"""</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"position"</span><span class="p">,</span>
                                 <span class="s2">"velocity"</span><span class="p">,</span>
                                 <span class="s2">"speed"</span><span class="p">,</span>
@@ -243,7 +243,7 @@
 <span class="sd">       TypeError if type of value not in expected</span>
 <span class="sd">       """</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"{0} must be one of {1}, not {2}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"</span><span class="si">{0}</span><span class="s2"> must be one of </span><span class="si">{1}</span><span class="s2">, not </span><span class="si">{2}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">identifier</span><span class="p">,</span>
                 <span class="n">expected</span><span class="p">,</span>
                 <span class="n">value</span><span class="p">))</span>
@@ -266,7 +266,7 @@
 <span class="sd">       TypeError if type of value is not expected</span>
 <span class="sd">       """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"{0} must be {1} not {2}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"</span><span class="si">{0}</span><span class="s2"> must be </span><span class="si">{1}</span><span class="s2"> not </span><span class="si">{2}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span>
                                                              <span class="n">expected</span><span class="p">,</span>
                                                              <span class="n">value</span><span class="p">))</span>
         <span class="k">return</span>
@@ -280,18 +280,18 @@
 <span class="sd">       TypeError if an attribute is None</span>
 <span class="sd">       """</span>
         <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"{0} must be set, not None"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attribute</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"</span><span class="si">{0}</span><span class="s2"> must be set, not None"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attribute</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgc35929c">
-<h3 id="orgc35929c">Boid Node</h3>
+<div class="outline-3" id="outline-container-orgf710bf7">
+<h3 id="orgf710bf7">Boid Node</h3>
 </div>
-<div class="outline-3" id="outline-container-org2618b5e">
-<h3 id="org2618b5e">the Constructor</h3>
-<div class="outline-text-3" id="text-org2618b5e">
+<div class="outline-3" id="outline-container-org74bebb8">
+<h3 id="org74bebb8">the Constructor</h3>
+<div class="outline-text-3" id="text-org74bebb8">
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">Boid</span><span class="p">(</span><span class="n">CocosNode</span><span class="p">):</span>
     <span class="sd">"""represents a boid</span>
@@ -310,7 +310,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">slowing_radius</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">slowing_radius</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">max_force</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_velocity</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">max_velocity</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 <p>I'm not a fan of method calls in the constructor, but these next two lines help set up the node.</p>
 <div class="highlight">
@@ -321,9 +321,9 @@
 <p>The <code>add</code> method sets the <code>Sun</code> instance as a child of the <code>Boid</code> node and the <code>schedule</code> method sets the <code>Boid's</code> <code>update</code> method to be called once per frame.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4539306">
-<h3 id="org4539306">The Current Position</h3>
-<div class="outline-text-3" id="text-org4539306">
+<div class="outline-3" id="outline-container-org3fe786b">
+<h3 id="org3fe786b">The Current Position</h3>
+<div class="outline-text-3" id="text-org3fe786b">
 <p>This is just a convenience attribute. It probably takes a performance hit, but the original code was a little obscure so I thought I'd pull it out to document it.</p>
 <div class="highlight">
 <pre><span></span><span class="nd">@property</span>
@@ -340,9 +340,9 @@
 <p>I had to look it up, since there's no setting of <code>self.x</code> or <code>self.y</code> here - these two attributes are built into the <a href="http://python.cocos2d.org/doc/api/cocos.cocosnode.html">CocosNode</a> object and are always the current values.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org635502e">
-<h3 id="org635502e">The Update Method</h3>
-<div class="outline-text-3" id="text-org635502e">
+<div class="outline-3" id="outline-container-org4a1d6f4">
+<h3 id="org4a1d6f4">The Update Method</h3>
+<div class="outline-text-3" id="text-org4a1d6f4">
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
     <span class="sd">"""updates the current position</span>
@@ -353,7 +353,7 @@
 <span class="sd">    delta: float</span>
 <span class="sd">      seconds since the last clock tick</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
 </pre></div>
 <p>The target is going to be set when the mouse is move. Because of this it's initially not set, so we need to short circuit if that's the case.</p>
@@ -392,7 +392,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">magnitude</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">magnitude</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">OverflowError</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
         <span class="k">raise</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">vector</span> <span class="k">if</span> <span class="n">magnitude</span> <span class="o">&lt;=</span> <span class="n">upper_bound</span>
             <span class="k">else</span> <span class="n">vector</span><span class="o">*</span><span class="p">(</span><span class="n">upper_bound</span><span class="o">/</span><span class="n">magnitude</span><span class="p">))</span>
@@ -400,9 +400,9 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org8b73b7b">
-<h2 id="org8b73b7b">Main Layer</h2>
-<div class="outline-text-2" id="text-org8b73b7b">
+<div class="outline-2" id="outline-container-org804387a">
+<h2 id="org804387a">Main Layer</h2>
+<div class="outline-text-2" id="text-org804387a">
 <p>This is the class to act as the event handler.</p>
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">MainLayer</span><span class="p">(</span><span class="n">cocos</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
@@ -414,7 +414,7 @@
 <span class="sd">    boids: collection</span>
 <span class="sd">      boids to maintain</span>
 <span class="sd">    """</span>
-    <span class="n">is_event_handler</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">is_event_handler</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 <p>That value (<code>is_event_handler</code>) has to be true or the <code>Layer</code> class doesn't handle events.</p>
 <div class="highlight">

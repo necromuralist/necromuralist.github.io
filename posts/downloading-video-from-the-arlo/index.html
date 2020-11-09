@@ -75,32 +75,32 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org905f7fb">The Prowler</a></li>
-<li><a href="#org12cebde">The Problem with Arlo</a></li>
-<li><a href="#orgbc60644">The Python Solution</a></li>
-<li><a href="#orgbb8618f">A Command-Line Interface</a></li>
-<li><a href="#org83cf08f">Conclusion</a></li>
+<li><a href="#orgf3fe25c">The Prowler</a></li>
+<li><a href="#orgb803f4a">The Problem with Arlo</a></li>
+<li><a href="#org6f5ef4c">The Python Solution</a></li>
+<li><a href="#org087b08e">A Command-Line Interface</a></li>
+<li><a href="#org995dbf3">Conclusion</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org905f7fb">
-<h2 id="org905f7fb">The Prowler</h2>
-<div class="outline-text-2" id="text-org905f7fb">
+<div class="outline-2" id="outline-container-orgf3fe25c">
+<h2 id="orgf3fe25c">The Prowler</h2>
+<div class="outline-text-2" id="text-orgf3fe25c">
 <p>I came home the other day to find some things from my garage outside on the driveway. The garage door was closed but the bolt wasn't in place, so I guess I forgot to secure it and someone went in while I was at work. I have two Arlo security cameras, one pointing at my front lawn and one at my back (I just took the ones I had set up to catch intruders and pointed them outside so they aren't really set up correctly) and they are supposed to send me notifications when motion is detected, but I didn't recall seeing any, but then I looked at my phone and I had missed one earlier in the day, and when I looked at it there was a video showing someone standing outside my back door, but that was all, but I have a Continuous Video Recording (CVR) subscription so I decided to poke around, that's when I found out how horrible Arlo's CVR really is.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org12cebde">
-<h2 id="org12cebde">The Problem with Arlo</h2>
-<div class="outline-text-2" id="text-org12cebde">
+<div class="outline-2" id="outline-container-orgb803f4a">
+<h2 id="orgb803f4a">The Problem with Arlo</h2>
+<div class="outline-text-2" id="text-orgb803f4a">
 <p>The first problem with the Arlo's CVR system is that it's not always reliable. I've had cameras randomly stop recording videos on the server and the only "fix" that the help desk was able to give me was to deauthorize and reauthorize them (and in some cases completely remove them from the base-station and re-add them). This seems to work, but whenever you deauthorize a camera the server dumps all your recordings, so if you think you want to save something you'll have to do that first or it won't be there when the camera gets re-authorized. But then if you try to save something you'll find that the Arlo doesn't provide a way to download the video. The work-around you'll find on the forums is to do a screen capture while it plays - a horrible system, especially since the flash interface is pretty flaky and doesn't always work on my PC.</p>
 <p>Then there's a secondary problem in that it's recording twenty-four hours a day - and they don't have a fast-forward button. They do have a timeline that you can click on to jump around, not only does this mean you might be jumping past events you want, but they don't really have a 'streaming' interface in the sense that Netflix or some other streaming service does where they're downloading small chunks so you don't have to wait a long time for the play to resume, instead the Arlo seems to be downloading one minute at a time so you have these really long waits, and the precision of the timeline isn't very good so you'll probably have to search a little bit just to find what you want.</p>
 <p>There's also another problem, which is that the user-interface's timeline isn't accurate, so even if you know the time of an event, you can't use the time in the interface to find it. In my case the bit that was captured on my phone showing the trespasser gave me a time, and there was a little blue dot on the timeline showing that there was an event at that time, but there was nothing in the video. It turned out that the video for the camera I had out back was shifted fifty-five minutes into the future, which was even more confusing because the time for the camera I had in front wasn't shifted (that I know of) so when I looked at the video for the front around that time I <i>was</i> able to see the prowler arriving.</p>
 <p>But even once I found the places in the CVR that showed the prowler (I didn't have it pointing at my garage so I didn't see him actually doing anything other than probing (knocking and then trying to open the doors)) I still had the problem of how to get the video before Netgear decided to break again and I lost it all. This is where python came in.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgbc60644">
-<h2 id="orgbc60644">The Python Solution</h2>
-<div class="outline-text-2" id="text-orgbc60644">
+<div class="outline-2" id="outline-container-org6f5ef4c">
+<h2 id="org6f5ef4c">The Python Solution</h2>
+<div class="outline-text-2" id="text-org6f5ef4c">
 <p>It turns out that even though netgear hasn't published an official API for the Arlo, some people (<a href="http://www.robertogallea.com/blog/netgear-arlo-api">like this guy</a>) have reverse-engineered the API and there are several python-based libraries on github that help you talk to the arlo. This <a href="https://github.com/jeffreydwalter/arlo">one</a>, by <i>jeffreydwalter</i> was the one that I saw that helped with downloading the CVR videos so it's the one that I went with. It's on pypi, but the commit that added CVR support was made a month ago and I wasn't sure when the pypi code was uploaded so I decided to install it from the master branch, since I was going to use the example code to start my code anyway - by this I mean I had to pull the repository anyway, so I used the <code>setup.py</code> file to install it (in developer mode in case it changes).</p>
 <p>The following code is basically what you can find in the example that comes with the repository called <a href="https://github.com/jeffreydwalter/arlo/blob/master/examples/arlo-cvrdownload.py">arlo-cvrdownload.py</a> re-written to have a command-line interface and match my coding style more.</p>
 <div class="highlight">
@@ -130,9 +130,9 @@
 <span class="o">&lt;&lt;</span><span class="n">cli</span><span class="o">&gt;&gt;</span>
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org2f408f1">
-<h3 id="org2f408f1">The Imports</h3>
-<div class="outline-text-3" id="text-org2f408f1">
+<div class="outline-3" id="outline-container-org343be59">
+<h3 id="org343be59">The Imports</h3>
+<div class="outline-text-3" id="text-org343be59">
 <div class="highlight">
 <pre><span></span><span class="c1"># python standard library</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
@@ -151,9 +151,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgb2add51">
-<h3 id="orgb2add51">Getting the User Name and Password</h3>
-<div class="outline-text-3" id="text-orgb2add51">
+<div class="outline-3" id="outline-container-org036b88d">
+<h3 id="org036b88d">Getting the User Name and Password</h3>
+<div class="outline-text-3" id="text-org036b88d">
 <p>In order to use the API you need to have a Netgear account and you have to pass it to the server. To prevent putting the credentials in the code, I'll use <a href="https://github.com/theskumar/python-dotenv">python-dotenv</a>. In order to use it I created a file named <code>config.arlo</code> with the information so I can load it.</p>
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">Configuration</span><span class="p">:</span>
@@ -181,9 +181,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_path</span>
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orgef7e45b">
-<h4 id="orgef7e45b">Load the credentials</h4>
-<div class="outline-text-4" id="text-orgef7e45b">
+<div class="outline-4" id="outline-container-org46b2a28">
+<h4 id="org46b2a28">Load the credentials</h4>
+<div class="outline-text-4" id="text-org46b2a28">
 <p><code>dotenv</code> works by adding the values in the configuration file into the environment dictionary. Most of the convenience of it comes if you create a <code>.env</code> file at the base of your repository, in which case it will automatically find it for you, but even though I'm not doing that it still saves me from parsing the file myself, so I'll use it. Since the other properties (<code>username</code> and <code>password</code>) rely on the values already being in the dictionary I'm calling <code>load_dotenv</code> in the <code>config_path</code> setter so that it's there before they get used.</p>
 <div class="highlight">
 <pre><span></span><span class="nd">@config_path.setter</span>
@@ -204,9 +204,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgca6b698">
-<h4 id="orgca6b698">And The Rest</h4>
-<div class="outline-text-4" id="text-orgca6b698">
+<div class="outline-4" id="outline-container-orgc9a3973">
+<h4 id="orgc9a3973">And The Rest</h4>
+<div class="outline-text-4" id="text-orgc9a3973">
 <p>This is the rest of the methods for the <code>Credentials</code> class. Org-mode pushes it flush-left on export so it looks like it is missing whitespace, but it's there in the code.</p>
 <div class="highlight">
 <pre><span></span><span class="nd">@property</span>
@@ -277,9 +277,9 @@
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org5f8e2d8">
-<h3 id="org5f8e2d8">Output File Paths</h3>
-<div class="outline-text-3" id="text-org5f8e2d8">
+<div class="outline-3" id="outline-container-org6c42975">
+<h3 id="org6c42975">Output File Paths</h3>
+<div class="outline-text-3" id="text-org6c42975">
 <p>Python 3.4 added a <a href="https://docs.python.org/3/library/pathlib.html">Path</a> class to create an object-oriented version of what <a href="https://docs.python.org/3/library/os.path.html">os.path</a> does (along with some other stuff). You don't need it but I like it. My command-line interface actually doesn't support the sub-folder so it mostly just makes sure the folder is there. The <code>Paths</code> class here is to help set up the directories for the video output files.</p>
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">Paths</span><span class="p">:</span>
@@ -331,9 +331,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org04da2ab">
-<h3 id="org04da2ab">Downloader</h3>
-<div class="outline-text-3" id="text-org04da2ab">
+<div class="outline-3" id="outline-container-orgef82ce8">
+<h3 id="orgef82ce8">Downloader</h3>
+<div class="outline-text-3" id="text-orgef82ce8">
 <p>This is the class to actually do the downloading. It essentially does what the example does but I like it to be both smaller and more verbose so this matches my style more.</p>
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">Downloader</span><span class="p">:</span>
@@ -505,9 +505,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_playlist</span>
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org12e6d2b">
-<h4 id="org12e6d2b">The Call</h4>
-<div class="outline-text-4" id="text-org12e6d2b">
+<div class="outline-4" id="outline-container-org34c4c23">
+<h4 id="org34c4c23">The Call</h4>
+<div class="outline-text-4" id="text-org34c4c23">
 <p>This does the actual downloading. It downloads some <code>m3u8</code> files and then pulls the files that they refer to. <a href="https://en.wikipedia.org/wiki/M3U#M3U8">m3u8</a> (MP3 URL with UTF-8 encoding) is a format to list URLs or paths that point to media and is said to be popular (by Wikipedia) in Dynamic Adaptive Streaming over HTTP (although I don't think the arlo uses DASH).</p>
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -563,9 +563,9 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgbb8618f">
-<h2 id="orgbb8618f">A Command-Line Interface</h2>
-<div class="outline-text-2" id="text-orgbb8618f">
+<div class="outline-2" id="outline-container-org087b08e">
+<h2 id="org087b08e">A Command-Line Interface</h2>
+<div class="outline-text-2" id="text-org087b08e">
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
@@ -596,9 +596,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org83cf08f">
-<h2 id="org83cf08f">Conclusion</h2>
-<div class="outline-text-2" id="text-org83cf08f">
+<div class="outline-2" id="outline-container-org995dbf3">
+<h2 id="org995dbf3">Conclusion</h2>
+<div class="outline-text-2" id="text-org995dbf3">
 <p>For a consumer product this seems like a lot of work to download videos, but I'm glad someone went to the trouble to build this to make up for Netgear's horrible user interface. The Arlo seems like some decent (although probably overpriced) hardware matched to some pretty bad software and nearly non-existent customer support or documentation and a not particularly robust web-service. I don't know that I would recommend it to anyone who wants more than a web-camera.</p>
 </div>
 </div>

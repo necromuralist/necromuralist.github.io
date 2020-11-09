@@ -76,36 +76,36 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org82c7c4f">Introduction</a></li>
-<li><a href="#org0e38dfc">Imports</a>
+<li><a href="#org885c15f">Introduction</a></li>
+<li><a href="#orgc5e2304">Imports</a>
 <ul>
-<li><a href="#org5d3b423">Python</a></li>
-<li><a href="#org6d5aa0f">From PyPi</a></li>
+<li><a href="#org4aff46f">Python</a></li>
+<li><a href="#org0a10ba3">From PyPi</a></li>
 </ul>
 </li>
-<li><a href="#orgdc6db37">The Data</a></li>
-<li><a href="#org91fe1ef">The Vectorizer</a></li>
-<li><a href="#orga44ad55">The LDA</a></li>
-<li><a href="#org73f643c">PyLDAvis</a>
+<li><a href="#orgae18c06">The Data</a></li>
+<li><a href="#org601a17b">The Vectorizer</a></li>
+<li><a href="#orge48feb1">The LDA</a></li>
+<li><a href="#org9b6b3d4">PyLDAvis</a>
 <ul>
-<li><a href="#orga609b01">Prepare the Data for the Visualization</a></li>
+<li><a href="#org97fa2a6">Prepare the Data for the Visualization</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org82c7c4f">
-<h2 id="org82c7c4f">Introduction</h2>
-<div class="outline-text-2" id="text-org82c7c4f">
+<div class="outline-2" id="outline-container-org885c15f">
+<h2 id="org885c15f">Introduction</h2>
+<div class="outline-text-2" id="text-org885c15f">
 <p>In my <a href="https://necromuralist.github.io/posts/pyldavis-in-org-mode/">last post</a> I loaded the pyLDAvis widget by dumping the HTML/Javascript right into the org-mode document. The problem with doing this is that the document has a lot of lines of text in it, which slows down emacs a noticeable amount, making it hard to display one widget, and pretty much impractical to show more than one. So, since <a href="https://www.getnikola.com/">Nikola</a> (or maybe bootstrap or one of the other plugins I'm using) is loading <a href="https://jquery.com/">JQuery</a> anyway, I'm going to use javascript to add the HTML after it loads from a file.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0e38dfc">
-<h2 id="org0e38dfc">Imports</h2>
-<div class="outline-text-2" id="text-org0e38dfc"></div>
-<div class="outline-3" id="outline-container-org5d3b423">
-<h3 id="org5d3b423">Python</h3>
-<div class="outline-text-3" id="text-org5d3b423">
+<div class="outline-2" id="outline-container-orgc5e2304">
+<h2 id="orgc5e2304">Imports</h2>
+<div class="outline-text-2" id="text-orgc5e2304"></div>
+<div class="outline-3" id="outline-container-org4aff46f">
+<h3 id="org4aff46f">Python</h3>
+<div class="outline-text-3" id="text-org4aff46f">
 <p><code>datetime</code> is just to show how long things take. In this case the data-set is fairly small so it doesn't take very long, but in other cases it might take a very long time to build the LDA model so I like to time it so I know the next time about how long I should wait.</p>
 <div class="highlight">
 <pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -113,9 +113,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org6d5aa0f">
-<h3 id="org6d5aa0f">From PyPi</h3>
-<div class="outline-text-3" id="text-org6d5aa0f">
+<div class="outline-3" id="outline-container-org0a10ba3">
+<h3 id="org0a10ba3">From PyPi</h3>
+<div class="outline-text-3" id="text-org0a10ba3">
 <div class="highlight">
 <pre><span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
 <span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">LatentDirichletAllocation</span>
@@ -126,9 +126,9 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgdc6db37">
-<h2 id="orgdc6db37">The Data</h2>
-<div class="outline-text-2" id="text-orgdc6db37">
+<div class="outline-2" id="outline-container-orgae18c06">
+<h2 id="orgae18c06">The Data</h2>
+<div class="outline-text-2" id="text-orgae18c06">
 <p>I'm going to use the <a href="https://archive.ics.uci.edu/ml/datasets/Twenty+Newsgroups">Twenty Newsgroups</a> data-set, not because of anything significant, but because sklearn has a downloader for it so I figured it'd be easiest.</p>
 <div class="highlight">
 <pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"~/datasets/newsgroups/"</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
@@ -139,6 +139,7 @@
 </pre></div>
 <pre class="example">
 /home/brunhilde/datasets/newsgroups
+
 </pre>
 <p>The <code>newsgroups.data</code> is a list, so it doesn't have a shape attribute like it would it it were a numpy array.</p>
 <div class="highlight">
@@ -148,13 +149,14 @@
 <pre class="example">
 11,314
 0.63
+
 </pre>
 <p>The <a href="https://sklearn.org/datasets/twenty_newsgroups.html#newsgroups">documentation for the <code>fetch_20newsgroups</code> function</a> says that the full dataset has 18,000 entries, so we have about 63% of the full set.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org91fe1ef">
-<h2 id="org91fe1ef">The Vectorizer</h2>
-<div class="outline-text-2" id="text-org91fe1ef">
+<div class="outline-2" id="outline-container-org601a17b">
+<h2 id="org601a17b">The Vectorizer</h2>
+<div class="outline-text-2" id="text-org601a17b">
 <p>I'm going to use sklearn's <a href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html">CountVectorizer</a> to convert the newsgroups documents to arrays of token counts. This is about the visualization, not making an accurate model so I'm going to use the built-in tokenizer. I'm not sure what the <code>fit</code> method is for, but the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html#sklearn.feature_extraction.text.CountVectorizer.fit_transform">fit_transform</a> method returns the document-term matrix that we need (each row represents a document, the columns are the tokens, and the cells hold the counts for each token in the document).</p>
 <div class="highlight">
 <pre><span></span><span class="n">started</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
@@ -164,11 +166,12 @@
 </pre></div>
 <pre class="example">
 Elapsed: 0:00:03.033235
+
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-orga44ad55">
-<h2 id="orga44ad55">The LDA</h2>
-<div class="outline-text-2" id="text-orga44ad55">
+<div class="outline-2" id="outline-container-orge48feb1">
+<h2 id="orge48feb1">The LDA</h2>
+<div class="outline-text-2" id="text-orge48feb1">
 <p>Now we'll build the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.LatentDirichletAllocation.html">Latent Dirichlet Allocation Model</a>.</p>
 <div class="highlight">
 <pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
@@ -179,19 +182,20 @@ Elapsed: 0:00:03.033235
 </pre></div>
 <pre class="example">
 Elapsed: 0:02:37.479097
+
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-org73f643c">
-<h2 id="org73f643c">PyLDAvis</h2>
-<div class="outline-text-2" id="text-org73f643c">
+<div class="outline-2" id="outline-container-org9b6b3d4">
+<h2 id="org9b6b3d4">PyLDAvis</h2>
+<div class="outline-text-2" id="text-org9b6b3d4">
 <p>Okay so here's where we try and get <a href="https://pyldavis.readthedocs.io/en/latest/readme.html#">pyLDAvis</a> into this thing.</p>
 </div>
-<div class="outline-3" id="outline-container-orga609b01">
-<h3 id="orga609b01">Prepare the Data for the Visualization</h3>
-<div class="outline-text-3" id="text-orga609b01"></div>
-<div class="outline-4" id="outline-container-org7f678a7">
-<h4 id="org7f678a7">The Prepared Data</h4>
-<div class="outline-text-4" id="text-org7f678a7">
+<div class="outline-3" id="outline-container-org97fa2a6">
+<h3 id="org97fa2a6">Prepare the Data for the Visualization</h3>
+<div class="outline-text-3" id="text-org97fa2a6"></div>
+<div class="outline-4" id="outline-container-orgd32a8b8">
+<h4 id="orgd32a8b8">The Prepared Data</h4>
+<div class="outline-text-4" id="text-orgd32a8b8">
 <p>The first step in using pyLDAvis is to create a <code>PreparedData</code> named-tuple using the <a href="https://pyldavis.readthedocs.io/en/latest/modules/API.html#pyLDAvis.prepare">prepare</a> function.</p>
 <div class="highlight">
 <pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
@@ -200,11 +204,12 @@ Elapsed: 0:02:37.479097
 </pre></div>
 <pre class="example">
 Elapsed: 0:00:34.293668
+
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org8d2a671">
-<h4 id="org8d2a671">Build the HTML</h4>
-<div class="outline-text-4" id="text-org8d2a671">
+<div class="outline-4" id="outline-container-org30c3340">
+<h4 id="org30c3340">Build the HTML</h4>
+<div class="outline-text-4" id="text-org30c3340">
 <p>Now we can create an HTML fragment using the <a href="https://pyldavis.readthedocs.io/en/latest/modules/API.html#pyLDAvis.prepared_data_to_html">prepared_data</a> function. The output is a string of HTML script, style, and div tags. It adds the entire data-set as a javascript object so the more data you have, the longer the string will be.</p>
 <div class="highlight">
 <pre><span></span><span class="n">div_id</span> <span class="o">=</span> <span class="s2">"pyldavis-in-org-mode"</span>
@@ -214,9 +219,9 @@ Elapsed: 0:00:34.293668
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orga56bffc">
-<h4 id="orga56bffc">Export the HTML</h4>
-<div class="outline-text-4" id="text-orga56bffc">
+<div class="outline-4" id="outline-container-org8f8a957">
+<h4 id="org8f8a957">Export the HTML</h4>
+<div class="outline-text-4" id="text-org8f8a957">
 <p>Now I'm going to save the html to a file so we can load it later.</p>
 <div class="highlight">
 <pre><span></span><span class="n">slug</span> <span class="o">=</span> <span class="s2">"pyldavis-in-org-mode-with-jquery"</span>
