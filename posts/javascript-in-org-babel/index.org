@@ -1,0 +1,91 @@
+#+BEGIN_COMMENT
+.. title: Javascript in Org-Babel
+.. slug: javascript-in-org-babel
+.. date: 2020-10-16 20:48:55 UTC-07:00
+.. tags: javascript,emacs,org
+.. category: Javascript
+.. link: 
+.. description: Testing javascript in org-babel.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* Beginning
+  This is a test of running javascript in org-babel blocks. For some reason I couldn't find any documentation about setting it up so this is also a place for me to collect what to do.
+
+**Note:** I actually did use [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-js.html][this org-babel page]] for some of it, but it wasn't enough for me to really figure out what was going on.
+* Middle
+** Prerequites
+*** Node
+    Since javascript is an interpreted language you need an interpreter to run code blocks. Org-babel assumes you're using [[https://nodejs.org/en/][node.js]] so you need to install it and make sure it's on the =PATH=. They do support debian-based systems (including Ubuntu, which I use) but they don't use the traditional PPA system. Instead they have different installs for the different versions - but they do have a Long-Term Support (LTS) version which I'm hoping updates so that's what I installed.
+
+#+begin_src bash
+curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+#+end_src
+
+As of this writing it install version 12.19.0, versus the Ubuntu 20.04 version of 10.19.0.
+** init.el
+   Besides installing node you have to make sure that you add =js= to your org-babel set up.
+
+#+begin_src emacs
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((js . t)))
+#+end_src
+
+If you already have other languages added this just goes in the same block.
+
+#+begin_src emacs
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((plantuml . t)
+     (shell . t)
+     (emacs-lisp . t)
+     (latex . t)
+     (ditaa . t)
+     (js . t)
+     (python . t)
+     (jupyter . t)
+     ))
+#+end_src
+** Try It
+   Now that it's set up you can execute javascript in org-babel code blocks, designating them as =js= blocks (e.g. =#+begin_src js :results output :exports both=).
+
+Here's a simple output block.
+
+#+begin_src js :results output :exports both
+console.log("test")
+#+end_src
+
+#+RESULTS:
+: test
+
+#+begin_src js :results output :exports both
+var x = 'apple'
+console.log(x)
+var y = 'banana'
+console.log(x + y)
+#+end_src
+
+#+RESULTS:
+: apple
+: applebanana
+
+One thing to note is that this doesn't seem create sessions that persist across blocks. Even though I defined =x= and =y= in the previous block, this next block raises an error because it doesn't think I've defined =y=.
+
+#+begin_src js :results none
+console.log(y)
+#+end_src
+
+#+begin_src js :results none
+console.log(x)
+#+end_src
+
+If you try and put a session argument in the org-babel header you'll get a message saying "Session evaluation with node.js not supported". According to the [[https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-js.org.html][org-babel-js documentation]] you can put in special headers to run the code in an alternate REPL, but I tried it and the output ends up in a separate buffer rather than showing up in the org-document, which seems to kind of lessen the usefulness of it. Also the js-comint version dumps extra text into the REPL as well.
+
+* End
+  Okay, so this was a very basic hello world for javascript in emacs. The lack of sessions is kind of disappointing, but I don't know how useful this is going to be, anyway, since javascript is so tied to the browser, but there it is.

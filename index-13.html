@@ -64,21 +64,21 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orga7f19c1">Beginning</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org5098cc3">Middle</a>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org59e907c">Beginning</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgdc4bd67">Middle</a>
 <ul>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org94dcede">The Plugin File</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgd403233">The Plugin Code</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org28d4898">Stealing From the <code>doc</code></a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org6bdb2e0">The Plugin</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgd2e14ad">Checking It Out</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org8dab792">Does it work like the original doc?</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org6da8ad2">Does it accept a title?</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgcd84b4b">What if the slug doesn't exist?</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org84a3019">One More Thing</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org4794d34">The Plugin File</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgf6ac894">The Plugin Code</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org12b7323">Stealing From the <code>doc</code></a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org3f4e8a2">The Plugin</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org67bb7ec">Checking It Out</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org1d9e375">Does it work like the original doc?</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgb1e7168">Does it accept a title?</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org5bffbf4">What if the slug doesn't exist?</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgc4c5f79">One More Thing</a></li>
 </ul>
 </li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgda8668e">End</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org9a8b786">End</a></li>
 </ul>
 </div>
 </div>
@@ -86,9 +86,9 @@
 <p><img alt="lancelot_link.jpg" src="posts/2c-updating-a-nikola-shortcode-plugin/lancelot_link.jpg"></p>
 </div>
 <p>Source: <a href="https://www.flickr.com/photos/myprontopup/264413649/in/photostream/">Brian</a> (<a href="https://creativecommons.org/licenses/by-nc/2.0/">CC License</a>)/Unmodified</p>
-<div class="outline-2" id="outline-container-orga7f19c1">
-<h2 id="orga7f19c1">Beginning</h2>
-<div class="outline-text-2" id="text-orga7f19c1">
+<div class="outline-2" id="outline-container-org59e907c">
+<h2 id="org59e907c">Beginning</h2>
+<div class="outline-text-2" id="text-org59e907c">
 <p>These are some notes to help me remember what I did to alter a <a href="https://www.getnikola.com/">Nikola</a> <a href="https://www.getnikola.com/handbook.html#shortcodes">shortcode</a> plugin. A while back I looked into using their <a href="https://www.getnikola.com/handbook.html#doc"><code>doc</code></a> <a href="https://www.getnikola.com/handbook.html#restructuredtext-extensions">reStructured Text extension</a> ("role"?) which automatically creates links to other posts by looking up the <a href="https://www.wikiwand.com/en/Clean_URL#/Slug">slug</a> or title that you pass to it, but since I switched to using org-mode instead of restructured text I couldn't use it. Then I found out the other day that they built a <a href="https://www.getnikola.com/handbook.html#shortcodes">shortcode</a> that allows you to use it in other formats and when I tried it it worked - mostly.</p>
 <p>A tag that looks like this:</p>
 <p>{{% doc %}}2-nikola-inter-site-links{{% /doc %}}</p>
@@ -96,14 +96,14 @@
 <p>The problem is that, while the <code>doc</code> shortcode supports giving the link an alternate title, it expects restructured-text formatting. e.g. <code>`alternate title&lt;some-slug&gt;`</code>. Why is this a problem? Well, I didn't look into where it's happening, but when the text within the {{% doc %}} tags gets sent to the shortcode code (meaning the python plugin code) for processing it converts the angle brackets (<code>&lt;</code> and <code>&gt;</code>) to <a href="https://www.w3schools.com/html/html_entities.asp">HTML character entities</a> (e.g. the <code>&lt;</code> becomes <code>&amp;lt</code>) but the regular expression in the code that extracts the alternate title is looking for the braces (presumably the role is processed differently from the shortcode) anyway, I was trying to figure out some workarounds but then I looked at the code and it looked fairly easy to customize so I decided I would so that I could learn how to do it (and have a way to use alternative titles in org-mode). So, here it goes.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5098cc3">
-<h2 id="org5098cc3">Middle</h2>
-<div class="outline-text-2" id="text-org5098cc3">
+<div class="outline-2" id="outline-container-orgdc4bd67">
+<h2 id="orgdc4bd67">Middle</h2>
+<div class="outline-text-2" id="text-orgdc4bd67">
 <p>I'm going to call my shortcode <code>lancelot</code>. I was going to call it link, but that seems like it might clash with something else, either now or in the future, so I decided to name it after <a href="https://www.wikiwand.com/en/Lancelot_Link,_Secret_Chimp">Lancelot Link, Secret Chimp</a> instead. Hopefully that won't end up conflicting with anything.</p>
 </div>
-<div class="outline-3" id="outline-container-org94dcede">
-<h3 id="org94dcede">The Plugin File</h3>
-<div class="outline-text-3" id="text-org94dcede">
+<div class="outline-3" id="outline-container-org4794d34">
+<h3 id="org4794d34">The Plugin File</h3>
+<div class="outline-text-3" id="text-org4794d34">
 <p>The first thing I did was poke around in the nikola folders for something I could copy. I decided to use the existing <code>gist</code> shortcode to start with. Why not use <code>doc</code>? because it's in a different folder and inherits from the <code>RestExtension</code> which didn't seem like what I wanted, although maybe that's what makes the angle brackets work, but anyway, the <code>gist</code> seemed like a good place to start. They appear to be using <a href="https://yapsy.readthedocs.io/en/latest/">yapsy</a> for the plugin system, which requires two files for your plugin, a python file where you define the plugin and a plugin-info file (which looks like an ini file). So to start I copied <code>nikola/plugins/shortcode/gist.plugin</code> and renamed it <code>lancelot.plugin</code> then edited it to look like this.</p>
 <div class="highlight">
 <pre><span></span>[Core]
@@ -122,9 +122,9 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <p>Seems easy enough. Now to the plugin code.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgd403233">
-<h3 id="orgd403233">The Plugin Code</h3>
-<div class="outline-text-3" id="text-orgd403233">
+<div class="outline-3" id="outline-container-orgf6ac894">
+<h3 id="orgf6ac894">The Plugin Code</h3>
+<div class="outline-text-3" id="text-orgf6ac894">
 <p>According to the documentation on <a href="https://getnikola.com/extending.html#shortcodes">creating a shortcode</a>, the requirements are that you create a plugin that inherits from the <code>ShortcodePlugin</code> (you'll find it in the <code>nikola/plugin_categories.py</code> file if you want to check it out) and define the <code>handler</code> method that handles the shortcode and returns a tuple of <code>(output, dependencies)</code>. The <code>output</code> is the text that will replace the shortcode in the document and the <code>dependencies</code> is a list of files that nikola will use to check if something is out of date (I don't use it here).</p>
 <p>There are three required named arguments for the <code>handler</code> method:</p>
 <ul class="org-ul">
@@ -151,9 +151,9 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <p>So, other than some doc-strings all you have to do is set the name and then the handler, which we'll do next.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org28d4898">
-<h3 id="org28d4898">Stealing From the <code>doc</code></h3>
-<div class="outline-text-3" id="text-org28d4898">
+<div class="outline-3" id="outline-container-org12b7323">
+<h3 id="org12b7323">Stealing From the <code>doc</code></h3>
+<div class="outline-text-3" id="text-org12b7323">
 <p>The file that I stole most of the code from is located in <code>nikola/plugins/compile/rest/doc.py</code>. The <code>Plugin</code> class in that file is handling both the restructured text role and the shortcode so we don't need all of it. According to the documentation I linked to above, the <code>set_site</code> method is used to tell nikola to use something other than the <code>handler</code> method, and in this case the author used it to register the functions for the two things it's handling.</p>
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">set_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
@@ -173,29 +173,29 @@ description = Variant of the doc shortcode that allows alternate titles for non-
     <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">twin_slugs</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s1">'More than one post with the same slug. Using "{0}" for doc shortcode'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">permalink</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s1">'&lt;a href="{0}"&gt;{1}&lt;/a&gt;'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">permalink</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+                <span class="s1">'More than one post with the same slug. Using "</span><span class="si">{0}</span><span class="s1">" for doc shortcode'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">permalink</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s1">'&lt;a href="</span><span class="si">{0}</span><span class="s1">"&gt;</span><span class="si">{1}</span><span class="s1">&lt;/a&gt;'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">permalink</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s1">'"{0}" slug doesn</span><span class="se">\'</span><span class="s1">t exist.'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">slug</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s1">'&lt;span class="error text-error" style="color: red;"&gt;Invalid link: {0}&lt;/span&gt;'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="s1">'"</span><span class="si">{0}</span><span class="s1">" slug doesn</span><span class="se">\'</span><span class="s1">t exist.'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">slug</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s1">'&lt;span class="error text-error" style="color: red;"&gt;Invalid link: </span><span class="si">{0}</span><span class="s1">&lt;/span&gt;'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 </pre></div>
 <p>It looks pretty straight-forward except it's using two things not defined within it - <code>LOGGER</code> and <code>_doc_link</code>. The <code>LOGGER</code> is just an import so we can just change the start of our file to grab it. The <code>doc_link</code> is a function in the same file as <code>doc_shortcode</code>. My first thought for the <code>_doc_link</code> was that since it's a standalone function I could just import it and call it. That turned out to have a small problem though - right in the middle of <code>_doc_link</code> is this for loop:</p>
 <div class="highlight">
 <pre><span></span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">doc_role</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">timeline</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="s1">'slug'</span><span class="p">)</span> <span class="o">==</span> <span class="n">slug</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">post</span> <span class="o">=</span> <span class="n">p</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">twin_slugs</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">twin_slugs</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">break</span>
 </pre></div>
 <p>What you'll notice is that the <code>doc_role</code> function has an attribute <code>site</code>. Well, it doesn't really, until it's set in that <code>set_site</code> method above. So, okay, maybe I could figure out some way to set it… or maybe not, I don't know but even if I could it seems like it'd get kind of convoluted, and who knows what changes the original author might make in the future, it just seemed like it'd make more sense to re-implement it myself.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org6bdb2e0">
-<h3 id="org6bdb2e0">The Plugin</h3>
-<div class="outline-text-3" id="text-org6bdb2e0">
+<div class="outline-3" id="outline-container-org3f4e8a2">
+<h3 id="org3f4e8a2">The Plugin</h3>
+<div class="outline-text-3" id="text-org3f4e8a2">
 <p>So, first a different start to our file, this time with the <code>LOGGER</code> and <code>slugify</code> imported (the <code>slugify</code> was in <code>_doc_link</code> which I'm re-defining later).</p>
 <div class="highlight">
 <pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
@@ -214,9 +214,9 @@ description = Variant of the doc shortcode that allows alternate titles for non-
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"lancelot"</span>
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orgb09bb8f">
-<h4 id="orgb09bb8f"><code>lancelot_link</code></h4>
-<div class="outline-text-4" id="text-orgb09bb8f">
+<div class="outline-4" id="outline-container-org9a30d9d">
+<h4 id="org9a30d9d"><code>lancelot_link</code></h4>
+<div class="outline-text-4" id="text-org9a30d9d">
 <p>To replace the <code>_doc_link</code> I made a new function called <code>lancelot_link</code> which I'll be looking at in parts. First up is the function declaration.</p>
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">lancelot_link</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">slug</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
@@ -237,49 +237,49 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <p><b>Note:</b> I'm not indenting the rest of the code in the post but imagine it's indented four spaces.</p>
 </div>
 <ul class="org-ul">
-<li><a id="orgbac620a"></a>Slugification<br>
-<div class="outline-text-5" id="text-orgbac620a">
+<li><a id="orga596e77"></a>Slugification<br>
+<div class="outline-text-5" id="text-orga596e77">
 <p>The first thing the function does is split out any fragments that might have been attached and "slugifies" the slug (makes sure it's ASCII and has only alphanumeric characters).</p>
 <div class="highlight">
 <pre><span></span><span class="k">if</span> <span class="s1">'#'</span> <span class="ow">in</span> <span class="n">slug</span><span class="p">:</span>
     <span class="n">slug</span><span class="p">,</span> <span class="n">fragment</span> <span class="o">=</span> <span class="n">slug</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'#'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">fragment</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">fragment</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">slug</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">slug</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
-<li><a id="orgddb66ea"></a>Find the Post<br>
-<div class="outline-text-5" id="text-orgddb66ea">
+<li><a id="org3ef0557"></a>Find the Post<br>
+<div class="outline-text-5" id="text-org3ef0557">
 <p>Next it checks to see if the slug refers to an actual page on the site and if there are duplicate slugs. If the page doesn't exist, then it short-circuits the function so the <code>handler</code> can return some error text instead of a link. If it does exist it saves the <code>post</code> object for the next step (using the first post in the timeline if there were duplicates).</p>
 <div class="highlight">
-<pre><span></span><span class="n">twin_slugs</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="n">post</span> <span class="o">=</span> <span class="bp">None</span>
+<pre><span></span><span class="n">twin_slugs</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">post</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">timeline</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="s1">'slug'</span><span class="p">)</span> <span class="o">==</span> <span class="n">slug</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">post</span> <span class="o">=</span> <span class="n">p</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">twin_slugs</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">twin_slugs</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">break</span>
 
-<span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-    <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">slug</span>
+<span class="k">if</span> <span class="n">post</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">slug</span>
 </pre></div>
 </div>
 </li>
-<li><a id="org27962c3"></a>The Title<br>
-<div class="outline-text-5" id="text-org27962c3">
+<li><a id="org0003e69"></a>The Title<br>
+<div class="outline-text-5" id="text-org0003e69">
 <p>If the user didn't pass in an alternative title this grabs the title that was given to the post we're linking to.</p>
 <p><b>Note:</b> The <code>doc</code> shortcode raises then catches a <code>ValueError</code> exception if there's no matching post. I had thought that this was for logging, but that doesn't appear to be the case so I took it out. But since I don't know what it was doing in the first place I might be breaking something. Not that I can tell, though.</p>
 <div class="highlight">
-<pre><span></span><span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+<pre><span></span><span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 </pre></div>
 </div>
 </li>
-<li><a id="org205e47c"></a>The Permalink<br>
-<div class="outline-text-5" id="text-org205e47c">
+<li><a id="org33b83ce"></a>The Permalink<br>
+<div class="outline-text-5" id="text-org33b83ce">
 <p>Now we grab the permalink.</p>
 <div class="highlight">
 <pre><span></span><span class="n">permalink</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">permalink</span><span class="p">()</span>
@@ -288,8 +288,8 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 </pre></div>
 </div>
 </li>
-<li><a id="orgd668672"></a>The Return<br>
-<div class="outline-text-5" id="text-orgd668672">
+<li><a id="orge0ae8fd"></a>The Return<br>
+<div class="outline-text-5" id="text-orge0ae8fd">
 <p>And finally we do the return dance to answer some questions for the <code>handler</code>:</p>
 <ul class="org-ul">
 <li><i>Did we find the post?</i></li>
@@ -299,19 +299,19 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <li><i>What's the correct slug?</i></li>
 </ul>
 <div class="highlight">
-<pre><span></span><span class="k">return</span> <span class="bp">True</span><span class="p">,</span> <span class="n">twin_slugs</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">permalink</span><span class="p">,</span> <span class="n">slug</span>
+<pre><span></span><span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">twin_slugs</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">permalink</span><span class="p">,</span> <span class="n">slug</span>
 </pre></div>
 <p>The <code>slug</code> is only for the logging messages.</p>
 </div>
 </li>
 </ul>
 </div>
-<div class="outline-4" id="outline-container-org1ab7b8d">
-<h4 id="org1ab7b8d">The handler</h4>
-<div class="outline-text-4" id="text-org1ab7b8d">
+<div class="outline-4" id="outline-container-org0468789">
+<h4 id="org0468789">The handler</h4>
+<div class="outline-text-4" id="text-org0468789">
 <p>Now I'll define the <code>handler</code> that's called by nikola. This is a method of the Plugin class that I started above, but I'm showing it after the <code>lancelot_link</code> function since it mostly just calls <code>lancelot_link</code> and creates the output from what it returned. I originally had it all in the same method (and maybe I'll put it back at some point). But I thought it was a little easier to read this way, especially as I referred back to the original <code>doc</code> plugin to see what's going on.</p>
 <div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<pre><span></span><span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">"""Create an inter-site link</span>
 
 <span class="sd">    Args:</span>
@@ -326,36 +326,36 @@ description = Variant of the doc shortcode that allows alternate titles for non-
         <span class="k">if</span> <span class="n">twin_slugs</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s1">'More than one post with the same slug. '</span>
-                <span class="n">f</span><span class="s1">'Using "{permalink}" for lancelot shortcode'</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">f</span><span class="s1">'&lt;a href="{permalink}"&gt;{title}&lt;/a&gt;'</span>
+                <span class="sa">f</span><span class="s1">'Using "</span><span class="si">{</span><span class="n">permalink</span><span class="si">}</span><span class="s1">" for lancelot shortcode'</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'&lt;a href="</span><span class="si">{</span><span class="n">permalink</span><span class="si">}</span><span class="s1">"&gt;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s1">&lt;/a&gt;'</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="n">f</span><span class="s1">'"{slug}" slug doesn</span><span class="se">\'</span><span class="s1">t exist.'</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">slug</span><span class="si">}</span><span class="s1">" slug doesn</span><span class="se">\'</span><span class="s1">t exist.'</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'&lt;span class="error text-error" style="color: red;"&gt;'</span>
-                  <span class="n">f</span><span class="s1">'Invalid link: {data}&lt;/span&gt;'</span><span class="p">)</span>
+                  <span class="sa">f</span><span class="s1">'Invalid link: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s1">&lt;/span&gt;'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="p">[]</span>
 </pre></div>
 <p>One thing to note here is that the original <code>doc</code> plugin only returns the output, not an empty list, even though the documentation says you should. It works either way, but I noticed the <code>gist</code> plugin returned an empty list with the output so I followed, like a lemming to the sea.</p>
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgd2e14ad">
-<h3 id="orgd2e14ad">Checking It Out</h3>
-<div class="outline-text-3" id="text-orgd2e14ad">
+<div class="outline-3" id="outline-container-org67bb7ec">
+<h3 id="org67bb7ec">Checking It Out</h3>
+<div class="outline-text-3" id="text-org67bb7ec">
 <p>Now let's give it a dry run.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org8dab792">
-<h3 id="org8dab792">Does it work like the original doc?</h3>
-<div class="outline-text-3" id="text-org8dab792">
+<div class="outline-3" id="outline-container-org1d9e375">
+<h3 id="org1d9e375">Does it work like the original doc?</h3>
+<div class="outline-text-3" id="text-org1d9e375">
 <p>If we put this in the post: {{% lancelot %}}2-nikola-inter-site-links{{% /lancelot %}}</p>
 <p>We get this:</p>
 <p><a href="posts/2-nikola-inter-site-links/">Nikola Inter-Site Links</a></p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org6da8ad2">
-<h3 id="org6da8ad2">Does it accept a title?</h3>
-<div class="outline-text-3" id="text-org6da8ad2">
+<div class="outline-3" id="outline-container-orgb1e7168">
+<h3 id="orgb1e7168">Does it accept a title?</h3>
+<div class="outline-text-3" id="text-orgb1e7168">
 <p>Now, what this was all about.</p>
 <p>{{% lancelot title="An old post about linking to another post." %}}2-nikola-inter-site-links{{% /lancelot %}}</p>
 <p>Gives us:</p>
@@ -366,18 +366,18 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <p><a href="posts/2-nikola-inter-site-links/">Without the 'title=' part</a></p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgcd84b4b">
-<h3 id="orgcd84b4b">What if the slug doesn't exist?</h3>
-<div class="outline-text-3" id="text-orgcd84b4b">
+<div class="outline-3" id="outline-container-org5bffbf4">
+<h3 id="org5bffbf4">What if the slug doesn't exist?</h3>
+<div class="outline-text-3" id="text-org5bffbf4">
 <p>{{% lancelot title="Oops." %}}this-error-is-on-purpose-ignore-it{{% /lancelot %}}</p>
 <p>Gives us:</p>
 <p><span class="error text-error" style="color: red;">Invalid link: this-error-is-on-purpose-ignore-it</span></p>
 <p>Note that adding this error to this post means it shows up in the logging every time I re-build. I hope I don't forget and try and hunt it down later.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org84a3019">
-<h3 id="org84a3019">One More Thing</h3>
-<div class="outline-text-3" id="text-org84a3019">
+<div class="outline-3" id="outline-container-orgc4c5f79">
+<h3 id="orgc4c5f79">One More Thing</h3>
+<div class="outline-text-3" id="text-orgc4c5f79">
 <p>When I originally was trying to figure this out I put the <code>lancelot</code> files in the <code>shortcodes</code> folder next to the <code>gist</code> files (in the virtualenv, so I knew it was a bad idea, even as I did it) but while I was re-writing them for this post I wanted a place to stash the files so I put them in the <code>plugins</code> folder that sits in the site repository next to the <code>conf.py</code> file - which already existed because that's where nikola put the <a href="https://plugins.getnikola.com/v7/orgmode/">org-mode plugin</a> - and when I first re-built the site with the code only partially written, it raised an <code>Exception</code> because it turns out that the place to put plugins, including shortcode plugins, for nikola/yapsy to find them is in the <code>plugins</code> folder. Imagine that.</p>
 <p>Also, to use an interactive debugger (like my favorite one, <a href="https://pypi.org/project/pudb/">pudb</a>) you need to change the verbosity when you build the site to 2.</p>
 <div class="highlight">
@@ -392,9 +392,9 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgda8668e">
-<h2 id="orgda8668e">End</h2>
-<div class="outline-text-2" id="text-orgda8668e">
+<div class="outline-2" id="outline-container-org9a8b786">
+<h2 id="org9a8b786">End</h2>
+<div class="outline-text-2" id="text-org9a8b786">
 <p>So, that's my first foray into making a nikola plugin. I've been using nikola for a while now, but I never really looked at the code before. It's nice to see that the plugin system is so easy to use.</p>
 </div>
 </div>
@@ -409,15 +409,15 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org04206dc">
-<h2 id="org04206dc">Citation</h2>
-<div class="outline-text-2" id="text-org04206dc">
+<div class="outline-2" id="outline-container-org1ebddf0">
+<h2 id="org1ebddf0">Citation</h2>
+<div class="outline-text-2" id="text-org1ebddf0">
 <p>Jurafsky, D. & Martin, J. (2020). Speech and language processing : an introduction to natural language processing, computational linguistics, and speech recognition. 3rd Edition draft. <a href="https://web.stanford.edu/~jurafsky/slp3/">(URL)</a></p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfc9ed7a">
-<h2 id="orgfc9ed7a">Notes</h2>
-<div class="outline-text-2" id="text-orgfc9ed7a">
+<div class="outline-2" id="outline-container-org7a66e2a">
+<h2 id="org7a66e2a">Notes</h2>
+<div class="outline-text-2" id="text-org7a66e2a">
 <p>Online and PDF version of a (work in progress) revision to this text about text processing.</p>
 </div>
 </div>
@@ -436,35 +436,35 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/xml-to-pandas/#orgf7df3bb">Beginning</a>
+<li><a href="posts/xml-to-pandas/#orge3078dd">Beginning</a>
 <ul>
-<li><a href="posts/xml-to-pandas/#org9b59137">Imports</a></li>
-<li><a href="posts/xml-to-pandas/#org2d934a7">Set Up</a></li>
+<li><a href="posts/xml-to-pandas/#org7e3ed1a">Imports</a></li>
+<li><a href="posts/xml-to-pandas/#org67b716e">Set Up</a></li>
 </ul>
 </li>
-<li><a href="posts/xml-to-pandas/#org9e28eff">Middle</a>
+<li><a href="posts/xml-to-pandas/#orga275055">Middle</a>
 <ul>
-<li><a href="posts/xml-to-pandas/#org883b637">The XML</a></li>
-<li><a href="posts/xml-to-pandas/#org8b1f162">To a DataFrame</a></li>
-<li><a href="posts/xml-to-pandas/#orge5b50f2">Save It</a></li>
+<li><a href="posts/xml-to-pandas/#org6b0e96f">The XML</a></li>
+<li><a href="posts/xml-to-pandas/#org4edc619">To a DataFrame</a></li>
+<li><a href="posts/xml-to-pandas/#orgf62de12">Save It</a></li>
 </ul>
 </li>
-<li><a href="posts/xml-to-pandas/#org4759d12">End</a>
+<li><a href="posts/xml-to-pandas/#orgd23d1a9">End</a>
 <ul>
-<li><a href="posts/xml-to-pandas/#orgf121c46">Time Series</a></li>
+<li><a href="posts/xml-to-pandas/#org76989f7">Time Series</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf7df3bb">
-<h2 id="orgf7df3bb">Beginning</h2>
-<div class="outline-text-2" id="text-orgf7df3bb">
+<div class="outline-2" id="outline-container-orge3078dd">
+<h2 id="orge3078dd">Beginning</h2>
+<div class="outline-text-2" id="text-orge3078dd">
 <p>I went to the <a href="https://www.ssa.gov/">Social Security website</a> to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it has more than just the earnings data, so it would have to be a series of CSVs instead of one file) so these are my notes on converting it to a pandas DataFrame using <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup</a>.</p>
 </div>
-<div class="outline-3" id="outline-container-org9b59137">
-<h3 id="org9b59137">Imports</h3>
-<div class="outline-text-3" id="text-org9b59137">
+<div class="outline-3" id="outline-container-org7e3ed1a">
+<h3 id="org7e3ed1a">Imports</h3>
+<div class="outline-text-3" id="text-org7e3ed1a">
 <p>To actually do the conversion you only need BeautifulSoup and pandas, all the rest of the stuff comes into play because I'm making a post.</p>
 <div class="highlight">
 <pre><span></span><span class="c1"># python</span>
@@ -487,27 +487,27 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org2d934a7">
-<h3 id="org2d934a7">Set Up</h3>
-<div class="outline-text-3" id="text-org2d934a7"></div>
-<div class="outline-4" id="outline-container-orgc21f8c5">
-<h4 id="orgc21f8c5">The Dotenv</h4>
-<div class="outline-text-4" id="text-orgc21f8c5">
+<div class="outline-3" id="outline-container-org67b716e">
+<h3 id="org67b716e">Set Up</h3>
+<div class="outline-text-3" id="text-org67b716e"></div>
+<div class="outline-4" id="outline-container-org9d3b981">
+<h4 id="org9d3b981">The Dotenv</h4>
+<div class="outline-text-4" id="text-org9d3b981">
 <p>I'm using a <code>.env</code> file to point to the location of the file so this call will load it.</p>
 <div class="highlight">
-<pre><span></span><span class="n">load_dotenv</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<pre><span></span><span class="n">load_dotenv</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org9ef1afd">
-<h4 id="org9ef1afd">The Plotting</h4>
-<div class="outline-text-4" id="text-org9ef1afd">
+<div class="outline-4" id="outline-container-orgb38f6c3">
+<h4 id="orgb38f6c3">The Plotting</h4>
+<div class="outline-text-4" id="text-orgb38f6c3">
 <p>This is just a central place to set up some constants so I don't have to re-type them or hunt around for them if I want to change things.</p>
 <div class="highlight">
 <pre><span></span><span class="n">SLUG</span> <span class="o">=</span> <span class="s2">"xml-to-pandas"</span>
 <span class="n">Embed</span> <span class="o">=</span>  <span class="n">partial</span><span class="p">(</span><span class="n">EmbedHoloviews</span><span class="p">,</span>
-                 <span class="n">create_folder</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                <span class="n">folder_path</span><span class="o">=</span><span class="n">f</span><span class="s2">"files/posts/{SLUG}"</span><span class="p">)</span>
+                 <span class="n">create_folder</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">folder_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"files/posts/</span><span class="si">{</span><span class="n">SLUG</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">Plot</span> <span class="o">=</span> <span class="n">Namespace</span><span class="p">(</span>
     <span class="n">width</span><span class="o">=</span><span class="mi">990</span><span class="p">,</span>
@@ -520,9 +520,9 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org42b187f">
-<h4 id="org42b187f">The Random Seed</h4>
-<div class="outline-text-4" id="text-org42b187f">
+<div class="outline-4" id="outline-container-orgc2becab">
+<h4 id="orgc2becab">The Random Seed</h4>
+<div class="outline-text-4" id="text-orgc2becab">
 <p>I decided since I'm talking about social security stuff I'd make at least some attempt at obfuscating things so I'm adding a random offset to the years.</p>
 <div class="highlight">
 <pre><span></span><span class="n">OFFSET</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
@@ -531,15 +531,15 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9e28eff">
-<h2 id="org9e28eff">Middle</h2>
-<div class="outline-text-2" id="text-org9e28eff"></div>
-<div class="outline-3" id="outline-container-org883b637">
-<h3 id="org883b637">The XML</h3>
-<div class="outline-text-3" id="text-org883b637"></div>
-<div class="outline-4" id="outline-container-org14481dd">
-<h4 id="org14481dd">Loading It</h4>
-<div class="outline-text-4" id="text-org14481dd">
+<div class="outline-2" id="outline-container-orga275055">
+<h2 id="orga275055">Middle</h2>
+<div class="outline-text-2" id="text-orga275055"></div>
+<div class="outline-3" id="outline-container-org6b0e96f">
+<h3 id="org6b0e96f">The XML</h3>
+<div class="outline-text-3" id="text-org6b0e96f"></div>
+<div class="outline-4" id="outline-container-orgccf105e">
+<h4 id="orgccf105e">Loading It</h4>
+<div class="outline-text-4" id="text-orgccf105e">
 <p>First, I'll load the XML into BeautifulSoup.</p>
 <div class="highlight">
 <pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
@@ -551,9 +551,9 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <p>Note that you have to pass in the <code>"xml"</code> argument - BeautifulSoup is primarily an HTML parser so it assumes an HTML document by default. Normally I'd do some exploring at this point, but I didn't find it such an easy thing to do (I don't work with XML data generally) and found that it was easier to look at it with <a href="https://www.wikiwand.com/en/Less_(Unix)">less</a> and figure out what I needed.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orge60d1fc">
-<h4 id="orge60d1fc">The Earnings</h4>
-<div class="outline-text-4" id="text-orge60d1fc">
+<div class="outline-4" id="outline-container-org667acd5">
+<h4 id="org667acd5">The Earnings</h4>
+<div class="outline-text-4" id="text-org667acd5">
 <p>The data I wanted is in a set of tags that look like this:</p>
 <div class="highlight">
 <pre><span></span>&lt;osss:Earnings endYear="1998" startYear="1998"&gt;
@@ -565,8 +565,8 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <p>Anyway, so the first thing to do is to grab all the nodes representing earning.</p>
 <div class="highlight">
 <pre><span></span><span class="n">earnings</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"Earnings"</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">earnings</span><span class="p">))</span>
-<span class="k">print</span><span class="p">(</span><span class="n">earnings</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">earnings</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">earnings</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 <pre class="example">
 34
@@ -576,13 +576,13 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 &lt;/osss:Earnings&gt;
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orgd831713">
-<h4 id="orgd831713">The Years</h4>
-<div class="outline-text-4" id="text-orgd831713">
+<div class="outline-4" id="outline-container-org4fa61e8">
+<h4 id="org4fa61e8">The Years</h4>
+<div class="outline-text-4" id="text-org4fa61e8">
 <p>Now that we have the earnings, we can see about getting the years. Although they have <code>endYear</code> and <code>startYear</code> they're always the same so I'll use <code>startYear</code>. I'm adding the <code>OFFSET</code> here just to obfuscate what years I'm looking at.</p>
 <div class="highlight">
 <pre><span></span><span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
-    <span class="k">print</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startYear"</span><span class="p">))</span> <span class="o">+</span> <span class="n">OFFSET</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"startYear"</span><span class="p">))</span> <span class="o">+</span> <span class="n">OFFSET</span><span class="p">)</span>
 </pre></div>
 <pre class="example">
 1998
@@ -592,13 +592,13 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 2002
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orgf55d5ee">
-<h4 id="orgf55d5ee">Collected</h4>
-<div class="outline-text-4" id="text-orgf55d5ee">
+<div class="outline-4" id="outline-container-org1f4dff1">
+<h4 id="org1f4dff1">Collected</h4>
+<div class="outline-text-4" id="text-org1f4dff1">
 <p>Next I'll see about grabbing the amounts collected for each year. The FICA and Medicare amounts are always the same so I'll just use the FICA amount.</p>
 <div class="highlight">
 <pre><span></span><span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"FicaEarnings"</span><span class="p">)</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">year</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"FicaEarnings"</span><span class="p">)</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
 </pre></div>
 <pre class="example">
 526
@@ -611,9 +611,9 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org8b1f162">
-<h3 id="org8b1f162">To a DataFrame</h3>
-<div class="outline-text-3" id="text-org8b1f162">
+<div class="outline-3" id="outline-container-org4edc619">
+<h3 id="org4edc619">To a DataFrame</h3>
+<div class="outline-text-3" id="text-org4edc619">
 <p>Anyway, that's basically all you need to get it going.</p>
 <div class="highlight">
 <pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
@@ -624,7 +624,7 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <span class="p">)</span>
 
 <span class="n">data</span><span class="p">[</span><span class="s2">"offset"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="n">OFFSET</span>
-<span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)[[</span><span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"amount"</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)[[</span><span class="s2">"offset"</span><span class="p">,</span> <span class="s2">"amount"</span><span class="p">]])</span>
 </pre></div>
 <pre class="example">
    offset  amount
@@ -635,25 +635,25 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 4    2002       0
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orge5b50f2">
-<h3 id="orge5b50f2">Save It</h3>
-<div class="outline-text-3" id="text-orge5b50f2">
+<div class="outline-3" id="outline-container-orgf62de12">
+<h3 id="orgf62de12">Save It</h3>
+<div class="outline-text-3" id="text-orgf62de12">
 <div class="highlight">
 <pre><span></span><span class="k">del</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"offset"</span><span class="p">])</span>
 <span class="n">csv</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY_CSV"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
-<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org4759d12">
-<h2 id="org4759d12">End</h2>
-<div class="outline-text-2" id="text-org4759d12">
+<div class="outline-2" id="outline-container-orgd23d1a9">
+<h2 id="orgd23d1a9">End</h2>
+<div class="outline-text-2" id="text-orgd23d1a9">
 <p>I usually like to put in a little plotting so I'm going to plot the amount over time. Since I already shared my first five years I'm going to start after that and obscure the numbers a little.</p>
 </div>
-<div class="outline-3" id="outline-container-orgf121c46">
-<h3 id="orgf121c46">Time Series</h3>
-<div class="outline-text-3" id="text-orgf121c46">
+<div class="outline-3" id="outline-container-org76989f7">
+<h3 id="org76989f7">Time Series</h3>
+<div class="outline-text-3" id="text-org76989f7">
 <p>First I'll add the offset year back in, then I'm going to scale it.</p>
 <div class="highlight">
 <pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">"year"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="n">OFFSET</span>
@@ -674,7 +674,7 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <span class="n">outcome</span> <span class="o">=</span> <span class="n">Embed</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">"income_over_time"</span><span class="p">)()</span>
 </pre></div>
 <div class="highlight">
-<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
+<pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
 </pre></div>
 <object data="posts/xml-to-pandas/income_over_time.html" height="800" style="width:100%" type="text/html">
 <p>Figure Missing</p>
@@ -698,30 +698,30 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/jupyter-emacs-sessions/#orgba7d3e6">Beginning</a></li>
-<li><a href="posts/jupyter-emacs-sessions/#org81a7da2">Middle</a>
+<li><a href="posts/jupyter-emacs-sessions/#org658562a">Beginning</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#org69b1a36">Middle</a>
 <ul>
-<li><a href="posts/jupyter-emacs-sessions/#org33e74a3">Starting the Jupyter Server</a></li>
-<li><a href="posts/jupyter-emacs-sessions/#orgbe619bd">Start a Console</a></li>
-<li><a href="posts/jupyter-emacs-sessions/#orgc905b82">Setting the Session</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#org0cf6b9a">Starting the Jupyter Server</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#orgc400fa3">Start a Console</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#org64ad5a1">Setting the Session</a></li>
 </ul>
 </li>
-<li><a href="posts/jupyter-emacs-sessions/#org634ff5a">End</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#org1ff84b6">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgba7d3e6">
-<h2 id="orgba7d3e6">Beginning</h2>
-<div class="outline-text-2" id="text-orgba7d3e6">
+<div class="outline-2" id="outline-container-org658562a">
+<h2 id="org658562a">Beginning</h2>
+<div class="outline-text-2" id="text-org658562a">
 <p>These are my notes on using <a href="https://github.com/dzop/emacs-jupyter">emacs-jupyter</a> using a remote session. It works with a local session as well, but I'll just relate the steps as if you're running the jupyter session on a remote machine.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org81a7da2">
-<h2 id="org81a7da2">Middle</h2>
-<div class="outline-text-2" id="text-org81a7da2"></div>
-<div class="outline-3" id="outline-container-org33e74a3">
-<h3 id="org33e74a3">Starting the Jupyter Server</h3>
-<div class="outline-text-3" id="text-org33e74a3">
+<div class="outline-2" id="outline-container-org69b1a36">
+<h2 id="org69b1a36">Middle</h2>
+<div class="outline-text-2" id="text-org69b1a36"></div>
+<div class="outline-3" id="outline-container-org0cf6b9a">
+<h3 id="org0cf6b9a">Starting the Jupyter Server</h3>
+<div class="outline-text-3" id="text-org0cf6b9a">
 <p>The first thing to do is start the jupyter session on the remote machine. Since I'm doing this with <b>nikola</b> I should note that you want to start the session in the same location as the file you're editing in emacs, because all your file references will be based on that directory (so if you, for instance, create an image and want to place it in the <code>files</code> folder, you will need to note where that stands relative to the file you are editing and where you start the jupyter kernel).</p>
 <p>In my case I'm editing a file in <code>~/projects/In-Too-Deep/posts/fastai/</code>.</p>
 <div class="highlight">
@@ -746,9 +746,9 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgbe619bd">
-<h3 id="orgbe619bd">Start a Console</h3>
-<div class="outline-text-3" id="text-orgbe619bd">
+<div class="outline-3" id="outline-container-orgc400fa3">
+<h3 id="orgc400fa3">Start a Console</h3>
+<div class="outline-text-3" id="text-orgc400fa3">
 <p>Now that you've copied over the information for the jupyter session you can start a console for it. I'll assume you're still in the directory with the json file in it, so I won't pass in the full path.</p>
 <div class="highlight">
 <pre><span></span>jupyter --console kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json --ssh Hades
@@ -762,9 +762,9 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <p>Note that <code>--existing</code> argument for the next session (it should be the same as the original json file but with <code>-ssh</code> added to the end of the name).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgc905b82">
-<h3 id="orgc905b82">Setting the Session</h3>
-<div class="outline-text-3" id="text-orgc905b82">
+<div class="outline-3" id="outline-container-org64ad5a1">
+<h3 id="org64ad5a1">Setting the Session</h3>
+<div class="outline-text-3" id="text-org64ad5a1">
 <p>Since this is org-mode-based the first thing you should do is connect your emacs buffer to the console. Add this to the top of your buffer (the file where you intend to run python).</p>
 <div class="highlight">
 <pre><span></span>#+PROPERTY: header-args :session /home/athena/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232-ssh.json
@@ -773,9 +773,9 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org634ff5a">
-<h2 id="org634ff5a">End</h2>
-<div class="outline-text-2" id="text-org634ff5a">
+<div class="outline-2" id="outline-container-org1ff84b6">
+<h2 id="org1ff84b6">End</h2>
+<div class="outline-text-2" id="text-org1ff84b6">
 <p>At this point you can run org-mode code blocs that are set up to use <code>emacs-jupyter</code> and they will redirect to the remote jupyter session. That is a whole other adventure so I'll leave it for another time (or to someone else).</p>
 </div>
 </div>
@@ -794,13 +794,13 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/making-stuff/making-stuff-links/#orgb6e6155">Agile</a></li>
+<li><a href="posts/making-stuff/making-stuff-links/#org6c53bc9">Agile</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgb6e6155">
-<h2 id="orgb6e6155">Agile</h2>
-<div class="outline-text-2" id="text-orgb6e6155">
+<div class="outline-2" id="outline-container-org6c53bc9">
+<h2 id="org6c53bc9">Agile</h2>
+<div class="outline-text-2" id="text-org6c53bc9">
 <ul class="org-ul">
 <li><a href="https://www.alexandercowan.com/">COWAN+</a> : this is the site for the Coursera <i>Agile Meets Design Thinking</i> instructor.</li>
 </ul>
@@ -821,13 +821,13 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/link-collection/#org48f0aaa">Reading</a></li>
+<li><a href="posts/link-collection/#orgd12d989">Reading</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org48f0aaa">
-<h2 id="org48f0aaa">Reading</h2>
-<div class="outline-text-2" id="text-org48f0aaa">
+<div class="outline-2" id="outline-container-orgd12d989">
+<h2 id="orgd12d989">Reading</h2>
+<div class="outline-text-2" id="text-orgd12d989">
 <ul class="org-ul">
 <li><a href="https://opensource.com/tags/python">opensource.com</a> : The site has more than that, but the python stuff is what I'm exploring right now.</li>
 </ul>
@@ -848,30 +848,30 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/reference/online-reading-list/#org4e044fc">Magazines</a>
+<li><a href="posts/reference/online-reading-list/#org36513e6">Magazines</a>
 <ul>
-<li><a href="posts/reference/online-reading-list/#org14db1e6">Philosophy & Science</a></li>
-<li><a href="posts/reference/online-reading-list/#orgd391e78">General</a></li>
+<li><a href="posts/reference/online-reading-list/#orgb74f104">Philosophy & Science</a></li>
+<li><a href="posts/reference/online-reading-list/#orga175e13">General</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org4e044fc">
-<h2 id="org4e044fc">Magazines</h2>
-<div class="outline-text-2" id="text-org4e044fc"></div>
-<div class="outline-3" id="outline-container-org14db1e6">
-<h3 id="org14db1e6">Philosophy & Science</h3>
-<div class="outline-text-3" id="text-org14db1e6">
+<div class="outline-2" id="outline-container-org36513e6">
+<h2 id="org36513e6">Magazines</h2>
+<div class="outline-text-2" id="text-org36513e6"></div>
+<div class="outline-3" id="outline-container-orgb74f104">
+<h3 id="orgb74f104">Philosophy & Science</h3>
+<div class="outline-text-3" id="text-orgb74f104">
 <ul class="org-ul">
 <li><a href="https://aeon.co/">aeon</a></li>
 <li><a href="http://nautil.us/">Nautilus</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgd391e78">
-<h3 id="orgd391e78">General</h3>
-<div class="outline-text-3" id="text-orgd391e78">
+<div class="outline-3" id="outline-container-orga175e13">
+<h3 id="orga175e13">General</h3>
+<div class="outline-text-3" id="text-orga175e13">
 <ul class="org-ul">
 <li><a href="https://harpers.org/">Harper's</a></li>
 <li><a href="https://www.theatlantic.com/">The Atlantic</a></li>
@@ -894,61 +894,61 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/emacs-jupyter/#orge5f02ab">Beginning</a></li>
-<li><a href="posts/emacs-jupyter/#org6ff0443">Middle</a>
+<li><a href="posts/emacs-jupyter/#orgffbd70f">Beginning</a></li>
+<li><a href="posts/emacs-jupyter/#org0b6193b">Middle</a>
 <ul>
-<li><a href="posts/emacs-jupyter/#org6b3426d">Finding the Problem</a></li>
-<li><a href="posts/emacs-jupyter/#org7aecb51">Fixing the Problem</a>
+<li><a href="posts/emacs-jupyter/#org0285c47">Finding the Problem</a></li>
+<li><a href="posts/emacs-jupyter/#org35d2e2f">Fixing the Problem</a>
 <ul>
-<li><a href="posts/emacs-jupyter/#orgde6417f">First Clone the Repository</a></li>
-<li><a href="posts/emacs-jupyter/#org497fbb8">Then Install the Dependencies</a></li>
-<li><a href="posts/emacs-jupyter/#org90210c4">Then Build It</a></li>
+<li><a href="posts/emacs-jupyter/#org85e11dc">First Clone the Repository</a></li>
+<li><a href="posts/emacs-jupyter/#orgabeb075">Then Install the Dependencies</a></li>
+<li><a href="posts/emacs-jupyter/#orgc60e364">Then Build It</a></li>
 </ul>
 </li>
-<li><a href="posts/emacs-jupyter/#orgd016fdd">Fix the Other Problem</a></li>
+<li><a href="posts/emacs-jupyter/#org3b66055">Fix the Other Problem</a></li>
 </ul>
 </li>
-<li><a href="posts/emacs-jupyter/#org2faf94d">End</a></li>
+<li><a href="posts/emacs-jupyter/#org3315234">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orge5f02ab">
-<h2 id="orge5f02ab">Beginning</h2>
-<div class="outline-text-2" id="text-orge5f02ab">
+<div class="outline-2" id="outline-container-orgffbd70f">
+<h2 id="orgffbd70f">Beginning</h2>
+<div class="outline-text-2" id="text-orgffbd70f">
 <p><a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> has become one of the most important tools in my workflow (along with <a href="https://getnikola.com/">Nikola</a>, and the <a href="https://plugins.getnikola.com/v8/orgmode/">org-mode plugin</a>), but earlier this week I stumbled upon <a href="https://github.com/dzop/emacs-jupyter">emacs-jupyter</a> and I thought maybe it'd be worth it to at least take a look. If the <code>readme</code> file is to be believed, it does everything <code>ob-ipython</code> does and more, so maybe my world would change once again. But then I ran into a little problem - trying to install it from <a href="https://melpa.org/#/">MELPA</a> caused emacs to crash… with no messages, nothing. So is this thing ready for the world to use yet?</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6ff0443">
-<h2 id="org6ff0443">Middle</h2>
-<div class="outline-text-2" id="text-org6ff0443"></div>
-<div class="outline-3" id="outline-container-org6b3426d">
-<h3 id="org6b3426d">Finding the Problem</h3>
-<div class="outline-text-3" id="text-org6b3426d">
+<div class="outline-2" id="outline-container-org0b6193b">
+<h2 id="org0b6193b">Middle</h2>
+<div class="outline-text-2" id="text-org0b6193b"></div>
+<div class="outline-3" id="outline-container-org0285c47">
+<h3 id="org0285c47">Finding the Problem</h3>
+<div class="outline-text-3" id="text-org0285c47">
 <p>I tried different things based on the errors in the emacs-jupyter's <a href="https://github.com/dzop/emacs-jupyter/issues">"Issues"</a> but it turned out that <a href="https://github.com/dzop/emacs-zmq/issues/14">this emacs-zmq bug</a> had the answer - the <a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa">emacs snapshot</a> for Ubuntu wasn't built in a way that works with emacs-jupyter. The bug-report mentions an out of date gcc version, but I didn't confirm that.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org7aecb51">
-<h3 id="org7aecb51">Fixing the Problem</h3>
-<div class="outline-text-3" id="text-org7aecb51">
+<div class="outline-3" id="outline-container-org35d2e2f">
+<h3 id="org35d2e2f">Fixing the Problem</h3>
+<div class="outline-text-3" id="text-org35d2e2f">
 <p>So, knowing that the version of emacs I was using was the problem I decided to build it myself. In the earlier days of Ubuntu this was something I did all the time, but it seems like it's been forever since I had to do this so I was a little worried that it might be a huge mess of Makefile debugging, but I found <a href="https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian">this page on the emacs wiki</a> which made it pretty easy.</p>
 </div>
-<div class="outline-4" id="outline-container-orgde6417f">
-<h4 id="orgde6417f">First Clone the Repository</h4>
-<div class="outline-text-4" id="text-orgde6417f">
+<div class="outline-4" id="outline-container-org85e11dc">
+<h4 id="org85e11dc">First Clone the Repository</h4>
+<div class="outline-text-4" id="text-org85e11dc">
 <pre class="example">
 git clone --depth 1 git://git.sv.gnu.org/emacs.git
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org497fbb8">
-<h4 id="org497fbb8">Then Install the Dependencies</h4>
-<div class="outline-text-4" id="text-org497fbb8">
+<div class="outline-4" id="outline-container-orgabeb075">
+<h4 id="orgabeb075">Then Install the Dependencies</h4>
+<div class="outline-text-4" id="text-orgabeb075">
 <pre class="example">
 sudo apt-fast install autoconf automake libtool texinfo build-essential xorg-dev libgtk2.0-dev libjpeg-dev libncurses5-dev libdbus-1-dev libgif-dev libtiff-dev libm17n-dev libpng-dev librsvg2-dev libotf-dev libgnutls28-dev libxml2-dev
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org90210c4">
-<h4 id="org90210c4">Then Build It</h4>
-<div class="outline-text-4" id="text-org90210c4">
+<div class="outline-4" id="outline-container-orgc60e364">
+<h4 id="orgc60e364">Then Build It</h4>
+<div class="outline-text-4" id="text-orgc60e364">
 <pre class="example">
 cd emacs
 ./autogen.sh
@@ -961,9 +961,9 @@ sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgd016fdd">
-<h3 id="orgd016fdd">Fix the Other Problem</h3>
-<div class="outline-text-3" id="text-orgd016fdd">
+<div class="outline-3" id="outline-container-org3b66055">
+<h3 id="org3b66055">Fix the Other Problem</h3>
+<div class="outline-text-3" id="text-org3b66055">
 <p>It turned out that the build went okay, and I could even install emacs-jupyter (yay), but when I tried to execute <code>M-x jupyter-run-repl</code> I got an error message saying that modules weren't supported (what?). So then I found <a href="http://diobla.info/blog-archive/modules-tut.html">this blog post</a> that said you have to pass in the <code>--with-modules</code> argument when you run <code>configure</code>… So now the process became this:</p>
 <pre class="example">
 cd emacs
@@ -977,9 +977,9 @@ sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2faf94d">
-<h2 id="org2faf94d">End</h2>
-<div class="outline-text-2" id="text-org2faf94d">
+<div class="outline-2" id="outline-container-org3315234">
+<h2 id="org3315234">End</h2>
+<div class="outline-text-2" id="text-org3315234">
 <p>emacs-jupyter looks like an improvement over <code>ob-ipython</code> in that it adds a lot of features (and claims to be faster), but getting it to work was way harder than I'm used to. I don't think it was "difficult" in a real sense, given what it used to be like to make and install things on Ubuntu, but I think I've gotten used to things just working. Anyway, now I can see if emacs-jupyter lives up to its own hype.</p>
 </div>
 </div>
@@ -998,55 +998,55 @@ sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgdcb2a29">Beginning</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org93a4183">Beginning</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org26a1eba">Problems Before I Even Started</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgef106ed">Problems Before I Even Started</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgadcfaae">the <b>RAPIDS</b> instruction for starting the docker container is out of date</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org0bb853f">The emacs-snapshot isn't compatible with emacs-jupyter</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgffa98f5">the <b>RAPIDS</b> instruction for starting the docker container is out of date</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgb5d5aac">The emacs-snapshot isn't compatible with emacs-jupyter</a></li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgae47e02">Imports</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org9a39bda">Imports</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org2d70e2a">PyPi</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org9e09bb8">PyPi</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org120bacb">Middle</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org94828f2">Middle</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org930a30c">Connecting To the Docker Container</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orge151be3">Create Series</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org0f86be2">Connecting To the Docker Container</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org98920f3">Create Series</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgfad2acf">CUDF Series</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org6e0b655">dask CUDF</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgf20a92b">CUDF Series</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgd2fac01">dask CUDF</a></li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orga9bd2e0">Data Frames</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgc34d521">Data Frames</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgcda1cab">From a Pandas DataFrame</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org50b6b77">From a Pandas DataFrame</a></li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org2017e53">Selection</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgd0e01eb">Applyng functions</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org4cd08c2">String Methods</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org7ef24cb">Selection</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org933f39e">Applyng functions</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org9b12184">String Methods</a></li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgcc093f9">End</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org0335d93">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgdcb2a29">
-<h2 id="orgdcb2a29">Beginning</h2>
-<div class="outline-text-2" id="text-orgdcb2a29">
+<div class="outline-2" id="outline-container-org93a4183">
+<h2 id="org93a4183">Beginning</h2>
+<div class="outline-text-2" id="text-org93a4183">
 <p>This is a first attempt to use <a href="https://rapids.ai/">RAPIDS</a> using their docker container and <a href="https://github.com/dzop/emacs-jupyter#building-the-widget-support-experimental">emacs-jupyter</a>. So there's multiple places where things can go wrong and I don't know why.</p>
 </div>
-<div class="outline-3" id="outline-container-org26a1eba">
-<h3 id="org26a1eba">Problems Before I Even Started</h3>
-<div class="outline-text-3" id="text-org26a1eba"></div>
-<div class="outline-4" id="outline-container-orgadcfaae">
-<h4 id="orgadcfaae">the <b>RAPIDS</b> instruction for starting the docker container is out of date</h4>
-<div class="outline-text-4" id="text-orgadcfaae">
+<div class="outline-3" id="outline-container-orgef106ed">
+<h3 id="orgef106ed">Problems Before I Even Started</h3>
+<div class="outline-text-3" id="text-orgef106ed"></div>
+<div class="outline-4" id="outline-container-orgffa98f5">
+<h4 id="orgffa98f5">the <b>RAPIDS</b> instruction for starting the docker container is out of date</h4>
+<div class="outline-text-4" id="text-orgffa98f5">
 <p>The instructions on the <a href="https://rapids.ai/start.html">getting started page</a> say to start the docker container using this:</p>
 <pre class="example">
 docker run --runtime=nvidia --rm -it -p 8888:8888 -p 8787:8787 -p 8786:8786 \
@@ -1055,19 +1055,19 @@ docker run --runtime=nvidia --rm -it -p 8888:8888 -p 8787:8787 -p 8786:8786 \
 <p>But the <code>--runtime=nvidia</code> flag is for the now-deprecated <code>nvidia-docker2</code> package (which isn't compatible with Ubuntu Disco Dingo anyway) and it will cause it to fail with an <code>unknown runtime</code> error if you don't have that older package installed (which I don't). Removing the flag (and having the <a href="https://github.com/NVIDIA/nvidia-docker">NVIDIA Container Toolkit</a> installed) fixes the error.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org0bb853f">
-<h4 id="org0bb853f">The emacs-snapshot isn't compatible with emacs-jupyter</h4>
-<div class="outline-text-4" id="text-org0bb853f">
+<div class="outline-4" id="outline-container-orgb5d5aac">
+<h4 id="orgb5d5aac">The emacs-snapshot isn't compatible with emacs-jupyter</h4>
+<div class="outline-text-4" id="text-orgb5d5aac">
 <p><a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> has become such a center-piece for how I work I can't even remember how I did things before I discovered it, but now there's <a href="https://github.com/dzop/emacs-jupyter">Emacs Jupyter</a> which claims to have even more features, so I thought I'd try it out, but when I tried to install it emacs would crash (during the installation). According to <a href="https://github.com/dzop/emacs-zmq/issues/14">this bug report</a> the <a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa">emacs snapshot</a> for Ubuntu is built with an out-of-date version of gcc. I don't know if that's true, but I re-built emacs with <a href="https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian">the instructions on the emacs wiki</a> and it at least installed emacs-jupyter without crashing. Here's where I find out if it works. Of course, I now have two versions of emacs. One that gets updated automatically and one that works with emacs-jupyter. I'll have to figure out what to do about that, assuming emacs-jupyter turns out to be worth keeping.</p>
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgae47e02">
-<h3 id="orgae47e02">Imports</h3>
-<div class="outline-text-3" id="text-orgae47e02"></div>
-<div class="outline-4" id="outline-container-org2d70e2a">
-<h4 id="org2d70e2a">PyPi</h4>
-<div class="outline-text-4" id="text-org2d70e2a">
+<div class="outline-3" id="outline-container-org9a39bda">
+<h3 id="org9a39bda">Imports</h3>
+<div class="outline-text-3" id="text-org9a39bda"></div>
+<div class="outline-4" id="outline-container-org9e09bb8">
+<h4 id="org9e09bb8">PyPi</h4>
+<div class="outline-text-4" id="text-org9e09bb8">
 <div class="highlight">
 <pre><span></span>import cudf
 import dask_cudf
@@ -1077,28 +1077,29 @@ import pandas
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org120bacb">
-<h2 id="org120bacb">Middle</h2>
-<div class="outline-text-2" id="text-org120bacb"></div>
-<div class="outline-3" id="outline-container-org930a30c">
-<h3 id="org930a30c">Connecting To the Docker Container</h3>
-<div class="outline-text-3" id="text-org930a30c">
+<div class="outline-2" id="outline-container-org94828f2">
+<h2 id="org94828f2">Middle</h2>
+<div class="outline-text-2" id="text-org94828f2"></div>
+<div class="outline-3" id="outline-container-org0f86be2">
+<h3 id="org0f86be2">Connecting To the Docker Container</h3>
+<div class="outline-text-3" id="text-org0f86be2">
 <p>According to the emacs-snapshot documentation you can connect via SSH (but the Rapids docker container doesn't have it installed by default) or you can connect to a notebook server. I originally was going to try the SSH route, since I already do that with ob-ipython, but the notebook-server might be more suited to this case. Let's see.</p>
 <div class="highlight">
 <pre><span></span>print("test")
 </pre></div>
 <pre class="example">
 test
+
 </pre>
 <p>So, the notebook doesn't seem to work as-is, but the SSH connection does, which is nice, but it's not different from what ob-ipython gave me (well it kind of is in that I didn't copy the file over).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orge151be3">
-<h3 id="orge151be3">Create Series</h3>
-<div class="outline-text-3" id="text-orge151be3"></div>
-<div class="outline-4" id="outline-container-orgfad2acf">
-<h4 id="orgfad2acf">CUDF Series</h4>
-<div class="outline-text-4" id="text-orgfad2acf">
+<div class="outline-3" id="outline-container-org98920f3">
+<h3 id="org98920f3">Create Series</h3>
+<div class="outline-text-3" id="text-org98920f3"></div>
+<div class="outline-4" id="outline-container-orgf20a92b">
+<h4 id="orgf20a92b">CUDF Series</h4>
+<div class="outline-text-4" id="text-orgf20a92b">
 <p>This runs on the GPU.</p>
 <div class="highlight">
 <pre><span></span>s = cudf.Series([1, 2, 3, None, 4])
@@ -1111,11 +1112,12 @@ print(s)
 3     
 4    4
 dtype: int64
+
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org6e0b655">
-<h4 id="org6e0b655">dask CUDF</h4>
-<div class="outline-text-4" id="text-org6e0b655">
+<div class="outline-4" id="outline-container-orgd2fac01">
+<h4 id="orgd2fac01">dask CUDF</h4>
+<div class="outline-text-4" id="text-orgd2fac01">
 <p>This also runs on the GPU, but if you have more than one GPU it will use more than one.</p>
 <div class="highlight">
 <pre><span></span>ds = dask_cudf.from_cudf(s, npartitions=2)
@@ -1128,14 +1130,15 @@ print(ds.compute())
 3     
 4    4
 dtype: int64
+
 </pre>
 <p>My machine only has one GPU, so this didn't gain anything, but I do have more than one machine with a GPU so this might help with distributed computing, if I get around to it.</p>
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orga9bd2e0">
-<h3 id="orga9bd2e0">Data Frames</h3>
-<div class="outline-text-3" id="text-orga9bd2e0">
+<div class="outline-3" id="outline-container-orgc34d521">
+<h3 id="orgc34d521">Data Frames</h3>
+<div class="outline-text-3" id="text-orgc34d521">
 <div class="highlight">
 <pre><span></span>frame = cudf.DataFrame([("a", list(range(10))),
                         ("b", list(range(10)))])
@@ -1155,9 +1158,9 @@ print(frame)
 8  40  8
 9  45  9
 </pre></div>
-<div class="outline-4" id="outline-container-orgcda1cab">
-<h4 id="orgcda1cab">From a Pandas DataFrame</h4>
-<div class="outline-text-4" id="text-orgcda1cab">
+<div class="outline-4" id="outline-container-org50b6b77">
+<h4 id="org50b6b77">From a Pandas DataFrame</h4>
+<div class="outline-text-4" id="text-org50b6b77">
 <div class="highlight">
 <pre><span></span>frame = pandas.DataFrame({"a": list(range(4)), "b": list(range(4, 8))})
 frame = cudf.DataFrame.from_pandas(frame)
@@ -1169,12 +1172,13 @@ print(frame)
 1  1  5
 2  2  6
 3  3  7
+
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org2017e53">
-<h3 id="org2017e53">Selection</h3>
-<div class="outline-text-3" id="text-org2017e53">
+<div class="outline-3" id="outline-container-org7ef24cb">
+<h3 id="org7ef24cb">Selection</h3>
+<div class="outline-text-3" id="text-org7ef24cb">
 <div class="highlight">
 <pre><span></span>print(frame[frame.a &gt; 1])
 </pre></div>
@@ -1182,11 +1186,12 @@ print(frame)
    a  b
 2  2  6
 3  3  7
+
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgd0e01eb">
-<h3 id="orgd0e01eb">Applyng functions</h3>
-<div class="outline-text-3" id="text-orgd0e01eb">
+<div class="outline-3" id="outline-container-org933f39e">
+<h3 id="org933f39e">Applyng functions</h3>
+<div class="outline-text-3" id="text-org933f39e">
 <div class="highlight">
 <pre><span></span>frame["a"] = frame.a.applymap(lambda row: row + 5)
 print(frame)
@@ -1197,13 +1202,14 @@ print(frame)
 1  6  5
 2  7  6
 3  8  7
+
 </pre>
 <p>This is basically the pandas.DataFrame.apply method, but they renamed it for some reason.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4cd08c2">
-<h3 id="org4cd08c2">String Methods</h3>
-<div class="outline-text-3" id="text-org4cd08c2">
+<div class="outline-3" id="outline-container-org9b12184">
+<h3 id="org9b12184">String Methods</h3>
+<div class="outline-text-3" id="text-org9b12184">
 <div class="highlight">
 <pre><span></span>series = cudf.Series(["Alpha", "Beta", "GAMMA", "dELTA"])
 print(series.str.lower())
@@ -1214,12 +1220,13 @@ print(series.str.lower())
 2    gamma
 3    delta
 dtype: object
+
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgcc093f9">
-<h2 id="orgcc093f9">End</h2>
-<div class="outline-text-2" id="text-orgcc093f9">
+<div class="outline-2" id="outline-container-org0335d93">
+<h2 id="org0335d93">End</h2>
+<div class="outline-text-2" id="text-org0335d93">
 <p>After a certain point, this was kind of a boring exercise, mostly because <code>cuDF</code> runs a subset of pandas but on the GPU, so if you know pandas, you know some of <code>cuDF</code>, but just getting it working (with emacs-jupyter) was a little bit of work, so maybe it's useful to have recorded that here.</p>
 </div>
 </div>
@@ -1238,29 +1245,29 @@ dtype: object
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org85f5ad3">Beginning</a></li>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org381f042">Middle</a>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org757986e">Beginning</a></li>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org449b68c">Middle</a>
 <ul>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org0734f58">Editing a Remote User File</a></li>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org70fb00a">Editing a Remote File As Root</a></li>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#orge199d06">Editing a Remote User File</a></li>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org41628d5">Editing a Remote File As Root</a></li>
 </ul>
 </li>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#orgc7dd1ec">End</a></li>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org92bf0e6">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org85f5ad3">
-<h2 id="org85f5ad3">Beginning</h2>
-<div class="outline-text-2" id="text-org85f5ad3">
+<div class="outline-2" id="outline-container-org757986e">
+<h2 id="org757986e">Beginning</h2>
+<div class="outline-text-2" id="text-org757986e">
 <p>For some strange reason, <a href="https://www.emacswiki.org/emacs/TrampMode">the emacs wiki page on tramp mode</a> doesn't have instructions on how to open a file on a remote machine using tramp in its main section. You instead have to go down to the <i>Tips and Tricks</i> and try and pick out a version that works. So I'm writing this here so I maybe won't have to do all the searching I did the next time. This is the version that worked for me (Emacs 27.0.50, Ubuntu 19.04).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org381f042">
-<h2 id="org381f042">Middle</h2>
-<div class="outline-text-2" id="text-org381f042"></div>
-<div class="outline-3" id="outline-container-org0734f58">
-<h3 id="org0734f58">Editing a Remote User File</h3>
-<div class="outline-text-3" id="text-org0734f58">
+<div class="outline-2" id="outline-container-org449b68c">
+<h2 id="org449b68c">Middle</h2>
+<div class="outline-text-2" id="text-org449b68c"></div>
+<div class="outline-3" id="outline-container-orge199d06">
+<h3 id="orge199d06">Editing a Remote User File</h3>
+<div class="outline-text-3" id="text-orge199d06">
 <p>You start by opening the file like you would a local file (<code>C-x C-f</code>) and then in when the minibuffer opens up you use this syntax for the path:</p>
 <div class="highlight">
 <pre><span></span>/ssh:&lt;username&gt;@&lt;hostname&gt;&gt;:&lt;path to file&gt;
@@ -1270,9 +1277,9 @@ dtype: object
 /ssh:Hades:.emacs.d/init.el
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org70fb00a">
-<h3 id="org70fb00a">Editing a Remote File As Root</h3>
-<div class="outline-text-3" id="text-org70fb00a">
+<div class="outline-3" id="outline-container-org41628d5">
+<h3 id="org41628d5">Editing a Remote File As Root</h3>
+<div class="outline-text-3" id="text-org41628d5">
 <p>To open a file as root you stick an extra pipe (<code>|sudo</code>) into the previous path syntax.</p>
 <pre class="example">
 /ssh:&lt;username&gt;@&lt;hostname&gt;|sudo:&lt;hostname&gt;:&lt;path to file&gt;
@@ -1283,9 +1290,9 @@ dtype: object
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgc7dd1ec">
-<h2 id="orgc7dd1ec">End</h2>
-<div class="outline-text-2" id="text-orgc7dd1ec">
+<div class="outline-2" id="outline-container-org92bf0e6">
+<h2 id="org92bf0e6">End</h2>
+<div class="outline-text-2" id="text-org92bf0e6">
 <p>I got the <code>sudo</code> version from <a href="https://stackoverflow.com/questions/20624024/what-is-the-best-way-to-open-remote-files-with-emacs-and-ssh">Stack Overflow</a> (of course).</p>
 </div>
 </div>

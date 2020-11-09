@@ -78,34 +78,34 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgfeaf816">Beginning</a>
+<li><a href="#org92056ab">Beginning</a>
 <ul>
-<li><a href="#org0763021">Set Up</a></li>
+<li><a href="#orgd7555b0">Set Up</a></li>
 </ul>
 </li>
-<li><a href="#org8bcb294">Middle</a>
+<li><a href="#org19ea894">Middle</a>
 <ul>
-<li><a href="#org99d81c4">The Data</a></li>
-<li><a href="#orgde95ce7">Encode the Gender</a></li>
-<li><a href="#org7efd0c9">Fit the Regression</a></li>
+<li><a href="#orge0b3df4">The Data</a></li>
+<li><a href="#org2a6b802">Encode the Gender</a></li>
+<li><a href="#orge6bc536">Fit the Regression</a></li>
 </ul>
 </li>
-<li><a href="#org0fa9634">End</a></li>
-<li><a href="#orgf3ced91">Sources</a></li>
+<li><a href="#orgf2f5b6b">End</a></li>
+<li><a href="#orgd41330b">Sources</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfeaf816">
-<h2 id="orgfeaf816">Beginning</h2>
-<div class="outline-text-2" id="text-orgfeaf816">
+<div class="outline-2" id="outline-container-org92056ab">
+<h2 id="org92056ab">Beginning</h2>
+<div class="outline-text-2" id="text-org92056ab">
 <p>I'm going to look at binary classification (two classes) and linear regression. In particular I'm going to use the <a href="../bibliography/isl-credit-data-set/">Credit Card Balance</a> data set <a href="../bibliography/an-introduction-to-statistical-learning/">(James et al., 2013)</a> to look at how to interpret the linear model once we encode gender.</p>
 </div>
-<div class="outline-3" id="outline-container-org0763021">
-<h3 id="org0763021">Set Up</h3>
-<div class="outline-text-3" id="text-org0763021"></div>
-<div class="outline-4" id="outline-container-orgd16f1a4">
-<h4 id="orgd16f1a4">Imports</h4>
-<div class="outline-text-4" id="text-orgd16f1a4">
+<div class="outline-3" id="outline-container-orgd7555b0">
+<h3 id="orgd7555b0">Set Up</h3>
+<div class="outline-text-3" id="text-orgd7555b0"></div>
+<div class="outline-4" id="outline-container-org057a918">
+<h4 id="org057a918">Imports</h4>
+<div class="outline-text-4" id="text-org057a918">
 <p>First, some importing.</p>
 <div class="highlight">
 <pre><span></span><span class="c1"># python</span>
@@ -124,40 +124,40 @@
 <span class="p">)</span>
 <span class="kn">import</span> <span class="nn">hvplot.pandas</span>
 <span class="kn">import</span> <span class="nn">pandas</span>
-<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="kn">as</span> <span class="nn">statsmodels</span>
-<span class="kn">import</span> <span class="nn">statsmodels.formula.api</span> <span class="kn">as</span> <span class="nn">statsmodels_formula</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">statsmodels</span>
+<span class="kn">import</span> <span class="nn">statsmodels.formula.api</span> <span class="k">as</span> <span class="nn">statsmodels_formula</span>
 
 <span class="c1"># my stuff</span>
 <span class="kn">from</span> <span class="nn">graeae</span> <span class="kn">import</span> <span class="n">EmbedHoloviews</span><span class="p">,</span> <span class="n">CountPercentage</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgbb076f7">
-<h4 id="orgbb076f7">The Environment</h4>
-<div class="outline-text-4" id="text-orgbb076f7">
+<div class="outline-4" id="outline-container-orgfd51c53">
+<h4 id="orgfd51c53">The Environment</h4>
+<div class="outline-text-4" id="text-orgfd51c53">
 <p>This loads the path to files.</p>
 <div class="highlight">
 <pre><span></span><span class="n">load_dotenv</span><span class="p">(</span><span class="s2">".env"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org4eee27f">
-<h4 id="org4eee27f">Plotting</h4>
-<div class="outline-text-4" id="text-org4eee27f">
+<div class="outline-4" id="outline-container-orgbc5e2b2">
+<h4 id="orgbc5e2b2">Plotting</h4>
+<div class="outline-text-4" id="text-orgbc5e2b2">
 <p>This just sets up some convenience values for plotting.</p>
 <div class="highlight">
 <pre><span></span><span class="n">SLUG</span> <span class="o">=</span> <span class="s2">"linear-regression-and-binary-data"</span>
 <span class="n">Embed</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">EmbedHoloviews</span><span class="p">,</span>
-                <span class="n">folder_path</span><span class="o">=</span><span class="n">f</span><span class="s2">"files/posts/{SLUG}"</span><span class="p">)</span>
+                <span class="n">folder_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"files/posts/</span><span class="si">{</span><span class="n">SLUG</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"PLOT_CONSTANTS"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
     <span class="n">Plot</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org4f888fd">
-<h4 id="org4f888fd">The Data</h4>
-<div class="outline-text-4" id="text-org4f888fd">
+<div class="outline-4" id="outline-container-org4130991">
+<h4 id="org4130991">The Data</h4>
+<div class="outline-text-4" id="text-org4130991">
 <p>I downloaded the data from the <a href="https://faculty.marshall.usc.edu/gareth-james/ISL/data.html">ISL Data Set page</a> previously so I'll load it here.</p>
 <div class="highlight">
 <pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"CREDIT"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(),</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -170,16 +170,16 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org8bcb294">
-<h2 id="org8bcb294">Middle</h2>
-<div class="outline-text-2" id="text-org8bcb294"></div>
-<div class="outline-3" id="outline-container-org99d81c4">
-<h3 id="org99d81c4">The Data</h3>
-<div class="outline-text-3" id="text-org99d81c4">
+<div class="outline-2" id="outline-container-org19ea894">
+<h2 id="org19ea894">Middle</h2>
+<div class="outline-text-2" id="text-org19ea894"></div>
+<div class="outline-3" id="outline-container-orge0b3df4">
+<h3 id="orge0b3df4">The Data</h3>
+<div class="outline-text-3" id="text-orge0b3df4">
 <p>Now that we have the data we can take a quick look at what's there.</p>
 <div class="highlight">
 <pre><span></span><span class="n">counter</span> <span class="o">=</span> <span class="n">CountPercentage</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">Gender</span><span class="p">,</span> <span class="n">value_label</span><span class="o">=</span><span class="s2">"Gender"</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">counter</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">counter</span><span class="p">())</span>
 </pre></div>
 <table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
 <colgroup>
@@ -218,7 +218,7 @@
 <span class="n">output</span> <span class="o">=</span> <span class="n">Embed</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">plot</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">"balance_distributions"</span><span class="p">)()</span>
 </pre></div>
 <div class="highlight">
-<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+<pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 </pre></div>
 <object data="balance_distributions.html" height="800" style="width:100%" type="text/html">
 <p>Figure Missing</p>
@@ -226,9 +226,9 @@
 <p>It looks like there are two populations for each gender. The larger one for both genders is centered near 0 and then both genders have a secondary population that carries a balance.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgde95ce7">
-<h3 id="orgde95ce7">Encode the Gender</h3>
-<div class="outline-text-3" id="text-orgde95ce7">
+<div class="outline-3" id="outline-container-org2a6b802">
+<h3 id="org2a6b802">Encode the Gender</h3>
+<div class="outline-text-3" id="text-org2a6b802">
 <p>Since the <code>Gender</code> data is categorical we need to create a <i>dummy variable</i> to encode it. So what I'm going to do is encode males as 0 and females as 1 (because of the nature of binary encoding, we could swap the numbers and it would still work).</p>
 <div class="highlight">
 <pre><span></span><span class="n">gender</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -238,7 +238,7 @@
 </pre></div>
 <div class="highlight">
 <pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">"gender"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Gender</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">gender</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">gender</span><span class="o">.</span><span class="n">value_counts</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">gender</span><span class="o">.</span><span class="n">value_counts</span><span class="p">())</span>
 </pre></div>
 <pre class="example">
 1    207
@@ -246,13 +246,13 @@
 Name: gender, dtype: int64
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org7efd0c9">
-<h3 id="org7efd0c9">Fit the Regression</h3>
-<div class="outline-text-3" id="text-org7efd0c9">
+<div class="outline-3" id="outline-container-orge6bc536">
+<h3 id="orge6bc536">Fit the Regression</h3>
+<div class="outline-text-3" id="text-orge6bc536">
 <p>Now I'll fit the model with <a href="https://www.statsmodels.org/stable/index.html">statsmodels</a>, which uses r-style arguments (I think it supports regular python arguments too).</p>
 <div class="highlight">
 <pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">statsmodels_formula</span><span class="o">.</span><span class="n">ols</span><span class="p">(</span><span class="s2">"Balance ~ gender"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
 </pre></div>
 <pre class="example">
                             OLS Regression Results                            
@@ -293,9 +293,9 @@ Warnings:
 <div class="highlight">
 <pre><span></span><span class="n">male_mean</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">Gender</span><span class="o">==</span><span class="s2">"Male"</span><span class="p">]</span><span class="o">.</span><span class="n">Balance</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 <span class="n">female_mean</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">Gender</span><span class="o">==</span><span class="s2">"Female"</span><span class="p">]</span><span class="o">.</span><span class="n">Balance</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">"Average Male Balance: {male_mean:.7}"</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">"Average Female Balance: {female_mean:0.7}"</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s2">"Average difference: {female_mean - male_mean:0.7}"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average Male Balance: </span><span class="si">{</span><span class="n">male_mean</span><span class="si">:</span><span class="s2">.7</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average Female Balance: </span><span class="si">{</span><span class="n">female_mean</span><span class="si">:</span><span class="s2">0.7</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average difference: </span><span class="si">{</span><span class="n">female_mean</span> <span class="o">-</span> <span class="n">male_mean</span><span class="si">:</span><span class="s2">0.7</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">expect</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">male_mean</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">Intercept</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">be_true</span><span class="p">)</span>
 <span class="n">expect</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">female_mean</span> <span class="o">-</span> <span class="n">male_mean</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">gender</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">be_true</span><span class="p">)</span>
@@ -321,7 +321,7 @@ Average difference: 19.73312
 <span class="n">output</span> <span class="o">=</span> <span class="n">Embed</span><span class="p">(</span><span class="n">plot</span><span class="o">=</span><span class="n">scatter</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">"Gender Model"</span><span class="p">)()</span>
 </pre></div>
 <div class="highlight">
-<pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+<pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 </pre></div>
 <object data="Gender%20Model.html" height="800" style="width:100%" type="text/html">
 <p>Figure Missing</p>
@@ -330,9 +330,9 @@ Average difference: 19.73312
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0fa9634">
-<h2 id="org0fa9634">End</h2>
-<div class="outline-text-2" id="text-org0fa9634">
+<div class="outline-2" id="outline-container-orgf2f5b6b">
+<h2 id="orgf2f5b6b">End</h2>
+<div class="outline-text-2" id="text-orgf2f5b6b">
 <p>So there you have it. If you have the specialized case of binary categorical data you can convert the category to <i>dummy variables</i> and then fit a linear regression to it. If you encode the values as <i>0</i> and <i>1</i> then the <i>y-intercept</i> will give you the average output value for the category set to 0 and the <i>slope</i> will give you the difference between the average outputs for the categories. If you use different dummy variables the meanings will change slightly, although you will still be inferring things about the averages. Why is this interesting - predicting the mean for each category?</p>
 <p>Logistic regression also relies on dummy variables for categorical encodings and this shows a preliminary step that helps us:</p>
 <ul class="org-ul">
@@ -343,9 +343,9 @@ Average difference: 19.73312
 <p>I didn't emphasize it, but the p-value for the f-statistic might be valuable when deciding whether the categorical data is different enough to use as a feature.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf3ced91">
-<h2 id="orgf3ced91">Sources</h2>
-<div class="outline-text-2" id="text-orgf3ced91">
+<div class="outline-2" id="outline-container-orgd41330b">
+<h2 id="orgd41330b">Sources</h2>
+<div class="outline-text-2" id="text-orgd41330b">
 <ul class="org-ul">
 <li><a href="../bibliography/an-introduction-to-statistical-learning/">An Introduction To Statistical Learning</a></li>
 <li><a href="../bibliography/isl-credit-data-set/">ISL Credit Data Set</a></li>

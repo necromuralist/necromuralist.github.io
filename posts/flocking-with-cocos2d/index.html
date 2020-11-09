@@ -74,42 +74,42 @@
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
 <p>This is an implementation of Craig Reynold's flocking behavior based on the book <a href="https://www.packtpub.com/game-development/python-game-programming-example">Python Game Programming By Example</a>.</p>
-<div class="outline-2" id="outline-container-org5748ac1">
-<h2 id="org5748ac1">Imports</h2>
-<div class="outline-text-2" id="text-org5748ac1">
+<div class="outline-2" id="outline-container-org5950387">
+<h2 id="org5950387">Imports</h2>
+<div class="outline-text-2" id="text-org5950387">
 <div class="highlight">
 <pre><span></span><span class="c1"># third party</span>
 <span class="kn">from</span> <span class="nn">cocos.cocosnode</span> <span class="kn">import</span> <span class="n">CocosNode</span>
 <span class="kn">import</span> <span class="nn">cocos</span>
-<span class="kn">import</span> <span class="nn">cocos.euclid</span> <span class="kn">as</span> <span class="nn">euclid</span>
-<span class="kn">import</span> <span class="nn">cocos.particle_system</span> <span class="kn">as</span> <span class="nn">particle_system</span>
+<span class="kn">import</span> <span class="nn">cocos.euclid</span> <span class="k">as</span> <span class="nn">euclid</span>
+<span class="kn">import</span> <span class="nn">cocos.particle_system</span> <span class="k">as</span> <span class="nn">particle_system</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgaf4055b">
-<h2 id="orgaf4055b">Constants</h2>
+<div class="outline-2" id="outline-container-org1270c65">
+<h2 id="org1270c65">Constants</h2>
 </div>
-<div class="outline-2" id="outline-container-orgcef75c3">
-<h2 id="orgcef75c3">The Boid</h2>
-<div class="outline-text-2" id="text-orgcef75c3"></div>
-<div class="outline-3" id="outline-container-org8691a92">
-<h3 id="org8691a92">Boid Settings</h3>
-<div class="outline-text-3" id="text-org8691a92">
+<div class="outline-2" id="outline-container-org1a2db5e">
+<h2 id="org1a2db5e">The Boid</h2>
+<div class="outline-text-2" id="text-org1a2db5e"></div>
+<div class="outline-3" id="outline-container-org16319e7">
+<h3 id="org16319e7">Boid Settings</h3>
+<div class="outline-text-3" id="text-org16319e7">
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">BoidSettings</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">"""a settings object"""</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""list of required attributes"""</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"position"</span><span class="p">,</span>
                                 <span class="s2">"velocity"</span><span class="p">,</span>
                                 <span class="s2">"speed"</span><span class="p">,</span>
@@ -219,7 +219,7 @@
 <span class="sd">       TypeError if type of value not in expected</span>
 <span class="sd">       """</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"{0} must be one of {1}, not {2}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"</span><span class="si">{0}</span><span class="s2"> must be one of </span><span class="si">{1}</span><span class="s2">, not </span><span class="si">{2}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">identifier</span><span class="p">,</span>
                 <span class="n">expected</span><span class="p">,</span>
                 <span class="n">value</span><span class="p">))</span>
@@ -242,16 +242,16 @@
 <span class="sd">       TypeError if type of value is not expected</span>
 <span class="sd">       """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"{0} must be {1} not {2}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"</span><span class="si">{0}</span><span class="s2"> must be </span><span class="si">{1}</span><span class="s2"> not </span><span class="si">{2}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span>
                                                              <span class="n">expected</span><span class="p">,</span>
                                                              <span class="n">value</span><span class="p">))</span>
         <span class="k">return</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org049830d">
-<h3 id="org049830d">Boid Node</h3>
-<div class="outline-text-3" id="text-org049830d">
+<div class="outline-3" id="outline-container-org0da5e00">
+<h3 id="org0da5e00">Boid Node</h3>
+<div class="outline-text-3" id="text-org0da5e00">
 <div class="highlight">
 <pre><span></span><span class="k">class</span> <span class="nc">Boid</span><span class="p">(</span><span class="n">CocosNode</span><span class="p">):</span>
     <span class="sd">"""represents a boid</span>
@@ -269,7 +269,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">speed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">max_force</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_velocity</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">max_velocity</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 <p>I'm not a fan of method calls in the constructor, but these next two lines help set up the node.</p>
 <div class="highlight">
@@ -288,7 +288,7 @@
 <span class="sd">    delta: float</span>
 <span class="sd">      seconds since the last clock tick</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
 </pre></div>
 <p>The target</p>
@@ -302,8 +302,8 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org267c790">
-<h2 id="org267c790">Main</h2>
+<div class="outline-2" id="outline-container-orgcfb8f15">
+<h2 id="orgcfb8f15">Main</h2>
 </div>
 </div>
 <aside class="postpromonav">
