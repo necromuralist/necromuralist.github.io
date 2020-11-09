@@ -1,0 +1,121 @@
+#+BEGIN_COMMENT
+.. title: Changing the Firefox Reader Font
+.. slug: changing-the-firefox-reader-font
+.. date: 2020-11-08 14:16:45 UTC-08:00
+.. tags: css,firefox,how-to
+.. category: Firefox
+.. link: 
+.. description: How to change the Firefox Reader Font.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* What is this about?
+  I've been trying for a while now to figure out how to change the Firefox Reader font. The default (serifed-font) is Georgia, which is nice enough, but I like to change things up now and again. I would sometimes just edit the CSS in the Developer's Tools, but I finally stumbled upon how to do it so I'll save it here for my future self.
+* So how do you do it?
+  The procedure is pretty simple, this is it in outline:
+  1. Create the =chrome= folder for it if it doesn't exist.
+  2. Enable the use of this folder.
+  3. Find the CSS you want to change.
+  4. Add a =userContent.css= file to the =chrome= folder and add the CSS you want to use to it.
+  5. Restart Firefox
+** Creating the =chrome= Folder
+   The configuration files you create go into a [[http://kb.mozillazine.org/Chrome_folder][folder named "chrome"]]. Firefox used to create it for you with example files but doesn't anymore so if you haven't created one you'll have to do so now - but where? It goes into your "profile" folder, but since you can have multiple configurations the path isn't fixed. There's multiple ways listed to find it on the Firefox [[http://kb.mozillazine.org/Profile_folder_-_Firefox][Profile folder]] page. The way I did it was to enter =about:support= in the address bar.
+
+#+begin_export html
+<img src="about-support-address-bar.webp">
+#+end_export
+
+This brings up the Troupbleshooting Information page.
+
+#+begin_export html
+<img src="about-support.webp">
+#+end_export
+
+The bottom of the screenshot is what we want.
+
+#+begin_export html
+<img src="profile-directory.webp">
+#+end_export
+
+The path displayed is your profile folder (=/home/athena/.mozilla/firefox/j3hyuwod.default-1603227893962=). You can click on the Open Directory button to open it with the GUI or use the path to navigate to it from your text editor. Within that folder create a folder named =chrome=. Why /chrome/ when this is firefox? Chrome is apparently [[https://developer.mozilla.org/en-US/docs/Glossary/Chrome][not related to google's chrome]], but, [[http://www.catb.org/~esr/jargon/html/C/chrome.html][according to Eric S. Raymond]] (and [[https://www.wikiwand.com/en/Graphical_user_interface][Wikipedia]], etc.) refers to the GUI, or at least some aspects of it. Anyway.
+
+** userContent.css
+   In the =chrome= folder create a file named =userContent.css= (here's [[http://kb.mozillazine.org/index.php?title=UserContent.css&printable=yes][a mozillaZine article]] with some information about it) and add your CSS. Looking in the Firefox Inspector with the Reader View open it looks like it just uses the defaults.
+
+#+begin_export html
+<img src="body-serif.webp">
+#+end_export
+
+But I don't want to change it for every web page so I added it to the =.moz-reader-content= selector.
+
+#+begin_src css
+.moz-reader-content { 
+    font-family: "TeX Gyre Pagella", Gentium;
+}
+#+end_src
+
+Which I also found using the Firefox Inspector.
+** Enable It
+   So, you might think that we're done, right? But it turns out that even though Firefox gives you the ability to add custom CSS it doesn't load it by default. I couldn't find anything on the mozillaZine site about how to enable it (although it might be there, I just didn't find it), but there's a www.userchrome.org site that has a [[https://www.userchrome.org/how-create-userchrome-css.html][page on setting up userChrome.css]] (which also talks about creating the =chrome= folder). =userChrome.css= is how you can style the Firefox GUI itself (the chrome) so in this case anything specific to that file isn't relevant, but the rest of the page is.
+*** The Steps
+   First navigate to =about:config=.
+
+#+begin_export html
+<img src="about-config.webp">
+#+end_export
+
+If you hadn't previously unchecked the /Warn me when I attempt to access these preferences/ button you'll be greeted with a warning page.
+
+#+begin_export html
+<img src="proceed-with-caution.webp">
+#+end_export
+
+Once you click on /Accept the Risk and Continue/ or just hit enter, depending on your setup, you'll get to the Advanced Preferences page.
+
+#+begin_export html
+<img src="advanced-preferences.webp">
+#+end_export
+
+In the search box at the top of the page type in =userprof=.
+
+#+begin_export html
+<img src="userprof.webp">
+#+end_export
+
+If it's already set to =true= then you're all set, otherwise click on the toggle button on the right side.
+
+#+begin_export html
+<img src="toggle.webp">
+#+end_export
+
+This should flip it from =false= to =true=.
+
+#+begin_export html
+<img src="true.webp">
+#+end_export
+** Oh, and just one more thing...
+   Changing the preferences to use the stylesheet doesn't load the actual stylesheet. To actually get it all working restart Firefox and try out the reader on a page.
+
+In my case it changed the [[https://en.wikipedia.org/wiki/Rhetorica_ad_Herennium?oldformat=true][Wikipedia page on Rhetorica ad Herennium]] from this.
+
+#+begin_export html
+<img src="default-text.webp">
+#+end_export
+
+To this.
+
+#+begin_export html
+<img src="palladio-content.webp">
+#+end_export
+
+Not that dramatic in this case, but I still haven't found my favorite font. Also only the content was changed, not the headers... I'll have to look into that. Anyway, if you look in the Inspector the new CSS should show up.
+
+#+begin_export html
+<img src="moz-reader-content.webp">
+#+end_export
+* End
+  So, that's one way to change the font for the Firefox Reader. Not exciting, but finding out how to do it was hard enough that I thought I should note it for later.
