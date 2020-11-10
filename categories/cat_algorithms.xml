@@ -1,33 +1,249 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about Algorithms)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_algorithms.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 10 Nov 2020 02:31:22 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Brute Force Longest Non-Decreasing Sub-Sequence</title><link>https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-#+END_COMMENT
-&lt;/p&gt;
-&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about Algorithms)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_algorithms.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 10 Nov 2020 05:02:54 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Memoization and the Fibonacci Sequence</title><link>https://necromuralist.github.io/posts/memoization-and-the-fibonacci-sequence/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/#org9ebd882"&gt;The Problem&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/#org9cf5515"&gt;Brute Force&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/#org638d014"&gt;Example One&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/#org36734ef"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/memoization-and-the-fibonacci-sequence/#orgae95ffc"&gt;What It Is&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/memoization-and-the-fibonacci-sequence/#org627aa52"&gt;Recurse&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/memoization-and-the-fibonacci-sequence/#org9e43abb"&gt;Memoize&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/memoization-and-the-fibonacci-sequence/#org1983c18"&gt;Once Again With Python&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org9ebd882" class="outline-2"&gt;
-&lt;h2 id="org9ebd882"&gt;The Problem&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9ebd882"&gt;
+&lt;div id="outline-container-orgae95ffc" class="outline-2"&gt;
+&lt;h2 id="orgae95ffc"&gt;What It Is&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgae95ffc"&gt;
+&lt;p&gt;
+This is a note on using memoization with recursion - specifically with the generation of a &lt;a href="https://www.wikiwand.com/en/Fibonacci_number"&gt;Fibonacci Number&lt;/a&gt;. The fibonacci numbers form a sequence where
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+F_0 = 0, F_1 = 1
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+and then for the rest of the numbers greater than 1
+&lt;/p&gt;
+
+&lt;p&gt;
+\[
+F_n = F_{n-1} + F_{n-2}
+\]
+&lt;/p&gt;
+
+&lt;p&gt;
+So, starting from 0 you get &lt;i&gt;0, 1, 1, 2, 3, 5, 8,&lt;/i&gt; etc.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org627aa52" class="outline-2"&gt;
+&lt;h2 id="org627aa52"&gt;Recurse&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org627aa52"&gt;
+&lt;p&gt;
+Calculating the sequence is often done with recursion because you can pretty much take the definition and convert it to a function with little translation.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;fibonacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="sd"&gt;"""Calculates the n-indexed fibonacci number&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Args:&lt;/span&gt;
+&lt;span class="sd"&gt;     n: the index of the number in the (zero-based) sequence to get&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
+&lt;span class="sd"&gt;     the nth fibonacci number&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fibonacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;fibonacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;55&lt;/span&gt;
+&lt;span class="n"&gt;actual&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;fibonacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;actual&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;actual&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;actual&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+55
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+Remember that &lt;i&gt;n&lt;/i&gt; is the index for number, not the count (the second number in the sequence has index 1).
+&lt;/p&gt;
+
+&lt;p&gt;
+The problem here is that recursion like this has memory limits and takes a long time.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;graeae&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Timer&lt;/span&gt;
+&lt;span class="n"&gt;TIMER&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Timer&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;102334155&lt;/span&gt;
+&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;40&lt;/span&gt;
+&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;TIMER&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;actual&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;fibonacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;actual&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;actual&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+2020-11-09 21:11:05,852 graeae.timers.timer start: Started: 2020-11-09 21:11:05.852071
+2020-11-09 21:11:50,249 graeae.timers.timer end: Ended: 2020-11-09 21:11:50.249808
+2020-11-09 21:11:50,251 graeae.timers.timer end: Elapsed: 0:00:44.397737
+40
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+Less than a minute might not seem like a big deal, but even pushing it up to 45 makes the wait too long (I gave up and killed the process so I don't know how long it ran). So what's the solution? Let's try &lt;a href="https://www.wikiwand.com/en/Memoization"&gt;memoization&lt;/a&gt;.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org9e43abb" class="outline-2"&gt;
+&lt;h2 id="org9e43abb"&gt;Memoize&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9e43abb"&gt;
+&lt;p&gt;
+So, what's memoization? Is it what Elmer Fudd does when he memorizes? No, memoization comes from the latin word &lt;i&gt;memorandum&lt;/i&gt;  which means "to be remembered". What we're going to do is create a cache dictionary that will match arguments to our function call to their outputs. Then if a function call comes in that uses arguments that were used before, we can just grab it from the cache instead of re-doing the calculations.
+&lt;/p&gt;
+
+&lt;p&gt;
+We're going to use a python decorator from &lt;a href="https://docs.python.org/3/library/functools.html"&gt;functools&lt;/a&gt; named &lt;code&gt;wraps&lt;/code&gt; that allows you to build a decorator that looks like the original function. It isn't necessary for the decorator to work, but it makes it look more like the original functior passed to the decorator so it's a good practice to use it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;wraps&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;memoize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="sd"&gt;"""Adds caching&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Args:&lt;/span&gt;
+&lt;span class="sd"&gt;     function: the callable to memoize&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
+&lt;span class="sd"&gt;     callable with caching and the original function&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="n"&gt;cache&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+    &lt;span class="nd"&gt;@wraps&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;wrapped&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cache&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+	    &lt;span class="n"&gt;cache&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;cache&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;wrapped&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Although it works as a decorator, since we already defined the &lt;code&gt;fibonacci&lt;/code&gt; function we can just pass it to &lt;code&gt;memoize&lt;/code&gt; to add the cache.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;fibonacci&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;memoize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fibonacci&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Now let's see what happens. 
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;TIMER&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;actual&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;fibonacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;actual&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+2020-11-09 21:13:05,370 graeae.timers.timer start: Started: 2020-11-09 21:13:05.370471
+2020-11-09 21:13:05,371 graeae.timers.timer end: Ended: 2020-11-09 21:13:05.371967
+2020-11-09 21:13:05,372 graeae.timers.timer end: Elapsed: 0:00:00.001496
+354224848179261915075
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; I originally tried renaming the memoized function, but since the recursive calls go to the original function name, this doesn't produce and improved function. You have to use the same name as you did when you defined the function.
+&lt;/p&gt;
+
+&lt;p&gt;
+So memoization really helps, even more than you might expect. The reason why is that the first recursion term (&lt;code&gt;fibonacci(n - 1)&lt;/code&gt;) gets evaluated first, so each recursive call goes backwards by one until it hits the base-case where &lt;code&gt;n &amp;lt; 2&lt;/code&gt; and then all the rest of the calls are evaluated, but after one run through the indexes you've already hit all the cases you need for these other calls so rather than making more recursive calls, everything gets pulled from the cache.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org1983c18" class="outline-2"&gt;
+&lt;h2 id="org1983c18"&gt;Once Again With Python&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1983c18"&gt;
+&lt;p&gt;
+As is often the case, when you implement something useful in python you'll find that it's already been implemented - in this case as part of the python standard library.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;functools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;lru_cache&lt;/span&gt;
+
+&lt;span class="nd"&gt;@lru_cache&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;maxsize&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;fib_o_nacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="sd"&gt;"""Calculates the n-indexed fibonacci number&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Args:&lt;/span&gt;
+&lt;span class="sd"&gt;     n: the index of the number in the (zero-based) sequence to get&lt;/span&gt;
+
+&lt;span class="sd"&gt;    Returns:&lt;/span&gt;
+&lt;span class="sd"&gt;     the nth fibonacci number&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
+    &lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;fib_o_nacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;fib_o_nacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; in python 3.9 there is a &lt;code&gt;cache&lt;/code&gt; decorator that is the same thing as the &lt;code&gt;lru_cache&lt;/code&gt; with &lt;code&gt;maxsize=None&lt;/code&gt; but I'm running this on python 3.8 right now so I can't use it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="n"&gt;TIMER&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fib_o_nacci&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;500&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+2020-11-09 21:53:19,405 graeae.timers.timer start: Started: 2020-11-09 21:53:19.405955
+2020-11-09 21:53:19,407 graeae.timers.timer end: Ended: 2020-11-09 21:53:19.407891
+2020-11-09 21:53:19,409 graeae.timers.timer end: Elapsed: 0:00:00.001936
+139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+Okay, so, I think it works, although I'm not checking the values, the speed seems to be an improvement.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>algorithms</category><category>recursion</category><guid>https://necromuralist.github.io/posts/memoization-and-the-fibonacci-sequence/</guid><pubDate>Tue, 10 Nov 2020 02:32:31 GMT</pubDate></item><item><title>Brute Force Longest Non-Decreasing Sub-Sequence</title><link>https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/#org63992bc"&gt;The Problem&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/#org3494f35"&gt;Brute Force&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/#orgfc62dcc"&gt;Example One&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/brute-force-longest-non-decreasing-sub-sequence/#org4d04dd2"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org63992bc" class="outline-2"&gt;
+&lt;h2 id="org63992bc"&gt;The Problem&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org63992bc"&gt;
 &lt;p&gt;
 The problem at hand is that we're given a sequence and we want to find the longest combination we can find in it that is non-decreasing (each element after the first is greater than or equal to the previous element).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9cf5515" class="outline-2"&gt;
-&lt;h2 id="org9cf5515"&gt;Brute Force&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9cf5515"&gt;
+&lt;div id="outline-container-org3494f35" class="outline-2"&gt;
+&lt;h2 id="org3494f35"&gt;Brute Force&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3494f35"&gt;
 &lt;p&gt;
 This will be a brute-force solution using nested for-loops. This will use the &lt;a href="https://necromuralist.github.io/posts/python-itertools-combinations/"&gt;itertools.combinations&lt;/a&gt; function to generate the candidate solutions.
 &lt;/p&gt;
@@ -64,9 +280,9 @@ Here's what it's doing.
 &lt;/ol&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org638d014" class="outline-3"&gt;
-&lt;h3 id="org638d014"&gt;Example One&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org638d014"&gt;
+&lt;div id="outline-container-orgfc62dcc" class="outline-3"&gt;
+&lt;h3 id="orgfc62dcc"&gt;Example One&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfc62dcc"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;source&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;expected&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
@@ -85,9 +301,9 @@ Here's what it's doing.
 &lt;/div&gt;
 
 
-&lt;div id="outline-container-org36734ef" class="outline-2"&gt;
-&lt;h2 id="org36734ef"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org36734ef"&gt;
+&lt;div id="outline-container-org4d04dd2" class="outline-2"&gt;
+&lt;h2 id="org4d04dd2"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4d04dd2"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;From &lt;a href="https://necromuralist.github.io/posts/python-algorithms/"&gt;Python Algorithms&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
