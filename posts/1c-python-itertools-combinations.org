@@ -14,7 +14,7 @@
 #+OPTIONS: ^:{}
 #+TOC: headlines 2
 
-#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-e9cda87b-a10c-4af3-81a5-2951cddd8d8f-ssh.json
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-24c67be9-19db-4f42-9f79-7dcc16187faa-ssh.json
 
 #+BEGIN_SRC python :results none :exports none
 %load_ext autoreload
@@ -30,8 +30,9 @@ from itertools import combinations
 To make sure it's behaving the way I think it will I'll also use some other built-ins.
 
 #+begin_src python :results none
-from math import factorial
 from itertools import count
+from math import factorial
+from math import comb as n_choose_k
 #+end_src
 * Okay, but what?
   The =combinations= function takes two arguments:
@@ -49,10 +50,10 @@ from itertools import count
 &= \frac{n!}{k!(n-k)!}
 \end{align}
 
-So I'll make a quick function to check and make sure that's what we're getting.
+I originally implemented a function for this but it turns out it got added to python as of 3.8 ([[https://docs.python.org/3/library/math.html#number-theoretic-and-representation-functions][number-theoretic functions]]). Here's my translation for reference. The calculation is actually really fast so you don't gain a lot from these toy problems using the standard library, but since it's there, why not?
 
 #+begin_src python :results none
-def n_choose_k(n: int, k: int) -> int:
+def n_choose_k_one(n: int, k: int) -> int:
     """The Binomial Coefficient
 
     Args:

@@ -1,0 +1,76 @@
+#+BEGIN_COMMENT
+.. title: Brute Force Longest Non-Decreasing Sub-Sequence
+.. slug: brute-force-longest-non-decreasing-sub-sequence
+.. date: 2020-11-09 17:32:26 UTC-08:00
+.. tags: algorithms,python
+.. category: Algorithms
+.. link: 
+.. description: 
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-24c67be9-19db-4f42-9f79-7dcc16187faa-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+
+* The Problem
+  The problem at hand is that we're given a sequence and we want to find the longest combination we can find in it that is non-decreasing (each element after the first is greater than or equal to the previous element).
+* Brute Force
+  This will be a brute-force solution using nested for-loops. This will use the {{% lancelot title="itertools.combinations" %}}python-itertools-combinations{{% /lancelot %}} function to generate the candidate solutions.
+
+#+begin_src python :results none
+from itertools import combinations
+#+end_src
+
+#+begin_src python :results none
+def brute_force(sequence: iter) -> tuple:
+    """Finds the longest non-decreasing sub-sequence
+
+    Args:
+     sequence: the source collection of items
+    
+    Returns:
+      the longest non-decreasing sub-sequence in the sequence, number of for-loops
+    """
+    count = 0
+    for length in range(len(sequence), 0, -1):
+        count += 1
+        for sub_sequence in combinations(sequence, length):
+            count += 1
+            if list(sub_sequence) == sorted(sub_sequence):
+                return sub_sequence, count
+    return
+#+end_src
+
+Here's what it's doing.
+ 1. The outer loop counts down from the length of the sequence to zero.
+ 2. The inner loop generates combinations of the current length in the outer loop
+ 3. If the =sub_sequence= is in sorted (non-decreasing) order then it is as long or longer than any other non-decreasing sub-sequence so choose it as the longest sub-sequence.
+
+** Example One
+#+begin_src python :results output :exports both
+source = (3, 1, 0, 2, 4)
+expected = (1, 2, 4)
+
+actual, count = brute_force(source)
+print(actual)
+print(count)
+assert actual == expected
+#+end_src
+
+#+RESULTS:
+: (1, 2, 4)
+: 18
+
+
+* End
+  - From {{% doc %}}python-algorithms{{% /doc %}}
