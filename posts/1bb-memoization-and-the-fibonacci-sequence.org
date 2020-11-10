@@ -1,0 +1,180 @@
+#+BEGIN_COMMENT
+.. title: Memoization and the Fibonacci Sequence
+.. slug: memoization-and-the-fibonacci-sequence
+.. date: 2020-11-09 18:32:31 UTC-08:00
+.. tags: algorithms,recursion
+.. category: Algorithms
+.. link: 
+.. description: Using memoization to speed up calculating the fibonacci sequence.
+.. type: text
+.. status: 
+.. updated: 
+.. has_math: True
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-22fd07e8-0cf4-4cf3-be70-5518b754f387-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+* What It Is
+  This is a note on using memoization with recursion - specifically with the generation of a [[https://www.wikiwand.com/en/Fibonacci_number][Fibonacci Number]]. The fibonacci numbers form a sequence where
+
+\[
+F_0 = 0, F_1 = 1
+\]
+
+and then for the rest of the numbers greater than 1
+
+\[
+F_n = F_{n-1} + F_{n-2}
+\]
+
+So, starting from 0 you get /0, 1, 1, 2, 3, 5, 8,/ etc.
+* Recurse
+  Calculating the sequence is often done with recursion because you can pretty much take the definition and convert it to a function with little translation.
+
+#+begin_src python :results none
+def fibonacci(n: int) -> int:
+    """Calculates the n-indexed fibonacci number
+
+    Args:
+     n: the index of the number in the (zero-based) sequence to get
+
+    Returns:
+     the nth fibonacci number
+    """
+    assert n >= 0
+    if n < 2:
+        return n
+
+    return fibonacci(n - 1) + fibonacci(n - 2)
+#+end_src
+
+#+begin_src python :results output :exports both
+expected = 55
+actual = fibonacci(10)
+print(actual)
+assert expected == actual, actual
+#+end_src
+
+#+RESULTS:
+: 55
+
+Remember that /n/ is the index for number, not the count (the second number in the sequence has index 1).
+
+The problem here is that recursion like this has memory limits and takes a long time.
+
+#+begin_src python :results none
+from graeae import Timer
+TIMER = Timer()
+#+end_src
+
+#+begin_src python :results output :exports both
+expected = 102334155
+n = 40
+with TIMER:
+    actual = fibonacci(n)
+    print(n)
+    assert actual == expected, actual
+#+end_src
+
+#+RESULTS:
+: 2020-11-09 21:11:05,852 graeae.timers.timer start: Started: 2020-11-09 21:11:05.852071
+: 2020-11-09 21:11:50,249 graeae.timers.timer end: Ended: 2020-11-09 21:11:50.249808
+: 2020-11-09 21:11:50,251 graeae.timers.timer end: Elapsed: 0:00:44.397737
+: 40
+
+Less than a minute might not seem like a big deal, but even pushing it up to 45 makes the wait too long (I gave up and killed the process so I don't know how long it ran). So what's the solution? Let's try [[https://www.wikiwand.com/en/Memoization][memoization]].
+* Memoize
+  So, what's memoization? Is it what Elmer Fudd does when he memorizes? No, memoization comes from the latin word /memorandum/  which means "to be remembered". What we're going to do is create a cache dictionary that will match arguments to our function call to their outputs. Then if a function call comes in that uses arguments that were used before, we can just grab it from the cache instead of re-doing the calculations.
+
+  We're going to use a python decorator from [[https://docs.python.org/3/library/functools.html][functools]] named =wraps= that allows you to build a decorator that looks like the original function. It isn't necessary for the decorator to work, but it makes it look more like the original functior passed to the decorator so it's a good practice to use it.
+
+#+begin_src python :results none
+from functools import wraps
+#+end_src
+
+#+begin_src python :results none
+def memoize(function):
+    """Adds caching
+
+    Args:
+     function: the callable to memoize
+    
+    Returns:
+     callable with caching and the original function
+    """
+    cache = {}
+    @wraps(function)
+    def wrapped(*args):
+        if args not in cache:
+            cache[args] = function(*args)
+        return cache[args]
+    return wrapped
+#+end_src
+
+Although it works as a decorator, since we already defined the =fibonacci= function we can just pass it to =memoize= to add the cache.
+
+#+begin_src python :results none
+fibonacci = memoize(fibonacci)
+#+end_src
+
+Now let's see what happens. 
+
+#+begin_src python :results output :exports both
+with TIMER:
+    actual = fibonacci(100)
+print(actual)
+#+end_src
+
+#+RESULTS:
+: 2020-11-09 21:13:05,370 graeae.timers.timer start: Started: 2020-11-09 21:13:05.370471
+: 2020-11-09 21:13:05,371 graeae.timers.timer end: Ended: 2020-11-09 21:13:05.371967
+: 2020-11-09 21:13:05,372 graeae.timers.timer end: Elapsed: 0:00:00.001496
+: 354224848179261915075
+
+**Note:** I originally tried renaming the memoized function, but since the recursive calls go to the original function name, this doesn't produce and improved function. You have to use the same name as you did when you defined the function.
+
+So memoization really helps, even more than you might expect. The reason why is that the first recursion term (=fibonacci(n - 1)=) gets evaluated first, so each recursive call goes backwards by one until it hits the base-case where =n < 2= and then all the rest of the calls are evaluated, but after one run through the indexes you've already hit all the cases you need for these other calls so rather than making more recursive calls, everything gets pulled from the cache.
+
+* Once Again With Python
+  As is often the case, when you implement something useful in python you'll find that it's already been implemented - in this case as part of the python standard library.
+
+#+begin_src python :results none
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fib_o_nacci(n: int) -> int:
+    """Calculates the n-indexed fibonacci number
+
+    Args:
+     n: the index of the number in the (zero-based) sequence to get
+
+    Returns:
+     the nth fibonacci number
+    """
+    assert n >= 0
+    if n < 2:
+        return n
+
+    return fib_o_nacci(n - 1) + fib_o_nacci(n - 2)
+#+end_src
+
+**Note:** in python 3.9 there is a =cache= decorator that is the same thing as the =lru_cache= with ~maxsize=None~ but I'm running this on python 3.8 right now so I can't use it.
+
+#+begin_src python :results output :exports both
+with TIMER:
+    print(fib_o_nacci(500))
+#+end_src
+
+#+RESULTS:
+: 2020-11-09 21:53:19,405 graeae.timers.timer start: Started: 2020-11-09 21:53:19.405955
+: 2020-11-09 21:53:19,407 graeae.timers.timer end: Ended: 2020-11-09 21:53:19.407891
+: 2020-11-09 21:53:19,409 graeae.timers.timer end: Elapsed: 0:00:00.001936
+: 139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+
+Okay, so, I think it works, although I'm not checking the values, the speed seems to be an improvement.
