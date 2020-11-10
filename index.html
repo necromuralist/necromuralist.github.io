@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/brute-force-longest-non-decreasing-sub-sequence/" rel="prefetch" type="text/html">
+<link href="posts/memoization-and-the-fibonacci-sequence/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -53,6 +53,173 @@
 <div class="postindex">
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/memoization-and-the-fibonacci-sequence/">Memoization and the Fibonacci Sequence</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/memoization-and-the-fibonacci-sequence/" rel="bookmark"><time class="published dt-published" datetime="2020-11-09T18:32:31-08:00" itemprop="datePublished" title="2020-11-09 18:32">2020-11-09 18:32</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/memoization-and-the-fibonacci-sequence/#orgae95ffc">What It Is</a></li>
+<li><a href="posts/memoization-and-the-fibonacci-sequence/#org627aa52">Recurse</a></li>
+<li><a href="posts/memoization-and-the-fibonacci-sequence/#org9e43abb">Memoize</a></li>
+<li><a href="posts/memoization-and-the-fibonacci-sequence/#org1983c18">Once Again With Python</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgae95ffc">
+<h2 id="orgae95ffc">What It Is</h2>
+<div class="outline-text-2" id="text-orgae95ffc">
+<p>This is a note on using memoization with recursion - specifically with the generation of a <a href="https://www.wikiwand.com/en/Fibonacci_number">Fibonacci Number</a>. The fibonacci numbers form a sequence where</p>
+<p>\[ F_0 = 0, F_1 = 1 \]</p>
+<p>and then for the rest of the numbers greater than 1</p>
+<p>\[ F_n = F_{n-1} + F_{n-2} \]</p>
+<p>So, starting from 0 you get <i>0, 1, 1, 2, 3, 5, 8,</i> etc.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org627aa52">
+<h2 id="org627aa52">Recurse</h2>
+<div class="outline-text-2" id="text-org627aa52">
+<p>Calculating the sequence is often done with recursion because you can pretty much take the definition and convert it to a function with little translation.</p>
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">"""Calculates the n-indexed fibonacci number</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     n: the index of the number in the (zero-based) sequence to get</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">     the nth fibonacci number</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">n</span>
+
+    <span class="k">return</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">expected</span> <span class="o">=</span> <span class="mi">55</span>
+<span class="n">actual</span> <span class="o">=</span> <span class="n">fibonacci</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span><span class="p">,</span> <span class="n">actual</span>
+</pre></div>
+<pre class="example">
+55
+</pre>
+<p>Remember that <i>n</i> is the index for number, not the count (the second number in the sequence has index 1).</p>
+<p>The problem here is that recursion like this has memory limits and takes a long time.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">graeae</span> <span class="kn">import</span> <span class="n">Timer</span>
+<span class="n">TIMER</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">expected</span> <span class="o">=</span> <span class="mi">102334155</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="k">with</span> <span class="n">TIMER</span><span class="p">:</span>
+    <span class="n">actual</span> <span class="o">=</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">actual</span> <span class="o">==</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span>
+</pre></div>
+<pre class="example">
+2020-11-09 21:11:05,852 graeae.timers.timer start: Started: 2020-11-09 21:11:05.852071
+2020-11-09 21:11:50,249 graeae.timers.timer end: Ended: 2020-11-09 21:11:50.249808
+2020-11-09 21:11:50,251 graeae.timers.timer end: Elapsed: 0:00:44.397737
+40
+</pre>
+<p>Less than a minute might not seem like a big deal, but even pushing it up to 45 makes the wait too long (I gave up and killed the process so I don't know how long it ran). So what's the solution? Let's try <a href="https://www.wikiwand.com/en/Memoization">memoization</a>.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org9e43abb">
+<h2 id="org9e43abb">Memoize</h2>
+<div class="outline-text-2" id="text-org9e43abb">
+<p>So, what's memoization? Is it what Elmer Fudd does when he memorizes? No, memoization comes from the latin word <i>memorandum</i> which means "to be remembered". What we're going to do is create a cache dictionary that will match arguments to our function call to their outputs. Then if a function call comes in that uses arguments that were used before, we can just grab it from the cache instead of re-doing the calculations.</p>
+<p>We're going to use a python decorator from <a href="https://docs.python.org/3/library/functools.html">functools</a> named <code>wraps</code> that allows you to build a decorator that looks like the original function. It isn't necessary for the decorator to work, but it makes it look more like the original functior passed to the decorator so it's a good practice to use it.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">memoize</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
+    <span class="sd">"""Adds caching</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     function: the callable to memoize</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">     callable with caching and the original function</span>
+<span class="sd">    """</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">args</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+            <span class="n">cache</span><span class="p">[</span><span class="n">args</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">args</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">wrapped</span>
+</pre></div>
+<p>Although it works as a decorator, since we already defined the <code>fibonacci</code> function we can just pass it to <code>memoize</code> to add the cache.</p>
+<div class="highlight">
+<pre><span></span><span class="n">fibonacci</span> <span class="o">=</span> <span class="n">memoize</span><span class="p">(</span><span class="n">fibonacci</span><span class="p">)</span>
+</pre></div>
+<p>Now let's see what happens.</p>
+<div class="highlight">
+<pre><span></span><span class="k">with</span> <span class="n">TIMER</span><span class="p">:</span>
+    <span class="n">actual</span> <span class="o">=</span> <span class="n">fibonacci</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span>
+</pre></div>
+<pre class="example">
+2020-11-09 21:13:05,370 graeae.timers.timer start: Started: 2020-11-09 21:13:05.370471
+2020-11-09 21:13:05,371 graeae.timers.timer end: Ended: 2020-11-09 21:13:05.371967
+2020-11-09 21:13:05,372 graeae.timers.timer end: Elapsed: 0:00:00.001496
+354224848179261915075
+</pre>
+<p><b>Note:</b> I originally tried renaming the memoized function, but since the recursive calls go to the original function name, this doesn't produce and improved function. You have to use the same name as you did when you defined the function.</p>
+<p>So memoization really helps, even more than you might expect. The reason why is that the first recursion term (<code>fibonacci(n - 1)</code>) gets evaluated first, so each recursive call goes backwards by one until it hits the base-case where <code>n &lt; 2</code> and then all the rest of the calls are evaluated, but after one run through the indexes you've already hit all the cases you need for these other calls so rather than making more recursive calls, everything gets pulled from the cache.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org1983c18">
+<h2 id="org1983c18">Once Again With Python</h2>
+<div class="outline-text-2" id="text-org1983c18">
+<p>As is often the case, when you implement something useful in python you'll find that it's already been implemented - in this case as part of the python standard library.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+
+<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">fib_o_nacci</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">"""Calculates the n-indexed fibonacci number</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     n: the index of the number in the (zero-based) sequence to get</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">     the nth fibonacci number</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">n</span>
+
+    <span class="k">return</span> <span class="n">fib_o_nacci</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib_o_nacci</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+<p><b>Note:</b> in python 3.9 there is a <code>cache</code> decorator that is the same thing as the <code>lru_cache</code> with <code>maxsize=None</code> but I'm running this on python 3.8 right now so I can't use it.</p>
+<div class="highlight">
+<pre><span></span><span class="k">with</span> <span class="n">TIMER</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">fib_o_nacci</span><span class="p">(</span><span class="mi">500</span><span class="p">))</span>
+</pre></div>
+<pre class="example">
+2020-11-09 21:53:19,405 graeae.timers.timer start: Started: 2020-11-09 21:53:19.405955
+2020-11-09 21:53:19,407 graeae.timers.timer end: Ended: 2020-11-09 21:53:19.407891
+2020-11-09 21:53:19,409 graeae.timers.timer end: Elapsed: 0:00:00.001936
+139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
+</pre>
+<p>Okay, so, I think it works, although I'm not checking the values, the speed seems to be an improvement.</p>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/brute-force-longest-non-decreasing-sub-sequence/">Brute Force Longest Non-Decreasing Sub-Sequence</a></h1>
 <div class="metadata">
 <p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
@@ -60,30 +227,29 @@
 </div>
 </header>
 <div class="p-summary entry-summary">
-<p>#+END_COMMENT</p>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org9ebd882">The Problem</a></li>
-<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org9cf5515">Brute Force</a>
+<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org63992bc">The Problem</a></li>
+<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org3494f35">Brute Force</a>
 <ul>
-<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org638d014">Example One</a></li>
+<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#orgfc62dcc">Example One</a></li>
 </ul>
 </li>
-<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org36734ef">End</a></li>
+<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org4d04dd2">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9ebd882">
-<h2 id="org9ebd882">The Problem</h2>
-<div class="outline-text-2" id="text-org9ebd882">
+<div class="outline-2" id="outline-container-org63992bc">
+<h2 id="org63992bc">The Problem</h2>
+<div class="outline-text-2" id="text-org63992bc">
 <p>The problem at hand is that we're given a sequence and we want to find the longest combination we can find in it that is non-decreasing (each element after the first is greater than or equal to the previous element).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9cf5515">
-<h2 id="org9cf5515">Brute Force</h2>
-<div class="outline-text-2" id="text-org9cf5515">
+<div class="outline-2" id="outline-container-org3494f35">
+<h2 id="org3494f35">Brute Force</h2>
+<div class="outline-text-2" id="text-org3494f35">
 <p>This will be a brute-force solution using nested for-loops. This will use the <a href="posts/python-itertools-combinations/">itertools.combinations</a> function to generate the candidate solutions.</p>
 <div class="highlight">
 <pre><span></span><span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
@@ -114,9 +280,9 @@
 <li>If the <code>sub_sequence</code> is in sorted (non-decreasing) order then it is as long or longer than any other non-decreasing sub-sequence so choose it as the longest sub-sequence.</li>
 </ol>
 </div>
-<div class="outline-3" id="outline-container-org638d014">
-<h3 id="org638d014">Example One</h3>
-<div class="outline-text-3" id="text-org638d014">
+<div class="outline-3" id="outline-container-orgfc62dcc">
+<h3 id="orgfc62dcc">Example One</h3>
+<div class="outline-text-3" id="text-orgfc62dcc">
 <div class="highlight">
 <pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
@@ -132,9 +298,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org36734ef">
-<h2 id="org36734ef">End</h2>
-<div class="outline-text-2" id="text-org36734ef">
+<div class="outline-2" id="outline-container-org4d04dd2">
+<h2 id="org4d04dd2">End</h2>
+<div class="outline-text-2" id="text-org4d04dd2">
 <ul class="org-ul">
 <li>From <a href="posts/python-algorithms/">Python Algorithms</a></li>
 </ul>
@@ -714,31 +880,6 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 <li>Use mental contrasting (comparing where you are now to where you expect to be) to motivate yourself</li>
 </ol>
 <p>There's more in her book than those ten things, but these are the main points, and they sort of touch on her other points even if not stated. She particularly emphasizes chunking and the switching between "focused" and "diffused" modes of thinking, and many of the ideas address how to use both modes while learning.</p>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/wikipedia-on-f1-score/">Wikipedia on the F1 Score</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/wikipedia-on-f1-score/" rel="bookmark"><time class="published dt-published" datetime="2020-09-10T16:41:55-07:00" itemprop="datePublished" title="2020-09-10 16:41">2020-09-10 16:41</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-orgdbc67c6">
-<h2 id="orgdbc67c6">Citation</h2>
-<div class="outline-text-2" id="text-orgdbc67c6">
-<ul class="org-ul">
-<li>F1 score. In: Wikipedia [Internet]. 2020 [cited 2020 Sep 10]. Available from: <a href="https://en.wikipedia.org/w/index.php?title=F1_score&amp;oldid=976442604">https://en.wikipedia.org/w/index.php?title=F1_score&amp;oldid=976442604</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org34c3cef">
-<h2 id="org34c3cef">Comments</h2>
-<div class="outline-text-2" id="text-org34c3cef">
-<p>Covers the F1 Score, \(F_\beta\), and other related scores (including precison and recall) as well as giving applications and criticisms (with alternative metrics suggested).</p>
 </div>
 </div>
 </div>
