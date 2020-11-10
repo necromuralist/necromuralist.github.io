@@ -1,0 +1,115 @@
+#+BEGIN_COMMENT
+.. title: Python Itertools Combinations
+.. slug: python-itertools-combinations
+.. date: 2020-11-09 16:11:26 UTC-08:00
+.. tags: python,standard library,slip note
+.. category: Python
+.. link: 
+.. description: The python Combinations function.
+.. type: text
+.. status: 
+.. updated: 
+.. has_math: True
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-e9cda87b-a10c-4af3-81a5-2951cddd8d8f-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+* What?
+  This is a brief note on the  python [[https://docs.python.org/3/library/itertools.html#itertools.combinations][itertools.combinations]] function.
+
+#+begin_src python :results none
+from itertools import combinations
+#+end_src  
+
+To make sure it's behaving the way I think it will I'll also use some other built-ins.
+
+#+begin_src python :results none
+from math import factorial
+from itertools import count
+#+end_src
+* Okay, but what?
+  The =combinations= function takes two arguments:
+
+  - iterable: the source that you want to make combinations from
+  - r: the length of the sequences you want to make
+
+  It returns all the r-length subsequences in the iterable ([[https://www.wikiwand.com/en/Combination][combinations]]).
+
+** A Count Function
+   The number of combinations of length /k/ for a sequence of length /n/ is the [[https://www.wikiwand.com/en/Binomial_coefficient][Binomial Coefficient]].
+
+\begin{align}
+\binom{n}{k} &= \frac{n(n-1) \cdots (n - k + 1)}{k(k-1) \cdots 1}\\
+&= \frac{n!}{k!(n-k)!}
+\end{align}
+
+So I'll make a quick function to check and make sure that's what we're getting.
+
+#+begin_src python :results none
+def n_choose_k(n: int, k: int) -> int:
+    """The Binomial Coefficient
+
+    Args:
+     n: the length of the source set
+     k: the length of the combinations
+
+    Returns:
+     the number of combinations in the sequence
+    """
+    return factorial(n) / (factorial(k) * factorial(n - k))
+#+end_src
+** Example One
+   This is given as an example in the documentation.
+#+begin_src python :results output :exports both
+EXPECTEDS = "AB AC AD BC BD CD".split()
+SOURCE = "ABCD"
+k = 2
+for combination, expected, total in zip(combinations(iterable=SOURCE, r=k), EXPECTEDS, count(start=1)):
+    print(f" - {combination}")
+    assert "".join(combination) == expected
+
+n = len(SOURCE)
+assert total == n_choose_k(n, k)
+#+end_src
+
+#+RESULTS:
+:  - ('A', 'B')
+:  - ('A', 'C')
+:  - ('A', 'D')
+:  - ('B', 'C')
+:  - ('B', 'D')
+:  - ('C', 'D')
+
+Note that it treated the string as a sequence and returns a tuple, not a sub-string. Also note that it doesn't swap orders, so "D" is never a first entry, for instance.
+
+** Example Two
+This one is also from the documentation.
+
+#+begin_src python :results output :exports both
+SOURCE = list(range(4))
+n = len(SOURCE)
+EXPECTEDS = [(0, 1, 2),
+             (0, 1, 3),
+             (0, 2, 3),
+             (1, 2, 3)]
+k = 3
+
+for combination, expected, total in zip(combinations(SOURCE, k), EXPECTEDS, count(start=1)):
+    print(combination)
+    assert combination == expected
+
+assert total == n_choose_k(n, k)
+#+end_src  
+
+#+RESULTS:
+: (0, 1, 2)
+: (0, 1, 3)
+: (0, 2, 3)
+: (1, 2, 3)
+
