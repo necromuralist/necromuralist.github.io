@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+<head>
+<meta charset="utf-8">
+<meta content="How to enable Wake-On-LAN in Ubuntu." name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>Enabling Wake-On-LAN (In Ubuntu 20.10) | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/enabling-wake-on-lan/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<link href="../../apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+<link href="../../favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+<link href="../../favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+<link href="../../site.webmanifest" rel="manifest">
+<meta content="Cloistered Monkey" name="author">
+<link href="../bib-the-kekule-problem/" rel="prev" title="Bib: The Kekule Problem" type="text/html">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="Enabling Wake-On-LAN (In Ubuntu 20.10)" property="og:title">
+<meta content="https://necromuralist.github.io/posts/enabling-wake-on-lan/" property="og:url">
+<meta content="How to enable Wake-On-LAN in Ubuntu." property="og:description">
+<meta content="article" property="og:type">
+<meta content="2020-11-28T17:57:35-08:00" property="article:published_time">
+<meta content="networking" property="article:tag">
+<meta content="ubuntu" property="article:tag">
+</head>
+<body>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="../../"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="../../machine-learning-projects/">Machine Learning</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
+</li>
+</ul>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
+<!-- 
+<button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-search"></span>
+</button>
+-->
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
+<!-- End of custom search -->
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
+</ul>
+</div>
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">Enabling Wake-On-LAN (In Ubuntu 20.10)</a></h1>
+<div class="metadata">
+<p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author"><a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2020-11-28T17:57:35-08:00" itemprop="datePublished" title="2020-11-28 17:57">2020-11-28 17:57</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
+</div>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgbae40d0">Beginning</a></li>
+<li><a href="#orgcac8a7e">Middle</a>
+<ul>
+<li><a href="#orgbeaf657">Ethtool</a></li>
+<li><a href="#orgd123360">Checking the Interface</a></li>
+<li><a href="#org54d512a">Turn It On Temporarily</a></li>
+<li><a href="#orgbd5bab5">Test It Out</a></li>
+<li><a href="#orgffa3819">Take Two</a></li>
+<li><a href="#org864f01a">Making It Permanent</a></li>
+</ul>
+</li>
+<li><a href="#org1ec5087">End</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgbae40d0">
+<h2 id="orgbae40d0">Beginning</h2>
+<div class="outline-text-2" id="text-orgbae40d0">
+<p>These are my notes on getting <a href="https://en.wikipedia.org/wiki/Wake-on-LAN">Wake-On-LAN</a> working in Ubuntu 20.10. I have a server that I use to run most of the computation on when I use emacs/jupyter but I have it in a corner upstairs and although it's only a little walk, I find that the fact that I have to stop what I'm doing and go upstairs to push that little button on the front makes me lazy and so it ends up running more than it has to so I thought I'd enable Wake-On-LAN so I can suspend it and wake it up whenever I need to. I'm only going to use suspend (<a href="https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface">APM</a> S3). When I tried to use hibernate (S4) it ended up shutting down my machine (S5). Interestingly, my BIOS menu has an option to enable waking up from shutdown, but since my disk is encrypted, and I didn't set up a separate SSH server, I have to go enter the passphrase to unlock the disk before the operating system can boot up, so it kind of defeats its own purpose.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgcac8a7e">
+<h2 id="orgcac8a7e">Middle</h2>
+<div class="outline-text-2" id="text-orgcac8a7e"></div>
+<div class="outline-3" id="outline-container-orgbeaf657">
+<h3 id="orgbeaf657">Ethtool</h3>
+<div class="outline-text-3" id="text-orgbeaf657">
+<p>The command I used to set up Wake-On-LAN on the remote machine is called <a href="https://en.wikipedia.org/wiki/Ethtool">ethtool</a>. It's in the Ubuntu repositories but wasn't installed on my machine so I had to add it.</p>
+<div class="highlight">
+<pre><span></span>sudo apt install ethtool
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgd123360">
+<h3 id="orgd123360">Checking the Interface</h3>
+<div class="outline-text-3" id="text-orgd123360">
+<p>From what I've read, not all ethernet interfaces support Wake-On-LAN (although I've never seen one that doesn't) so a quick check might be useful. First, find the name of your ethernet interface.</p>
+<div class="highlight">
+<pre><span></span>ip a
+</pre></div>
+<p>My machine shows four interfaces so I'll just show the output for the interface I'm interested in rather than the whole output for the command.</p>
+<div class="highlight">
+<pre><span></span>2: enp4s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 38:d5:47:79:ab:0b brd ff:ff:ff:ff:ff:ff
+    inet 192.168.86.97/24 brd 192.168.86.255 scope global dynamic noprefixroute enp4s0
+       valid_lft 84752sec preferred_lft 84752sec
+    inet6 fe80::685d:374d:a577:f787/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+</pre></div>
+<p>Ethtool uses the name of the interface, in this case it's <code>enp4s0</code>, so we'll need to note that. Additionally, the machine that I used to wake up the machine needs the MAC address (<code>38:d5:47:79:ab:0b</code>) so it'd be useful to write that down someplace. I'm waking it up from the LAN so the IP address isn't so important, and to be able to SSH into it I need to know it anyway, so it's really those two pieces of information that I need. Now to check if it supports Wake-On-LAN.</p>
+<div class="highlight">
+<pre><span></span>sudo ethtool enp4s0
+</pre></div>
+<p>Ethtool will give you some information if you don't run it as root but for Wake-On-LAN you need to run it as root. The important lines in the output is near the bottom and it looks something like this if it supports Wake-On-LAN.</p>
+<div class="highlight">
+<pre><span></span>Supports Wake-on: pumbg
+Wake-on: d
+</pre></div>
+<p>The man-page for <code>ethtool</code> tell you what that cryptic <code>pumbg</code> means - the letters are different options that this interface supports for Wake-On-LAN. In this case they are:</p>
+<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
+<colgroup>
+<col class="org-left">
+<col class="org-left"></colgroup>
+<thead>
+<tr>
+<th class="org-left" scope="col">Option</th>
+<th class="org-left" scope="col">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">p</td>
+<td class="org-left">Wake on PHY activity</td>
+</tr>
+<tr>
+<td class="org-left">u</td>
+<td class="org-left">Wake on unicast messages</td>
+</tr>
+<tr>
+<td class="org-left">m</td>
+<td class="org-left">Wake on multicast messages</td>
+</tr>
+<tr>
+<td class="org-left">b</td>
+<td class="org-left">Wake on broadcast messages</td>
+</tr>
+<tr>
+<td class="org-left">g</td>
+<td class="org-left">Wake on MagicPacket messages</td>
+</tr>
+</tbody>
+</table>
+<p>There's an additional option which is what the interface was set on – <code>d</code> – as you can see in the last line of the output. This means <i>Disable (wake on nothing). This option clears all previous options.</i> I don't have many devices on my network, so I don't know that there's a lot of broadcasts, multicasts, etc. that would be waking it up all the time, but since one feature of Wake-On-LAN is that it only wakes the machine when it gets the "Magic Packet", only the <code>g</code> and <code>d</code> options matter. Now that I knew it was supported, it was time to try it out.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org54d512a">
+<h3 id="org54d512a">Turn It On Temporarily</h3>
+<div class="outline-text-3" id="text-org54d512a">
+<p>The <code>ethtool</code> will turn on Wake-On-LAN, but (supposedly) everytime you reboot the machine it will reset to disabled. I haven't really tested this out, but I'll document how to make it permanent later, anyway.</p>
+<div class="highlight">
+<pre><span></span>sudo ethtool --change enp4s0 wol g
+</pre></div>
+<p>So, as you might guess, we changed the Wake-On-LAN setting to listen for MagicPacket messages. You can check using the ethtool again.</p>
+<div class="highlight">
+<pre><span></span>sudo ethtool enp4s0
+</pre></div>
+<p>The <code>Wake-on</code> line should have changed to:</p>
+<div class="highlight">
+<pre><span></span>Wake-on: g
+</pre></div>
+<p>Now to suspend the machine so we can test it out.</p>
+<div class="highlight">
+<pre><span></span>sudo systemctl suspend
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgbd5bab5">
+<h3 id="orgbd5bab5">Test It Out</h3>
+<div class="outline-text-3" id="text-orgbd5bab5">
+<p>Now, on my local machine I needed to install <a href="https://github.com/jpoliv/wakeonlan">wakeonlan</a>. There's a surprising number of programs to send the Magic Packet, but this just happened to be the one I used.</p>
+<div class="highlight">
+<pre><span></span>sudo apt install wakeonlan
+</pre></div>
+<p>The default way to use <code>wakeonlan</code> is apparently to just pass it the MAC address of the computer to wake up, and it will send the Magic Packet out as a broadcast, so that's what I did.</p>
+<div class="highlight">
+<pre><span></span>wakeonlan 38:d5:47:79:ab:0b
+</pre></div>
+<p>And then I pinged the machine and I waited. And I waited. And I waited… Eventually I went upstairs and saw that it was still sleeping so I pushed the power button to wake it up and went back downstairs.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgffa3819">
+<h3 id="orgffa3819">Take Two</h3>
+<div class="outline-text-3" id="text-orgffa3819">
+<p>Something wasn't right so I SSHd into the server and started up <a href="https://www.tcpdump.org/">tcpdump</a> to see if the packets were going through.</p>
+<div class="highlight">
+<pre><span></span>sudo tcpdump -i enp4s0 '(udp and port 7) or (udp and port 9)'
+</pre></div>
+<p>Which gave me this output:</p>
+<div class="highlight">
+<pre><span></span>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
+</pre></div>
+<p>And then I sent the Magic Packet again.</p>
+<div class="highlight">
+<pre><span></span>wakeonlan 38:d5:47:79:ab:0b
+</pre></div>
+<p>…And nothing happened. For some reason the packets weren't getting picked up by the machine. Luckily, <code>wakeonlan</code> lets you pass in an IP address as an option. The man page recommends using a broadcast address, but I have the IP addresses of my machines on the LAN reserved on my router/access-point so I just passed in the full address (I did try the LAN broadcast and it worked too).</p>
+<div class="highlight">
+<pre><span></span>wakeonlan -i erebus 38:d5:47:79:ab:0b
+</pre></div>
+<p>I have my machine's IP address aliased in my <code>/etc/hosts</code> file so <code>erebus</code> is just an alias for the machine's IP address. The subnet broadcast version looked like this.</p>
+<div class="highlight">
+<pre><span></span>wakeonlan -i 192.168.86.255 38:d5:47:79:ab:0b
+</pre></div>
+<p>The output from <code>tcpdump</code> for the first packet looked like this.</p>
+<div class="highlight">
+<pre><span></span>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
+20:47:11.689587 IP 192.168.86.141.34805 &gt; erebus.discard: UDP, length 102
+</pre></div>
+<p>So, something was different. I suspended the machine again and sent the Magic Packet and this time it worked. Go figure.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org864f01a">
+<h3 id="org864f01a">Making It Permanent</h3>
+<div class="outline-text-3" id="text-org864f01a"></div>
+<div class="outline-4" id="outline-container-org6b4d964">
+<h4 id="org6b4d964">Set It Up</h4>
+<div class="outline-text-4" id="text-org6b4d964">
+<p>The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is temporary is that:</p>
+<ol class="org-ol">
+<li>I haven't really re-booted that machine to test it out (I have rebooted, but I haven't disable the <a href="https://en.wikipedia.org/wiki/Systemd">systemd</a> service that I'm documenting here).</li>
+<li>The machine that I'm typing this on had Wake-On-LAN enabled and it doesn't have a <code>systemd</code> service enabled.</li>
+</ol>
+<p>But, really, I don't remember even enabling Wake-On-LAN on this machine so maybe it just was the default and I didn't realise it… another thing I should look into one of these days. Anyway, to make a service that always enables Wake-On-LAN the first step is to find the path to <code>ethertool</code>.</p>
+<div class="highlight">
+<pre><span></span>which ethtool
+</pre></div>
+<p>In my case the path was <code>/sbin/ethtool</code>, so once you know this you can create a file at <code>/etc/systemd/system/wol.service</code> (I think you can use another systemd sub-folder, and you can name the file anything you want, within reason, but this one seems to work well enough). In this file you put settings that look something like this:</p>
+<div class="highlight">
+<pre><span></span>[Unit]
+Description=Enable Wake On Lan
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=basic.target
+</pre></div>
+<p>The only thing specific to my machine is <code>enp4s0</code>, the name of the ethernet interface, although it's possible that the path to the <code>ethtool</code> executable might be different too… but it should be the same on Ubuntu 20.10, anyway.</p>
+</div>
+</div>
+<div class="outline-4" id="outline-container-org7e3269a">
+<h4 id="org7e3269a">Enable The Service</h4>
+<div class="outline-text-4" id="text-org7e3269a">
+<p>To enable it you can do this:</p>
+<div class="highlight">
+<pre><span></span>sudo systemctl daemon-reload
+sudo systemctl enable wol.service
+</pre></div>
+<p>Where <code>wol.service</code> is the name of the file you created with the settings. You can check its status if you want.</p>
+<div class="highlight">
+<pre><span></span>systemctl status wol
+</pre></div>
+<p>And that's that.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org1ec5087">
+<h2 id="org1ec5087">End</h2>
+<div class="outline-text-2" id="text-org1ec5087">
+<p>So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't have to look so hard the next time. Here's the pages that I stole this from.</p>
+<ul class="org-ul">
+<li><a href="https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/">TechRepublic</a> on using <code>ethtool</code> and setting up a <code>systemd</code> service for this.</li>
+<li><a href="https://askubuntu.com/questions/1792/how-can-i-suspend-hibernate-from-command-line">Stack Overflow</a> on how to suspend and hibernate from the command-line</li>
+<li><a href="https://askubuntu.com/questions/3369/what-is-the-difference-between-hibernate-and-suspend">Stack Overflow</a> on what the difference is between suspend and hibernate</li>
+<li><a href="https://unix.stackexchange.com/questions/318137/wake-on-lan-not-working-on-ubuntu-16-04">Stack Overflow</a> on using <code>tcpdump</code> to look for the Magic Packets on the remote machine</li>
+<li><a href="https://stackoverflow.com/questions/2177687/open-file-via-ssh-and-sudo-with-emacs">Stack Overflow</a> on editing remote files as root with emacs (not documented here, but maybe later)</li>
+<li><a href="https://stackoverflow.com/questions/95631/open-a-file-with-su-sudo-inside-emacs">Stack Overflow</a> on editing a local file as root with emacs (not used here, but I can never remember the syntax)</li>
+</ul>
+</div>
+</div>
+</div>
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
+<li><a class="tag p-category" href="../../categories/networking/" rel="tag">networking</a></li>
+<li><a class="tag p-category" href="../../categories/ubuntu/" rel="tag">ubuntu</a></li>
+</ul>
+<ul class="pager hidden-print">
+<li class="previous"><a href="../bib-the-kekule-problem/" rel="prev" title="Bib: The Kekule Problem">Previous post</a></li>
+</ul>
+</nav>
+</aside>
+</article>
+<!--End of body content-->
+<footer id="footer">Contents © 2020 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+</div>
+</div>
+<script src="../../assets/js/all-nocdn.js"></script>
+<script>
+
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element) {
+            return element.getElementsByTagName('img')[0].alt;
+    }});
+</script>
+</body>
+</html>
