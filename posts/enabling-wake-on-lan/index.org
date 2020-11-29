@@ -1,0 +1,201 @@
+#+BEGIN_COMMENT
+.. title: Enabling Wake-On-LAN (In Ubuntu 20.10)
+.. slug: enabling-wake-on-lan
+.. date: 2020-11-28 17:57:35 UTC-08:00
+.. tags: ubuntu,networking
+.. category: Ubuntu
+.. link: 
+.. description: How to enable Wake-On-LAN in Ubuntu.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* Beginning
+  These are my notes on getting [[https://en.wikipedia.org/wiki/Wake-on-LAN][Wake-On-LAN]] working in Ubuntu 20.10. I have a server that I use to run most of the computation on when I use emacs/jupyter but I have it in a corner upstairs and although it's only a little walk, I find that the fact that I have to stop what I'm doing and go upstairs to push that little button on the front makes me lazy and so it ends up running more than it has to so I thought I'd enable Wake-On-LAN so I can suspend it and wake it up whenever I need to. I'm only going to use suspend ([[https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface][APM]] S3). When I tried to use hibernate (S4) it ended up shutting down my machine (S5). Interestingly, my BIOS menu has an option to enable waking up from shutdown, but since my disk is encrypted, and I didn't set up a separate SSH server, I have to go enter the passphrase to unlock the disk before the operating system can boot up, so it kind of defeats its own purpose.
+* Middle
+** Ethtool
+   The command I used to set up Wake-On-LAN on the remote machine is called [[https://en.wikipedia.org/wiki/Ethtool][ethtool]]. It's in the Ubuntu repositories but wasn't installed on my machine so I had to add it.
+
+#+begin_src bash
+sudo apt install ethtool
+#+end_src
+** Checking the Interface
+   From what I've read, not all ethernet interfaces support Wake-On-LAN (although I've never seen one that doesn't) so a quick check might be useful. First, find the name of your ethernet interface.
+
+#+begin_src bash
+ip a
+#+end_src   
+
+My machine shows four interfaces so I'll just show the output for the interface I'm interested in rather than the whole output for the command.
+
+#+begin_src bash
+2: enp4s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 38:d5:47:79:ab:0b brd ff:ff:ff:ff:ff:ff
+    inet 192.168.86.97/24 brd 192.168.86.255 scope global dynamic noprefixroute enp4s0
+       valid_lft 84752sec preferred_lft 84752sec
+    inet6 fe80::685d:374d:a577:f787/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+#+end_src
+
+Ethtool uses the name of the interface, in this case it's =enp4s0=, so we'll need to note that. Additionally, the machine that I used to wake up the machine needs the MAC address (=38:d5:47:79:ab:0b=) so it'd be useful to write that down someplace. I'm waking it up from the LAN so the IP address isn't so important, and to be able to SSH into it I need to know it anyway, so it's really those two pieces of information that I need. Now to check if it supports Wake-On-LAN.
+
+#+begin_src bash
+sudo ethtool enp4s0
+#+end_src
+
+Ethtool will give you some information if you don't run it as root but for Wake-On-LAN you need to run it as root. The important lines in the output is near the bottom and it looks something like this if it supports Wake-On-LAN.
+
+#+begin_src bash
+Supports Wake-on: pumbg
+Wake-on: d
+#+end_src
+
+The man-page for =ethtool= tell you what that cryptic =pumbg= means - the letters are different options that this interface supports for Wake-On-LAN. In this case they are:
+
+| Option | Description                  |
+|--------+------------------------------|
+| p      | Wake on PHY activity         |
+| u      | Wake on unicast messages     |
+| m      | Wake on multicast messages   |
+| b      | Wake on broadcast messages   |
+| g      | Wake on MagicPacket messages |
+
+There's an additional option which is what the interface was set on -- =d= -- as you can see in the last line of the output. This means /Disable (wake on nothing).  This option clears all previous options./ I don't have many devices on my network, so I don't know that there's a lot of broadcasts, multicasts, etc. that would be waking it up all the time, but since one feature of Wake-On-LAN is that it only wakes the machine when it gets the "Magic Packet", only the =g= and =d= options matter. Now that I knew it was supported, it was time to try it out.
+
+** Turn It On Temporarily
+   The =ethtool= will turn on Wake-On-LAN, but (supposedly) everytime you reboot the machine it will reset to disabled. I haven't really tested this out, but I'll document how to make it permanent later, anyway.
+
+#+begin_src bash
+sudo ethtool --change enp4s0 wol g
+#+end_src
+
+So, as you might guess, we changed the Wake-On-LAN setting to listen for MagicPacket messages. You can check using the ethtool again.
+
+#+begin_src bash
+sudo ethtool enp4s0
+#+end_src
+
+The =Wake-on= line should have changed to:
+
+#+begin_src bash
+Wake-on: g
+#+end_src
+
+Now to suspend the machine so we can test it out.
+
+#+begin_src bash
+sudo systemctl suspend
+#+end_src
+** Test It Out
+   Now, on my local machine I needed to install [[https://github.com/jpoliv/wakeonlan][wakeonlan]]. There's a surprising number of programs to send the Magic Packet, but this just happened to be the one I used.
+
+#+begin_src bash
+sudo apt install wakeonlan
+#+end_src
+
+The default way to use =wakeonlan= is apparently to just pass it the MAC address of the computer to wake up, and it will send the Magic Packet out as a broadcast, so that's what I did.
+
+#+begin_src bash
+wakeonlan 38:d5:47:79:ab:0b
+#+end_src
+
+And then I pinged the machine and I waited. And I waited. And I waited... Eventually I went upstairs and saw that it was still sleeping so I pushed the power button to wake it up and went back downstairs.
+** Take Two
+   Something wasn't right so I SSHd into the server and started up [[https://www.tcpdump.org/][tcpdump]] to see if the packets were going through.
+
+#+begin_src bash
+sudo tcpdump -i enp4s0 '(udp and port 7) or (udp and port 9)'
+#+end_src
+
+Which gave me this output:
+
+#+begin_src bash
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
+#+end_src
+
+And then I sent the Magic Packet again.
+
+#+begin_src bash
+wakeonlan 38:d5:47:79:ab:0b
+#+end_src
+
+...And nothing happened. For some reason the packets weren't getting picked up by the machine. Luckily, =wakeonlan= lets you pass in an IP address as an option. The man page recommends using a broadcast address, but I have the IP addresses of my machines on the LAN reserved on my router/access-point so I just passed in the full address (I did try the LAN broadcast and it worked too).
+
+#+begin_src bash
+wakeonlan -i erebus 38:d5:47:79:ab:0b
+#+end_src
+
+I have my machine's IP address aliased in my =/etc/hosts= file so =erebus= is just an alias for the machine's IP address. The subnet broadcast version looked like this.
+
+#+begin_src bash
+wakeonlan -i 192.168.86.255 38:d5:47:79:ab:0b
+#+end_src
+
+The output from =tcpdump= for the first packet looked like this.
+
+#+begin_src bash
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
+20:47:11.689587 IP 192.168.86.141.34805 > erebus.discard: UDP, length 102
+#+end_src
+
+So, something was different. I suspended the machine again and sent the Magic Packet and this time it worked. Go figure.
+
+** Making It Permanent
+*** Set It Up
+   The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is temporary is that:
+   1. I haven't really re-booted that machine to test it out (I have rebooted, but I haven't disable the [[https://en.wikipedia.org/wiki/Systemd][systemd]] service that I'm documenting here).
+   2. The machine that I'm typing this on had Wake-On-LAN enabled and it doesn't have a =systemd= service enabled.
+
+But, really, I don't remember even enabling Wake-On-LAN on this machine so maybe it just was the default and I didn't realise it... another thing I should look into one of these days. Anyway, to make a service that always enables Wake-On-LAN the first step is to find the path to =ethertool=.
+
+#+begin_src bash
+which ethtool
+#+end_src
+
+In my case the path was =/sbin/ethtool=, so once you know this you can create a file at =/etc/systemd/system/wol.service= (I think you can use another systemd sub-folder, and you can name the file anything you want, within reason, but this one seems to work well enough). In this file you put settings that look something like this:
+
+#+begin_src ini
+[Unit]
+Description=Enable Wake On Lan
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=basic.target
+#+end_src
+
+The only thing specific to my machine is =enp4s0=, the name of the ethernet interface, although it's possible that the path to the =ethtool= executable might be different too... but it should be the same on Ubuntu 20.10, anyway.
+
+*** Enable The Service
+    To enable it you can do this:
+
+#+begin_src bash
+sudo systemctl daemon-reload
+sudo systemctl enable wol.service
+#+end_src
+
+Where =wol.service= is the name of the file you created with the settings. You can check its status if you want.
+
+#+begin_src bash
+systemctl status wol
+#+end_src
+
+And that's that.
+* End
+  So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't have to look so hard the next time. Here's the pages that I stole this from.
+
+  - [[https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/][TechRepublic]] on using =ethtool= and setting up a =systemd= service for this.
+  - [[https://askubuntu.com/questions/1792/how-can-i-suspend-hibernate-from-command-line][Stack Overflow]] on how to suspend and hibernate from the command-line
+  - [[https://askubuntu.com/questions/3369/what-is-the-difference-between-hibernate-and-suspend][Stack Overflow]] on what the difference is between suspend and hibernate
+  - [[https://unix.stackexchange.com/questions/318137/wake-on-lan-not-working-on-ubuntu-16-04][Stack Overflow]] on using =tcpdump= to look for the Magic Packets on the remote machine
+  - [[https://stackoverflow.com/questions/2177687/open-file-via-ssh-and-sudo-with-emacs][Stack Overflow]] on editing remote files as root with emacs (not documented here, but maybe later)
+  - [[https://stackoverflow.com/questions/95631/open-a-file-with-su-sudo-inside-emacs][Stack Overflow]] on editing a local file as root with emacs (not used here, but I can never remember the syntax)
+
+  
