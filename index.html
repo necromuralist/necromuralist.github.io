@@ -958,25 +958,25 @@ applebanana
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org6926638">Beginning</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#orge7870cd">Middle</a>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orgda9c2cf">Beginning</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orga1efb08">Middle</a>
 <ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org0d1fbf0">Find the USB Device Name</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org99e6a10">Unlock the Drive</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#orgb78916c">Mount the Drive</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orga974817">Find the USB Device Name</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orgc29fc5a">Unlock the Drive</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orge292731">Mount the Drive</a></li>
 </ul>
 </li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org45968d2">End</a>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org396a568">End</a>
 <ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#orgf963e4f">Sources</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orgdb5910a">Sources</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6926638">
-<h2 id="org6926638">Beginning</h2>
-<div class="outline-text-2" id="text-org6926638">
+<div class="outline-2" id="outline-container-orgda9c2cf">
+<h2 id="orgda9c2cf">Beginning</h2>
+<div class="outline-text-2" id="text-orgda9c2cf">
 <p>I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:</p>
 <ul class="org-ul">
 <li>I didn't know the <code>/dev</code> file to use</li>
@@ -986,12 +986,12 @@ applebanana
 <p>So, here's the subset of steps that I did to mount the drive.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orge7870cd">
-<h2 id="orge7870cd">Middle</h2>
-<div class="outline-text-2" id="text-orge7870cd"></div>
-<div class="outline-3" id="outline-container-org0d1fbf0">
-<h3 id="org0d1fbf0">Find the USB Device Name</h3>
-<div class="outline-text-3" id="text-org0d1fbf0">
+<div class="outline-2" id="outline-container-orga1efb08">
+<h2 id="orga1efb08">Middle</h2>
+<div class="outline-text-2" id="text-orga1efb08"></div>
+<div class="outline-3" id="outline-container-orga974817">
+<h3 id="orga974817">Find the USB Device Name</h3>
+<div class="outline-text-3" id="text-orga974817">
 <p>The first think to do is to make sure that the USB device is recognized by the operating system.</p>
 <div class="highlight">
 <pre><span></span>lsusb
@@ -1010,26 +1010,27 @@ applebanana
 Disk /dev/sdb: 931.49 GiB, 1000170586112 bytes, 1953458176 sectors
 Disk model: My Passport 0748
 </pre></div>
-<p>It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want (I think it said <code>/dev/sdb1</code> before I mounted it, but anyway, just check it).</p>
+<p>It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org99e6a10">
-<h3 id="org99e6a10">Unlock the Drive</h3>
-<div class="outline-text-3" id="text-org99e6a10">
+<div class="outline-3" id="outline-container-orgc29fc5a">
+<h3 id="orgc29fc5a">Unlock the Drive</h3>
+<div class="outline-text-3" id="text-orgc29fc5a">
 <p>Next unlock the drive. When you do this it will create a file in <code>/dev/mapper/</code> that you'll need so it would be a good idea to see what's there before you run it.</p>
 <div class="highlight">
 <pre><span></span>ls /dev/mapper/
 </pre></div>
 <p>And then do the decrypting.</p>
 <div class="highlight">
-<pre><span></span>udiskctl unlock -b /dev/sdb1
+<pre><span></span>udisksctl unlock -b /dev/sdb1
 </pre></div>
+<p><b>Note:</b> The device we found earlier was <code>/dev/sdb</code> but here we're mounting a partition so it's <code>/dev/sdb1</code>.</p>
 <p>This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgb78916c">
-<h3 id="orgb78916c">Mount the Drive</h3>
-<div class="outline-text-3" id="text-orgb78916c">
+<div class="outline-3" id="outline-container-orge292731">
+<h3 id="orge292731">Mount the Drive</h3>
+<div class="outline-text-3" id="text-orge292731">
 <p>If the last command went okay you now need to mount it. There's going to be a file in <code>/dev/mapper</code> that you need to know. When I did it there was only one new file (<code>luks-3eea956c-e684-4bcb-a640-97d0c8c5a700</code>) so I didn't have to do anything special to get it.</p>
 <div class="highlight">
 <pre><span></span>udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
@@ -1044,19 +1045,19 @@ Disk model: My Passport 0748
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org45968d2">
-<h2 id="org45968d2">End</h2>
-<div class="outline-text-2" id="text-org45968d2">
-<p>So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udiskctl.</p>
+<div class="outline-2" id="outline-container-org396a568">
+<h2 id="org396a568">End</h2>
+<div class="outline-text-2" id="text-org396a568">
+<p>So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udisksctl.</p>
 <div class="highlight">
 <pre><span></span>sudo fdisk -l
-udiskctl unlock -b /dev/sdb1
+udisksctl unlock -b /dev/sdb1
 udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgf963e4f">
-<h3 id="orgf963e4f">Sources</h3>
-<div class="outline-text-3" id="text-orgf963e4f">
+<div class="outline-3" id="outline-container-orgdb5910a">
+<h3 id="orgdb5910a">Sources</h3>
+<div class="outline-text-3" id="text-orgdb5910a">
 <ul class="org-ul">
 <li><a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/">sourcedigit.com</a> - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"</li>
 <li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">Stack Overflow</a> - "Mount encrypted volumes from command line?"</li>
