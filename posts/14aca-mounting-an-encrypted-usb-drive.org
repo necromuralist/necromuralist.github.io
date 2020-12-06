@@ -2,13 +2,13 @@
 .. title: Mounting An Encrypted USB Drive From the Command Line
 .. slug: mounting-an-encrypted-usb-drive
 .. date: 2020-09-24 18:26:30 UTC-07:00
-.. tags: ubuntu,how-to
+.. tags: ubuntu,how-to,luks
 .. category: How-To
 .. link: 
 .. description: Mounting a luks encrypted USB drive from the command line.
 .. type: text
 .. status: 
-.. updated: 
+.. updated: 2020-12-05 16:19:00 UTC-07:00
 
 #+END_COMMENT
 #+OPTIONS: ^:{}
@@ -51,20 +51,44 @@ Disk model: My Passport 0748
 #+end_src
 
 It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want.
+
+That is the name we need for the drive, but we're going to mount a partition so you need to know the partition name. =lsblk= will show it to us.
+
+#+begin_src bash
+lsblk -e7
+#+end_src
+
+Which gave me the output:
+
+#+begin_src bash
+NAME                        MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
+sda                           8:0    0 931.5G  0 disk  
+├─sda1                        8:1    0     1M  0 part  
+├─sda2                        8:2    0     1G  0 part  /boot
+└─sda3                        8:3    0 930.5G  0 part  
+  └─dm_crypt-0              253:0    0 930.5G  0 crypt 
+    └─ubuntu--vg-ubuntu--lv 253:1    0   200G  0 lvm   /
+sdb                           8:16   0 931.5G  0 disk  
+└─sdb1                        8:17   0 931.5G  0 part
+#+end_src
+
+Now you can see that the partion for our disk is =sdb1= (the last row where it's shown to be a child of =sdb= and that its TYPE is a partition).
+
 ** Unlock the Drive
+**Note:** This works, but there's an alternative way to do it with [[https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html][cryptsetup]] that I find a little easier (but not much). I documented that command as if it continued from this point in {{% lancelot title="this post" %}}mount-an-encrypted-drive-using-cryptsetup{{% /lancelot %}}.
+
 Next unlock the drive. When you do this it will create a file in =/dev/mapper/= that you'll need so it would be a good idea to see what's there before you run it.
 
 #+begin_src bash
 ls /dev/mapper/
 #+end_src
 
-And then do the decrypting.
+And then do the decrypting, remembering that the partition is =sdb1= and like our disk the file is in the =/dev= directory.
 
 #+begin_src bash
 udisksctl unlock -b /dev/sdb1
 #+end_src
 
-**Note:** The device we found earlier was =/dev/sdb= but here we're mounting a partition so it's =/dev/sdb1=.
 
 This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).
 

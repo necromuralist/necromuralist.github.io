@@ -1,0 +1,43 @@
+#+BEGIN_COMMENT
+.. title: Mount An Encrypted Drive Using cryptsetup
+.. slug: mount-an-encrypted-drive-using-cryptsetup
+.. date: 2020-12-05 16:20:32 UTC-08:00
+.. tags: ubunt,how-to,luks
+.. category: How-To
+.. link: 
+.. description: Mounting a LUKS encrypted drive with cryptsetup.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* What Is This About?
+  This is how to mount a LUKS encrypted drive with [[https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html][cryptsetup]] in Ubuntu 20.10 (Groovy Gorilla). My use-case is I have a headless server that has an external USB drive that's encrypted with [[https://en.wikipedia.org/wiki/Linux_Unified_Key_Setup][LUKS]] that I need to mount from the command line. I like the flexibility it gives a little more than the what the Gnome GUI does so I'll probably use it on my desktop as well. I previously documented how to do it with [[http://storaged.org/doc/udisks2-api/latest/udisksctl.1.html][udiskctl]] in {{% lancelot title="this post" %}}mounting-an-encrypted-usb-drive{{% /lancelot %}} but I like =cryptsetup= a little better. This assumes that you know the partition/device (in my case it's =/dev/sdb1=). That previous post shows how I found it so I'll just do the decrypting and mounting here.
+* So, How Do You Do It?
+  The syntax to decrypt the device is:
+
+#+begin_example
+sudo cryptsetup open <device> <name>
+#+end_example
+
+As I mentioned above, in this case my =device= is =/dev/sdb1=. The name can be an arbitrary one (although there are limitiations on special characters so let's say it can be any alpha-numeric name) and I'll use =wddata= as the name. Then my command to decrypt the drive is:
+
+#+begin_example
+sudo cryptsetup open /dev/sdb1 wddata
+#+end_example
+
+This will prompt you for your password and then the encryption passphrase. Once the command succeeds, it adds a link in =/dev/wrapper= using the name you passed in so you can mount the device (assuming the directory you want to mount it in exists) like this:
+
+#+begin_example
+sudo mount /dev/wrapper/wddata /media/data
+#+end_example
+
+Where =wddata= is the name I told =cryptsetup= to use and =/media/data= is a directory that I had previously created.
+
+* Source
+  Besides the man-page for =cryptsetup= on my server, I was pointed to use =cryptsetup= from this StackOverflow post:
+  - https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line
+
+The accepted answer uses =udiskctl= but further down is an answer by George Schölly using =cryptsetup=. The syntax in the answer is the older =cryptsetup= syntax (which should still work) so it doesn't look exactly like what I used.
