@@ -1,0 +1,90 @@
+#+BEGIN_COMMENT
+.. title: Using Systemd To Enable Wake-On-Lan
+.. slug: using-systemd-to-enable-wake-on-lan
+.. date: 2020-12-06 15:10:53 UTC-08:00
+.. tags: systemd,ubuntu,how-to,networking
+.. category: Ubuntu
+.. link: 
+.. description: Using systemd to enable Wake-On-Lan.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+* What is this about?
+  I made a previous post ({{% doc %}}enabling-wake-on-lan{{% /doc %}}) about enabling Wake-On-LAN on my server, but it didn't seem to work after a re-boot. I looked in the logs using [[https://www.commandlinux.com/man-page/man1/journalctl.1.html][journalctl]] and noticed that the =wol.service= that I set up didn't get enabled after the re-boot. I thought about it and I remembered that when I was working with bluetooth and set up a service for it I had to make it wait for the bluetooth service to start first or it wouldn't work and realized that there was nothing in the =wol.service= file to tell it to wait so I went poking around and found what I hope to be a fix.
+* So, how do you do it?
+  We need to update the =/etc/systemd/system/wol.service= that I created in that earlier post. Previously it looked like this:
+
+#+begin_src ini
+[Unit]
+Description=Enable Wake On Lan
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=basic.target
+#+end_src
+
+We need to update the =[Unit]= section by adding
+
+#+begin_src ini
+Requires=network.target
+After=network.target
+#+end_src
+
+To let systemd know that we don't want this to run until after the network service has run. I also changed the =WantedBy=  to =multi-user.target=. So the updated file looks like this:
+
+#+begin_src ini
+[Unit]
+Description=Enable Wake On Lan
+Requires=network.target
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=multi-user.target
+#+end_src
+
+Now reload the daemon and re-enable it.
+
+#+begin_src bash
+sudo systemctl daemon-reload
+sudo systemctl enable wol.service
+#+end_src
+
+To make sure I didn't introduce any errors I ran it once.
+
+#+begin_src bash
+sudo systemctl start wol
+#+end_src
+
+Then I rebooted it.
+
+#+begin_src bash
+sudo reboot now
+#+end_src
+
+This time in journalctl I saw this:
+
+#+begin_example
+Dec 07 00:02:17 erebus systemd[1]: Finished Enable Wake On Lan.
+Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
+#+end_example
+
+And running =ethtool= showed that it was enabled.
+
+#+begin_src bash
+Wake-on: g
+#+end_src
+* So, That Fixed It?
+  Well, insofar as it's working now, yes. But since I change more than one thing I don't really know exactly what did it (was it one of the three lines I changed or all of them?). Anyway, since it works I'll let it lie for now.
+* Where did you find out about this?
+  - The Arch wiki has a page on [[https://wiki.archlinux.org/index.php/Wake-on-LAN][Wake-On-LAN]] that tells you many different ways to set it up -- I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).

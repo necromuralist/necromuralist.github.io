@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/mount-an-encrypted-drive-using-cryptsetup/" rel="prefetch" type="text/html">
+<link href="posts/using-systemd-to-enable-wake-on-lan/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,106 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/using-systemd-to-enable-wake-on-lan/">Using Systemd To Enable Wake-On-Lan</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/using-systemd-to-enable-wake-on-lan/" rel="bookmark"><time class="published dt-published" datetime="2020-12-06T15:10:53-08:00" itemprop="datePublished" title="2020-12-06 15:10">2020-12-06 15:10</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org2f8ba24">What is this about?</a></li>
+<li><a href="posts/using-systemd-to-enable-wake-on-lan/#orgb738263">So, how do you do it?</a></li>
+<li><a href="posts/using-systemd-to-enable-wake-on-lan/#orga086499">So, That Fixed It?</a></li>
+<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org47d45d9">Where did you find out about this?</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org2f8ba24">
+<h2 id="org2f8ba24">What is this about?</h2>
+<div class="outline-text-2" id="text-org2f8ba24">
+<p>I made a previous post (<a href="posts/enabling-wake-on-lan/">Enabling Wake-On-LAN (In Ubuntu 20.10)</a>) about enabling Wake-On-LAN on my server, but it didn't seem to work after a re-boot. I looked in the logs using <a href="https://www.commandlinux.com/man-page/man1/journalctl.1.html">journalctl</a> and noticed that the <code>wol.service</code> that I set up didn't get enabled after the re-boot. I thought about it and I remembered that when I was working with bluetooth and set up a service for it I had to make it wait for the bluetooth service to start first or it wouldn't work and realized that there was nothing in the <code>wol.service</code> file to tell it to wait so I went poking around and found what I hope to be a fix.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgb738263">
+<h2 id="orgb738263">So, how do you do it?</h2>
+<div class="outline-text-2" id="text-orgb738263">
+<p>We need to update the <code>/etc/systemd/system/wol.service</code> that I created in that earlier post. Previously it looked like this:</p>
+<div class="highlight">
+<pre><span></span>[Unit]
+Description=Enable Wake On Lan
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=basic.target
+</pre></div>
+<p>We need to update the <code>[Unit]</code> section by adding</p>
+<div class="highlight">
+<pre><span></span>Requires=network.target
+After=network.target
+</pre></div>
+<p>To let systemd know that we don't want this to run until after the network service has run. I also changed the <code>WantedBy</code> to <code>multi-user.target</code>. So the updated file looks like this:</p>
+<div class="highlight">
+<pre><span></span>[Unit]
+Description=Enable Wake On Lan
+Requires=network.target
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=multi-user.target
+</pre></div>
+<p>Now reload the daemon and re-enable it.</p>
+<div class="highlight">
+<pre><span></span>sudo systemctl daemon-reload
+sudo systemctl enable wol.service
+</pre></div>
+<p>To make sure I didn't introduce any errors I ran it once.</p>
+<div class="highlight">
+<pre><span></span>sudo systemctl start wol
+</pre></div>
+<p>Then I rebooted it.</p>
+<div class="highlight">
+<pre><span></span>sudo reboot now
+</pre></div>
+<p>This time in journalctl I saw this:</p>
+<pre class="example">
+Dec 07 00:02:17 erebus systemd[1]: Finished Enable Wake On Lan.
+Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
+</pre>
+<p>And running <code>ethtool</code> showed that it was enabled.</p>
+<div class="highlight">
+<pre><span></span>Wake-on: g
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orga086499">
+<h2 id="orga086499">So, That Fixed It?</h2>
+<div class="outline-text-2" id="text-orga086499">
+<p>Well, insofar as it's working now, yes. But since I change more than one thing I don't really know exactly what did it (was it one of the three lines I changed or all of them?). Anyway, since it works I'll let it lie for now.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org47d45d9">
+<h2 id="org47d45d9">Where did you find out about this?</h2>
+<div class="outline-text-2" id="text-org47d45d9">
+<ul class="org-ul">
+<li>The Arch wiki has a page on <a href="https://wiki.archlinux.org/index.php/Wake-on-LAN">Wake-On-LAN</a> that tells you many different ways to set it up – I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).</li>
+</ul>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/mount-an-encrypted-drive-using-cryptsetup/">Mount An Encrypted Drive Using cryptsetup</a></h1>
@@ -111,7 +211,7 @@ sudo mount /dev/wrapper/wddata /media/data
 <h1 class="p-name entry-title"><a class="u-url" href="posts/enabling-wake-on-lan/">Enabling Wake-On-LAN (In Ubuntu 20.10)</a></h1>
 <div class="metadata">
 <p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/enabling-wake-on-lan/" rel="bookmark"><time class="published dt-published" datetime="2020-11-28T17:57:35-08:00" itemprop="datePublished" title="2020-11-28 17:57">2020-11-28 17:57</time></a></p>
+<p class="dateline"><a href="posts/enabling-wake-on-lan/" rel="bookmark"><time class="published dt-published" datetime="2020-11-28T17:57:35-08:00" itemprop="datePublished" title="2020-11-28 17:57">2020-11-28 17:57</time> <span class="updated">(updated <time class="dt-updated" datetime="2020-12-06T15:14:00-08:00" itemprop="dateUpdated" title="2020-12-06 15:14">2020-12-06 15:14</time>)</span></a></p>
 </div>
 </header>
 <div class="p-summary entry-summary">
@@ -119,42 +219,43 @@ sudo mount /dev/wrapper/wddata /media/data
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/enabling-wake-on-lan/#orgbae40d0">Beginning</a></li>
-<li><a href="posts/enabling-wake-on-lan/#orgcac8a7e">Middle</a>
+<li><a href="posts/enabling-wake-on-lan/#org9a22d50">Beginning</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org706ae51">Middle</a>
 <ul>
-<li><a href="posts/enabling-wake-on-lan/#orgbeaf657">Ethtool</a></li>
-<li><a href="posts/enabling-wake-on-lan/#orgd123360">Checking the Interface</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org54d512a">Turn It On Temporarily</a></li>
-<li><a href="posts/enabling-wake-on-lan/#orgbd5bab5">Test It Out</a></li>
-<li><a href="posts/enabling-wake-on-lan/#orgffa3819">Take Two</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org864f01a">Making It Permanent</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org7a4c842">Ethtool</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org3fc6dc4">Checking the Interface</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org4ee0110">Turn It On Temporarily</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org7353c6d">Test It Out</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org6d263d9">Take Two</a></li>
+<li><a href="posts/enabling-wake-on-lan/#orga59d4e8">Making It Permanent</a></li>
 </ul>
 </li>
-<li><a href="posts/enabling-wake-on-lan/#org1ec5087">End</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org682628e">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgbae40d0">
-<h2 id="orgbae40d0">Beginning</h2>
-<div class="outline-text-2" id="text-orgbae40d0">
+<p><b>Note:</b> The systemd configuration here isn't quite right, but since this post is kind of long and convoluted I made a standalone update about the systemd configuration file in <a href="posts/using-systemd-to-enable-wake-on-lan/">this post</a>.</p>
+<div class="outline-2" id="outline-container-org9a22d50">
+<h2 id="org9a22d50">Beginning</h2>
+<div class="outline-text-2" id="text-org9a22d50">
 <p>These are my notes on getting <a href="https://en.wikipedia.org/wiki/Wake-on-LAN">Wake-On-LAN</a> working in Ubuntu 20.10. I have a server that I use to run most of the computation on when I use emacs/jupyter but I have it in a corner upstairs and although it's only a little walk, I find that the fact that I have to stop what I'm doing and go upstairs to push that little button on the front makes me lazy and so it ends up running more than it has to so I thought I'd enable Wake-On-LAN so I can suspend it and wake it up whenever I need to. I'm only going to use suspend (<a href="https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface">APM</a> S3). When I tried to use hibernate (S4) it ended up shutting down my machine (S5). Interestingly, my BIOS menu has an option to enable waking up from shutdown, but since my disk is encrypted, and I didn't set up a separate SSH server, I have to go enter the passphrase to unlock the disk before the operating system can boot up, so it kind of defeats its own purpose.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgcac8a7e">
-<h2 id="orgcac8a7e">Middle</h2>
-<div class="outline-text-2" id="text-orgcac8a7e"></div>
-<div class="outline-3" id="outline-container-orgbeaf657">
-<h3 id="orgbeaf657">Ethtool</h3>
-<div class="outline-text-3" id="text-orgbeaf657">
+<div class="outline-2" id="outline-container-org706ae51">
+<h2 id="org706ae51">Middle</h2>
+<div class="outline-text-2" id="text-org706ae51"></div>
+<div class="outline-3" id="outline-container-org7a4c842">
+<h3 id="org7a4c842">Ethtool</h3>
+<div class="outline-text-3" id="text-org7a4c842">
 <p>The command I used to set up Wake-On-LAN on the remote machine is called <a href="https://en.wikipedia.org/wiki/Ethtool">ethtool</a>. It's in the Ubuntu repositories but wasn't installed on my machine so I had to add it.</p>
 <div class="highlight">
 <pre><span></span>sudo apt install ethtool
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgd123360">
-<h3 id="orgd123360">Checking the Interface</h3>
-<div class="outline-text-3" id="text-orgd123360">
+<div class="outline-3" id="outline-container-org3fc6dc4">
+<h3 id="org3fc6dc4">Checking the Interface</h3>
+<div class="outline-text-3" id="text-org3fc6dc4">
 <p>From what I've read, not all ethernet interfaces support Wake-On-LAN (although I've never seen one that doesn't) so a quick check might be useful. First, find the name of your ethernet interface.</p>
 <div class="highlight">
 <pre><span></span>ip a
@@ -214,9 +315,9 @@ Wake-on: d
 <p>There's an additional option which is what the interface was set on – <code>d</code> – as you can see in the last line of the output. This means <i>Disable (wake on nothing). This option clears all previous options.</i> I don't have many devices on my network, so I don't know that there's a lot of broadcasts, multicasts, etc. that would be waking it up all the time, but since one feature of Wake-On-LAN is that it only wakes the machine when it gets the "Magic Packet", only the <code>g</code> and <code>d</code> options matter. Now that I knew it was supported, it was time to try it out.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org54d512a">
-<h3 id="org54d512a">Turn It On Temporarily</h3>
-<div class="outline-text-3" id="text-org54d512a">
+<div class="outline-3" id="outline-container-org4ee0110">
+<h3 id="org4ee0110">Turn It On Temporarily</h3>
+<div class="outline-text-3" id="text-org4ee0110">
 <p>The <code>ethtool</code> will turn on Wake-On-LAN, but (supposedly) everytime you reboot the machine it will reset to disabled. I haven't really tested this out, but I'll document how to make it permanent later, anyway.</p>
 <div class="highlight">
 <pre><span></span>sudo ethtool --change enp4s0 wol g
@@ -235,9 +336,9 @@ Wake-on: d
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgbd5bab5">
-<h3 id="orgbd5bab5">Test It Out</h3>
-<div class="outline-text-3" id="text-orgbd5bab5">
+<div class="outline-3" id="outline-container-org7353c6d">
+<h3 id="org7353c6d">Test It Out</h3>
+<div class="outline-text-3" id="text-org7353c6d">
 <p>Now, on my local machine I needed to install <a href="https://github.com/jpoliv/wakeonlan">wakeonlan</a>. There's a surprising number of programs to send the Magic Packet, but this just happened to be the one I used.</p>
 <div class="highlight">
 <pre><span></span>sudo apt install wakeonlan
@@ -249,9 +350,9 @@ Wake-on: d
 <p>And then I pinged the machine and I waited. And I waited. And I waited… Eventually I went upstairs and saw that it was still sleeping so I pushed the power button to wake it up and went back downstairs.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgffa3819">
-<h3 id="orgffa3819">Take Two</h3>
-<div class="outline-text-3" id="text-orgffa3819">
+<div class="outline-3" id="outline-container-org6d263d9">
+<h3 id="org6d263d9">Take Two</h3>
+<div class="outline-text-3" id="text-org6d263d9">
 <p>Something wasn't right so I SSHd into the server and started up <a href="https://www.tcpdump.org/">tcpdump</a> to see if the packets were going through.</p>
 <div class="highlight">
 <pre><span></span>sudo tcpdump -i enp4s0 '(udp and port 7) or (udp and port 9)'
@@ -282,12 +383,12 @@ listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
 <p>So, something was different. I suspended the machine again and sent the Magic Packet and this time it worked. Go figure.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org864f01a">
-<h3 id="org864f01a">Making It Permanent</h3>
-<div class="outline-text-3" id="text-org864f01a"></div>
-<div class="outline-4" id="outline-container-org6b4d964">
-<h4 id="org6b4d964">Set It Up</h4>
-<div class="outline-text-4" id="text-org6b4d964">
+<div class="outline-3" id="outline-container-orga59d4e8">
+<h3 id="orga59d4e8">Making It Permanent</h3>
+<div class="outline-text-3" id="text-orga59d4e8"></div>
+<div class="outline-4" id="outline-container-org5b7f6b2">
+<h4 id="org5b7f6b2">Set It Up</h4>
+<div class="outline-text-4" id="text-org5b7f6b2">
 <p>The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is temporary is that:</p>
 <ol class="org-ol">
 <li>I haven't really re-booted that machine to test it out (I have rebooted, but I haven't disable the <a href="https://en.wikipedia.org/wiki/Systemd">systemd</a> service that I'm documenting here).</li>
@@ -312,9 +413,9 @@ WantedBy=basic.target
 <p>The only thing specific to my machine is <code>enp4s0</code>, the name of the ethernet interface, although it's possible that the path to the <code>ethtool</code> executable might be different too… but it should be the same on Ubuntu 20.10, anyway.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org7e3269a">
-<h4 id="org7e3269a">Enable The Service</h4>
-<div class="outline-text-4" id="text-org7e3269a">
+<div class="outline-4" id="outline-container-org057b2a0">
+<h4 id="org057b2a0">Enable The Service</h4>
+<div class="outline-text-4" id="text-org057b2a0">
 <p>To enable it you can do this:</p>
 <div class="highlight">
 <pre><span></span>sudo systemctl daemon-reload
@@ -329,12 +430,12 @@ sudo systemctl enable wol.service
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org1ec5087">
-<h2 id="org1ec5087">End</h2>
-<div class="outline-text-2" id="text-org1ec5087">
+<div class="outline-2" id="outline-container-org682628e">
+<h2 id="org682628e">End</h2>
+<div class="outline-text-2" id="text-org682628e">
 <p>So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't have to look so hard the next time. Here's the pages that I stole this from.</p>
 <ul class="org-ul">
-<li><a href="https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/">TechRepublic</a> on using <code>ethtool</code> and setting up a <code>systemd</code> service for this.</li>
+<li><a href="https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/">TechRepublic</a> on using <code>ethtool</code> and setting up a <code>systemd</code> service for this (don't use the systemd file here, though).</li>
 <li><a href="https://askubuntu.com/questions/1792/how-can-i-suspend-hibernate-from-command-line">Stack Overflow</a> on how to suspend and hibernate from the command-line</li>
 <li><a href="https://askubuntu.com/questions/3369/what-is-the-difference-between-hibernate-and-suspend">Stack Overflow</a> on what the difference is between suspend and hibernate</li>
 <li><a href="https://unix.stackexchange.com/questions/318137/wake-on-lan-not-working-on-ubuntu-16-04">Stack Overflow</a> on using <code>tcpdump</code> to look for the Magic Packets on the remote machine</li>
@@ -996,145 +1097,6 @@ applebanana
 <h2 id="orgcaf59fd">End</h2>
 <div class="outline-text-2" id="text-orgcaf59fd">
 <p>Okay, so this was a very basic hello world for javascript in emacs. The lack of sessions is kind of disappointing, but I don't know how useful this is going to be, anyway, since javascript is so tied to the browser, but there it is.</p>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/mounting-an-encrypted-usb-drive/">Mounting An Encrypted USB Drive From the Command Line</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/mounting-an-encrypted-usb-drive/" rel="bookmark"><time class="published dt-published" datetime="2020-09-24T18:26:30-07:00" itemprop="datePublished" title="2020-09-24 18:26">2020-09-24 18:26</time> <span class="updated">(updated <time class="dt-updated" datetime="2020-12-05T16:19:00-07:00" itemprop="dateUpdated" title="2020-12-05 16:19">2020-12-05 16:19</time>)</span></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org956c936">Beginning</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org0466e42">Middle</a>
-<ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org162aae1">Find the USB Device Name</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#orgbd3ecc0">Unlock the Drive</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org9f099a7">Mount the Drive</a></li>
-</ul>
-</li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org46a7628">End</a>
-<ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org8d99a26">Sources</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org956c936">
-<h2 id="org956c936">Beginning</h2>
-<div class="outline-text-2" id="text-org956c936">
-<p>I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:</p>
-<ul class="org-ul">
-<li>I didn't know the <code>/dev</code> file to use</li>
-<li>Like many Stack Overflow threads there's a lot of noise that isn't relevant to me</li>
-<li>I want to be able to remember how to do this without having to search for it and click through different links to figure out which one has the right information for me</li>
-</ul>
-<p>So, here's the subset of steps that I did to mount the drive.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org0466e42">
-<h2 id="org0466e42">Middle</h2>
-<div class="outline-text-2" id="text-org0466e42"></div>
-<div class="outline-3" id="outline-container-org162aae1">
-<h3 id="org162aae1">Find the USB Device Name</h3>
-<div class="outline-text-3" id="text-org162aae1">
-<p>The first think to do is to make sure that the USB device is recognized by the operating system.</p>
-<div class="highlight">
-<pre><span></span>lsusb
-</pre></div>
-<p>Which produced a lot of listings, the most relevant one being:</p>
-<div class="highlight">
-<pre><span></span>Bus 001 Device 002: ID 1058:0748 Western Digital Technologies, Inc. My Passport (WDBKXH, WDBY8L)
-</pre></div>
-<p>Which is the drive I wanted to unencrypt and mount. The next thing is to find the file name (in this case I know the name of the device - "My Passport" - so I used <code>grep</code>, otherwise I'd use <code>less</code>).</p>
-<div class="highlight">
-<pre><span></span>sudo fdisk -l | grep "My Passport" -B 1
-</pre></div>
-<p>Which currently gives this:</p>
-<div class="highlight">
-<pre><span></span>Partition 2 does not start on physical sector boundary.
-Disk /dev/sdb: 931.49 GiB, 1000170586112 bytes, 1953458176 sectors
-Disk model: My Passport 0748
-</pre></div>
-<p>It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want.</p>
-<p>That is the name we need for the drive, but we're going to mount a partition so you need to know the partition name. <code>lsblk</code> will show it to us.</p>
-<div class="highlight">
-<pre><span></span>lsblk -e7
-</pre></div>
-<p>Which gave me the output:</p>
-<div class="highlight">
-<pre><span></span>NAME                        MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
-sda                           8:0    0 931.5G  0 disk  
-├─sda1                        8:1    0     1M  0 part  
-├─sda2                        8:2    0     1G  0 part  /boot
-└─sda3                        8:3    0 930.5G  0 part  
-  └─dm_crypt-0              253:0    0 930.5G  0 crypt 
-    └─ubuntu--vg-ubuntu--lv 253:1    0   200G  0 lvm   /
-sdb                           8:16   0 931.5G  0 disk  
-└─sdb1                        8:17   0 931.5G  0 part
-</pre></div>
-<p>Now you can see that the partion for our disk is <code>sdb1</code> (the last row where it's shown to be a child of <code>sdb</code> and that its TYPE is a partition).</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-orgbd3ecc0">
-<h3 id="orgbd3ecc0">Unlock the Drive</h3>
-<div class="outline-text-3" id="text-orgbd3ecc0">
-<p><b>Note:</b> This works, but there's an alternative way to do it with <a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html">cryptsetup</a> that I find a little easier (but not much). I documented that command as if it continued from this point in <a href="posts/mount-an-encrypted-drive-using-cryptsetup/">this post</a>.</p>
-<p>Next unlock the drive. When you do this it will create a file in <code>/dev/mapper/</code> that you'll need so it would be a good idea to see what's there before you run it.</p>
-<div class="highlight">
-<pre><span></span>ls /dev/mapper/
-</pre></div>
-<p>And then do the decrypting, remembering that the partition is <code>sdb1</code> and like our disk the file is in the <code>/dev</code> directory.</p>
-<div class="highlight">
-<pre><span></span>udisksctl unlock -b /dev/sdb1
-</pre></div>
-<p>This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org9f099a7">
-<h3 id="org9f099a7">Mount the Drive</h3>
-<div class="outline-text-3" id="text-org9f099a7">
-<p>If the last command went okay you now need to mount it. There's going to be a file in <code>/dev/mapper</code> that you need to know. When I did it there was only one new file (<code>luks-3eea956c-e684-4bcb-a640-97d0c8c5a700</code>) so I didn't have to do anything special to get it.</p>
-<div class="highlight">
-<pre><span></span>udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
-</pre></div>
-<p>If you run the command <code>lsblk -e7</code> it will show you a tree with the <code>/dev/mapper/</code> file mapped to the mount point where you can access it.</p>
-<div class="highlight">
-<pre><span></span>sdb                                             8:16   0 931.5G  0 disk  
-└─sdb1                                          8:17   0 931.5G  0 part  
-  └─luks-3eea956c-e684-4bcb-a640-97d0c8c5a700 253:3    0 931.5G  0 crypt /media/hades/WDData
-</pre></div>
-<p>So in this case the drive is accessible at <code>/media/hades/WDData</code> (it's always the same place but I wanted to document the <code>lsblk -e7</code> command).</p>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org46a7628">
-<h2 id="org46a7628">End</h2>
-<div class="outline-text-2" id="text-org46a7628">
-<p>So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udisksctl.</p>
-<div class="highlight">
-<pre><span></span>sudo fdisk -l
-udisksctl unlock -b /dev/sdb1
-udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
-</pre></div>
-</div>
-<div class="outline-3" id="outline-container-org8d99a26">
-<h3 id="org8d99a26">Sources</h3>
-<div class="outline-text-3" id="text-org8d99a26">
-<ul class="org-ul">
-<li><a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/">sourcedigit.com</a> - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"</li>
-<li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">Stack Overflow</a> - "Mount encrypted volumes from command line?"</li>
-</ul>
-</div>
 </div>
 </div>
 </div>
