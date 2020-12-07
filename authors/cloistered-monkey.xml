@@ -1,5 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sun, 06 Dec 2020 01:11:15 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Mount An Encrypted Drive Using cryptsetup</title><link>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Mon, 07 Dec 2020 00:34:48 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Using Systemd To Enable Wake-On-Lan</title><link>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org2f8ba24"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#orgb738263"&gt;So, how do you do it?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#orga086499"&gt;So, That Fixed It?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org47d45d9"&gt;Where did you find out about this?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org2f8ba24" class="outline-2"&gt;
+&lt;h2 id="org2f8ba24"&gt;What is this about?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2f8ba24"&gt;
+&lt;p&gt;
+I made a previous post (&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/"&gt;Enabling Wake-On-LAN (In Ubuntu 20.10)&lt;/a&gt;) about enabling Wake-On-LAN on my server, but it didn't seem to work after a re-boot. I looked in the logs using &lt;a href="https://www.commandlinux.com/man-page/man1/journalctl.1.html"&gt;journalctl&lt;/a&gt; and noticed that the &lt;code&gt;wol.service&lt;/code&gt; that I set up didn't get enabled after the re-boot. I thought about it and I remembered that when I was working with bluetooth and set up a service for it I had to make it wait for the bluetooth service to start first or it wouldn't work and realized that there was nothing in the &lt;code&gt;wol.service&lt;/code&gt; file to tell it to wait so I went poking around and found what I hope to be a fix.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgb738263" class="outline-2"&gt;
+&lt;h2 id="orgb738263"&gt;So, how do you do it?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb738263"&gt;
+&lt;p&gt;
+We need to update the &lt;code&gt;/etc/systemd/system/wol.service&lt;/code&gt; that I created in that earlier post. Previously it looked like this:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[Unit]
+Description=Enable Wake On Lan
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=basic.target
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+We need to update the &lt;code&gt;[Unit]&lt;/code&gt; section by adding
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Requires=network.target
+After=network.target
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+To let systemd know that we don't want this to run until after the network service has run. I also changed the &lt;code&gt;WantedBy&lt;/code&gt;  to &lt;code&gt;multi-user.target&lt;/code&gt;. So the updated file looks like this:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[Unit]
+Description=Enable Wake On Lan
+Requires=network.target
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=multi-user.target
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Now reload the daemon and re-enable it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo systemctl daemon-reload
+sudo systemctl enable wol.service
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+To make sure I didn't introduce any errors I ran it once.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo systemctl start wol
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then I rebooted it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo reboot now
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This time in journalctl I saw this:
+&lt;/p&gt;
+
+&lt;pre class="example"&gt;
+Dec 07 00:02:17 erebus systemd[1]: Finished Enable Wake On Lan.
+Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
+&lt;/pre&gt;
+
+&lt;p&gt;
+And running &lt;code&gt;ethtool&lt;/code&gt; showed that it was enabled.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Wake-on: g
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orga086499" class="outline-2"&gt;
+&lt;h2 id="orga086499"&gt;So, That Fixed It?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga086499"&gt;
+&lt;p&gt;
+Well, insofar as it's working now, yes. But since I change more than one thing I don't really know exactly what did it (was it one of the three lines I changed or all of them?). Anyway, since it works I'll let it lie for now.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org47d45d9" class="outline-2"&gt;
+&lt;h2 id="org47d45d9"&gt;Where did you find out about this?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org47d45d9"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;The Arch wiki has a page on &lt;a href="https://wiki.archlinux.org/index.php/Wake-on-LAN"&gt;Wake-On-LAN&lt;/a&gt; that tells you many different ways to set it up – I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>how-to</category><category>networking</category><category>systemd</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</guid><pubDate>Sun, 06 Dec 2020 23:10:53 GMT</pubDate></item><item><title>Mount An Encrypted Drive Using cryptsetup</title><link>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
@@ -68,36 +184,41 @@ The accepted answer uses &lt;code&gt;udiskctl&lt;/code&gt; but further down is a
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgbae40d0"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgcac8a7e"&gt;Middle&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org9a22d50"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org706ae51"&gt;Middle&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgbeaf657"&gt;Ethtool&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgd123360"&gt;Checking the Interface&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org54d512a"&gt;Turn It On Temporarily&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgbd5bab5"&gt;Test It Out&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgffa3819"&gt;Take Two&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org864f01a"&gt;Making It Permanent&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org7a4c842"&gt;Ethtool&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org3fc6dc4"&gt;Checking the Interface&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org4ee0110"&gt;Turn It On Temporarily&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org7353c6d"&gt;Test It Out&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org6d263d9"&gt;Take Two&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orga59d4e8"&gt;Making It Permanent&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org1ec5087"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org682628e"&gt;End&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgbae40d0" class="outline-2"&gt;
-&lt;h2 id="orgbae40d0"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbae40d0"&gt;
+
+&lt;p&gt;
+&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; The systemd configuration here isn't quite right, but since this post is kind of long and convoluted I made a standalone update about the systemd configuration file in &lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/"&gt;this post&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;div id="outline-container-org9a22d50" class="outline-2"&gt;
+&lt;h2 id="org9a22d50"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9a22d50"&gt;
 &lt;p&gt;
 These are my notes on getting &lt;a href="https://en.wikipedia.org/wiki/Wake-on-LAN"&gt;Wake-On-LAN&lt;/a&gt; working in Ubuntu 20.10. I have a server that I use to run most of the computation on when I use emacs/jupyter but I have it in a corner upstairs and although it's only a little walk, I find that the fact that I have to stop what I'm doing and go upstairs to push that little button on the front makes me lazy and so it ends up running more than it has to so I thought I'd enable Wake-On-LAN so I can suspend it and wake it up whenever I need to. I'm only going to use suspend (&lt;a href="https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface"&gt;APM&lt;/a&gt; S3). When I tried to use hibernate (S4) it ended up shutting down my machine (S5). Interestingly, my BIOS menu has an option to enable waking up from shutdown, but since my disk is encrypted, and I didn't set up a separate SSH server, I have to go enter the passphrase to unlock the disk before the operating system can boot up, so it kind of defeats its own purpose.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgcac8a7e" class="outline-2"&gt;
-&lt;h2 id="orgcac8a7e"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcac8a7e"&gt;
+&lt;div id="outline-container-org706ae51" class="outline-2"&gt;
+&lt;h2 id="org706ae51"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org706ae51"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgbeaf657" class="outline-3"&gt;
-&lt;h3 id="orgbeaf657"&gt;Ethtool&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbeaf657"&gt;
+&lt;div id="outline-container-org7a4c842" class="outline-3"&gt;
+&lt;h3 id="org7a4c842"&gt;Ethtool&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7a4c842"&gt;
 &lt;p&gt;
 The command I used to set up Wake-On-LAN on the remote machine is called &lt;a href="https://en.wikipedia.org/wiki/Ethtool"&gt;ethtool&lt;/a&gt;. It's in the Ubuntu repositories but wasn't installed on my machine so I had to add it.
 &lt;/p&gt;
@@ -106,9 +227,9 @@ The command I used to set up Wake-On-LAN on the remote machine is called &lt;a h
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd123360" class="outline-3"&gt;
-&lt;h3 id="orgd123360"&gt;Checking the Interface&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgd123360"&gt;
+&lt;div id="outline-container-org3fc6dc4" class="outline-3"&gt;
+&lt;h3 id="org3fc6dc4"&gt;Checking the Interface&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3fc6dc4"&gt;
 &lt;p&gt;
 From what I've read, not all ethernet interfaces support Wake-On-LAN (although I've never seen one that doesn't) so a quick check might be useful. First, find the name of your ethernet interface.
 &lt;/p&gt;
@@ -195,9 +316,9 @@ There's an additional option which is what the interface was set on – &lt;code
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org54d512a" class="outline-3"&gt;
-&lt;h3 id="org54d512a"&gt;Turn It On Temporarily&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org54d512a"&gt;
+&lt;div id="outline-container-org4ee0110" class="outline-3"&gt;
+&lt;h3 id="org4ee0110"&gt;Turn It On Temporarily&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4ee0110"&gt;
 &lt;p&gt;
 The &lt;code&gt;ethtool&lt;/code&gt; will turn on Wake-On-LAN, but (supposedly) everytime you reboot the machine it will reset to disabled. I haven't really tested this out, but I'll document how to make it permanent later, anyway.
 &lt;/p&gt;
@@ -227,9 +348,9 @@ Now to suspend the machine so we can test it out.
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgbd5bab5" class="outline-3"&gt;
-&lt;h3 id="orgbd5bab5"&gt;Test It Out&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbd5bab5"&gt;
+&lt;div id="outline-container-org7353c6d" class="outline-3"&gt;
+&lt;h3 id="org7353c6d"&gt;Test It Out&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7353c6d"&gt;
 &lt;p&gt;
 Now, on my local machine I needed to install &lt;a href="https://github.com/jpoliv/wakeonlan"&gt;wakeonlan&lt;/a&gt;. There's a surprising number of programs to send the Magic Packet, but this just happened to be the one I used.
 &lt;/p&gt;
@@ -249,9 +370,9 @@ And then I pinged the machine and I waited. And I waited. And I waited… Eventu
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgffa3819" class="outline-3"&gt;
-&lt;h3 id="orgffa3819"&gt;Take Two&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgffa3819"&gt;
+&lt;div id="outline-container-org6d263d9" class="outline-3"&gt;
+&lt;h3 id="org6d263d9"&gt;Take Two&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6d263d9"&gt;
 &lt;p&gt;
 Something wasn't right so I SSHd into the server and started up &lt;a href="https://www.tcpdump.org/"&gt;tcpdump&lt;/a&gt; to see if the packets were going through.
 &lt;/p&gt;
@@ -303,13 +424,13 @@ So, something was different. I suspended the machine again and sent the Magic Pa
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org864f01a" class="outline-3"&gt;
-&lt;h3 id="org864f01a"&gt;Making It Permanent&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org864f01a"&gt;
+&lt;div id="outline-container-orga59d4e8" class="outline-3"&gt;
+&lt;h3 id="orga59d4e8"&gt;Making It Permanent&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga59d4e8"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6b4d964" class="outline-4"&gt;
-&lt;h4 id="org6b4d964"&gt;Set It Up&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org6b4d964"&gt;
+&lt;div id="outline-container-org5b7f6b2" class="outline-4"&gt;
+&lt;h4 id="org5b7f6b2"&gt;Set It Up&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org5b7f6b2"&gt;
 &lt;p&gt;
 The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is temporary is that:
 &lt;/p&gt;
@@ -346,9 +467,9 @@ The only thing specific to my machine is &lt;code&gt;enp4s0&lt;/code&gt;, the na
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org7e3269a" class="outline-4"&gt;
-&lt;h4 id="org7e3269a"&gt;Enable The Service&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org7e3269a"&gt;
+&lt;div id="outline-container-org057b2a0" class="outline-4"&gt;
+&lt;h4 id="org057b2a0"&gt;Enable The Service&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org057b2a0"&gt;
 &lt;p&gt;
 To enable it you can do this:
 &lt;/p&gt;
@@ -371,15 +492,15 @@ And that's that.
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1ec5087" class="outline-2"&gt;
-&lt;h2 id="org1ec5087"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1ec5087"&gt;
+&lt;div id="outline-container-org682628e" class="outline-2"&gt;
+&lt;h2 id="org682628e"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org682628e"&gt;
 &lt;p&gt;
 So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't have to look so hard the next time. Here's the pages that I stole this from.
 &lt;/p&gt;
 
 &lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/"&gt;TechRepublic&lt;/a&gt; on using &lt;code&gt;ethtool&lt;/code&gt; and setting up a &lt;code&gt;systemd&lt;/code&gt; service for this.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/"&gt;TechRepublic&lt;/a&gt; on using &lt;code&gt;ethtool&lt;/code&gt; and setting up a &lt;code&gt;systemd&lt;/code&gt; service for this (don't use the systemd file here, though).&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://askubuntu.com/questions/1792/how-can-i-suspend-hibernate-from-command-line"&gt;Stack Overflow&lt;/a&gt; on how to suspend and hibernate from the command-line&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://askubuntu.com/questions/3369/what-is-the-difference-between-hibernate-and-suspend"&gt;Stack Overflow&lt;/a&gt; on what the difference is between suspend and hibernate&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://unix.stackexchange.com/questions/318137/wake-on-lan-not-working-on-ubuntu-16-04"&gt;Stack Overflow&lt;/a&gt; on using &lt;code&gt;tcpdump&lt;/code&gt; to look for the Magic Packets on the remote machine&lt;/li&gt;
@@ -1174,186 +1295,4 @@ If you try and put a session argument in the org-babel header you'll get a messa
 Okay, so this was a very basic hello world for javascript in emacs. The lack of sessions is kind of disappointing, but I don't know how useful this is going to be, anyway, since javascript is so tied to the browser, but there it is.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>emacs</category><category>javascript</category><category>org</category><guid>https://necromuralist.github.io/posts/javascript-in-org-babel/</guid><pubDate>Sat, 17 Oct 2020 03:48:55 GMT</pubDate></item><item><title>Mounting An Encrypted USB Drive From the Command Line</title><link>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org956c936"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org0466e42"&gt;Middle&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org162aae1"&gt;Find the USB Device Name&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orgbd3ecc0"&gt;Unlock the Drive&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org9f099a7"&gt;Mount the Drive&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org46a7628"&gt;End&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org8d99a26"&gt;Sources&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org956c936" class="outline-2"&gt;
-&lt;h2 id="org956c936"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org956c936"&gt;
-&lt;p&gt;
-I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:
-&lt;/p&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;I didn't know the &lt;code&gt;/dev&lt;/code&gt; file to use&lt;/li&gt;
-&lt;li&gt;Like many Stack Overflow threads there's a lot of noise that isn't relevant to me&lt;/li&gt;
-&lt;li&gt;I want to be able to remember how to do this without having to search for it and click through different links to figure out which one has the right information for me&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-So, here's the subset of steps that I did to mount the drive.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org0466e42" class="outline-2"&gt;
-&lt;h2 id="org0466e42"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0466e42"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org162aae1" class="outline-3"&gt;
-&lt;h3 id="org162aae1"&gt;Find the USB Device Name&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org162aae1"&gt;
-&lt;p&gt;
-The first think to do is to make sure that the USB device is recognized by the operating system.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lsusb
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Which produced a lot of listings, the most relevant one being:
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Bus 001 Device 002: ID 1058:0748 Western Digital Technologies, Inc. My Passport (WDBKXH, WDBY8L)
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Which is the drive I wanted to unencrypt and mount. The next thing is to find the file name (in this case I know the name of the device - "My Passport" - so I used &lt;code&gt;grep&lt;/code&gt;, otherwise I'd use &lt;code&gt;less&lt;/code&gt;).
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo fdisk -l | grep "My Passport" -B 1
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Which currently gives this:
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Partition 2 does not start on physical sector boundary.
-Disk /dev/sdb: 931.49 GiB, 1000170586112 bytes, 1953458176 sectors
-Disk model: My Passport 0748
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want.
-&lt;/p&gt;
-
-&lt;p&gt;
-That is the name we need for the drive, but we're going to mount a partition so you need to know the partition name. &lt;code&gt;lsblk&lt;/code&gt; will show it to us.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lsblk -e7
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Which gave me the output:
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;NAME                        MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
-sda                           8:0    0 931.5G  0 disk  
-├─sda1                        8:1    0     1M  0 part  
-├─sda2                        8:2    0     1G  0 part  /boot
-└─sda3                        8:3    0 930.5G  0 part  
-  └─dm_crypt-0              253:0    0 930.5G  0 crypt 
-    └─ubuntu--vg-ubuntu--lv 253:1    0   200G  0 lvm   /
-sdb                           8:16   0 931.5G  0 disk  
-└─sdb1                        8:17   0 931.5G  0 part
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Now you can see that the partion for our disk is &lt;code&gt;sdb1&lt;/code&gt; (the last row where it's shown to be a child of &lt;code&gt;sdb&lt;/code&gt; and that its TYPE is a partition).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgbd3ecc0" class="outline-3"&gt;
-&lt;h3 id="orgbd3ecc0"&gt;Unlock the Drive&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbd3ecc0"&gt;
-&lt;p&gt;
-&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; This works, but there's an alternative way to do it with &lt;a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html"&gt;cryptsetup&lt;/a&gt; that I find a little easier (but not much). I documented that command as if it continued from this point in &lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/"&gt;this post&lt;/a&gt;.
-&lt;/p&gt;
-
-&lt;p&gt;
-Next unlock the drive. When you do this it will create a file in &lt;code&gt;/dev/mapper/&lt;/code&gt; that you'll need so it would be a good idea to see what's there before you run it.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ls /dev/mapper/
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-And then do the decrypting, remembering that the partition is &lt;code&gt;sdb1&lt;/code&gt; and like our disk the file is in the &lt;code&gt;/dev&lt;/code&gt; directory.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;udisksctl unlock -b /dev/sdb1
-&lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;
-This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org9f099a7" class="outline-3"&gt;
-&lt;h3 id="org9f099a7"&gt;Mount the Drive&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9f099a7"&gt;
-&lt;p&gt;
-If the last command went okay you now need to mount it. There's going to be a file in &lt;code&gt;/dev/mapper&lt;/code&gt; that you need to know. When I did it there was only one new file (&lt;code&gt;luks-3eea956c-e684-4bcb-a640-97d0c8c5a700&lt;/code&gt;) so I didn't have to do anything special to get it.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-If you run the command &lt;code&gt;lsblk -e7&lt;/code&gt; it will show you a tree with the &lt;code&gt;/dev/mapper/&lt;/code&gt; file mapped to the mount point where you can access it.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sdb                                             8:16   0 931.5G  0 disk  
-└─sdb1                                          8:17   0 931.5G  0 part  
-  └─luks-3eea956c-e684-4bcb-a640-97d0c8c5a700 253:3    0 931.5G  0 crypt /media/hades/WDData
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-So in this case the drive is accessible at &lt;code&gt;/media/hades/WDData&lt;/code&gt; (it's always the same place but I wanted to document the &lt;code&gt;lsblk -e7&lt;/code&gt; command).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org46a7628" class="outline-2"&gt;
-&lt;h2 id="org46a7628"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org46a7628"&gt;
-&lt;p&gt;
-So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udisksctl.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo fdisk -l
-udisksctl unlock -b /dev/sdb1
-udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org8d99a26" class="outline-3"&gt;
-&lt;h3 id="org8d99a26"&gt;Sources&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8d99a26"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;&lt;a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/"&gt;sourcedigit.com&lt;/a&gt; - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line"&gt;Stack Overflow&lt;/a&gt; - "Mount encrypted volumes from command line?"&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>how-to</category><category>luks</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</guid><pubDate>Fri, 25 Sep 2020 01:26:30 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>emacs</category><category>javascript</category><category>org</category><guid>https://necromuralist.github.io/posts/javascript-in-org-babel/</guid><pubDate>Sat, 17 Oct 2020 03:48:55 GMT</pubDate></item></channel></rss>
