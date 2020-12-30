@@ -81,22 +81,22 @@
 <div class="section" id="the-process">
 <h2>2 The Process</h2>
 <p>Assuming you've downloaded the BFG jar file, this is what you need to do.</p>
-<pre class="code sh"><a id="rest_code_39436002621942778189434f5eec5d08-1" name="rest_code_39436002621942778189434f5eec5d08-1"></a>git clone --mirror &lt;remote git address&gt;
+<pre class="code sh"><a id="rest_code_e178527ddc9b483683fe9cdb9be8efad-1" name="rest_code_e178527ddc9b483683fe9cdb9be8efad-1"></a>git clone --mirror &lt;remote git address&gt;
 </pre>
 <p>The <code class="docutils literal"><span class="pre">--mirror</span></code> flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the <code class="docutils literal">.git</code> folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in <a class="reference external" href="https://github.com/rtyley/bfg-repo-cleaner/issues/65">this bug-report</a> the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.</p>
 <p>Next run the BFG.</p>
-<pre class="code sh"><a id="rest_code_f10a795c8e3944619d751df7fc21313f-1" name="rest_code_f10a795c8e3944619d751df7fc21313f-1"></a>java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &lt;path to cloned mirror&gt;
+<pre class="code sh"><a id="rest_code_07ac6ec993c540509c322cb2ee593204-1" name="rest_code_07ac6ec993c540509c322cb2ee593204-1"></a>java -jar BFG-1.12.15.jar --strip-blobs-bigger-than 50M &lt;path to cloned mirror&gt;
 </pre>
 <p>Now you have to change into the cloned repository and execute some commands to update it.</p>
-<pre class="code sh"><a id="rest_code_0d052d1fd9fe4d80b99ef76b74842f18-1" name="rest_code_0d052d1fd9fe4d80b99ef76b74842f18-1"></a>git reflog expire --expire-now --all
-<a id="rest_code_0d052d1fd9fe4d80b99ef76b74842f18-2" name="rest_code_0d052d1fd9fe4d80b99ef76b74842f18-2"></a>git gc --prune<span class="o">=</span>now --aggressive
+<pre class="code sh"><a id="rest_code_dba0e4d3b9fe4050a8e70d870630a305-1" name="rest_code_dba0e4d3b9fe4050a8e70d870630a305-1"></a>git reflog expire --expire-now --all
+<a id="rest_code_dba0e4d3b9fe4050a8e70d870630a305-2" name="rest_code_dba0e4d3b9fe4050a8e70d870630a305-2"></a>git gc --prune<span class="o">=</span>now --aggressive
 </pre>
 <p>Now push it back to github.</p>
-<pre class="code sh"><a id="rest_code_230be40c24ed4269ba30fb5a1962916e-1" name="rest_code_230be40c24ed4269ba30fb5a1962916e-1"></a>git push
+<pre class="code sh"><a id="rest_code_6a2a8d844be04f30bac5add8ffe2e355-1" name="rest_code_6a2a8d844be04f30bac5add8ffe2e355-1"></a>git push
 </pre>
 <p>At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.</p>
-<pre class="code sh"><a id="rest_code_f01a667533284dd98e7c42b299ee985b-1" name="rest_code_f01a667533284dd98e7c42b299ee985b-1"></a>rm -r &lt;original <span class="nb">local</span> repository&gt;
-<a id="rest_code_f01a667533284dd98e7c42b299ee985b-2" name="rest_code_f01a667533284dd98e7c42b299ee985b-2"></a>git clone &lt;remote repository&gt;
+<pre class="code sh"><a id="rest_code_eaeae5da27ef440abd427437dcfc8240-1" name="rest_code_eaeae5da27ef440abd427437dcfc8240-1"></a>rm -r &lt;original <span class="nb">local</span> repository&gt;
+<a id="rest_code_eaeae5da27ef440abd427437dcfc8240-2" name="rest_code_eaeae5da27ef440abd427437dcfc8240-2"></a>git clone &lt;remote repository&gt;
 </pre>
 <p>One thing that tripped me up a little was that I had removed the <em>master</em> branch but the <em>BFG</em> re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.</p>
 </div>
@@ -125,9 +125,7 @@
 
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
-        captions: function(element) {
-            return element.getElementsByTagName('img')[0].alt;
-    }});
+        captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
 </script>
 </body>
 </html>

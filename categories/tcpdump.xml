@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about tcpdump)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/tcpdump.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sun, 08 Nov 2020 21:07:24 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>TCPDump On an External Hard Drive</title><link>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgbefeaa4" class="outline-2"&gt;
-&lt;h2 id="orgbefeaa4"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbefeaa4"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about tcpdump)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/tcpdump.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2020 &lt;a href="mailto:necromuralist@protonmail.com"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Wed, 30 Dec 2020 06:53:24 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>TCPDump On an External Hard Drive</title><link>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org04c8dfc" class="outline-2"&gt;
+&lt;h2 id="org04c8dfc"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org04c8dfc"&gt;
 &lt;p&gt;
 I'm using &lt;a href="http://www.tcpdump.org/"&gt;tcpdump&lt;/a&gt; to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orge2e3157" class="outline-2"&gt;
-&lt;h2 id="orge2e3157"&gt;Setting Up The Drive&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge2e3157"&gt;
+&lt;div id="outline-container-orge1198b8" class="outline-2"&gt;
+&lt;h2 id="orge1198b8"&gt;Setting Up The Drive&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge1198b8"&gt;
 &lt;p&gt;
 The first thing I wanted to do was format the drive. First I needed to get the name.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgeb032b3"&gt;
 sudo lshw -C disk
 &lt;/pre&gt;
 
@@ -23,7 +23,7 @@ sudo lshw -C disk
 Gave me this
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org626be17"&gt;
 *-disk
       description: SCSI Disk
       product: Elements 25A1
@@ -42,11 +42,11 @@ Gave me this
 So it's named &lt;code&gt;/dev/sda&lt;/code&gt;. Now let's see if it's mounted.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org05d5fb6"&gt;
 lsblk -f
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org7e05098"&gt;
 NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
 sda
 └─sda1      ntfs   Elements A4F2DF7DF2DF5262
@@ -59,11 +59,11 @@ mmcblk0
 So you can see that there is a partition named &lt;code&gt;sda1&lt;/code&gt; and it's formatted using &lt;code&gt;ntfs&lt;/code&gt; and it isn't mounted. Since I'm running it with linux I'll reformant the drive using &lt;code&gt;ext4&lt;/code&gt;. I'm also going to give it the label &lt;code&gt;westerndigital&lt;/code&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgd8d922f"&gt;
 sudo mkfs -t ext4 -L westerndigital /dev/sda1
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org1d670c1"&gt;
 mke2fs 1.42.13 (17-May-2015)
 /dev/sda1 contains a ntfs file system labelled 'Elements'
 Proceed anyway? (y,n) y
@@ -73,7 +73,7 @@ Proceed anyway? (y,n) y
 Apparently Western Digital named the partition &lt;code&gt;Elements&lt;/code&gt;. I entered &lt;code&gt;y&lt;/code&gt; and continued.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org5191253"&gt;
 Creating filesystem with 976745728 4k blocks and 244187136 inodes
 Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
 Superblock backups stored on blocks:
@@ -86,11 +86,11 @@ Superblock backups stored on blocks:
 So checking it again.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org719b9b8"&gt;
 lsblk -f
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org66d5d53"&gt;
 NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
 sda
 └─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
@@ -106,14 +106,14 @@ Shows that it's now &lt;code&gt;ext4&lt;/code&gt; and it has the label &lt;code&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgeeac3d0" class="outline-2"&gt;
-&lt;h2 id="orgeeac3d0"&gt;Mounting It&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgeeac3d0"&gt;
+&lt;div id="outline-container-org4a75888" class="outline-2"&gt;
+&lt;h2 id="org4a75888"&gt;Mounting It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4a75888"&gt;
 &lt;p&gt;
 First make a directory for it.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgf78f1b4"&gt;
 sudo mkdir /media/westerndigital
 &lt;/pre&gt;
 
@@ -121,7 +121,7 @@ sudo mkdir /media/westerndigital
 Then mount it.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org3239f18"&gt;
 sudo mount /dev/sda1 /media/westerndigital/
 &lt;/pre&gt;
 
@@ -129,11 +129,11 @@ sudo mount /dev/sda1 /media/westerndigital/
 Now we can check on it.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org418ae33"&gt;
 lsblk
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgbfb6bd3"&gt;
 NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
 sda           8:0    0  3.7T  0 disk
 └─sda1        8:1    0  3.7T  0 part /media/westerndigital
@@ -147,14 +147,14 @@ So we can see that it's mounted at &lt;code&gt;/media/westerndigital/&lt;/code&g
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc6e62c6" class="outline-2"&gt;
-&lt;h2 id="orgc6e62c6"&gt;Running TCP Dump with Rotating files&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc6e62c6"&gt;
+&lt;div id="outline-container-org323d8aa" class="outline-2"&gt;
+&lt;h2 id="org323d8aa"&gt;Running TCP Dump with Rotating files&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org323d8aa"&gt;
 &lt;p&gt;
 First I needed to put the wireless interface into monitor mode.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgb563ba3"&gt;
 iwconfig wlx00c0ca967afb mode monitor
 &lt;/pre&gt;
 
@@ -162,7 +162,7 @@ iwconfig wlx00c0ca967afb mode monitor
 Then I ran tcpdump.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org885dc60"&gt;
 sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
 &lt;/pre&gt;
 
@@ -170,7 +170,7 @@ sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapsho
 Which gave me this.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgf24fc61"&gt;
 tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
 &lt;/pre&gt;
 
@@ -178,7 +178,7 @@ tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
 On my desktop the solution was in the comments of this &lt;a href="https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied"&gt;StackOverflow post&lt;/a&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org0868738"&gt;
 sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
 &lt;/pre&gt;
 
@@ -186,7 +186,7 @@ sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
 But on my raspberry pi this raised an error.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org0882351"&gt;
 Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
 Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
 Use --subdomainfs to override.
@@ -196,7 +196,7 @@ Use --subdomainfs to override.
 The solution was in the same post. I just made the permissions wide open.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org36e0f2d"&gt;
 sudo chmod 777 /media/westerndigital
 &lt;/pre&gt;
 
