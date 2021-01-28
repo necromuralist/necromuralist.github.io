@@ -1,0 +1,100 @@
+#+BEGIN_COMMENT
+.. title: Coding Comics: Recursion
+.. slug: coding-comics-recursion
+.. date: 2021-01-27 15:59:39 UTC-08:00
+.. tags: coding comics,work in progress,comics,algorithms
+.. category: Comics
+.. link: 
+.. description: A re-write of the coding comics recursion example.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-8ca323c4-31da-40cd-ba36-15f64a8e3904.json
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+* What Is This?
+  This is a re-working of the {{% doc %}}coding-strip{{% /doc %}} Recursion example. Not because I can do it better, but because I've never done one before so stealing their idea seems like an easier way to start. In the original they had a comic showing a character who wants to buy a ticket but there's a long line so she asks the person in front of her how many people are in front of him, and he asks the person in front of him, and so on. They then followed up the comics with some code that translated the comic to a concrete function.
+* The Comic
+  (Coming Soon)
+
+* In English-Ish
+** Forward  
+  To find the length of the line, each person asks the person in front how many people are in front of them.
+** Base Case
+   When the person at the front of the line is reached, he reports that there's no one in front of him (zero).
+** Backwards
+   Once the front of the line is reached, each person then relays back how many people the person in front reports and adds one to include the person who reported the count until the back of the line is reached.
+* The Code
+  Here's some code to illustrate the idea of asking the person in front of you how many people are in front of them and having that question propagate forward and then have the answer propagate back.
+** A Person
+   I originally thought of using a list, but then you'd have to criple the length method... so I'm making a linked list of a sorts, where each person knows the person in front of them.
+
+#+begin_src python :results none
+class Person:
+    """A person in line
+    """
+    person_in_front = None
+#+end_src   
+** The Recursion
+#+begin_src python :results none
+def hey_fella_how_many_people_are_in_front_of_me(fella: Person):
+    """Finds out how many people are in front of current person
+
+    Args:
+     fella: the current person being asked
+
+    Returns:
+     Number of people in front (including last person)
+    """
+    COUNT_THIS_FELLA = 1    
+    if fella.person_in_front is None:
+        return COUNT_THIS_FELLA
+    return (hey_fella_how_many_people_are_in_front_of_me(fella.person_in_front)
+            + COUNT_THIS_FELLA)
+#+end_src
+** Check If It Works
+   Now I'll create a line of unknown length so we can check it.
+   
+#+begin_src python :results none
+from string import ascii_letters
+import random
+
+waiting = random.randrange(1, 1000)
+
+def line_of_people(people: int) -> Person:
+    """Builds the lengthless line
+
+    Args:
+     people: how many people to queue up
+
+    Returns:
+     line of people
+    """
+    line = this_person = Person()
+    for person in range(1, waiting):
+        this_person.person_in_front = Person()
+        this_person = this_person.person_in_front
+    return line
+
+in_line = line_of_people(waiting)
+#+end_src
+
+So at this point we have a line of people of unknown length. Each person only knows the existence of the person in front of them so there's no way to get the length of the line directly, but we can use the recursive function to find out how many people there are.
+
+#+begin_src python :results output :exports both
+reported = hey_fella_how_many_people_are_in_front_of_me(in_line)
+print(f"Expected: {waiting}, Actual: {reported}")
+
+assert waiting == reported
+#+end_src
+
+#+RESULTS:
+: Expected: 539, Actual: 539
+
+Seems to be working.
