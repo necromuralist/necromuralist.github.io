@@ -141,6 +141,9 @@ NAVIGATION_LINKS = {
         ("/rss.xml", "RSS feed"),
         (
             (
+                ("https://necromuralist.github.io/Anechoic-Echolalia/", "Anechoic Echolalia"),
+                ("https://necromuralist.github.io/Ape-Iron/", "Ape Iron"),                
+                ("https://necromuralist.github.io/Homunculi-Hypergraphia/", "Honumculi Hypergraphia"),                
                 ("https://necromuralist.github.io/Neurotic-Networking/", "Neurotic Networking"),
                 ("/machine-learning-projects/", "Machine Learning"),
                 ("https://necromuralist.github.io/student_intervention/",
