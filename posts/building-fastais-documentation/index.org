@@ -1,0 +1,139 @@
+#+BEGIN_COMMENT
+.. title: Building fastai's Documentation
+.. slug: building-fastais-documentation
+.. date: 2021-05-29 12:31:38 UTC-07:00
+.. tags: documentation,fastai
+.. category: Documentation
+.. link: 
+.. description: Adventures in building fastai's documentation.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+* What is this about?
+  I've decided to try and build as much of the documentation that I use all the time on my local system, not just so that I'll have it if my internet connection goes down but also so that I won't be distracted by what's happening on the web. This is about building [[https://docs.fast.ai/][fastai's documentation]], which was a little trickier than I thought it would be so I decided it would be worth it to make a note for the future.
+
+  You can skip to the [[*In A Nutshell]] section of the post to get a summary of the steps without all the exposition that the middle section has.
+* What happened?
+** The Repository
+   The first thing I did was clone the [[https://github.com/fastai/fastai][fastai git repository]] from github. If you inspect it there's a folder called ~docs_src~ which seemed to logically mean that that's where the source files for the documentation are but when you go in there you won't find an ~index.html~ file, which seemed peculiar. There's a ~Makefile~ at the root of the repository so I inspected it and found that there's a rule:
+
+#+begin_example bash
+docs: $(SRC)
+        rsync -a docs_src/ docs
+        nbdev_build_docs
+#+end_example
+   
+So I tried a naive ~make docs~ but of course it failed because there's nothing called ~nbdev_build_docs~, so I searched online and found out that [[https://nbdev.fast.ai/][nbdev]] is a fastai project to make jupyter notebooks into a [[https://www.wikiwand.com/en/Literate_programming][Literate Programming]] system and that ~nbdev_build_docs~ is one of their command-line commands, so I installed it through pip:
+
+#+begin_example bash
+pip install nbdev
+#+end_example
+
+And re-ran the make command, which did nothing because the ~rsync~ command had already created the ~docs~ folder and for some reason this made the ~nbdev_build_docs~ command not work. So I removed the ~docs~ folder and re-ran it, which produced a big dump of errors because in converting the notebooks ~nbdev~ was importing a bunch of python code that wasn't installed. Interestingly, at this point the ~docs~ folder actually has enough to run the site, despite all the error-messages, but if you just try to load the files into a browser you can see that it's kind of broken, so then I went looking for what was going on.
+** Jekyll and Hide
+   For some reason I couldn't find anything in the documentation on building it, but searching for /"fastai build documentation"/ brought an [[https://fastai1.fast.ai/gen_doc_main.html][outdated page]] that tells you how to build the documentation but was written for the prior version of fastai (v1) so much of it doesn't make sense for v2 (e.g. it refers to a non-existent ~tools~ folder), which I didn't figure out at first because the sites for v1 and v2 don't really identify their version, except in the URL for the old site. 
+*** All You Need
+   Reading that documentation it turns out that they're using [[https://jekyllrb.com/][Jekyll]], so if you [[https://jekyllrb.com/docs/installation/][install it]] you just need to run Jekyll in the ~docs~ folder.
+
+#+begin_example bash
+cd docs
+bundle exec jekyll serve
+#+end_example
+
+And the site is ready to read at ~http://localhost:4000~ and at this point you're good to go - but, of course, I didn't realize that and tried to fix the error messages first, which is what the rest of this post is about.
+
+** Fixing the Imports
+   There's three things you need to do to fix the imports:
+    - install fastai and any dependencies
+    - install [[https://github.com/colour-science/flask-compress][~flask_compress~]]
+    - install [[https://github.com/Azure/azure-sdk-for-python][~azureml-core~]]
+
+*** Installing fastai
+    [[https://fastai1.fast.ai/gen_doc_main.html#step-2-setup][The old documentation]] recommended installing it in development mode. I don't know if that's strictly necessary, but it fixed a lot of things so it seems like a good idea.
+
+In the root of the fastai repository run pip.
+
+#+begin_example bash
+pip install -e ".[dev]"
+#+end_example
+
+This installs a lot of stuff so you might want to go get a cup of coffee (or maybe a cocktail) at this point while it does its thing. The ~settings.ini~ file lists the ~dev_requirements~ and the regular requirements if you want to see what needs to be installed in either case.
+*** Installing Flask Compress
+    This is pretty straight-forward, just use pip.
+
+#+begin_example bash
+pip install flask-compress
+#+end_example
+
+*** Install Azureml-core
+**** The Problem
+    This wasn't quite so straight-forward, which is why I put it in a separate section. If you try to install it in Ubuntu 21.04 (or 20.04, etc.) you will get a big blob of error messages ending in this.
+
+#+begin_example bash
+ERROR: Command errored out with exit status 1: /home/hades/.virtualenvs/fastai-clean/bin/python -u -c 'import io, os, sys, setuptools, tokenize; sys.argv[0] = '"'"'/tmp/pip-install-srnkqokl/ruamel-yaml_803314568
+e8f4fa49015a45528d277b2/setup.py'"'"'; __file__='"'"'/tmp/pip-install-srnkqokl/ruamel-yaml_803314568e8f4fa49015a45528d277b2/setup.py'"'"';f = getattr(tokenize, '"'"'open'"'"', open)(__file__) if os.path.exists(_
+_file__) else io.StringIO('"'"'from setuptools import setup; setup()'"'"');code = f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, __file__, '"'"'exec'"'"'))' install --record /tmp/pip
+-record-yfvqflby/install-record.txt --single-version-externally-managed --compile --install-headers /home/hades/.virtualenvs/fastai-clean/include/site/python3.9/ruamel.yaml Check the logs for full command output
+#+end_example
+
+Which isn't really all that helpful. Scrolling up, it looks like the problem was with something called [[https://yaml.readthedocs.io/en/latest/][ruamel.yaml]], so investigating this seemed like a place to start, but, of course, the error messages are completely inscrutable now that I haven't programmed in C for so many years so I decided to search the web instead of trying to debug it directly, figuring that someone else must have had this problem. 
+
+This lead to a long search through various posts, but what it turned out to be was that both ruamel.yaml and azureml-core don't support python 3.9 yet (there are some [[https://github.com/Azure/MachineLearningNotebooks/issues?q=is%3Aissue+is%3Aopen+3.9][bug reports on GitHub]] for it already) so you can't install it with the version that currently ships with Ubuntu (3.9.5) or anything above python 3.8.
+**** The Fix
+     The fix I decided to use was to install [[https://github.com/pyenv/pyenv][pyenv]] using their [[https://github.com/pyenv/pyenv-installer][installer]]. Once you run the installer and follow the rest of their [[https://github.com/pyenv/pyenv#installation][installation instructiors]] it's fairly straightforward to set up so I won't go into it.
+
+I decided to use python 3.8.10 so to install it you do this:
+
+#+begin_example bash
+pyenv install 3.8.10
+#+end_example
+
+The only thing that didn't work for me was their ~pyenv which~ function which is supposed to show you the location of the python installation. The command might work but I couldn't figure out the arguments to use (updating the example they gave didn't work for me). It turned out the python binary was at:
+
+#+begin_example bash
+~/.pyenv/versions/3.8.10/bin/python
+#+end_example
+
+pyenv has it's own system for creating a virtual environment, but since I'm already using virtualfish and didn't want to try and troubleshoot yet another method I created a virtual environment the way I usually do it.
+
+#+begin_example bash
+~/.pyenv/versions/3.8.10/bin/python -m venv fastai-doc
+#+end_example
+
+At this point I activated the new virtual environment and had to re-do previous installation steps (for ~fastai~ and ~flask_compress~) as well as the azure-ml installation.
+
+#+begin_example bash
+pip install -e ".[dev]"
+pip install flask-compress azureml-core
+#+end_example
+
+The installation of fastai installs ~nbdev~ as one of the requirements so that didn't have to be re-done. And now I built the documentation and ran the jekyll server. Easy-peasy.
+
+#+begin_example bash
+make docs
+cd docs
+bundle exec jekyll serve
+#+end_example
+
+* In A Nutshell
+*** The Minimum to Get the Documentation
+ - Clone the  [[https://github.com/fastai/fastai][fastai git repository]] from github
+ - Install [[https://jekyllrb.com/][jekyll]] and [[https://nbdev.fast.ai/][nbdev]]
+ - Change into the root of the fastai repository you cloned
+ - Run ~make docs~ and ignore the error-messages
+ - Change into the ~docs~ folder that was created and run the jekyll server (~bundle exec jekyll serve~)
+*** To Fix All the Errors
+    This isn't really necessary to get the documentation, but I think it's better, since you don't have to ignore all the error messages.
+
+ - Clone the  [[https://github.com/fastai/fastai][fastai git repository]] from github
+ - Install [[https://jekyllrb.com/][jekyll]]
+ - Get python 3.8 working (I used pyenv)
+ - Use pip to install fastai in development mode
+ - Use pip to install ~flask_compress~ and ~azureml-core~
+ - Change into the root of the fastai repository you cloned
+ - Run ~make docs~
+ - Change into the ~docs~ folder that was created and run the jekyll server (~bundle exec jekyll serve~)
