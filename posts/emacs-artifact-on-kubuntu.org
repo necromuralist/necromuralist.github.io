@@ -1,0 +1,43 @@
+#+BEGIN_COMMENT
+.. title: Emacs Scrollbar Artifact on Kubuntu
+.. slug: emacs-artifact-on-kubuntu
+.. date: 2021-10-03 13:58:02 UTC-07:00
+.. tags: emacs,kubuntu,how-to
+.. category: emacs
+.. link: 
+.. description: Fixing the scrollbar artifact in Kubuntu.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+TOC: headlines 1
+* What's this then?
+  I switch back and forth between Kubuntu and Ubuntu (Ubuntu seems to work better, but I like the aesthetics of Kubuntu) and one of the problems I had was that when I launched emacs in Kubuntu it had a permanent scrollbar in the center of the window that blocked out whatever text was there.
+
+[[img-url:emacs-scrol-artifact.png]]
+
+It's more of an annoyance than anything else but since it doesn't happen on Ubuntu I figured I'd try and fix it. It took me a couple of different searches to find the answer so I thought I'd document it in case I need to remember this later.
+* The Cause
+
+This is the desktop that's causing the problem:
+
+[[img-url:kubuntu-version.png]]
+
+It turns out that it's because my monitors are of different resolutions and in order to be able to read anything on the higher-resolution monitor I had to set the display scale to 200%, but this causes a problem with the scaling of the widgets (at least that's what it said on the [[https://www.reddit.com/r/emacs/comments/am64y8/bug_with_scrollbar_on_ubuntu_1804/][reddit]] post where I found the solution).
+* The Fix
+
+The fix for me was to edit the =~/.local/share/applications/emacs.desktop= file so that the EXEC line read:
+
+#+begin_example bash
+Exec= /usr/bin/env GDK_SCALE= emacs
+#+end_example
+
+Once this was in place the artifact went away.
+
+[[img-url:emacs-no-artifact.png]]
+
+* The Source
+  I linked to it above, but this is the reddit post where I found the fix:
+
+ - https://www.reddit.com/r/emacs/comments/am64y8/bug_with_scrollbar_on_ubuntu_1804/
