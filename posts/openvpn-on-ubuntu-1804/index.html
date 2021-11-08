@@ -71,92 +71,78 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org6aef7a7">
-<h2 id="org6aef7a7">Introduction</h2>
-<div class="outline-text-2" id="text-org6aef7a7">
+<div class="outline-2" id="outline-container-orgc817d79">
+<h2 id="orgc817d79">Introduction</h2>
+<div class="outline-text-2" id="text-orgc817d79">
 <p>I'm connecting to a remote network using <a href="https://openvpn.net/">OpenVPN</a> served by an ASUS access point. I originally did it at the command line.</p>
-<pre class="example" id="org7732ba0">
+<pre class="example">
 sudo openvpn --config client.ovpn
 </pre>
 <p>It turns out that this doesn't allow me to access anything outside of the network that I was connecting to. From what I can tell it's a DNS problem, but nothing I found about fixing DNS problems with OpenVPN from the command line worked. Luckily the Network Settings GUI works, but even then, it didn't work out of the box.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgaed1100">
-<h2 id="orgaed1100">Initial Configuration</h2>
-<div class="outline-text-2" id="text-orgaed1100">
+<div class="outline-2" id="outline-container-orgfa7cada">
+<h2 id="orgfa7cada">Initial Configuration</h2>
+<div class="outline-text-2" id="text-orgfa7cada">
 <p>First, not everything you need is installed. Besides the openvpn client itself (which I had installed before trying to run it at the command line) you need some things for the network settings as well.</p>
-<pre class="example" id="orga775f8a">
+<pre class="example">
 apt install openvpn network-manager-openvpn network-manager-openvpn-gnome
 </pre>
 <p>Now open the network settings.</p>
-<div class="figure" id="org50b6b28">
-<p><img alt=" network_settings_menu.png" src="network_settings_menu.png"></p>
-</div>
+<p><img alt="nil" src="network_settings_menu.png"></p>
 <p>In the window that pops up click on the + sign to add a connection.</p>
-<div class="figure" id="org7c636df">
-<p><img alt=" network_settings.png" src="network_settings.png"></p>
-</div>
+<p><img alt="nil" src="network_settings.png"></p>
 <p>In the window that then pops up click on <code>Import from file...</code> (I'm assuming you are using a config file).</p>
-<div class="figure" id="org388f081">
-<p><img alt=" import_from_file.png" src="import_from_file.png"></p>
-</div>
+<p><img alt="nil" src="import_from_file.png"></p>
 <p>Navigate to the config file, and double-click on it. In the dialog that pops up enter whatever extra information you need. In my case it was the username and password.</p>
-<div class="figure" id="orgabcd38c">
-<p><img alt=" vpn_dialog.png" src="vpn_dialog.png"></p>
-</div>
+<p><img alt="nil" src="vpn_dialog.png"></p>
 <p>Click on the green 'Add' button and you should now have an entry for your VPN connection in the network settings. Click on the on switch (initially labeled 'Off') and if you're lucky it will connect.</p>
-<div class="figure" id="org07ef4dd">
-<p><img alt=" start_vpn.png" src="start_vpn.png"></p>
-</div>
+<p><img alt="nil" src="start_vpn.png"></p>
 <p>After you click on the switch it will look like this, but read on just in case it didn't.</p>
-<div class="figure" id="orgd8cc782">
-<p><img alt=" opened_vpn.png" src="opened_vpn.png"></p>
+<p><img alt="nil" src="opened_vpn.png"></p>
 </div>
 </div>
-</div>
-<div class="outline-2" id="outline-container-orgf68a4ca">
-<h2 id="orgf68a4ca">Fixing the Password Problem</h2>
-<div class="outline-text-2" id="text-orgf68a4ca">
+<div class="outline-2" id="outline-container-orgdd9a8fa">
+<h2 id="orgdd9a8fa">Fixing the Password Problem</h2>
+<div class="outline-text-2" id="text-orgdd9a8fa">
 <p>Unfortunately for me it didn't connect. In <code>/var/log/syslog</code> I could see entries like this:</p>
-<pre class="example" id="org54e658d">
+<pre class="example">
 gnome-shell[2805]: Invalid VPN service type (cannot find authentication binary)
 </pre>
 <p>I don't know if the message is directly telling you this (it doesn't seem to), but it turns out that for some reason the Network Settings doesn't save your password. Look in <code>/etc/NetworkManager/system-connections/</code> for a file that matches the name you gave your vpn in the settings. In my case it was just called 'client'. Open it as root in an editor.</p>
-<pre class="example" id="org661287a">
+<pre class="example">
 sudo emacs /etc/NetworkManager/system-connections/client
 </pre>
 <p>Then change this line in the <code>[vpn]</code> section:</p>
-<pre class="example" id="org30a4532">
+<pre class="example">
 password-flags=1
 </pre>
 <p>to</p>
-<pre class="example" id="org69e4298">
+<pre class="example">
 password-flags=0
 </pre>
 <p>Then add this section.</p>
-<pre class="example" id="orgbde9284">
+<pre class="example">
 [vpn-secrets]
 password="your-password"
 </pre>
 <p>Where <code>"your-password"</code> is your vpn password. <i>The quotation marks around your password are required.</i></p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org843f67c">
-<h2 id="org843f67c">Now Really Connect</h2>
-<div class="outline-text-2" id="text-org843f67c">
+<div class="outline-2" id="outline-container-org2df0695">
+<h2 id="org2df0695">Now Really Connect</h2>
+<div class="outline-text-2" id="text-org2df0695">
 <p>First restart the network manager.</p>
-<pre class="example" id="org57c03b1">
+<pre class="example">
 sudo service network-manager restart
 </pre>
 <p>Now re-open the network settings and click on the switch again. With any luck this time it will stay on and you can check by going to one of the devices on your VPN network.</p>
-<div class="figure" id="org7495728">
-<p><img alt=" switch_on.png" src="switch_on.png"></p>
+<p><img alt="nil" src="switch_on.png"></p>
 </div>
 </div>
-</div>
-<div class="outline-2" id="outline-container-orgc3b1cfe">
-<h2 id="orgc3b1cfe">Sources</h2>
-<div class="outline-text-2" id="text-orgc3b1cfe">
+<div class="outline-2" id="outline-container-orged19ff7">
+<h2 id="orged19ff7">Sources</h2>
+<div class="outline-text-2" id="text-orged19ff7">
 <ul class="org-ul">
 <li>Network Manager Dependencies: <a href="https://askubuntu.com/questions/579159/unable-to-load-vpn-connection-editor-in-ubuntu-14-04-lts">https://askubuntu.com/questions/579159/unable-to-load-vpn-connection-editor-in-ubuntu-14-04-lts</a></li>
 <li>Add VPN Password: <a href="https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10">https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10</a></li>
@@ -178,7 +164,7 @@ sudo service network-manager restart
 </aside>
 </article>
 <!--End of body content-->
-<footer id="footer">Contents © 2021 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
 <script src="../../assets/js/all-nocdn.js"></script>

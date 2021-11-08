@@ -72,21 +72,21 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org04c8dfc">
-<h2 id="org04c8dfc">Introduction</h2>
-<div class="outline-text-2" id="text-org04c8dfc">
+<div class="outline-2" id="outline-container-org4a78c76">
+<h2 id="org4a78c76">Introduction</h2>
+<div class="outline-text-2" id="text-org4a78c76">
 <p>I'm using <a href="http://www.tcpdump.org/">tcpdump</a> to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orge1198b8">
-<h2 id="orge1198b8">Setting Up The Drive</h2>
-<div class="outline-text-2" id="text-orge1198b8">
+<div class="outline-2" id="outline-container-orgd8d0c63">
+<h2 id="orgd8d0c63">Setting Up The Drive</h2>
+<div class="outline-text-2" id="text-orgd8d0c63">
 <p>The first thing I wanted to do was format the drive. First I needed to get the name.</p>
-<pre class="example" id="orgeb032b3">
+<pre class="example">
 sudo lshw -C disk
 </pre>
 <p>Gave me this</p>
-<pre class="example" id="org626be17">
+<pre class="example">
 *-disk
       description: SCSI Disk
       product: Elements 25A1
@@ -101,10 +101,10 @@ sudo lshw -C disk
       configuration: ansiversion=6 guid=7ff8067e-6905-4746-a8ec-f3a1f90f99d0 logicalsectorsize=512 sectorsize=4096
 </pre>
 <p>So it's named <code>/dev/sda</code>. Now let's see if it's mounted.</p>
-<pre class="example" id="org05d5fb6">
+<pre class="example">
 lsblk -f
 </pre>
-<pre class="example" id="org7e05098">
+<pre class="example">
 NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
 sda
 └─sda1      ntfs   Elements A4F2DF7DF2DF5262
@@ -113,16 +113,16 @@ mmcblk0
 └─mmcblk0p2 ext4   PI_ROOT  9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
 </pre>
 <p>So you can see that there is a partition named <code>sda1</code> and it's formatted using <code>ntfs</code> and it isn't mounted. Since I'm running it with linux I'll reformant the drive using <code>ext4</code>. I'm also going to give it the label <code>westerndigital</code>.</p>
-<pre class="example" id="orgd8d922f">
+<pre class="example">
 sudo mkfs -t ext4 -L westerndigital /dev/sda1
 </pre>
-<pre class="example" id="org1d670c1">
+<pre class="example">
 mke2fs 1.42.13 (17-May-2015)
 /dev/sda1 contains a ntfs file system labelled 'Elements'
 Proceed anyway? (y,n) y
 </pre>
 <p>Apparently Western Digital named the partition <code>Elements</code>. I entered <code>y</code> and continued.</p>
-<pre class="example" id="org5191253">
+<pre class="example">
 Creating filesystem with 976745728 4k blocks and 244187136 inodes
 Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
 Superblock backups stored on blocks:
@@ -131,10 +131,10 @@ Superblock backups stored on blocks:
         102400000, 214990848, 512000000, 550731776, 644972544
 </pre>
 <p>So checking it again.</p>
-<pre class="example" id="org719b9b8">
+<pre class="example">
 lsblk -f
 </pre>
-<pre class="example" id="org66d5d53">
+<pre class="example">
 NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
 sda
 └─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
@@ -146,22 +146,22 @@ mmcblk0
 <p>Shows that it's now <code>ext4</code> and it has the label <code>westerndigital</code>. According to <a href="https://help.ubuntu.com/community/UsingUUID">this page</a> the Hardware Abstraction Layer (HAL) will auto-mount drives that have labels, although I haven't tested this yet.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org4a75888">
-<h2 id="org4a75888">Mounting It</h2>
-<div class="outline-text-2" id="text-org4a75888">
+<div class="outline-2" id="outline-container-orgdf53321">
+<h2 id="orgdf53321">Mounting It</h2>
+<div class="outline-text-2" id="text-orgdf53321">
 <p>First make a directory for it.</p>
-<pre class="example" id="orgf78f1b4">
+<pre class="example">
 sudo mkdir /media/westerndigital
 </pre>
 <p>Then mount it.</p>
-<pre class="example" id="org3239f18">
+<pre class="example">
 sudo mount /dev/sda1 /media/westerndigital/
 </pre>
 <p>Now we can check on it.</p>
-<pre class="example" id="org418ae33">
+<pre class="example">
 lsblk
 </pre>
-<pre class="example" id="orgbfb6bd3">
+<pre class="example">
 NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
 sda           8:0    0  3.7T  0 disk
 └─sda1        8:1    0  3.7T  0 part /media/westerndigital
@@ -172,33 +172,33 @@ mmcblk0     179:0    0 29.8G  0 disk
 <p>So we can see that it's mounted at <code>/media/westerndigital/</code>.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org323d8aa">
-<h2 id="org323d8aa">Running TCP Dump with Rotating files</h2>
-<div class="outline-text-2" id="text-org323d8aa">
+<div class="outline-2" id="outline-container-orgfb37425">
+<h2 id="orgfb37425">Running TCP Dump with Rotating files</h2>
+<div class="outline-text-2" id="text-orgfb37425">
 <p>First I needed to put the wireless interface into monitor mode.</p>
-<pre class="example" id="orgb563ba3">
+<pre class="example">
 iwconfig wlx00c0ca967afb mode monitor
 </pre>
 <p>Then I ran tcpdump.</p>
-<pre class="example" id="org885dc60">
+<pre class="example">
 sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
 </pre>
 <p>Which gave me this.</p>
-<pre class="example" id="orgf24fc61">
+<pre class="example">
 tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
 </pre>
 <p>On my desktop the solution was in the comments of this <a href="https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied">StackOverflow post</a>.</p>
-<pre class="example" id="org0868738">
+<pre class="example">
 sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
 </pre>
 <p>But on my raspberry pi this raised an error.</p>
-<pre class="example" id="org0882351">
+<pre class="example">
 Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
 Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
 Use --subdomainfs to override.
 </pre>
 <p>The solution was in the same post. I just made the permissions wide open.</p>
-<pre class="example" id="org36e0f2d">
+<pre class="example">
 sudo chmod 777 /media/westerndigital
 </pre>
 <p>This is probably a security risk, but it works.</p>
@@ -220,7 +220,7 @@ sudo chmod 777 /media/westerndigital
 </aside>
 </article>
 <!--End of body content-->
-<footer id="footer">Contents © 2021 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
 <script src="../../assets/js/all-nocdn.js"></script>

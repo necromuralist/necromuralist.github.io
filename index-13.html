@@ -64,31 +64,29 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org13910c0">Beginning</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgbeec309">Middle</a>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgb7fb7db">Beginning</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org22751e1">Middle</a>
 <ul>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgb26e92c">The Plugin File</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org3502925">The Plugin Code</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgebe5dd8">Stealing From the <code>doc</code></a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgd140ee1">The Plugin</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org93b88df">Checking It Out</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org89ac557">Does it work like the original doc?</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgb133151">Does it accept a title?</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org1c30508">What if the slug doesn't exist?</a></li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org23d5ee3">One More Thing</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org494e9a5">The Plugin File</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org6e91024">The Plugin Code</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgdf62b30">Stealing From the <code>doc</code></a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org6eb57f0">The Plugin</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org6d54c23">Checking It Out</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgf191a8e">Does it work like the original doc?</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org083b6d7">Does it accept a title?</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgd0dc6de">What if the slug doesn't exist?</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orgcc2e90c">One More Thing</a></li>
 </ul>
 </li>
-<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#orga5c220f">End</a></li>
+<li><a href="posts/2c-updating-a-nikola-shortcode-plugin/#org90977a1">End</a></li>
 </ul>
 </div>
 </div>
-<div class="figure">
-<p><img alt="lancelot_link.jpg" src="posts/2c-updating-a-nikola-shortcode-plugin/lancelot_link.jpg"></p>
-</div>
+<p><img alt="nil" src="posts/2c-updating-a-nikola-shortcode-plugin/lancelot_link.jpg"></p>
 <p>Source: <a href="https://www.flickr.com/photos/myprontopup/264413649/in/photostream/">Brian</a> (<a href="https://creativecommons.org/licenses/by-nc/2.0/">CC License</a>)/Unmodified</p>
-<div class="outline-2" id="outline-container-org13910c0">
-<h2 id="org13910c0">Beginning</h2>
-<div class="outline-text-2" id="text-org13910c0">
+<div class="outline-2" id="outline-container-orgb7fb7db">
+<h2 id="orgb7fb7db">Beginning</h2>
+<div class="outline-text-2" id="text-orgb7fb7db">
 <p>These are some notes to help me remember what I did to alter a <a href="https://www.getnikola.com/">Nikola</a> <a href="https://www.getnikola.com/handbook.html#shortcodes">shortcode</a> plugin. A while back I looked into using their <a href="https://www.getnikola.com/handbook.html#doc"><code>doc</code></a> <a href="https://www.getnikola.com/handbook.html#restructuredtext-extensions">reStructured Text extension</a> ("role"?) which automatically creates links to other posts by looking up the <a href="https://www.wikiwand.com/en/Clean_URL#/Slug">slug</a> or title that you pass to it, but since I switched to using org-mode instead of restructured text I couldn't use it. Then I found out the other day that they built a <a href="https://www.getnikola.com/handbook.html#shortcodes">shortcode</a> that allows you to use it in other formats and when I tried it it worked - mostly.</p>
 <p>A tag that looks like this:</p>
 <p>{{% doc %}}2-nikola-inter-site-links{{% /doc %}}</p>
@@ -96,16 +94,15 @@
 <p>The problem is that, while the <code>doc</code> shortcode supports giving the link an alternate title, it expects restructured-text formatting. e.g. <code>`alternate title&lt;some-slug&gt;`</code>. Why is this a problem? Well, I didn't look into where it's happening, but when the text within the {{% doc %}} tags gets sent to the shortcode code (meaning the python plugin code) for processing it converts the angle brackets (<code>&lt;</code> and <code>&gt;</code>) to <a href="https://www.w3schools.com/html/html_entities.asp">HTML character entities</a> (e.g. the <code>&lt;</code> becomes <code>&amp;lt</code>) but the regular expression in the code that extracts the alternate title is looking for the braces (presumably the role is processed differently from the shortcode) anyway, I was trying to figure out some workarounds but then I looked at the code and it looked fairly easy to customize so I decided I would so that I could learn how to do it (and have a way to use alternative titles in org-mode). So, here it goes.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgbeec309">
-<h2 id="orgbeec309">Middle</h2>
-<div class="outline-text-2" id="text-orgbeec309">
+<div class="outline-2" id="outline-container-org22751e1">
+<h2 id="org22751e1">Middle</h2>
+<div class="outline-text-2" id="text-org22751e1">
 <p>I'm going to call my shortcode <code>lancelot</code>. I was going to call it link, but that seems like it might clash with something else, either now or in the future, so I decided to name it after <a href="https://www.wikiwand.com/en/Lancelot_Link,_Secret_Chimp">Lancelot Link, Secret Chimp</a> instead. Hopefully that won't end up conflicting with anything.</p>
 </div>
-<div class="outline-3" id="outline-container-orgb26e92c">
-<h3 id="orgb26e92c">The Plugin File</h3>
-<div class="outline-text-3" id="text-orgb26e92c">
+<div class="outline-3" id="outline-container-org494e9a5">
+<h3 id="org494e9a5">The Plugin File</h3>
+<div class="outline-text-3" id="text-org494e9a5">
 <p>The first thing I did was poke around in the nikola folders for something I could copy. I decided to use the existing <code>gist</code> shortcode to start with. Why not use <code>doc</code>? because it's in a different folder and inherits from the <code>RestExtension</code> which didn't seem like what I wanted, although maybe that's what makes the angle brackets work, but anyway, the <code>gist</code> seemed like a good place to start. They appear to be using <a href="https://yapsy.readthedocs.io/en/latest/">yapsy</a> for the plugin system, which requires two files for your plugin, a python file where you define the plugin and a plugin-info file (which looks like an ini file). So to start I copied <code>nikola/plugins/shortcode/gist.plugin</code> and renamed it <code>lancelot.plugin</code> then edited it to look like this.</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span>[Core]
 name = lancelot
@@ -123,9 +120,9 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 <p>Seems easy enough. Now to the plugin code.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org3502925">
-<h3 id="org3502925">The Plugin Code</h3>
-<div class="outline-text-3" id="text-org3502925">
+<div class="outline-3" id="outline-container-org6e91024">
+<h3 id="org6e91024">The Plugin Code</h3>
+<div class="outline-text-3" id="text-org6e91024">
 <p>According to the documentation on <a href="https://getnikola.com/extending.html#shortcodes">creating a shortcode</a>, the requirements are that you create a plugin that inherits from the <code>ShortcodePlugin</code> (you'll find it in the <code>nikola/plugin_categories.py</code> file if you want to check it out) and define the <code>handler</code> method that handles the shortcode and returns a tuple of <code>(output, dependencies)</code>. The <code>output</code> is the text that will replace the shortcode in the document and the <code>dependencies</code> is a list of files that nikola will use to check if something is out of date (I don't use it here).</p>
 <p>There are three required named arguments for the <code>handler</code> method:</p>
 <ul class="org-ul">
@@ -135,7 +132,6 @@ description = Variant of the doc shortcode that allows alternate titles for non-
 </ul>
 <p>In addition, any attributes added within the shortcode tag will be passed into the <code>handler</code> method by position or keyword. Anyway, since I copied the <code>doc</code> code I didn't actually read this until just now, but maybe it's good to know. Onward.</p>
 <p>The next thing to do was to create <code>lancelot.py</code> in the same folder as the <code>lancelot.plugin</code> file. The basic definition of class (and the start of the file) looks more-or-less the same for all the plugins.</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="c1"># This file is public domain according to its author, the Cloistered Monkey</span>
@@ -153,11 +149,10 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 <p>So, other than some doc-strings all you have to do is set the name and then the handler, which we'll do next.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgebe5dd8">
-<h3 id="orgebe5dd8">Stealing From the <code>doc</code></h3>
-<div class="outline-text-3" id="text-orgebe5dd8">
+<div class="outline-3" id="outline-container-orgdf62b30">
+<h3 id="orgdf62b30">Stealing From the <code>doc</code></h3>
+<div class="outline-text-3" id="text-orgdf62b30">
 <p>The file that I stole most of the code from is located in <code>nikola/plugins/compile/rest/doc.py</code>. The <code>Plugin</code> class in that file is handling both the restructured text role and the shortcode so we don't need all of it. According to the documentation I linked to above, the <code>set_site</code> method is used to tell nikola to use something other than the <code>handler</code> method, and in this case the author used it to register the functions for the two things it's handling.</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">set_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
     <span class="sd">"""Set Nikola site."""</span>
@@ -168,7 +163,6 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
     <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Plugin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_site</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
 </pre></div>
 <p>If you look at the line <code>self.site.register_shortcode('doc', doc_shortcode)</code> you can figure out that we need to steal from a function named - wait for it… <code>doc_shortcode</code>. Here's what's in that function:</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">doc_shortcode</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">"""Implement the doc shortcode."""</span>
@@ -185,7 +179,6 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
         <span class="k">return</span> <span class="s1">'&lt;span class="error text-error" style="color: red;"&gt;Invalid link: </span><span class="si">{0}</span><span class="s1">&lt;/span&gt;'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 </pre></div>
 <p>It looks pretty straight-forward except it's using two things not defined within it - <code>LOGGER</code> and <code>_doc_link</code>. The <code>LOGGER</code> is just an import so we can just change the start of our file to grab it. The <code>doc_link</code> is a function in the same file as <code>doc_shortcode</code>. My first thought for the <code>_doc_link</code> was that since it's a standalone function I could just import it and call it. That turned out to have a small problem though - right in the middle of <code>_doc_link</code> is this for loop:</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">doc_role</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">timeline</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">meta</span><span class="p">(</span><span class="s1">'slug'</span><span class="p">)</span> <span class="o">==</span> <span class="n">slug</span><span class="p">:</span>
@@ -198,11 +191,10 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 <p>What you'll notice is that the <code>doc_role</code> function has an attribute <code>site</code>. Well, it doesn't really, until it's set in that <code>set_site</code> method above. So, okay, maybe I could figure out some way to set it… or maybe not, I don't know but even if I could it seems like it'd get kind of convoluted, and who knows what changes the original author might make in the future, it just seemed like it'd make more sense to re-implement it myself.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgd140ee1">
-<h3 id="orgd140ee1">The Plugin</h3>
-<div class="outline-text-3" id="text-orgd140ee1">
+<div class="outline-3" id="outline-container-org6eb57f0">
+<h3 id="org6eb57f0">The Plugin</h3>
+<div class="outline-text-3" id="text-org6eb57f0">
 <p>So, first a different start to our file, this time with the <code>LOGGER</code> and <code>slugify</code> imported (the <code>slugify</code> was in <code>_doc_link</code> which I'm re-defining later).</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="c1"># This file is public domain according to its author, the Cloisted Monkey</span>
@@ -220,11 +212,10 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
     <span class="n">name</span> <span class="o">=</span> <span class="s2">"lancelot"</span>
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org753ace2">
-<h4 id="org753ace2"><code>lancelot_link</code></h4>
-<div class="outline-text-4" id="text-org753ace2">
+<div class="outline-4" id="outline-container-org5c3919a">
+<h4 id="org5c3919a"><code>lancelot_link</code></h4>
+<div class="outline-text-4" id="text-org5c3919a">
 <p>To replace the <code>_doc_link</code> I made a new function called <code>lancelot_link</code> which I'll be looking at in parts. First up is the function declaration.</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">lancelot_link</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">slug</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
     <span class="sd">"""process the slug, check if it exists or is duplicated</span>
@@ -244,10 +235,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 <p><b>Note:</b> I'm not indenting the rest of the code in the post but imagine it's indented four spaces.</p>
 </div>
 <ul class="org-ul">
-<li><a id="org34b3bd2"></a>Slugification<br>
-<div class="outline-text-5" id="text-org34b3bd2">
+<li><a id="org30a9b6c"></a>Slugification<br>
+<div class="outline-text-5" id="text-org30a9b6c">
 <p>The first thing the function does is split out any fragments that might have been attached and "slugifies" the slug (makes sure it's ASCII and has only alphanumeric characters).</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="k">if</span> <span class="s1">'#'</span> <span class="ow">in</span> <span class="n">slug</span><span class="p">:</span>
     <span class="n">slug</span><span class="p">,</span> <span class="n">fragment</span> <span class="o">=</span> <span class="n">slug</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'#'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -257,10 +247,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </pre></div>
 </div>
 </li>
-<li><a id="org6219371"></a>Find the Post<br>
-<div class="outline-text-5" id="text-org6219371">
+<li><a id="org104b78e"></a>Find the Post<br>
+<div class="outline-text-5" id="text-org104b78e">
 <p>Next it checks to see if the slug refers to an actual page on the site and if there are duplicate slugs. If the page doesn't exist, then it short-circuits the function so the <code>handler</code> can return some error text instead of a link. If it does exist it saves the <code>post</code> object for the next step (using the first post in the timeline if there were duplicates).</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="n">twin_slugs</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">post</span> <span class="o">=</span> <span class="kc">None</span>
@@ -277,21 +266,19 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </pre></div>
 </div>
 </li>
-<li><a id="org95d574a"></a>The Title<br>
-<div class="outline-text-5" id="text-org95d574a">
+<li><a id="org44f1d93"></a>The Title<br>
+<div class="outline-text-5" id="text-org44f1d93">
 <p>If the user didn't pass in an alternative title this grabs the title that was given to the post we're linking to.</p>
 <p><b>Note:</b> The <code>doc</code> shortcode raises then catches a <code>ValueError</code> exception if there's no matching post. I had thought that this was for logging, but that doesn't appear to be the case so I took it out. But since I don't know what it was doing in the first place I might be breaking something. Not that I can tell, though.</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 </pre></div>
 </div>
 </li>
-<li><a id="org9eeb6f0"></a>The Permalink<br>
-<div class="outline-text-5" id="text-org9eeb6f0">
+<li><a id="org9e9136b"></a>The Permalink<br>
+<div class="outline-text-5" id="text-org9e9136b">
 <p>Now we grab the permalink.</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="n">permalink</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">permalink</span><span class="p">()</span>
 <span class="k">if</span> <span class="n">fragment</span><span class="p">:</span>
@@ -299,8 +286,8 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </pre></div>
 </div>
 </li>
-<li><a id="org7f769c1"></a>The Return<br>
-<div class="outline-text-5" id="text-org7f769c1">
+<li><a id="orgcf55a0b"></a>The Return<br>
+<div class="outline-text-5" id="text-orgcf55a0b">
 <p>And finally we do the return dance to answer some questions for the <code>handler</code>:</p>
 <ul class="org-ul">
 <li><i>Did we find the post?</i></li>
@@ -309,7 +296,6 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 <li><i>What's the address for the anchor tag?</i></li>
 <li><i>What's the correct slug?</i></li>
 </ul>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">twin_slugs</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">permalink</span><span class="p">,</span> <span class="n">slug</span>
 </pre></div>
@@ -318,11 +304,10 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </li>
 </ul>
 </div>
-<div class="outline-4" id="outline-container-org5db8ef7">
-<h4 id="org5db8ef7">The handler</h4>
-<div class="outline-text-4" id="text-org5db8ef7">
+<div class="outline-4" id="outline-container-org6ea00fb">
+<h4 id="org6ea00fb">The handler</h4>
+<div class="outline-text-4" id="text-org6ea00fb">
 <p>Now I'll define the <code>handler</code> that's called by nikola. This is a method of the Plugin class that I started above, but I'm showing it after the <code>lancelot_link</code> function since it mostly just calls <code>lancelot_link</code> and creates the output from what it returned. I originally had it all in the same method (and maybe I'll put it back at some point). But I thought it was a little easier to read this way, especially as I referred back to the original <code>doc</code> plugin to see what's going on.</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">"""Create an inter-site link</span>
@@ -352,23 +337,23 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org93b88df">
-<h3 id="org93b88df">Checking It Out</h3>
-<div class="outline-text-3" id="text-org93b88df">
+<div class="outline-3" id="outline-container-org6d54c23">
+<h3 id="org6d54c23">Checking It Out</h3>
+<div class="outline-text-3" id="text-org6d54c23">
 <p>Now let's give it a dry run.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org89ac557">
-<h3 id="org89ac557">Does it work like the original doc?</h3>
-<div class="outline-text-3" id="text-org89ac557">
+<div class="outline-3" id="outline-container-orgf191a8e">
+<h3 id="orgf191a8e">Does it work like the original doc?</h3>
+<div class="outline-text-3" id="text-orgf191a8e">
 <p>If we put this in the post: {{% lancelot %}}2-nikola-inter-site-links{{% /lancelot %}}</p>
 <p>We get this:</p>
 <p><a href="posts/2-nikola-inter-site-links/">Nikola Inter-Site Links</a></p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgb133151">
-<h3 id="orgb133151">Does it accept a title?</h3>
-<div class="outline-text-3" id="text-orgb133151">
+<div class="outline-3" id="outline-container-org083b6d7">
+<h3 id="org083b6d7">Does it accept a title?</h3>
+<div class="outline-text-3" id="text-org083b6d7">
 <p>Now, what this was all about.</p>
 <p>{{% lancelot title="An old post about linking to another post." %}}2-nikola-inter-site-links{{% /lancelot %}}</p>
 <p>Gives us:</p>
@@ -379,26 +364,24 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 <p><a href="posts/2-nikola-inter-site-links/">Without the 'title=' part</a></p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org1c30508">
-<h3 id="org1c30508">What if the slug doesn't exist?</h3>
-<div class="outline-text-3" id="text-org1c30508">
+<div class="outline-3" id="outline-container-orgd0dc6de">
+<h3 id="orgd0dc6de">What if the slug doesn't exist?</h3>
+<div class="outline-text-3" id="text-orgd0dc6de">
 <p>{{% lancelot title="Oops." %}}this-error-is-on-purpose-ignore-it{{% /lancelot %}}</p>
 <p>Gives us:</p>
 <p><span class="error text-error" style="color: red;">Invalid link: this-error-is-on-purpose-ignore-it</span></p>
 <p>Note that adding this error to this post means it shows up in the logging every time I re-build. I hope I don't forget and try and hunt it down later.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org23d5ee3">
-<h3 id="org23d5ee3">One More Thing</h3>
-<div class="outline-text-3" id="text-org23d5ee3">
+<div class="outline-3" id="outline-container-orgcc2e90c">
+<h3 id="orgcc2e90c">One More Thing</h3>
+<div class="outline-text-3" id="text-orgcc2e90c">
 <p>When I originally was trying to figure this out I put the <code>lancelot</code> files in the <code>shortcodes</code> folder next to the <code>gist</code> files (in the virtualenv, so I knew it was a bad idea, even as I did it) but while I was re-writing them for this post I wanted a place to stash the files so I put them in the <code>plugins</code> folder that sits in the site repository next to the <code>conf.py</code> file - which already existed because that's where nikola put the <a href="https://plugins.getnikola.com/v7/orgmode/">org-mode plugin</a> - and when I first re-built the site with the code only partially written, it raised an <code>Exception</code> because it turns out that the place to put plugins, including shortcode plugins, for nikola/yapsy to find them is in the <code>plugins</code> folder. Imagine that.</p>
 <p>Also, to use an interactive debugger (like my favorite one, <a href="https://pypi.org/project/pudb/">pudb</a>) you need to change the verbosity when you build the site to 2.</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span>nikola build -v 2
 </pre></div>
 <p>Otherwise it captures the stdout and you won't see the debugger (it will just look like it hung-up). The other thing is if you see an error something like this:</p>
-WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessary changes to make to your configuration.
 <div class="highlight">
 <pre><span></span>[2020-07-28 20:53:44] ERROR: Nikola: Shortcode error: Syntax error in shortcode 'lancelot' at line 426, column 27: expecting whitespace!
 </pre></div>
@@ -407,9 +390,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga5c220f">
-<h2 id="orga5c220f">End</h2>
-<div class="outline-text-2" id="text-orga5c220f">
+<div class="outline-2" id="outline-container-org90977a1">
+<h2 id="org90977a1">End</h2>
+<div class="outline-text-2" id="text-org90977a1">
 <p>So, that's my first foray into making a nikola plugin. I've been using nikola for a while now, but I never really looked at the code before. It's nice to see that the plugin system is so easy to use.</p>
 </div>
 </div>
@@ -424,15 +407,15 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-orgc953fab">
-<h2 id="orgc953fab">Citation</h2>
-<div class="outline-text-2" id="text-orgc953fab">
+<div class="outline-2" id="outline-container-orge4392f0">
+<h2 id="orge4392f0">Citation</h2>
+<div class="outline-text-2" id="text-orge4392f0">
 <p>Jurafsky, D. & Martin, J. (2020). Speech and language processing : an introduction to natural language processing, computational linguistics, and speech recognition. 3rd Edition draft. <a href="https://web.stanford.edu/~jurafsky/slp3/">(URL)</a></p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org7c8de06">
-<h2 id="org7c8de06">Notes</h2>
-<div class="outline-text-2" id="text-org7c8de06">
+<div class="outline-2" id="outline-container-org87ad4dd">
+<h2 id="org87ad4dd">Notes</h2>
+<div class="outline-text-2" id="text-org87ad4dd">
 <p>Online and PDF version of a (work in progress) revision to this text about text processing.</p>
 </div>
 </div>
@@ -451,35 +434,35 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/xml-to-pandas/#orgd0bd3c1">Beginning</a>
+<li><a href="posts/xml-to-pandas/#org2f85903">Beginning</a>
 <ul>
-<li><a href="posts/xml-to-pandas/#orga9351d0">Imports</a></li>
-<li><a href="posts/xml-to-pandas/#org00ca90f">Set Up</a></li>
+<li><a href="posts/xml-to-pandas/#org75aff01">Imports</a></li>
+<li><a href="posts/xml-to-pandas/#orgb2d8c34">Set Up</a></li>
 </ul>
 </li>
-<li><a href="posts/xml-to-pandas/#org257a290">Middle</a>
+<li><a href="posts/xml-to-pandas/#org97c6940">Middle</a>
 <ul>
-<li><a href="posts/xml-to-pandas/#orgfa3ab16">The XML</a></li>
-<li><a href="posts/xml-to-pandas/#orgd9fbe0e">To a DataFrame</a></li>
-<li><a href="posts/xml-to-pandas/#orgfaa6528">Save It</a></li>
+<li><a href="posts/xml-to-pandas/#orgc8c6974">The XML</a></li>
+<li><a href="posts/xml-to-pandas/#org65ed73c">To a DataFrame</a></li>
+<li><a href="posts/xml-to-pandas/#org0f93bdf">Save It</a></li>
 </ul>
 </li>
-<li><a href="posts/xml-to-pandas/#org33495e6">End</a>
+<li><a href="posts/xml-to-pandas/#org9a3681d">End</a>
 <ul>
-<li><a href="posts/xml-to-pandas/#org8ce6838">Time Series</a></li>
+<li><a href="posts/xml-to-pandas/#org0ebb63c">Time Series</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgd0bd3c1">
-<h2 id="orgd0bd3c1">Beginning</h2>
-<div class="outline-text-2" id="text-orgd0bd3c1">
+<div class="outline-2" id="outline-container-org2f85903">
+<h2 id="org2f85903">Beginning</h2>
+<div class="outline-text-2" id="text-org2f85903">
 <p>I went to the <a href="https://www.ssa.gov/">Social Security website</a> to change my password (I had forgotten it so they mailed a temporary one to me) and noticed that they have your yearly reported earnings both as a PDF and as a data download. Unfortunately the data is given as an XML file instead of a CSV (it has more than just the earnings data, so it would have to be a series of CSVs instead of one file) so these are my notes on converting it to a pandas DataFrame using <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup</a>.</p>
 </div>
-<div class="outline-3" id="outline-container-orga9351d0">
-<h3 id="orga9351d0">Imports</h3>
-<div class="outline-text-3" id="text-orga9351d0">
+<div class="outline-3" id="outline-container-org75aff01">
+<h3 id="org75aff01">Imports</h3>
+<div class="outline-text-3" id="text-org75aff01">
 <p>To actually do the conversion you only need BeautifulSoup and pandas, all the rest of the stuff comes into play because I'm making a post.</p>
 <div class="highlight">
 <pre><span></span><span class="c1"># python</span>
@@ -502,21 +485,21 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org00ca90f">
-<h3 id="org00ca90f">Set Up</h3>
-<div class="outline-text-3" id="text-org00ca90f"></div>
-<div class="outline-4" id="outline-container-org0680e5a">
-<h4 id="org0680e5a">The Dotenv</h4>
-<div class="outline-text-4" id="text-org0680e5a">
+<div class="outline-3" id="outline-container-orgb2d8c34">
+<h3 id="orgb2d8c34">Set Up</h3>
+<div class="outline-text-3" id="text-orgb2d8c34"></div>
+<div class="outline-4" id="outline-container-org5a61da0">
+<h4 id="org5a61da0">The Dotenv</h4>
+<div class="outline-text-4" id="text-org5a61da0">
 <p>I'm using a <code>.env</code> file to point to the location of the file so this call will load it.</p>
 <div class="highlight">
 <pre><span></span><span class="n">load_dotenv</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org5e78f99">
-<h4 id="org5e78f99">The Plotting</h4>
-<div class="outline-text-4" id="text-org5e78f99">
+<div class="outline-4" id="outline-container-orgc28f6f9">
+<h4 id="orgc28f6f9">The Plotting</h4>
+<div class="outline-text-4" id="text-orgc28f6f9">
 <p>This is just a central place to set up some constants so I don't have to re-type them or hunt around for them if I want to change things.</p>
 <div class="highlight">
 <pre><span></span><span class="n">SLUG</span> <span class="o">=</span> <span class="s2">"xml-to-pandas"</span>
@@ -535,9 +518,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </pre></div>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org9b11466">
-<h4 id="org9b11466">The Random Seed</h4>
-<div class="outline-text-4" id="text-org9b11466">
+<div class="outline-4" id="outline-container-org3aa38de">
+<h4 id="org3aa38de">The Random Seed</h4>
+<div class="outline-text-4" id="text-org3aa38de">
 <p>I decided since I'm talking about social security stuff I'd make at least some attempt at obfuscating things so I'm adding a random offset to the years.</p>
 <div class="highlight">
 <pre><span></span><span class="n">OFFSET</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
@@ -546,15 +529,15 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org257a290">
-<h2 id="org257a290">Middle</h2>
-<div class="outline-text-2" id="text-org257a290"></div>
-<div class="outline-3" id="outline-container-orgfa3ab16">
-<h3 id="orgfa3ab16">The XML</h3>
-<div class="outline-text-3" id="text-orgfa3ab16"></div>
-<div class="outline-4" id="outline-container-org07dbf78">
-<h4 id="org07dbf78">Loading It</h4>
-<div class="outline-text-4" id="text-org07dbf78">
+<div class="outline-2" id="outline-container-org97c6940">
+<h2 id="org97c6940">Middle</h2>
+<div class="outline-text-2" id="text-org97c6940"></div>
+<div class="outline-3" id="outline-container-orgc8c6974">
+<h3 id="orgc8c6974">The XML</h3>
+<div class="outline-text-3" id="text-orgc8c6974"></div>
+<div class="outline-4" id="outline-container-org5b12654">
+<h4 id="org5b12654">Loading It</h4>
+<div class="outline-text-4" id="text-org5b12654">
 <p>First, I'll load the XML into BeautifulSoup.</p>
 <div class="highlight">
 <pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
@@ -566,9 +549,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 <p>Note that you have to pass in the <code>"xml"</code> argument - BeautifulSoup is primarily an HTML parser so it assumes an HTML document by default. Normally I'd do some exploring at this point, but I didn't find it such an easy thing to do (I don't work with XML data generally) and found that it was easier to look at it with <a href="https://www.wikiwand.com/en/Less_(Unix)">less</a> and figure out what I needed.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgd417698">
-<h4 id="orgd417698">The Earnings</h4>
-<div class="outline-text-4" id="text-orgd417698">
+<div class="outline-4" id="outline-container-org77c95a8">
+<h4 id="org77c95a8">The Earnings</h4>
+<div class="outline-text-4" id="text-org77c95a8">
 <p>The data I wanted is in a set of tags that look like this:</p>
 <div class="highlight">
 <pre><span></span>&lt;osss:Earnings endYear="1998" startYear="1998"&gt;
@@ -591,9 +574,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 &lt;/osss:Earnings&gt;
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org7a51f45">
-<h4 id="org7a51f45">The Years</h4>
-<div class="outline-text-4" id="text-org7a51f45">
+<div class="outline-4" id="outline-container-org90b8323">
+<h4 id="org90b8323">The Years</h4>
+<div class="outline-text-4" id="text-org90b8323">
 <p>Now that we have the earnings, we can see about getting the years. Although they have <code>endYear</code> and <code>startYear</code> they're always the same so I'll use <code>startYear</code>. I'm adding the <code>OFFSET</code> here just to obfuscate what years I'm looking at.</p>
 <div class="highlight">
 <pre><span></span><span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
@@ -607,9 +590,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 2002
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orge14dc79">
-<h4 id="orge14dc79">Collected</h4>
-<div class="outline-text-4" id="text-orge14dc79">
+<div class="outline-4" id="outline-container-orgb240dfb">
+<h4 id="orgb240dfb">Collected</h4>
+<div class="outline-text-4" id="text-orgb240dfb">
 <p>Next I'll see about grabbing the amounts collected for each year. The FICA and Medicare amounts are always the same so I'll just use the FICA amount.</p>
 <div class="highlight">
 <pre><span></span><span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">earnings</span><span class="p">[:</span><span class="mi">5</span><span class="p">]:</span>
@@ -626,9 +609,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgd9fbe0e">
-<h3 id="orgd9fbe0e">To a DataFrame</h3>
-<div class="outline-text-3" id="text-orgd9fbe0e">
+<div class="outline-3" id="outline-container-org65ed73c">
+<h3 id="org65ed73c">To a DataFrame</h3>
+<div class="outline-text-3" id="text-org65ed73c">
 <p>Anyway, that's basically all you need to get it going.</p>
 <div class="highlight">
 <pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
@@ -650,9 +633,9 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 4    2002       0
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgfaa6528">
-<h3 id="orgfaa6528">Save It</h3>
-<div class="outline-text-3" id="text-orgfaa6528">
+<div class="outline-3" id="outline-container-org0f93bdf">
+<h3 id="org0f93bdf">Save It</h3>
+<div class="outline-text-3" id="text-org0f93bdf">
 <div class="highlight">
 <pre><span></span><span class="k">del</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"offset"</span><span class="p">])</span>
 <span class="n">csv</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"SOCIAL_SECURITY_CSV"</span><span class="p">])</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
@@ -661,14 +644,14 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org33495e6">
-<h2 id="org33495e6">End</h2>
-<div class="outline-text-2" id="text-org33495e6">
+<div class="outline-2" id="outline-container-org9a3681d">
+<h2 id="org9a3681d">End</h2>
+<div class="outline-text-2" id="text-org9a3681d">
 <p>I usually like to put in a little plotting so I'm going to plot the amount over time. Since I already shared my first five years I'm going to start after that and obscure the numbers a little.</p>
 </div>
-<div class="outline-3" id="outline-container-org8ce6838">
-<h3 id="org8ce6838">Time Series</h3>
-<div class="outline-text-3" id="text-org8ce6838">
+<div class="outline-3" id="outline-container-org0ebb63c">
+<h3 id="org0ebb63c">Time Series</h3>
+<div class="outline-text-3" id="text-org0ebb63c">
 <p>First I'll add the offset year back in, then I'm going to scale it.</p>
 <div class="highlight">
 <pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">"year"</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="n">OFFSET</span>
@@ -713,30 +696,30 @@ WARNING: `pyenv init -` no longer sets PATH. Run `pyenv init` to see the necessa
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/jupyter-emacs-sessions/#orgfc352fa">Beginning</a></li>
-<li><a href="posts/jupyter-emacs-sessions/#orge2925dd">Middle</a>
+<li><a href="posts/jupyter-emacs-sessions/#org1a50432">Beginning</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#org782ad4f">Middle</a>
 <ul>
-<li><a href="posts/jupyter-emacs-sessions/#org032d8bb">Starting the Jupyter Server</a></li>
-<li><a href="posts/jupyter-emacs-sessions/#org31e0689">Start a Console</a></li>
-<li><a href="posts/jupyter-emacs-sessions/#orgf657e41">Setting the Session</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#orge4733e2">Starting the Jupyter Server</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#orgbc7cad3">Start a Console</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#orgb079362">Setting the Session</a></li>
 </ul>
 </li>
-<li><a href="posts/jupyter-emacs-sessions/#org3cfcc8d">End</a></li>
+<li><a href="posts/jupyter-emacs-sessions/#org7804c72">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfc352fa">
-<h2 id="orgfc352fa">Beginning</h2>
-<div class="outline-text-2" id="text-orgfc352fa">
+<div class="outline-2" id="outline-container-org1a50432">
+<h2 id="org1a50432">Beginning</h2>
+<div class="outline-text-2" id="text-org1a50432">
 <p>These are my notes on using <a href="https://github.com/dzop/emacs-jupyter">emacs-jupyter</a> using a remote session. It works with a local session as well, but I'll just relate the steps as if you're running the jupyter session on a remote machine.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orge2925dd">
-<h2 id="orge2925dd">Middle</h2>
-<div class="outline-text-2" id="text-orge2925dd"></div>
-<div class="outline-3" id="outline-container-org032d8bb">
-<h3 id="org032d8bb">Starting the Jupyter Server</h3>
-<div class="outline-text-3" id="text-org032d8bb">
+<div class="outline-2" id="outline-container-org782ad4f">
+<h2 id="org782ad4f">Middle</h2>
+<div class="outline-text-2" id="text-org782ad4f"></div>
+<div class="outline-3" id="outline-container-orge4733e2">
+<h3 id="orge4733e2">Starting the Jupyter Server</h3>
+<div class="outline-text-3" id="text-orge4733e2">
 <p>The first thing to do is start the jupyter session on the remote machine. Since I'm doing this with <b>nikola</b> I should note that you want to start the session in the same location as the file you're editing in emacs, because all your file references will be based on that directory (so if you, for instance, create an image and want to place it in the <code>files</code> folder, you will need to note where that stands relative to the file you are editing and where you start the jupyter kernel).</p>
 <p>In my case I'm editing a file in <code>~/projects/In-Too-Deep/posts/fastai/</code>.</p>
 <div class="highlight">
@@ -761,9 +744,9 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org31e0689">
-<h3 id="org31e0689">Start a Console</h3>
-<div class="outline-text-3" id="text-org31e0689">
+<div class="outline-3" id="outline-container-orgbc7cad3">
+<h3 id="orgbc7cad3">Start a Console</h3>
+<div class="outline-text-3" id="text-orgbc7cad3">
 <p>Now that you've copied over the information for the jupyter session you can start a console for it. I'll assume you're still in the directory with the json file in it, so I won't pass in the full path.</p>
 <div class="highlight">
 <pre><span></span>jupyter --console kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232.json --ssh Hades
@@ -777,9 +760,9 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <p>Note that <code>--existing</code> argument for the next session (it should be the same as the original json file but with <code>-ssh</code> added to the end of the name).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgf657e41">
-<h3 id="orgf657e41">Setting the Session</h3>
-<div class="outline-text-3" id="text-orgf657e41">
+<div class="outline-3" id="outline-container-orgb079362">
+<h3 id="orgb079362">Setting the Session</h3>
+<div class="outline-text-3" id="text-orgb079362">
 <p>Since this is org-mode-based the first thing you should do is connect your emacs buffer to the console. Add this to the top of your buffer (the file where you intend to run python).</p>
 <div class="highlight">
 <pre><span></span>#+PROPERTY: header-args :session /home/athena/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03b-01abe2a3b232-ssh.json
@@ -788,9 +771,9 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org3cfcc8d">
-<h2 id="org3cfcc8d">End</h2>
-<div class="outline-text-2" id="text-org3cfcc8d">
+<div class="outline-2" id="outline-container-org7804c72">
+<h2 id="org7804c72">End</h2>
+<div class="outline-text-2" id="text-org7804c72">
 <p>At this point you can run org-mode code blocs that are set up to use <code>emacs-jupyter</code> and they will redirect to the remote jupyter session. That is a whole other adventure so I'll leave it for another time (or to someone else).</p>
 </div>
 </div>
@@ -809,13 +792,13 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/making-stuff/making-stuff-links/#org2df6a8e">Agile</a></li>
+<li><a href="posts/making-stuff/making-stuff-links/#orgc81cd84">Agile</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2df6a8e">
-<h2 id="org2df6a8e">Agile</h2>
-<div class="outline-text-2" id="text-org2df6a8e">
+<div class="outline-2" id="outline-container-orgc81cd84">
+<h2 id="orgc81cd84">Agile</h2>
+<div class="outline-text-2" id="text-orgc81cd84">
 <ul class="org-ul">
 <li><a href="https://www.alexandercowan.com/">COWAN+</a> : this is the site for the Coursera <i>Agile Meets Design Thinking</i> instructor.</li>
 </ul>
@@ -836,13 +819,13 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/link-collection/#orgb1c712f">Reading</a></li>
+<li><a href="posts/link-collection/#org3c2be16">Reading</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgb1c712f">
-<h2 id="orgb1c712f">Reading</h2>
-<div class="outline-text-2" id="text-orgb1c712f">
+<div class="outline-2" id="outline-container-org3c2be16">
+<h2 id="org3c2be16">Reading</h2>
+<div class="outline-text-2" id="text-org3c2be16">
 <ul class="org-ul">
 <li><a href="https://opensource.com/tags/python">opensource.com</a> : The site has more than that, but the python stuff is what I'm exploring right now.</li>
 </ul>
@@ -863,30 +846,30 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/reference/online-reading-list/#org010f569">Magazines</a>
+<li><a href="posts/reference/online-reading-list/#org0ab6255">Magazines</a>
 <ul>
-<li><a href="posts/reference/online-reading-list/#orgc374fb1">Philosophy & Science</a></li>
-<li><a href="posts/reference/online-reading-list/#org4264ee6">General</a></li>
+<li><a href="posts/reference/online-reading-list/#org614c164">Philosophy & Science</a></li>
+<li><a href="posts/reference/online-reading-list/#org7346f83">General</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org010f569">
-<h2 id="org010f569">Magazines</h2>
-<div class="outline-text-2" id="text-org010f569"></div>
-<div class="outline-3" id="outline-container-orgc374fb1">
-<h3 id="orgc374fb1">Philosophy & Science</h3>
-<div class="outline-text-3" id="text-orgc374fb1">
+<div class="outline-2" id="outline-container-org0ab6255">
+<h2 id="org0ab6255">Magazines</h2>
+<div class="outline-text-2" id="text-org0ab6255"></div>
+<div class="outline-3" id="outline-container-org614c164">
+<h3 id="org614c164">Philosophy & Science</h3>
+<div class="outline-text-3" id="text-org614c164">
 <ul class="org-ul">
 <li><a href="https://aeon.co/">aeon</a></li>
 <li><a href="http://nautil.us/">Nautilus</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4264ee6">
-<h3 id="org4264ee6">General</h3>
-<div class="outline-text-3" id="text-org4264ee6">
+<div class="outline-3" id="outline-container-org7346f83">
+<h3 id="org7346f83">General</h3>
+<div class="outline-text-3" id="text-org7346f83">
 <ul class="org-ul">
 <li><a href="https://harpers.org/">Harper's</a></li>
 <li><a href="https://www.theatlantic.com/">The Atlantic</a></li>
@@ -909,64 +892,64 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/emacs-jupyter/#org9b80f2a">Beginning</a></li>
-<li><a href="posts/emacs-jupyter/#orgdfa3726">Middle</a>
+<li><a href="posts/emacs-jupyter/#orgb779460">Beginning</a></li>
+<li><a href="posts/emacs-jupyter/#org1eed2bb">Middle</a>
 <ul>
-<li><a href="posts/emacs-jupyter/#orgce0d2a8">Finding the Problem</a></li>
-<li><a href="posts/emacs-jupyter/#org1902b3d">Fixing the Problem</a>
+<li><a href="posts/emacs-jupyter/#org5b70954">Finding the Problem</a></li>
+<li><a href="posts/emacs-jupyter/#org81d585e">Fixing the Problem</a>
 <ul>
-<li><a href="posts/emacs-jupyter/#orge2534e9">First Clone the Repository</a></li>
-<li><a href="posts/emacs-jupyter/#org7208741">Then Install the Dependencies</a></li>
-<li><a href="posts/emacs-jupyter/#org1fa8506">Then Build It</a></li>
+<li><a href="posts/emacs-jupyter/#org1b1cb8d">First Clone the Repository</a></li>
+<li><a href="posts/emacs-jupyter/#orga11de68">Then Install the Dependencies</a></li>
+<li><a href="posts/emacs-jupyter/#orga0fb7a3">Then Build It</a></li>
 </ul>
 </li>
-<li><a href="posts/emacs-jupyter/#org2390dc6">Fix the Other Problem</a></li>
-<li><a href="posts/emacs-jupyter/#org7afe457">An Update That Broke It</a></li>
+<li><a href="posts/emacs-jupyter/#org40effe0">Fix the Other Problem</a></li>
+<li><a href="posts/emacs-jupyter/#orgb5cb0c9">An Update That Broke It</a></li>
 </ul>
 </li>
-<li><a href="posts/emacs-jupyter/#org24e1303">End</a></li>
+<li><a href="posts/emacs-jupyter/#org7a651a9">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9b80f2a">
-<h2 id="org9b80f2a">Beginning</h2>
-<div class="outline-text-2" id="text-org9b80f2a">
+<div class="outline-2" id="outline-container-orgb779460">
+<h2 id="orgb779460">Beginning</h2>
+<div class="outline-text-2" id="text-orgb779460">
 <p><a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> has become one of the most important tools in my workflow (along with <a href="https://getnikola.com/">Nikola</a>, and the <a href="https://plugins.getnikola.com/v8/orgmode/">org-mode plugin</a>), but earlier this week I stumbled upon <a href="https://github.com/dzop/emacs-jupyter">emacs-jupyter</a> and I thought maybe it'd be worth it to at least take a look. If the <code>readme</code> file is to be believed, it does everything <code>ob-ipython</code> does and more, so maybe my world would change once again. But then I ran into a little problem - trying to install it from <a href="https://melpa.org/#/">MELPA</a> caused emacs to crash… with no messages, nothing. So is this thing ready for the world to use yet?</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgdfa3726">
-<h2 id="orgdfa3726">Middle</h2>
-<div class="outline-text-2" id="text-orgdfa3726"></div>
-<div class="outline-3" id="outline-container-orgce0d2a8">
-<h3 id="orgce0d2a8">Finding the Problem</h3>
-<div class="outline-text-3" id="text-orgce0d2a8">
+<div class="outline-2" id="outline-container-org1eed2bb">
+<h2 id="org1eed2bb">Middle</h2>
+<div class="outline-text-2" id="text-org1eed2bb"></div>
+<div class="outline-3" id="outline-container-org5b70954">
+<h3 id="org5b70954">Finding the Problem</h3>
+<div class="outline-text-3" id="text-org5b70954">
 <p>I tried different things based on the errors in the emacs-jupyter's <a href="https://github.com/dzop/emacs-jupyter/issues">"Issues"</a> but it turned out that <a href="https://github.com/dzop/emacs-zmq/issues/14">this emacs-zmq bug</a> had the answer - the <a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa">emacs snapshot</a> for Ubuntu wasn't built in a way that works with emacs-jupyter. The bug-report mentions an out of date gcc version, but I didn't confirm that.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org1902b3d">
-<h3 id="org1902b3d">Fixing the Problem</h3>
-<div class="outline-text-3" id="text-org1902b3d">
+<div class="outline-3" id="outline-container-org81d585e">
+<h3 id="org81d585e">Fixing the Problem</h3>
+<div class="outline-text-3" id="text-org81d585e">
 <p>So, knowing that the version of emacs I was using was the problem I decided to build it myself. In the earlier days of Ubuntu this was something I did all the time, but it seems like it's been forever since I had to do this so I was a little worried that it might be a huge mess of Makefile debugging, but I found <a href="https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian">this page on the emacs wiki</a> which made it pretty easy.</p>
 </div>
-<div class="outline-4" id="outline-container-orge2534e9">
-<h4 id="orge2534e9">First Clone the Repository</h4>
-<div class="outline-text-4" id="text-orge2534e9">
+<div class="outline-4" id="outline-container-org1b1cb8d">
+<h4 id="org1b1cb8d">First Clone the Repository</h4>
+<div class="outline-text-4" id="text-org1b1cb8d">
 <pre class="example">
 git clone --depth 1 git://git.sv.gnu.org/emacs.git
 </pre>
 <p><b>Note:</b> The <code>--depth 1</code> option pulls only the most recent commit. This helps save on time, as the repository is huge.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org7208741">
-<h4 id="org7208741">Then Install the Dependencies</h4>
-<div class="outline-text-4" id="text-org7208741">
+<div class="outline-4" id="outline-container-orga11de68">
+<h4 id="orga11de68">Then Install the Dependencies</h4>
+<div class="outline-text-4" id="text-orga11de68">
 <pre class="example">
 sudo apt-fast install autoconf automake libtool texinfo build-essential xorg-dev libgtk2.0-dev libjpeg-dev libncurses5-dev libdbus-1-dev libgif-dev libtiff-dev libm17n-dev libpng-dev librsvg2-dev libotf-dev libgnutls28-dev libxml2-dev
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org1fa8506">
-<h4 id="org1fa8506">Then Build It</h4>
-<div class="outline-text-4" id="text-org1fa8506">
+<div class="outline-4" id="outline-container-orga0fb7a3">
+<h4 id="orga0fb7a3">Then Build It</h4>
+<div class="outline-text-4" id="text-orga0fb7a3">
 <p><b>Note:</b> This is how I first did it and it doesn't work the way I wanted it to so see the next section for the one that did work.</p>
 <p>First do the autogen.</p>
 <pre class="example">
@@ -990,9 +973,9 @@ sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org2390dc6">
-<h3 id="org2390dc6">Fix the Other Problem</h3>
-<div class="outline-text-3" id="text-org2390dc6">
+<div class="outline-3" id="outline-container-org40effe0">
+<h3 id="org40effe0">Fix the Other Problem</h3>
+<div class="outline-text-3" id="text-org40effe0">
 <p>It turned out that the build went okay, and I could even install emacs-jupyter (yay), but when I tried to execute <code>M-x jupyter-run-repl</code> I got an error message saying that modules weren't supported (what?). So then I found <a href="http://diobla.info/blog-archive/modules-tut.html">this blog post</a> that said you have to pass in the <code>--with-modules</code> argument when you run <code>configure</code>… So now the process became this:</p>
 <pre class="example">
 cd emacs
@@ -1005,9 +988,9 @@ sudo ln -s /home/athena/bin/emacs-jupyter/bin/emacs /usr/local/bin/emacs-jupyter
 <p>And what do you know, it worked.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org7afe457">
-<h3 id="org7afe457">An Update That Broke It</h3>
-<div class="outline-text-3" id="text-org7afe457">
+<div class="outline-3" id="outline-container-orgb5cb0c9">
+<h3 id="orgb5cb0c9">An Update That Broke It</h3>
+<div class="outline-text-3" id="text-orgb5cb0c9">
 <p>At some point after I first wrote this I switched to using the <a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa">emacs-snapshot</a> package, which worked for a while, but when I updated it on March 9, 2021, it caused emacs-jupyter to fail with a ZMQ error:</p>
 <pre class="example">
 error in process filter: Error in ZMQ subprocess: error, ("Lisp nesting exceeds ‘max-lisp-eval-depth’")
@@ -1025,9 +1008,9 @@ git checkout emacs-27.1-rc2
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org24e1303">
-<h2 id="org24e1303">End</h2>
-<div class="outline-text-2" id="text-org24e1303">
+<div class="outline-2" id="outline-container-org7a651a9">
+<h2 id="org7a651a9">End</h2>
+<div class="outline-text-2" id="text-org7a651a9">
 <p><code>emacs-jupyter</code> looks like an improvement over <code>ob-ipython</code> in that it adds a lot of features (and claims to be faster), but getting it to work was way harder than I'm used to. I don't think it was "difficult" in a real sense, given what it used to be like to make and install things on Ubuntu, but I think I've gotten used to things just working. Anyway, now I can see if emacs-jupyter lives up to its own hype.</p>
 <p><b>Update:</b> Since I first wrote this I've come to rely on <code>emacs-jupyter</code> a lot, I don't take advantage of a lot of its features, but for executing python code in org-babel, it's everything that I need (so far).</p>
 </div>
@@ -1047,76 +1030,76 @@ git checkout emacs-27.1-rc2
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org2fe9d14">Beginning</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org39500f0">Beginning</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgf28bed5">Problems Before I Even Started</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org6d5c3cf">Problems Before I Even Started</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org6ae573a">the <b>RAPIDS</b> instruction for starting the docker container is out of date</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org76299bd">The emacs-snapshot isn't compatible with emacs-jupyter</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org9cf4563">the <b>RAPIDS</b> instruction for starting the docker container is out of date</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgcac61fb">The emacs-snapshot isn't compatible with emacs-jupyter</a></li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org8d50ee7">Imports</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orga5eb7ae">Imports</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org8835add">PyPi</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgc68d0a5">PyPi</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org1fddc5a">Middle</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgf61f2f4">Middle</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org61fe3d4">Connecting To the Docker Container</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org6fba2fd">Create Series</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgf5b6a4e">Connecting To the Docker Container</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org5bba7b4">Create Series</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org3704ae4">CUDF Series</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org23d9c31">dask CUDF</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org8b52710">CUDF Series</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org56e69f6">dask CUDF</a></li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org0c211f0">Data Frames</a>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org61887ad">Data Frames</a>
 <ul>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orga550ce5">From a Pandas DataFrame</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org14f1c85">From a Pandas DataFrame</a></li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgb91587e">Selection</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org503bcb0">Applyng functions</a></li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org0b797a6">String Methods</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orga92de4c">Selection</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org8e6cc38">Applyng functions</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orge150141">String Methods</a></li>
 </ul>
 </li>
-<li><a href="posts/rapids/cudf-with-emacs-jupyter/#orgdbb3381">End</a></li>
+<li><a href="posts/rapids/cudf-with-emacs-jupyter/#org86c3b9f">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2fe9d14">
-<h2 id="org2fe9d14">Beginning</h2>
-<div class="outline-text-2" id="text-org2fe9d14">
+<div class="outline-2" id="outline-container-org39500f0">
+<h2 id="org39500f0">Beginning</h2>
+<div class="outline-text-2" id="text-org39500f0">
 <p>This is a first attempt to use <a href="https://rapids.ai/">RAPIDS</a> using their docker container and <a href="https://github.com/dzop/emacs-jupyter#building-the-widget-support-experimental">emacs-jupyter</a>. So there's multiple places where things can go wrong and I don't know why.</p>
 </div>
-<div class="outline-3" id="outline-container-orgf28bed5">
-<h3 id="orgf28bed5">Problems Before I Even Started</h3>
-<div class="outline-text-3" id="text-orgf28bed5"></div>
-<div class="outline-4" id="outline-container-org6ae573a">
-<h4 id="org6ae573a">the <b>RAPIDS</b> instruction for starting the docker container is out of date</h4>
-<div class="outline-text-4" id="text-org6ae573a">
+<div class="outline-3" id="outline-container-org6d5c3cf">
+<h3 id="org6d5c3cf">Problems Before I Even Started</h3>
+<div class="outline-text-3" id="text-org6d5c3cf"></div>
+<div class="outline-4" id="outline-container-org9cf4563">
+<h4 id="org9cf4563">the <b>RAPIDS</b> instruction for starting the docker container is out of date</h4>
+<div class="outline-text-4" id="text-org9cf4563">
 <p>The instructions on the <a href="https://rapids.ai/start.html">getting started page</a> say to start the docker container using this:</p>
-<pre class="example" id="org8550dd1">
+<pre class="example">
 docker run --runtime=nvidia --rm -it -p 8888:8888 -p 8787:8787 -p 8786:8786 \
     rapidsai/rapidsai:0.8-cuda10.0-runtime-ubuntu18.04-gcc7-py3.7
 </pre>
 <p>But the <code>--runtime=nvidia</code> flag is for the now-deprecated <code>nvidia-docker2</code> package (which isn't compatible with Ubuntu Disco Dingo anyway) and it will cause it to fail with an <code>unknown runtime</code> error if you don't have that older package installed (which I don't). Removing the flag (and having the <a href="https://github.com/NVIDIA/nvidia-docker">NVIDIA Container Toolkit</a> installed) fixes the error.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org76299bd">
-<h4 id="org76299bd">The emacs-snapshot isn't compatible with emacs-jupyter</h4>
-<div class="outline-text-4" id="text-org76299bd">
+<div class="outline-4" id="outline-container-orgcac61fb">
+<h4 id="orgcac61fb">The emacs-snapshot isn't compatible with emacs-jupyter</h4>
+<div class="outline-text-4" id="text-orgcac61fb">
 <p><a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> has become such a center-piece for how I work I can't even remember how I did things before I discovered it, but now there's <a href="https://github.com/dzop/emacs-jupyter">Emacs Jupyter</a> which claims to have even more features, so I thought I'd try it out, but when I tried to install it emacs would crash (during the installation). According to <a href="https://github.com/dzop/emacs-zmq/issues/14">this bug report</a> the <a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa">emacs snapshot</a> for Ubuntu is built with an out-of-date version of gcc. I don't know if that's true, but I re-built emacs with <a href="https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian">the instructions on the emacs wiki</a> and it at least installed emacs-jupyter without crashing. Here's where I find out if it works. Of course, I now have two versions of emacs. One that gets updated automatically and one that works with emacs-jupyter. I'll have to figure out what to do about that, assuming emacs-jupyter turns out to be worth keeping.</p>
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org8d50ee7">
-<h3 id="org8d50ee7">Imports</h3>
-<div class="outline-text-3" id="text-org8d50ee7"></div>
-<div class="outline-4" id="outline-container-org8835add">
-<h4 id="org8835add">PyPi</h4>
-<div class="outline-text-4" id="text-org8835add">
+<div class="outline-3" id="outline-container-orga5eb7ae">
+<h3 id="orga5eb7ae">Imports</h3>
+<div class="outline-text-3" id="text-orga5eb7ae"></div>
+<div class="outline-4" id="outline-container-orgc68d0a5">
+<h4 id="orgc68d0a5">PyPi</h4>
+<div class="outline-text-4" id="text-orgc68d0a5">
 <div class="highlight">
 <pre><span></span>import cudf
 import dask_cudf
@@ -1126,12 +1109,12 @@ import pandas
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org1fddc5a">
-<h2 id="org1fddc5a">Middle</h2>
-<div class="outline-text-2" id="text-org1fddc5a"></div>
-<div class="outline-3" id="outline-container-org61fe3d4">
-<h3 id="org61fe3d4">Connecting To the Docker Container</h3>
-<div class="outline-text-3" id="text-org61fe3d4">
+<div class="outline-2" id="outline-container-orgf61f2f4">
+<h2 id="orgf61f2f4">Middle</h2>
+<div class="outline-text-2" id="text-orgf61f2f4"></div>
+<div class="outline-3" id="outline-container-orgf5b6a4e">
+<h3 id="orgf5b6a4e">Connecting To the Docker Container</h3>
+<div class="outline-text-3" id="text-orgf5b6a4e">
 <p>According to the emacs-snapshot documentation you can connect via SSH (but the Rapids docker container doesn't have it installed by default) or you can connect to a notebook server. I originally was going to try the SSH route, since I already do that with ob-ipython, but the notebook-server might be more suited to this case. Let's see.</p>
 <div class="highlight">
 <pre><span></span>print("test")
@@ -1142,12 +1125,12 @@ test
 <p>So, the notebook doesn't seem to work as-is, but the SSH connection does, which is nice, but it's not different from what ob-ipython gave me (well it kind of is in that I didn't copy the file over).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org6fba2fd">
-<h3 id="org6fba2fd">Create Series</h3>
-<div class="outline-text-3" id="text-org6fba2fd"></div>
-<div class="outline-4" id="outline-container-org3704ae4">
-<h4 id="org3704ae4">CUDF Series</h4>
-<div class="outline-text-4" id="text-org3704ae4">
+<div class="outline-3" id="outline-container-org5bba7b4">
+<h3 id="org5bba7b4">Create Series</h3>
+<div class="outline-text-3" id="text-org5bba7b4"></div>
+<div class="outline-4" id="outline-container-org8b52710">
+<h4 id="org8b52710">CUDF Series</h4>
+<div class="outline-text-4" id="text-org8b52710">
 <p>This runs on the GPU.</p>
 <div class="highlight">
 <pre><span></span>s = cudf.Series([1, 2, 3, None, 4])
@@ -1162,9 +1145,9 @@ print(s)
 dtype: int64
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-org23d9c31">
-<h4 id="org23d9c31">dask CUDF</h4>
-<div class="outline-text-4" id="text-org23d9c31">
+<div class="outline-4" id="outline-container-org56e69f6">
+<h4 id="org56e69f6">dask CUDF</h4>
+<div class="outline-text-4" id="text-org56e69f6">
 <p>This also runs on the GPU, but if you have more than one GPU it will use more than one.</p>
 <div class="highlight">
 <pre><span></span>ds = dask_cudf.from_cudf(s, npartitions=2)
@@ -1182,16 +1165,16 @@ dtype: int64
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org0c211f0">
-<h3 id="org0c211f0">Data Frames</h3>
-<div class="outline-text-3" id="text-org0c211f0">
+<div class="outline-3" id="outline-container-org61887ad">
+<h3 id="org61887ad">Data Frames</h3>
+<div class="outline-text-3" id="text-org61887ad">
 <div class="highlight">
 <pre><span></span>frame = cudf.DataFrame([("a", list(range(10))),
                         ("b", list(range(10)))])
 frame["a"] = frame.a * 5
 print(frame)
 </pre></div>
-<pre class="example" id="orgc99d796">
+<pre class="example">
     a  b
 0   0  0
 1   5  1
@@ -1204,9 +1187,9 @@ print(frame)
 8  40  8
 9  45  9
 </pre></div>
-<div class="outline-4" id="outline-container-orga550ce5">
-<h4 id="orga550ce5">From a Pandas DataFrame</h4>
-<div class="outline-text-4" id="text-orga550ce5">
+<div class="outline-4" id="outline-container-org14f1c85">
+<h4 id="org14f1c85">From a Pandas DataFrame</h4>
+<div class="outline-text-4" id="text-org14f1c85">
 <div class="highlight">
 <pre><span></span>frame = pandas.DataFrame({"a": list(range(4)), "b": list(range(4, 8))})
 frame = cudf.DataFrame.from_pandas(frame)
@@ -1221,9 +1204,9 @@ print(frame)
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgb91587e">
-<h3 id="orgb91587e">Selection</h3>
-<div class="outline-text-3" id="text-orgb91587e">
+<div class="outline-3" id="outline-container-orga92de4c">
+<h3 id="orga92de4c">Selection</h3>
+<div class="outline-text-3" id="text-orga92de4c">
 <div class="highlight">
 <pre><span></span>print(frame[frame.a &gt; 1])
 </pre></div>
@@ -1233,9 +1216,9 @@ print(frame)
 3  3  7
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org503bcb0">
-<h3 id="org503bcb0">Applyng functions</h3>
-<div class="outline-text-3" id="text-org503bcb0">
+<div class="outline-3" id="outline-container-org8e6cc38">
+<h3 id="org8e6cc38">Applyng functions</h3>
+<div class="outline-text-3" id="text-org8e6cc38">
 <div class="highlight">
 <pre><span></span>frame["a"] = frame.a.applymap(lambda row: row + 5)
 print(frame)
@@ -1250,9 +1233,9 @@ print(frame)
 <p>This is basically the pandas.DataFrame.apply method, but they renamed it for some reason.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org0b797a6">
-<h3 id="org0b797a6">String Methods</h3>
-<div class="outline-text-3" id="text-org0b797a6">
+<div class="outline-3" id="outline-container-orge150141">
+<h3 id="orge150141">String Methods</h3>
+<div class="outline-text-3" id="text-orge150141">
 <div class="highlight">
 <pre><span></span>series = cudf.Series(["Alpha", "Beta", "GAMMA", "dELTA"])
 print(series.str.lower())
@@ -1266,9 +1249,9 @@ dtype: object
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgdbb3381">
-<h2 id="orgdbb3381">End</h2>
-<div class="outline-text-2" id="text-orgdbb3381">
+<div class="outline-2" id="outline-container-org86c3b9f">
+<h2 id="org86c3b9f">End</h2>
+<div class="outline-text-2" id="text-org86c3b9f">
 <p>After a certain point, this was kind of a boring exercise, mostly because <code>cuDF</code> runs a subset of pandas but on the GPU, so if you know pandas, you know some of <code>cuDF</code>, but just getting it working (with emacs-jupyter) was a little bit of work, so maybe it's useful to have recorded that here.</p>
 </div>
 </div>
@@ -1287,54 +1270,54 @@ dtype: object
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org53540de">Beginning</a></li>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org0f2d5c3">Middle</a>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#orgf8d9070">Beginning</a></li>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org7a2252d">Middle</a>
 <ul>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org64bf318">Editing a Remote User File</a></li>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org1f401ea">Editing a Remote File As Root</a></li>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#orgca10fbf">Editing a Remote User File</a></li>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org4af7544">Editing a Remote File As Root</a></li>
 </ul>
 </li>
-<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#org3cf0b81">End</a></li>
+<li><a href="posts/opening-remote-files-in-emacs-using-ssh/#orgda829ba">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org53540de">
-<h2 id="org53540de">Beginning</h2>
-<div class="outline-text-2" id="text-org53540de">
+<div class="outline-2" id="outline-container-orgf8d9070">
+<h2 id="orgf8d9070">Beginning</h2>
+<div class="outline-text-2" id="text-orgf8d9070">
 <p>For some strange reason, <a href="https://www.emacswiki.org/emacs/TrampMode">the emacs wiki page on tramp mode</a> doesn't have instructions on how to open a file on a remote machine using tramp in its main section. You instead have to go down to the <i>Tips and Tricks</i> and try and pick out a version that works. So I'm writing this here so I maybe won't have to do all the searching I did the next time. This is the version that worked for me (Emacs 27.0.50, Ubuntu 19.04).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0f2d5c3">
-<h2 id="org0f2d5c3">Middle</h2>
-<div class="outline-text-2" id="text-org0f2d5c3"></div>
-<div class="outline-3" id="outline-container-org64bf318">
-<h3 id="org64bf318">Editing a Remote User File</h3>
-<div class="outline-text-3" id="text-org64bf318">
+<div class="outline-2" id="outline-container-org7a2252d">
+<h2 id="org7a2252d">Middle</h2>
+<div class="outline-text-2" id="text-org7a2252d"></div>
+<div class="outline-3" id="outline-container-orgca10fbf">
+<h3 id="orgca10fbf">Editing a Remote User File</h3>
+<div class="outline-text-3" id="text-orgca10fbf">
 <p>You start by opening the file like you would a local file (<code>C-x C-f</code>) and then in when the minibuffer opens up you use this syntax for the path:</p>
 <div class="highlight">
 <pre><span></span>/ssh:&lt;username&gt;@&lt;hostname&gt;&gt;:&lt;path to file&gt;
 </pre></div>
 <p>So, for example, I have an SSH alias to <code>hades@erebus</code> named <code>Hades</code> and if I wanted to edit the emacs init file on that machine I would use this:</p>
-<pre class="example" id="orgccdc632">
+<pre class="example">
 /ssh:Hades:.emacs.d/init.el
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org1f401ea">
-<h3 id="org1f401ea">Editing a Remote File As Root</h3>
-<div class="outline-text-3" id="text-org1f401ea">
+<div class="outline-3" id="outline-container-org4af7544">
+<h3 id="org4af7544">Editing a Remote File As Root</h3>
+<div class="outline-text-3" id="text-org4af7544">
 <p>To open a file as root you stick an extra pipe (<code>|sudo</code>) into the previous path syntax.</p>
-<pre class="example" id="orgfad7c91">
+<pre class="example">
 /ssh:&lt;username&gt;@&lt;hostname&gt;|sudo:&lt;hostname&gt;:&lt;path to file&gt;
 </pre>
 <p>This syntax doesn't work with SSH aliases (or didn't seem to when I tried), so editing the <code>/etc/apt/sources.list</code> file the same machine as before would use this:</p>
-<pre class="example" id="orgcf5198f">
+<pre class="example">
 /ssh:hades@erebus|sudo:erebus:/etc/apt/sources.list
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org3cf0b81">
-<h2 id="org3cf0b81">End</h2>
-<div class="outline-text-2" id="text-org3cf0b81">
+<div class="outline-2" id="outline-container-orgda829ba">
+<h2 id="orgda829ba">End</h2>
+<div class="outline-text-2" id="text-orgda829ba">
 <p>I got the <code>sudo</code> version from <a href="https://stackoverflow.com/questions/20624024/what-is-the-best-way-to-open-remote-files-with-emacs-and-ssh">Stack Overflow</a> (of course).</p>
 </div>
 </div>
@@ -1346,7 +1329,7 @@ dtype: object
 <li class="next"><a href="index-12.html" rel="next">Older posts</a></li>
 </ul>
 <!--End of body content-->
-<footer id="footer">Contents © 2021 <a href="mailto:necromuralist@protonmail.com">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
 <script src="assets/js/all-nocdn.js"></script>
