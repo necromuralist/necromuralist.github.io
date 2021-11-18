@@ -1,0 +1,98 @@
+#+BEGIN_COMMENT
+.. title: PuDB Remote
+.. slug: pudb-remote
+.. date: 2021-11-17 18:29:13 UTC-08:00
+.. tags: pudb,debugging,python
+.. category: Debugging
+.. link: 
+.. description: Using the python-urwid debugger over telnet.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+TOC: headlines 3
+* In the Beginning
+  This is a post on using [[https://documen.tician.de/pudb/index.html][PuDB]] via telnet.
+
+* Short Version
+  In case I forgot what to do and just want to read this to remember.
+
+  1. In the screen where you are going to run telnet, run ~tput cols~ and ~tput lines~ to find out the number of columns and lines that the screen is using.
+  2. In the code where you want the break, instead of the usual ~import pudb; pudb.set_trace()~ use:
+
+#+begin_src python
+from pudb.remote import set_trace
+set_trace(term_size=(columns, lines))
+#+end_src
+
+When the code hits the breakpoint it will start up a telnet service and you can log into it from the other screen:
+
+#+begin_src bash
+telnet 127.0.0.1 6899
+#+end_src
+
+* Okay, So Now Why Would You Do This?
+  I was trying to build one of my sites that uses [[https://nikola.readthedocs.io/en/latest/][nikola]] and this strange error came out saying that one of the shortcodes was getting the "site" argument multiple times. I had no idea what was going on and nikola doesn't pre-define the arguments to the shortcode-plugins (it parses the text and then passes the arguments along using the ~*args~ ~**kwargs~ convention) which makes it flexible, but figuring out a problem with the arguments is pretty tough, so I decided to turn to my old standby ~PuDB~, which I've been using for so many years now, and is my favorite of the python debuggers I've tried.
+
+I did my usual thing and found the line in the ~nikola~ code that was raising the error and inserted a breakpoint further up in the code.
+
+#+begin_src python
+if name == "lancelot":
+    import pudb
+    pudb.set_trace()
+#+end_src
+
+I figured the problem was with my shortcode, named ~lancelot~, and the conditional allowed me to skip all the other shortcodes being used. But then, when I ran the build (~nikola build -v2~)... disaster.
+
+[[img-url:pudb-broken.png]]
+
+For some reason it wouldn't use the entire screen, making it impossible (or at least really hard) to read some of the variables that I wanted to check - and even worse, when I tried to open up the ipython terminal in it I got an error message.
+
+[[img-url:pudb-ui-exception.png]]
+
+The error-message is one of those error-after-the-error messages that you sometimes run into. It was trying to notify me of an error by popping up some kind of dialog but then the dialog wouldn't open so it told me about the dialog error and didn't get around to telling me what the original error was. In any case, something was broken, so I had to resort to desperate measures - I went to read the documentation.
+
+Surprisingly, [[https://documen.tician.de/pudb/index.html][there actually is some]] (there wasn't really much when I first started using it).
+
+* Dead Ends
+  The first couple of things I tried seemed promising, but they didn't work.
+
+** Another Screen
+  There wasn't anything about re-sizing the window, but it did mention that you can have the output come out in a different terminal from the one where you run the code, so I gave it a go. I made a different screen and got its file-path using the ~tty~ command (~/dev/pts/6~ in this case). Then I set an environment variable to hold the file-path in the screen where I was running the code (~set -x PUDB_TTY /dev/pts/6~). This caused ~PuDB~ to pipe the output to the next screen - and it /did/ work to send the first PuDB output to the other screen, and it /did/ use the whole window, but then it quit instead of letting me use the debugger. Not /quite/ what I wanted, so I unset the environment variable and moved on.
+** ~term_size~
+   The documentation also showed how to use ~PuDB~ as a remote debugger, and in the example they passed in the argument ~term_size~ to ~set_trace~ so I thought, since the functions have the same name, that the ~set_trace~ I was using would take the same arguments. So I tried it.
+
+#+begin_src python
+import pudb
+pudb.set_trace(term_size=(236, 61))
+#+end_src
+
+Using the values that I had gotten from [[https://linux.die.net/man/1/tput][tput]]  using ~tput cols~ and ~tput lines~. But that just raised an ~ArgumentError~. The functions have the same name, but not the same arguments.
+
+* Telnet
+  So then I decided to try their remote version. It doesn't really make sense to me that it would work better than the regular version, but I didn't see any other choice. So instead of the usual code to insert a breakpoint I used:
+
+#+begin_src python
+from pudb.remote import set_trace
+set_trace(term_size=(236, 61))
+#+end_src
+
+When I ran the build it stopped and told me to telnet into the localhost address at port 6899.
+
+[[img-url:please-telnet.png]]
+
+So I changed into the other screen and ran telnet.
+
+#+begin_src bash
+telnet 127.0.0.1 6899
+#+end_src
+
+And what do you know.
+
+[[img-url:pudb-fixed.png]]
+
+This turns out to not be a complete fix. Hitting ~!~ to get to the ~ipython~ terminal froze ~PuDB~, but this was enough for me to inspect the variables and realize that I just needed to move one of the parameters in the definition of my shortcode method and it worked.
+
+* But It's Not Fixed?
+  Well, if this were a more intense debug I really would want the ~ipython~/~ptipython~ terminal, but since this is the first time I've tried to run ~PuDB~ under ~KUbuntu's~ ~Konsole~ instead of the ~GNOME~ terminal I'm hoping that just switching back to the other terminal will be enough - I'll have to test that once I'm more motivated.
