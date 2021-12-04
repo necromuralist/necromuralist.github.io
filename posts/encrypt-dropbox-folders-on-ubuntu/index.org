@@ -7,7 +7,7 @@
 .. link: 
 .. description: Encrypting folders for cloud synchronization.
 .. type: text
-
+.. updated: 2021-12-04 12:41:05 UTC-08:00
 #+END_COMMENT
 #+OPTIONS: ^:{}
 #+TOC: headlines 2
@@ -26,9 +26,17 @@ sudo apt install cryfs
 cryfs Dropbox/encrypted dropbox_source
 #+END_SRC
 
-This is the same command you would use on another computer to set-up the existing encrypted folder on your new computer. The =source= folder can be named differently, but the =target= folder and the password need to be the same one you used when you created it.
+This is the same command you would use on another computer to set-up the existing encrypted folder on your new computer. The =source= folder can be named differently, but the =target= folder and the password need to be the same one you used when you created it. The files in the ~source~ go away when you unmount it (see [[Unmount It][below]]) so you will have to re-mount it whenever you unmount it or log out or restart your computer.
+
+**Note:** The [[https://www.cryfs.org/tutorial][cryfs tutorial]] has a warning that if two different computers access the mounted folder at the same time it can corrupt the files so you have to make sure to unmount it on one computer before mounting it on another. This seems like a really bad thing, but I guess you should/oughta make backups of the unencrypted stuff just in case.
 ** Unmount It
-   If you need to unmount it you can use [[http://manpages.ubuntu.com/manpages/cosmic/man1/fusermount.1.html][fusermount]].
+   The old way to unmount it was using [[http://manpages.ubuntu.com/manpages/cosmic/man1/fusermount.1.html][fusermount]] but they've added a ~cryfs-unmount~ command which you can/should use instead.
+
+#+begin_src bash
+cryfs-unmount dropbox_source
+#+end_src
+
+This was the old way.
 
 #+BEGIN_SRC bash
 fusermount -u dropbox_source
@@ -37,4 +45,4 @@ fusermount -u dropbox_source
 Since you are doing all this within your home directory you don't need root privileges (except to install =cryfs= with apt).
 * References
   - I got this from [[https://www.linuxbabe.com/ubuntu/encrypt-dropbox-ubuntu-16-04-17-10-desktop-server][Linux Babe]].
-  - But the [[https://www.cryfs.org/tutorial][CryFS Tutorial]] is pretty straight-forward, just skips the part about install cryfs.
+  - But the [[https://www.cryfs.org/tutorial][CryFS Tutorial]] is pretty straight-forward, it just skips the part about installing cryfs.
