@@ -1,0 +1,136 @@
+#+BEGIN_COMMENT
+.. title: Cuda, Conda, Docker...ugh
+.. slug: cuda-conda-dockerugh
+.. date: 2021-12-06 18:04:16 UTC-08:00
+.. tags: docker,cuda,conda,howto
+.. category: How-To
+.. link: 
+.. description: Notes on getting pytorch, cuda, and conda working in docker
+.. type: text
+.. status: draft
+.. updated: 
+#+END_COMMENT
+* The Beginning
+  I haven't been doing anything with pytorch recently so I decided to restart by setting up a docker container on my machine with a beefier nvidia card than the machine I had been using. I've learned a little bit more about docker since I built my earlier container so I decided to update the image and found it both easier and harder than I remember it being. It went easier because I knew more or less what I had to do so I knew what to look up. Harder because there's some workarounds that you have to work with that weren't there before, and I decided to stick with ~conda~, which seems to add an extra layer of difficulty compared to pip and virtualenv when you use docker. But, anyway, enough with the whining, here's the stuff.
+
+**Note:** I'm doing this on Ubuntu 21.10.
+
+* Nvidia-Container-Toolkit and Ubuntu
+  The first thing you should do is install the [[https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker][nvidia-container-toolkit]]. The instructions say to add the repository this way:
+
+#+begin_src bash
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+   && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+   && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+#+end_src
+
+This introduces two problems for me. The first is that this assumes you use bash, but I'm using fish so the command doesn't work. This is no big deal since I just looking in the ~/etc/os-release~ file to get the ~ID~ and ~VERSION_ID~ and wrote it out.
+
+#+begin_src bash
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu21.10/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+#+end_src
+
+But then this introduces the second problem - the second curl fails with the message:
+
+#+begin_src bash
+Unsupported distribution!
+Check https://nvidia.github.io/nvidia-docker
+#+end_src
+
+It turns out there's an [[https://github.com/NVIDIA/nvidia-docker/issues/1574][open bug report]] on GitHub, with a comment that only Long-Term-Support versions are supported. The commenter suggested using 18.04 for some reason, but I went with 20.04 and it seemed to work.
+
+#+begin_src bash
+curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+sudo apt update
+sudo apt install nvidia-container-toolkit
+#+end_src
+
+* The Cuda Image
+  Now that I was setup to run the container I ran a test.
+
+#+begin_src bash
+docker run --rm --gpus all nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
+#+end_src
+
+Which gave me an error, something like ~Error response from daemon~ (I don't remember exactly), which turns out to be the result of a pretty major flaw right now (as noted on the [[https://github.com/NVIDIA/libnvidia-container/issues/111][github issue for it]]). One of the commenters [[https://github.com/NVIDIA/libnvidia-container/issues/111#issuecomment-932742403][posted a work-around for it]] which seems to work.
+
+** Edit /etc/nvidia-container-runtime/config.toml
+   In the file there's a line:
+
+#+begin_src bash
+#no-cgroups = false
+#+end_src
+
+Uncomment it and set it to true.
+
+#+begin_src bash
+no-cgroups = true
+#+end_src
+
+Okay, easy-peasy. All fixed, then, right? Well, doing this fix means that you now have to pass in more flags when you run the container. First you need to check what you have.
+
+#+begin_src bash
+ls /dev | grep nvidia
+#+end_src
+
+Then when you run the container you need to pass in most of those things as ~--device~ arguments.
+
+#+begin_src bash
+docker run --rm --gpus all --device /dev/nvidia0 --device /dev/nvidiactl --device /dev/nvidia-modeset --device /dev/nvidia-uvm nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
+#+end_src
+
+You might not need to actually look in ~/dev~ first. I had to because the post on github was referring to a ~/dev/nvidia1~ device, but I don't have one. This appears to work, although it's a bit unwieldy.
+
+* Now for Conda
+  This next bit probably shouldn't be registered as a problem, but the last time I tried to run pytorch in docker there was some kind of bug when I installed it with ~pip~ that went away when I installed it with ~conda~ so I decided to stick with cuda, but I also wanted to try and set it up the way I do with virtualenv - cached by docker and run non-root. This turns out to be much harder to do than with virtualenv for some reason. I looked through some posts on StackOverflow and elsewhere and didn't really see any good solutions, but [[https://towardsdatascience.com/conda-pip-and-docker-ftw-d64fe638dc45][this one on Toward Data Science]] got close enough.
+  The way that post suggests is to change the shell that docker uses to ~bash~ and moving the ~miniconda~ install path into the home directory of the user that you want to run it.
+
+I won't bother with all of the ~Dockerfile~, but the basic changes are:
+
+Change the shell.
+
+#+begin_src bash
+SHELL [ "/bin/bash", "--login", "-c" ]
+#+end_src
+
+Switch to the user (assuming you added the user and home directory earlier in the docker file) and add an environment file to store the directory in (I don't think you need to use ~ENV~ but the post used it. I'll try ~ARG~ later).
+
+#+begin_src bash
+USER ${USER_NAME}
+WORKDIR ${USER_HOME}
+
+ENV CONDA_DIR=${USER_HOME}/miniconda3
+#+end_src
+
+Then install miniconda.
+
+#+begin_src bash
+ARG MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+ARG SHA256SUM="1ea2f885b4dbc3098662845560bc64271eb17085387a70c2ba3f29fff6f8d52f"
+ARG CONDA_VERSION=py39_4.10.3
+RUN --mount=type=cache,target=/root/.cache \
+    wget "${MINICONDA_URL}" --output-document miniconda.sh --quiet --force-directories --directory-prefix ${CONDA_DIR} && \
+    echo "${SHA256SUM} miniconda.sh" > shasum && \
+    sha256sum --check --status shasum && \
+    /bin/bash miniconda.sh -b -p ${CONDA_DIR} && \
+    rm miniconda.sh shasum
+
+ENV PATH=$CONDA_DIR/bin:$PATH
+#+end_src
+
+Update conda.
+
+#+begin_src bash
+RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile && \
+    conda init bash && \
+    conda update -n base -c defaults conda
+#+end_src
+
+Install the packages. This is where I added the caching to try and reduce the re-downloading of files. I don't really know if this helps a lot, to be truthful, but it's nice to have new things.
+
+#+begin_src bash
+RUN --mount=type=cache,target=/root/.cache \
+    conda install pytorch torchvision torchaudio cudatoolkit --channel pytorch --yes
+#+end_src
