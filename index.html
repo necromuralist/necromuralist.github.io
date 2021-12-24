@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/pudb-remote/" rel="prefetch" type="text/html">
+<link href="posts/mozilla-madness-resist-fingerprinting/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,80 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/mozilla-madness-resist-fingerprinting/">Mozilla Madness: Resist Fingerprinting!</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/mozilla-madness-resist-fingerprinting/" rel="bookmark"><time class="published dt-published" datetime="2021-12-23T13:54:12-08:00" itemprop="datePublished" title="2021-12-23 13:54">2021-12-23 13:54</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/mozilla-madness-resist-fingerprinting/#org2d86df2">The Short Version For My Future Self</a></li>
+<li><a href="posts/mozilla-madness-resist-fingerprinting/#org3060fc1">Back To the Story: It Was a Dark and Rainy Day</a></li>
+<li><a href="posts/mozilla-madness-resist-fingerprinting/#org58484cd">Start With the Nuclear Option</a></li>
+<li><a href="posts/mozilla-madness-resist-fingerprinting/#org8d60f41">The Slow Crawl Back</a></li>
+<li><a href="posts/mozilla-madness-resist-fingerprinting/#org9383526">Is It a Bug?</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org2d86df2">
+<h2 id="org2d86df2">The Short Version For My Future Self</h2>
+<div class="outline-text-2" id="text-org2d86df2">
+<p>Although some sites tell you to set Firefox's <code>privacy.resistFingerprinting</code> option to true, it breaks altair's interaction and some other sites that use the canvas. It's probably better not to use that option, but if you do either:</p>
+<ul class="org-ul">
+<li>Install the <a href="https://addons.mozilla.org/en-US/firefox/addon/toggle-resist-fingerprinting/">Toggle Resist Fingerprinting</a> extension and turn it off when things break (or just keep turning it off in <code>about:config</code>).</li>
+<li>Or set <code>privacy.resistFingerprinting.autoDeclineNoUserInputCanvasPrompts</code> to False and accept the popup requests for the page you want to use.</li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org3060fc1">
+<h2 id="org3060fc1">Back To the Story: It Was a Dark and Rainy Day</h2>
+<div class="outline-text-2" id="text-org3060fc1">
+<p>I decided to give <a href="https://altair-viz.github.io/">altair</a>, the python data visualization library a try yesterday, just to see what it looked like. I ran their "hello, world" example and managed to get a plot.</p>
+<object data="posts/mozilla-madness-resist-fingerprinting/test-bar-plot.html" height="800" style="width:100%" type="text/html">
+<p>Figure Missing</p>
+</object>
+<p>Nothing fancy. If you move your cursor over the bars you might get a tool-tip giving you the width of the bar. If you do then you don't have the problem I ran into yesterday when I was trying it out. The image itself came out clear enough, but I couldn't figure out how to make the tool-tips work. I got desperate enough to try and read the documentation but it seems to be split between examples and API descriptions with little more in the way of explanatory documentation that would help to figure out how it was supposed to work. There are a lot of examples, though, so I decided to see if they would help, but then when I was looking at their <a href="https://altair-viz.github.io/gallery/scatter_tooltips.html">Scatter Plot with Tool-tips</a> example I noticed that their plots didn't have tool-tips either, which seemed suspicious. Was their library that broken? Was the internet?</p>
+<p>I took a look at the JavaScript console and that's when I saw these messages.</p>
+<p><img alt="nil" src="posts/mozilla-madness-resist-fingerprinting/blocked-canvas-data.png"></p>
+<p>It looked like it might be important, but when I went searching for the message I couldn't find anything relevant. At least not at first.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org58484cd">
+<h2 id="org58484cd">Start With the Nuclear Option</h2>
+<div class="outline-text-2" id="text-org58484cd">
+<p>My first thought was that they had somehow made altair Chromium-only so I installed <a href="https://brave.com/">brave</a> and, sure enough, the tool-tips worked when I switched browsers. So my initial conclusion was that I'd have to switch browsers if I decided to use altair. But then it occurred to me that I'd had problems in the past with some sites and anti-tracking options turned on in firefox so maybe it had something to do with that or one of the extensions. The question was, what setting was it or what extension? I eventually decided it was too much work to figure out so I first tried to use <a href="https://support.mozilla.org/en-US/kb/diagnose-firefox-issues-using-troubleshoot-mode">Troubleshoot Mode</a> to disable all the extensions, and when that didn't work, I did a <a href="https://support.mozilla.org/en-US/kb/refresh-firefox-reset-add-ons-and-settings">refresh</a> and wiped out all the customizations I'd done to firefox. Amazingly, this worked, but now I had to go about setting Firefox up again while avoiding whatever I did that broke altair.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org8d60f41">
+<h2 id="org8d60f41">The Slow Crawl Back</h2>
+<div class="outline-text-2" id="text-org8d60f41">
+<p>I decided to follow the advice on the <a href="https://restoreprivacy.com/firefox-privacy/">restoreprivacy.com</a> page, just because it came up on the first page of my search results and it seemed to touch most of the bases that I'd run before this episode. As I did a step in the setup I would check back with the altair plot to make sure that the tool-tip was still working until, eventually, I came to the setting that broke it - <code>privacy.resistFingerprinting</code>.</p>
+<p><img alt="nil" src="posts/mozilla-madness-resist-fingerprinting/resist-fingerprinting.png"></p>
+<p>When I set it to true the tool-tips would break and when I set it to false they would work again. So, then what? I didn't want to disable fingerprint protection, so I thought I'd do a little more searching and see if there was another way.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org9383526">
+<h2 id="org9383526">Is It a Bug?</h2>
+<div class="outline-text-2" id="text-org9383526">
+<p>I decided to do a search on <a href="https://bugzilla.mozilla.org/describecomponents.cgi?product=Firefox">Bugzilla</a> and found what seemed like a relevant bug: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1631673">WhatsApp Web images broken if you flip `privacy.resistFingerprinting` due to canvas prompts without user interaction</a>. The discussion is about What's App and also mentions Instagram and Twitter, and although they are focused on images, the actual error seemed close enough to what I was seeing that it seemed like it might be the same or a similar thing. But the bug was opened two years ago, so if it is a bug it doesn't seem to be something they're eager to fix. Then I ran across this bug: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1376865">Do not display Canvas Prompt unless triggered by user input</a> which discusses changing the default behavior to not prompt the user for permission to use the canvas. Now that I'm describing it I'm not sure how I came to this next step based on that bug, but for some reason I went looking in <code>about:config</code> again and noticed that right under <code>resistFingerprinting</code> was <code>resistFingerprinting.autoDeclineNoUserInputCanvasPrompts</code>:</p>
+<p><img alt="nil" src="posts/mozilla-madness-resist-fingerprinting/auto-decline.png"></p>
+<p>This option is set to True by default and seemed to be what they were talking about in the bug so I turned it off and went back to the altair page and this time when I put my cursor over the plot a popup came up asking me for permission.</p>
+<p><img alt="nil" src="posts/mozilla-madness-resist-fingerprinting/allow-dialog.png"></p>
+<p>Once allowed it, it worked, even with <code>resistFingerprinting</code> set to true. So, if I understand what the bug reports were saying, what was causing the problem is that firefox is getting a request for the canvas but it decides that it isn't the user initiating it, so it needs extra permission but by default the box to ask for permission is turned off and the request is declined without the user (me) getting any feedback. This <i>seemed</i> like a bug.</p>
+<p>As I was thinking about this I remembered that a couple of days ago I went to the kindle cloud reader and one of the books wouldn't render. I went back and played with turning <code>resistFingerprinting</code> on and off before trying to load the ebook and this <i>was</i> apparently the culprit so it isn't just altair that's affected for me.</p>
+<p>So it's a bug, right? It seemed like one, but there were already reports of this phenomena for other sites going back years so they appear to have done it on purpose. I was trying to figure out whether it was something that should be reported or not when I came upon this bug: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1666160">Users enable `privacy.resistFingerprinting` and then are surprised when it causes problems</a>.</p>
+<p><img alt="nil" src="posts/mozilla-madness-resist-fingerprinting/surprise-bug.png"></p>
+<p>Despite the fact that I've seen multiple sites saying to enable this "feature" maybe it isn't really a good idea after all. In the near-term I installed the <a href="https://addons.mozilla.org/en-US/firefox/addon/toggle-resist-fingerprinting/">Toggle Resist Fingerprinting</a> extension and use it to turn <code>resistFingerprinting</code> on and off. To be honest, I'm not convinced that it really matters, I just got sucked into a trail of sites making conflicting assertions about what to do and convinced myself that I cared. At least I can read kindle books in the browser again.</p>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/pudb-remote/">PuDB Remote</a></h1>
@@ -1012,182 +1086,11 @@ sudo systemctl enable wol.service
 </div>
 </div>
 </article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/memoization-and-the-fibonacci-sequence/">Memoization and the Fibonacci Sequence</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/memoization-and-the-fibonacci-sequence/" rel="bookmark"><time class="published dt-published" datetime="2020-11-09T18:32:31-08:00" itemprop="datePublished" title="2020-11-09 18:32">2020-11-09 18:32</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/memoization-and-the-fibonacci-sequence/#org1402961">What It Is</a></li>
-<li><a href="posts/memoization-and-the-fibonacci-sequence/#org148181c">Recurse</a></li>
-<li><a href="posts/memoization-and-the-fibonacci-sequence/#org05ab920">Memoize</a></li>
-<li><a href="posts/memoization-and-the-fibonacci-sequence/#orge46aeed">Once Again With Python</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org1402961">
-<h2 id="org1402961">What It Is</h2>
-<div class="outline-text-2" id="text-org1402961">
-<p>This is a note on using memoization with recursion - specifically with the generation of a <a href="https://www.wikiwand.com/en/Fibonacci_number">Fibonacci Number</a>. The fibonacci numbers form a sequence where</p>
-<p>\[ F_0 = 0, F_1 = 1 \]</p>
-<p>and then for the rest of the numbers greater than 1</p>
-<p>\[ F_n = F_{n-1} + F_{n-2} \]</p>
-<p>So, starting from 0 you get <i>0, 1, 1, 2, 3, 5, 8,</i> etc.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org148181c">
-<h2 id="org148181c">Recurse</h2>
-<div class="outline-text-2" id="text-org148181c">
-<p>Calculating the sequence is often done with recursion because you can pretty much take the definition and convert it to a function with little translation.</p>
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="sd">"""Calculates the n-indexed fibonacci number</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     n: the index of the number in the (zero-based) sequence to get</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">     fibonacci number at index n</span>
-<span class="sd">    """</span>
-    <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">n</span>
-
-    <span class="k">return</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
-<div class="highlight">
-<pre><span></span><span class="n">expected</span> <span class="o">=</span> <span class="mi">55</span>
-<span class="n">actual</span> <span class="o">=</span> <span class="n">fibonacci</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">expected</span> <span class="o">==</span> <span class="n">actual</span><span class="p">,</span> <span class="n">actual</span>
-</pre></div>
-<pre class="example">
-55
-</pre>
-<p>Remember that <i>n</i> is the index for number, not the count (the second number in the sequence has index 1).</p>
-<p>The problem here is that recursion like this has memory limits and takes a long time.</p>
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">graeae</span> <span class="kn">import</span> <span class="n">Timer</span>
-<span class="n">TIMER</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span>
-</pre></div>
-<div class="highlight">
-<pre><span></span><span class="n">expected</span> <span class="o">=</span> <span class="mi">102334155</span>
-<span class="n">n</span> <span class="o">=</span> <span class="mi">40</span>
-<span class="k">with</span> <span class="n">TIMER</span><span class="p">:</span>
-    <span class="n">actual</span> <span class="o">=</span> <span class="n">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">actual</span> <span class="o">==</span> <span class="n">expected</span><span class="p">,</span> <span class="n">actual</span>
-</pre></div>
-<pre class="example">
-2020-11-09 21:11:05,852 graeae.timers.timer start: Started: 2020-11-09 21:11:05.852071
-2020-11-09 21:11:50,249 graeae.timers.timer end: Ended: 2020-11-09 21:11:50.249808
-2020-11-09 21:11:50,251 graeae.timers.timer end: Elapsed: 0:00:44.397737
-40
-</pre>
-<p>Less than a minute might not seem like a big deal, but even pushing it up to 45 makes the wait too long (I gave up and killed the process so I don't know how long it ran). So what's the solution? Let's try <a href="https://www.wikiwand.com/en/Memoization">memoization</a>.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org05ab920">
-<h2 id="org05ab920">Memoize</h2>
-<div class="outline-text-2" id="text-org05ab920">
-<p>So, what's memoization? Is it what Elmer Fudd does when he memorizes? No, memoization comes from the latin word <i>memorandum</i> which means "to be remembered". What we're going to do is create a cache dictionary that will match arguments to our function call to their outputs. Then if a function call comes in that uses arguments that were used before, we can just grab it from the cache instead of re-doing the calculations.</p>
-<p>We're going to use a python decorator from <a href="https://docs.python.org/3/library/functools.html">functools</a> named <code>wraps</code> that allows you to build a decorator that looks like the original function. It isn't necessary for the decorator to work, but it makes it look more like the original functior passed to the decorator so it's a good practice to use it.</p>
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
-</pre></div>
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">memoize</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
-    <span class="sd">"""Adds caching</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     function: the callable to memoize</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">     callable with caching and the original function</span>
-<span class="sd">    """</span>
-    <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">args</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
-            <span class="n">cache</span><span class="p">[</span><span class="n">args</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">cache</span><span class="p">[</span><span class="n">args</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">wrapped</span>
-</pre></div>
-<p>Although it works as a decorator, since we already defined the <code>fibonacci</code> function we can just pass it to <code>memoize</code> to add the cache.</p>
-<div class="highlight">
-<pre><span></span><span class="n">fibonacci</span> <span class="o">=</span> <span class="n">memoize</span><span class="p">(</span><span class="n">fibonacci</span><span class="p">)</span>
-</pre></div>
-<p>Now let's see what happens.</p>
-<div class="highlight">
-<pre><span></span><span class="k">with</span> <span class="n">TIMER</span><span class="p">:</span>
-    <span class="n">actual</span> <span class="o">=</span> <span class="n">fibonacci</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span>
-</pre></div>
-<pre class="example">
-2020-11-10 15:45:08,117 graeae.timers.timer start: Started: 2020-11-10 15:45:08.117332
-2020-11-10 15:45:08,118 graeae.timers.timer end: Ended: 2020-11-10 15:45:08.118691
-2020-11-10 15:45:08,120 graeae.timers.timer end: Elapsed: 0:00:00.001359
-354224848179261915075
-</pre>
-<p><b>Note:</b> I originally tried renaming the memoized function, but since the recursive calls go to the original function name, this doesn't produce and improved function. You have to use the same name as you did when you defined the function.</p>
-<p>So memoization really helps, even more than you might expect. The reason why is that the first recursion term (<code>fibonacci(n - 1)</code>) gets evaluated first, so each recursive call goes backwards by one until it hits the base-case where <code>n &lt; 2</code> and then all the rest of the calls are evaluated, but after one run through the indexes you've already hit all the cases you need for these other calls so rather than making more recursive calls, everything gets pulled from the cache.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orge46aeed">
-<h2 id="orge46aeed">Once Again With Python</h2>
-<div class="outline-text-2" id="text-orge46aeed">
-<p>As is often the case, when you implement something useful in python you'll find that it's already been implemented, in this case as part of the python standard library.</p>
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
-
-<span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">fib_o_nacci</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="sd">"""Calculates the n-indexed fibonacci number</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     n: the index of the number in the (zero-based) sequence to get</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">     the nth fibonacci number</span>
-<span class="sd">    """</span>
-    <span class="k">assert</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">n</span>
-
-    <span class="k">return</span> <span class="n">fib_o_nacci</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib_o_nacci</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
-</pre></div>
-<p><b>Note:</b> in python 3.9 there is a <code>cache</code> decorator that is the same thing as the <code>lru_cache</code> with <code>maxsize=None</code> but I'm running this on python 3.8 right now so I can't use it.</p>
-<div class="highlight">
-<pre><span></span><span class="k">with</span> <span class="n">TIMER</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">fib_o_nacci</span><span class="p">(</span><span class="mi">500</span><span class="p">))</span>
-</pre></div>
-<pre class="example">
-2020-11-09 21:53:19,405 graeae.timers.timer start: Started: 2020-11-09 21:53:19.405955
-2020-11-09 21:53:19,407 graeae.timers.timer end: Ended: 2020-11-09 21:53:19.407891
-2020-11-09 21:53:19,409 graeae.timers.timer end: Elapsed: 0:00:00.001936
-139423224561697880139724382870407283950070256587697307264108962948325571622863290691557658876222521294125
-</pre>
-<p>Okay, so, I think it works, although I'm not checking the values, the speed seems to be an improvement.</p>
-</div>
-</div>
-</div>
-</article>
 </div>
 <ul class="pager postindexpager clearfix">
 <li class="next"><a href="index-19.html" rel="next">Older posts</a></li>
 </ul>
-<script crossorigin="anonymous" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script type="text/x-mathjax-config">
-
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
-</script><!--End of body content-->
+<!--End of body content-->
 <footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
