@@ -64,25 +64,25 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org6fee654">Beginning</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org43bd167">Middle</a>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orgb1fe2c9">Beginning</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orgc6a2fe5">Middle</a>
 <ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org142a859">Find the USB Device Name</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org0511dac">Unlock the Drive</a></li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#org04870d5">Mount the Drive</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org623d011">Find the USB Device Name</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#orge4c195e">Unlock the Drive</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org0209d1e">Mount the Drive</a></li>
 </ul>
 </li>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#orgc063734">End</a>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org6a93c2c">End</a>
 <ul>
-<li><a href="posts/mounting-an-encrypted-usb-drive/#orgeab96fa">Sources</a></li>
+<li><a href="posts/mounting-an-encrypted-usb-drive/#org3362536">Sources</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6fee654">
-<h2 id="org6fee654">Beginning</h2>
-<div class="outline-text-2" id="text-org6fee654">
+<div class="outline-2" id="outline-container-orgb1fe2c9">
+<h2 id="orgb1fe2c9">Beginning</h2>
+<div class="outline-text-2" id="text-orgb1fe2c9">
 <p>I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:</p>
 <ul class="org-ul">
 <li>I didn't know the <code>/dev</code> file to use</li>
@@ -92,12 +92,12 @@
 <p>So, here's the subset of steps that I did to mount the drive.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org43bd167">
-<h2 id="org43bd167">Middle</h2>
-<div class="outline-text-2" id="text-org43bd167"></div>
-<div class="outline-3" id="outline-container-org142a859">
-<h3 id="org142a859">Find the USB Device Name</h3>
-<div class="outline-text-3" id="text-org142a859">
+<div class="outline-2" id="outline-container-orgc6a2fe5">
+<h2 id="orgc6a2fe5">Middle</h2>
+<div class="outline-text-2" id="text-orgc6a2fe5"></div>
+<div class="outline-3" id="outline-container-org623d011">
+<h3 id="org623d011">Find the USB Device Name</h3>
+<div class="outline-text-3" id="text-org623d011">
 <p>The first think to do is to make sure that the USB device is recognized by the operating system.</p>
 <div class="highlight">
 <pre><span></span>lsusb
@@ -136,9 +136,9 @@ sdb                           8:16   0 931.5G  0 disk
 <p>Now you can see that the partion for our disk is <code>sdb1</code> (the last row where it's shown to be a child of <code>sdb</code> and that its TYPE is a partition).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org0511dac">
-<h3 id="org0511dac">Unlock the Drive</h3>
-<div class="outline-text-3" id="text-org0511dac">
+<div class="outline-3" id="outline-container-orge4c195e">
+<h3 id="orge4c195e">Unlock the Drive</h3>
+<div class="outline-text-3" id="text-orge4c195e">
 <p><b>Note:</b> This works, but there's an alternative way to do it with <a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html">cryptsetup</a> that I find a little easier (but not much). I documented that command as if it continued from this point in <a href="posts/mount-an-encrypted-drive-using-cryptsetup/">this post</a>.</p>
 <p>Next unlock the drive. When you do this it will create a file in <code>/dev/mapper/</code> that you'll need so it would be a good idea to see what's there before you run it.</p>
 <div class="highlight">
@@ -151,9 +151,9 @@ sdb                           8:16   0 931.5G  0 disk
 <p>This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org04870d5">
-<h3 id="org04870d5">Mount the Drive</h3>
-<div class="outline-text-3" id="text-org04870d5">
+<div class="outline-3" id="outline-container-org0209d1e">
+<h3 id="org0209d1e">Mount the Drive</h3>
+<div class="outline-text-3" id="text-org0209d1e">
 <p>If the last command went okay you now need to mount it. There's going to be a file in <code>/dev/mapper</code> that you need to know. When I did it there was only one new file (<code>luks-3eea956c-e684-4bcb-a640-97d0c8c5a700</code>) so I didn't have to do anything special to get it.</p>
 <div class="highlight">
 <pre><span></span>udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
@@ -168,9 +168,9 @@ sdb                           8:16   0 931.5G  0 disk
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgc063734">
-<h2 id="orgc063734">End</h2>
-<div class="outline-text-2" id="text-orgc063734">
+<div class="outline-2" id="outline-container-org6a93c2c">
+<h2 id="org6a93c2c">End</h2>
+<div class="outline-text-2" id="text-org6a93c2c">
 <p>So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udisksctl.</p>
 <div class="highlight">
 <pre><span></span>sudo fdisk -l
@@ -178,9 +178,9 @@ udisksctl unlock -b /dev/sdb1
 udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgeab96fa">
-<h3 id="orgeab96fa">Sources</h3>
-<div class="outline-text-3" id="text-orgeab96fa">
+<div class="outline-3" id="outline-container-org3362536">
+<h3 id="org3362536">Sources</h3>
+<div class="outline-text-3" id="text-org3362536">
 <ul class="org-ul">
 <li><a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/">sourcedigit.com</a> - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"</li>
 <li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">Stack Overflow</a> - "Mount encrypted volumes from command line?"</li>
@@ -199,9 +199,9 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org094d3f2">
-<h2 id="org094d3f2">Citation</h2>
-<div class="outline-text-2" id="text-org094d3f2">
+<div class="outline-2" id="outline-container-org350e38b">
+<h2 id="org350e38b">Citation</h2>
+<div class="outline-text-2" id="text-org350e38b">
 <ul class="org-ul">
 <li>Diez DM, Barr CD, Çetinkaya-Rundel M. Introductory statistics with randomization and simulation. OpenIntro.org; 2014. 348 p.</li>
 </ul>
@@ -218,9 +218,9 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org80f95c6">
-<h2 id="org80f95c6">Biblography</h2>
-<div class="outline-text-2" id="text-org80f95c6">
+<div class="outline-2" id="outline-container-org19a56b8">
+<h2 id="org19a56b8">Biblography</h2>
+<div class="outline-text-2" id="text-org19a56b8">
 <ul class="org-ul">
 <li>Barry L. Making comics. Montreal, Quebec: Drawn & Quarterly; 2019. 198 p.</li>
 </ul>
@@ -237,17 +237,17 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org196668c">
-<h2 id="org196668c">Citation</h2>
-<div class="outline-text-2" id="text-org196668c">
+<div class="outline-2" id="outline-container-org2f6562b">
+<h2 id="org2f6562b">Citation</h2>
+<div class="outline-text-2" id="text-org2f6562b">
 <ul class="org-ul">
 <li>Oakley BA. A mind for numbers: how to excel at math and science (even if you flunked algebra). New York: Jeremy P. Tarcher/Penguin; 2014. 316 p.</li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org7e457e6">
-<h2 id="org7e457e6">Notes</h2>
-<div class="outline-text-2" id="text-org7e457e6">
+<div class="outline-2" id="outline-container-org91735ec">
+<h2 id="org91735ec">Notes</h2>
+<div class="outline-text-2" id="text-org91735ec">
 <p>This is a tour of ideas to help students learn how to learn, with an emphasis on math and science. She covers things varying from how to study, to procrastination, to test-taking. Her ten rules are (paraphrased):</p>
 <ol class="org-ol">
 <li>Recall things early and often to make them stick</li>
@@ -275,17 +275,17 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org616e620">
-<h2 id="org616e620">Citation</h2>
-<div class="outline-text-2" id="text-org616e620">
+<div class="outline-2" id="outline-container-org7e194d8">
+<h2 id="org7e194d8">Citation</h2>
+<div class="outline-text-2" id="text-org7e194d8">
 <ul class="org-ul">
 <li>F1 score. In: Wikipedia [Internet]. 2020 [cited 2020 Sep 10]. Available from: <a href="https://en.wikipedia.org/w/index.php?title=F1_score&amp;oldid=976442604">https://en.wikipedia.org/w/index.php?title=F1_score&amp;oldid=976442604</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgd518c5a">
-<h2 id="orgd518c5a">Comments</h2>
-<div class="outline-text-2" id="text-orgd518c5a">
+<div class="outline-2" id="outline-container-org30074ff">
+<h2 id="org30074ff">Comments</h2>
+<div class="outline-text-2" id="text-org30074ff">
 <p>Covers the F1 Score, \(F_\beta\), and other related scores (including precison and recall) as well as giving applications and criticisms (with alternative metrics suggested).</p>
 </div>
 </div>
@@ -304,33 +304,33 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/precision-recall-and-the-f-measure/#orga56c45f">Beginning</a></li>
-<li><a href="posts/precision-recall-and-the-f-measure/#org4b9725e">The Metrics</a>
+<li><a href="posts/precision-recall-and-the-f-measure/#org2860205">Beginning</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org194aa48">The Metrics</a>
 <ul>
-<li><a href="posts/precision-recall-and-the-f-measure/#orgcbf5c79">Positive and Negative</a></li>
-<li><a href="posts/precision-recall-and-the-f-measure/#orgbd4acd4">Accuracy</a></li>
-<li><a href="posts/precision-recall-and-the-f-measure/#org1597562">Precision</a></li>
-<li><a href="posts/precision-recall-and-the-f-measure/#orgb7533d5">Recall</a></li>
-<li><a href="posts/precision-recall-and-the-f-measure/#org75b7b3b">F-Measure</a></li>
-<li><a href="posts/precision-recall-and-the-f-measure/#orge189da1">F1 Measure</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org893320d">Positive and Negative</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org54c84d8">Accuracy</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org1970089">Precision</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org70701f9">Recall</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org1a62709">F-Measure</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org5438957">F1 Measure</a></li>
 </ul>
 </li>
-<li><a href="posts/precision-recall-and-the-f-measure/#org913e742">References</a></li>
+<li><a href="posts/precision-recall-and-the-f-measure/#org9bb3195">References</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga56c45f">
-<h2 id="orga56c45f">Beginning</h2>
-<div class="outline-text-2" id="text-orga56c45f">
+<div class="outline-2" id="outline-container-org2860205">
+<h2 id="org2860205">Beginning</h2>
+<div class="outline-text-2" id="text-org2860205">
 <p>When we are looking at how well a model (or a person) is doing it's often best to have a numeric value that we can calculate to make it easy to see how well it is doing. The first thing many people reach for is measuring <i>accuracy</i> but this isn't always the best metric. Unbalanced data sets can distort this metric, for instance. If 90% of the data is spam then a model that always guessed that an email is spam will have decent accuracy, but really won't be all that useful (except for pointing out that you have too much spam). To remedy this and other problems I'll look at some alternative metrics (<i>precision</i>, <i>recall</i>, and the <i>f-measure</i>) which are useful for deciding how well classification models are doing.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org4b9725e">
-<h2 id="org4b9725e">The Metrics</h2>
-<div class="outline-text-2" id="text-org4b9725e"></div>
-<div class="outline-3" id="outline-container-orgcbf5c79">
-<h3 id="orgcbf5c79">Positive and Negative</h3>
-<div class="outline-text-3" id="text-orgcbf5c79">
+<div class="outline-2" id="outline-container-org194aa48">
+<h2 id="org194aa48">The Metrics</h2>
+<div class="outline-text-2" id="text-org194aa48"></div>
+<div class="outline-3" id="outline-container-org893320d">
+<h3 id="org893320d">Positive and Negative</h3>
+<div class="outline-text-3" id="text-org893320d">
 <p>First some terminology. We're going to assume that we want to label data as either being something or not being that thing. e.g. guilty or not guilty, duck or not a duck, etc. The label for things that are the thing is called <i>Positive</i> and the label for things that aren't the thing is <i>Negative</i>.</p>
 <table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
 <colgroup>
@@ -395,50 +395,50 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </table>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgbd4acd4">
-<h3 id="orgbd4acd4">Accuracy</h3>
-<div class="outline-text-3" id="text-orgbd4acd4">
+<div class="outline-3" id="outline-container-org54c84d8">
+<h3 id="org54c84d8">Accuracy</h3>
+<div class="outline-text-3" id="text-org54c84d8">
 <p>Okay, I said we aren't going to use accuracy, but just to be complete… accuracy asks <i>what fraction of the anwsers did you get correct?</i></p>
 <p>\[ \textrm{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} \]</p>
 <p>This is probably what most of us are familiar with from being graded in school.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org1597562">
-<h3 id="org1597562">Precision</h3>
-<div class="outline-text-3" id="text-org1597562">
+<div class="outline-3" id="outline-container-org1970089">
+<h3 id="org1970089">Precision</h3>
+<div class="outline-text-3" id="text-org1970089">
 <p><i>How much of what was predicted positive was really positive?</i></p>
 <p>\[ \textrm{Precision} = \frac{TP}{TP+FP} \]</p>
 <p>Since we have the count of false-positives in the denominator, your score will go down the more negatives you label positive (e.g. the more innocents you convict, the lower the score).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgb7533d5">
-<h3 id="orgb7533d5">Recall</h3>
-<div class="outline-text-3" id="text-orgb7533d5">
+<div class="outline-3" id="outline-container-org70701f9">
+<h3 id="org70701f9">Recall</h3>
+<div class="outline-text-3" id="text-org70701f9">
 <p><i>How many of the positives did you catch?</i></p>
 <p>\[ \textrm{Recall} = \frac{TP}{TP + FN} \]</p>
 <p>Here your score will go down the more positives you miss (the more guilty you find innocent).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org75b7b3b">
-<h3 id="org75b7b3b">F-Measure</h3>
-<div class="outline-text-3" id="text-org75b7b3b">
+<div class="outline-3" id="outline-container-org1a62709">
+<h3 id="org1a62709">F-Measure</h3>
+<div class="outline-text-3" id="text-org1a62709">
 <p>So, in some cases you might want to favor <i>Precision</i> over <i>Recall</i> and vice-versa, but what if you don't really want one over the other? The <i>F-Measure</i> allows us to combine them into one metric.</p>
 <p>\[ F_{\beta} = \frac{(\beta^2 + 1) Precision \times Recall}{\beta^2 Precision + Recall} \]</p>
 <p>To make it simpler I'll just use <i>P</i> for precision and <i>R</i> for recall from here on.</p>
 <p>\(\beta\) in the equation is a parameter that we can tune to favor precision or recall. If you'll notice, \(\beta\) in the numerator affects both precision and recall equally, while it only affects precision in the denominator, so the larger it is, the more precision diminishes the score.</p>
 \begin{align} \beta &gt; 1 &amp;: \textit{Favor Recall}\\ \beta &lt; 1 &amp;: \textit{Favor Precision}\\ \end{align}</div>
 </div>
-<div class="outline-3" id="outline-container-orge189da1">
-<h3 id="orge189da1">F1 Measure</h3>
-<div class="outline-text-3" id="text-orge189da1">
+<div class="outline-3" id="outline-container-org5438957">
+<h3 id="org5438957">F1 Measure</h3>
+<div class="outline-text-3" id="text-org5438957">
 <p>If you look at the inequalities for the effects of \(\beta\) on the F-Measure you might notice that they don't include 1. That's because when \(\beta\) is 1 it doesn't favor either precision or recall, giving a case that combines both of them and treating them equally.</p>
 <p>\[ F_1 = \frac{2PR}{P + R} \]</p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org913e742">
-<h2 id="org913e742">References</h2>
-<div class="outline-text-2" id="text-org913e742">
+<div class="outline-2" id="outline-container-org9bb3195">
+<h2 id="org9bb3195">References</h2>
+<div class="outline-text-2" id="text-org9bb3195">
 <ul class="org-ul">
 <li><a href="posts/bib-speech-and-language-processing-jurafsky-martin/">Speech and Language Processing</a></li>
 <li><a href="posts/wikipedia-on-f1-score/">Wikipedia on the F1 Score</a></li>
@@ -456,41 +456,41 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-orgaa8004c">
-<h2 id="orgaa8004c">Citation</h2>
-<div class="outline-text-2" id="text-orgaa8004c">
+<div class="outline-2" id="outline-container-org69f8f65">
+<h2 id="org69f8f65">Citation</h2>
+<div class="outline-text-2" id="text-org69f8f65">
 <ul class="org-ul">
 <li>Kaplan JT, Gimbel SI, Harris S. Neural correlates of maintaining one’s political beliefs in the face of counterevidence. Scientific reports. 2016 Dec 23;6:39589. <a href="https://www.nature.com/articles/srep39589">nature.com</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org076b801">
-<h2 id="org076b801">Abstract</h2>
-<div class="outline-text-2" id="text-org076b801"></div>
-<div class="outline-3" id="outline-container-orgf0ad3e4">
-<h3 id="orgf0ad3e4">Context</h3>
-<div class="outline-text-3" id="text-orgf0ad3e4">
+<div class="outline-2" id="outline-container-org8442522">
+<h2 id="org8442522">Abstract</h2>
+<div class="outline-text-2" id="text-org8442522"></div>
+<div class="outline-3" id="outline-container-orgc0c150f">
+<h3 id="orgc0c150f">Context</h3>
+<div class="outline-text-3" id="text-orgc0c150f">
 <p>People often discount evidence that contradicts their firmly held beliefs.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org2cf556b">
-<h3 id="org2cf556b">Conflict</h3>
-<div class="outline-text-3" id="text-org2cf556b">
+<div class="outline-3" id="outline-container-org0b6f7ff">
+<h3 id="org0b6f7ff">Conflict</h3>
+<div class="outline-text-3" id="text-org0b6f7ff">
 <p>However, little is known about the neural mechanisms that govern this behavior.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org0c8bdbb">
-<h3 id="org0c8bdbb">Consequence</h3>
-<div class="outline-text-3" id="text-org0c8bdbb"></div>
-<div class="outline-4" id="outline-container-orge6c4123">
-<h4 id="orge6c4123">Method</h4>
-<div class="outline-text-4" id="text-orge6c4123">
+<div class="outline-3" id="outline-container-org2128a2d">
+<h3 id="org2128a2d">Consequence</h3>
+<div class="outline-text-3" id="text-org2128a2d"></div>
+<div class="outline-4" id="outline-container-orgef1f239">
+<h4 id="orgef1f239">Method</h4>
+<div class="outline-text-4" id="text-orgef1f239">
 <p>We used neuroimaging to investigate the neural systems involved in maintaining belief in the face of counterevidence, presenting 40 liberals with arguments that contradicted their strongly held political and non-political views.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgce4b6b6">
-<h4 id="orgce4b6b6">Results</h4>
-<div class="outline-text-4" id="text-orgce4b6b6">
+<div class="outline-4" id="outline-container-orgeb8dc2b">
+<h4 id="orgeb8dc2b">Results</h4>
+<div class="outline-text-4" id="text-orgeb8dc2b">
 <p>Challenges to political beliefs produced increased activity in the default mode network—a set of interconnected structures associated with self-representation and disengagement from the external world. Trials with greater belief resistance showed increased response in the dorsomedial prefrontal cortex and decreased activity in the orbitofrontal cortex. We also found that participants who changed their minds more showed less signal in the insula and the amygdala when evaluating counterevidence. These results highlight the role of emotion in belief-change resistance and offer insight into the neural systems involved in belief maintenance, motivated reasoning, and related phenomena.</p>
 </div>
 </div>
@@ -507,26 +507,26 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-orge4227df">
-<h2 id="orge4227df">Citation</h2>
-<div class="outline-text-2" id="text-orge4227df">
+<div class="outline-2" id="outline-container-orgf3d2510">
+<h2 id="orgf3d2510">Citation</h2>
+<div class="outline-text-2" id="text-orgf3d2510">
 <ul class="org-ul">
 <li>Epstein D. The Peculiar Blindness of Experts [Internet]. The Atlantic. 2019 [cited 2020 Sep 7]. Available from: <a href="https://www.theatlantic.com/magazine/archive/2019/06/how-to-predict-the-future/588040/">https://www.theatlantic.com/magazine/archive/2019/06/how-to-predict-the-future/588040/</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5251216">
-<h2 id="org5251216">Commentary</h2>
-<div class="outline-text-2" id="text-org5251216"></div>
-<div class="outline-3" id="outline-container-org4141798">
-<h3 id="org4141798">The Bet</h3>
-<div class="outline-text-3" id="text-org4141798">
+<div class="outline-2" id="outline-container-org8262e82">
+<h2 id="org8262e82">Commentary</h2>
+<div class="outline-text-2" id="text-org8262e82"></div>
+<div class="outline-3" id="outline-container-orgdf710a0">
+<h3 id="orgdf710a0">The Bet</h3>
+<div class="outline-text-3" id="text-orgdf710a0">
 <p>Paul R. Ehrlich predicted that population increases would cause scarcity and starvation and pushed for regulations to protect the environment and resources. Julian Simon predicted that technological innovation would solve the scarcity problem and clean up the environment. They placed a bet based on the price of five metals which they used as a proxy for resource scarcity. Ehrlich lost the bet but doubled-down on his predictions, saying the timing was off. Later studies showed that the price of metals didn't reflect scarcity and Simon just had the luck of the market. Ehrlich was wrong on scarcity but right on the need for regulation to protect the environment. Simon was right that technology would prevent the catastrophe Ehrlich predicted but couldn't concede that it was regulation and not technology that helped the environment.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org3528029">
-<h3 id="org3528029">Tetlock's Study</h3>
-<div class="outline-text-3" id="text-org3528029">
+<div class="outline-3" id="outline-container-org311359d">
+<h3 id="org311359d">Tetlock's Study</h3>
+<div class="outline-text-3" id="text-org311359d">
 <p>Philip Tetlock set up a study where he collected the predictions of experts on political science for twenty years. At the end of it he found that they were generally horrible at forecasting and that even when shown their predictions, the experts wouldn't concede that they were wrong. The experts tended to make predictions based on their political identifications but one group took ideas from multiple camps and were more successful at making predictions. Tetlock named the two types of experts <i>Hedgehogs</i> and <i>Foxes</i>.</p>
 <table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
 <colgroup>
@@ -558,9 +558,9 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 <p><i>Multa novit vulpes, verum echinus unum magnum</i> - "a fox knows many things, but a hedgehog one important thing".</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org248a8d3">
-<h3 id="org248a8d3">The Prediction Tournament</h3>
-<div class="outline-text-3" id="text-org248a8d3">
+<div class="outline-3" id="outline-container-orgdc7b928">
+<h3 id="orgdc7b928">The Prediction Tournament</h3>
+<div class="outline-text-3" id="text-orgdc7b928">
 <p>IARPA saw Tetlock's study and set up a prediction tournament to test expert teams. Tetlock entered using volunteers identified as Foxes and won. The Foxes tended to see teammates as sources of information to learn from, while Hedgehogs saw teammates as adversaries who needed to be convinced of their opinions. Both Foxes and Hedgehogs saw successes as reinforcing what they believed, but when information came up that conflicted with those beliefs the Foxes updated their positions while the Hedgehogs doubled-down on their prior beliefs instead.</p>
 </div>
 </div>
@@ -580,24 +580,24 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/peter-elbows-believing-game/#org0f3c415">Description</a>
+<li><a href="posts/peter-elbows-believing-game/#org0a07a31">Description</a>
 <ul>
-<li><a href="posts/peter-elbows-believing-game/#org3b4eb14">Background</a></li>
+<li><a href="posts/peter-elbows-believing-game/#org0410e3b">Background</a></li>
 </ul>
 </li>
-<li><a href="posts/peter-elbows-believing-game/#org220c6d1">The Game</a></li>
-<li><a href="posts/peter-elbows-believing-game/#org568b0f0">Hedgehogs and Foxes</a></li>
-<li><a href="posts/peter-elbows-believing-game/#org4c794b2">Einstellung and Shoshin</a></li>
-<li><a href="posts/peter-elbows-believing-game/#org1ac5afa">Sources</a></li>
+<li><a href="posts/peter-elbows-believing-game/#org6e60e89">The Game</a></li>
+<li><a href="posts/peter-elbows-believing-game/#org1dd4748">Hedgehogs and Foxes</a></li>
+<li><a href="posts/peter-elbows-believing-game/#org54bd8ed">Einstellung and Shoshin</a></li>
+<li><a href="posts/peter-elbows-believing-game/#org5f3e9c2">Sources</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0f3c415">
-<h2 id="org0f3c415">Description</h2>
-<div class="outline-text-2" id="text-org0f3c415"></div>
-<div class="outline-3" id="outline-container-org3b4eb14">
-<h3 id="org3b4eb14">Background</h3>
-<div class="outline-text-3" id="text-org3b4eb14">
+<div class="outline-2" id="outline-container-org0a07a31">
+<h2 id="org0a07a31">Description</h2>
+<div class="outline-text-2" id="text-org0a07a31"></div>
+<div class="outline-3" id="outline-container-org0410e3b">
+<h3 id="org0410e3b">Background</h3>
+<div class="outline-text-3" id="text-org0410e3b">
 <p>In his paper <a href="posts/bibliography/the-believing-game/">on The Believing Game</a> Peter Elbow proposes that in addition to the traditional "Doubting Game" (skeptical thinking) we should also engage in the "Believing Game" which involves understanding an argument by accepting it as true. He argues that while the skeptical, scientific, method (searching for flaws) is valuable it needs to be augmented by an accepting method (searching for virtues) as well. The Doubting Game has dominated because of its usefulness but it can lead us to nurture blind spots that are protected by our skepticism. By accepting the arguments of someone whose position we dislike we can, potentially find flaws in our own thinking.</p>
 <p>An important point that Elbow makes is that there are two levels at which we have to look at arguments - the logic behind the arguments and the actual thing that is being argued for or against. It is possible to make a flawed argument for a good idea and a sound argument for a bad idea. The Doubting Game is a search for flaws in the argument while the Believing Game is a way to examine the underlying position that the argument is trying to make.</p>
 <table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
@@ -629,30 +629,30 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org220c6d1">
-<h2 id="org220c6d1">The Game</h2>
-<div class="outline-text-2" id="text-org220c6d1">
+<div class="outline-2" id="outline-container-org6e60e89">
+<h2 id="org6e60e89">The Game</h2>
+<div class="outline-text-2" id="text-org6e60e89">
 <p><a href="posts/bibliography/they-sayi-say/">Graff & Birkstein</a> propose a concrete version of the Believing Game as a game:</p>
 <blockquote>
 <p>To get a feel for Peter Elbow's "believing game," write a summary of some belief that you strongly disagree with. Then write a summary of the position that you actually hold on this topic. Give both summaries to a classmate or two, and see if they can tell which position you endorse. If you've succeeded, they won't be able to tell.</p>
 </blockquote>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org568b0f0">
-<h2 id="org568b0f0">Hedgehogs and Foxes</h2>
-<div class="outline-text-2" id="text-org568b0f0">
+<div class="outline-2" id="outline-container-org1dd4748">
+<h2 id="org1dd4748">Hedgehogs and Foxes</h2>
+<div class="outline-text-2" id="text-org1dd4748">
 <p>Besides paradigm shifts this also makes me think of <a href="posts/bibliography/the-peculiar-blindness-of-experts/">an article in the Atlantic</a> about how experts tend to make horrible predictions because they hold to a specific view and bend conflicting information to fit their view (Hedgehogs) while those who tend to be cross-disciplined generalists who are able to take in information from other experts and update their prior beliefs when conflicting information comes in (Foxes) make better predictions than the specialized "experts".</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org4c794b2">
-<h2 id="org4c794b2">Einstellung and Shoshin</h2>
-<div class="outline-text-2" id="text-org4c794b2">
+<div class="outline-2" id="outline-container-org54bd8ed">
+<h2 id="org54bd8ed">Einstellung and Shoshin</h2>
+<div class="outline-text-2" id="text-org54bd8ed">
 <p>Now I'm straying way into left field, but thinking of the Hedgehogs and Foxes puts me in the mind of the <a href="https://en.wikipedia.org/wiki/Einstellung_effect?oldformat=true">Einstellung Effect</a> wherein people become stuck trying to apply the same solution even when it is no longe applicable, whereas those lacking experience in the problem can sometimes see possibilities that are not as obvious to the experienced. The point of reading Elbow's paper was to get an idea of how to write effective summaries of other people's work, but instead I think I've talked myself into believing it's a way to keep a "beginner's mind".</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org1ac5afa">
-<h2 id="org1ac5afa">Sources</h2>
-<div class="outline-text-2" id="text-org1ac5afa">
+<div class="outline-2" id="outline-container-org5f3e9c2">
+<h2 id="org5f3e9c2">Sources</h2>
+<div class="outline-text-2" id="text-org5f3e9c2">
 <ul class="org-ul">
 <li><a href="posts/bibliography/the-believing-game/">The Believing Game</a></li>
 <li><a href="posts/bibliography/the-peculiar-blindness-of-experts/">The Peculiar Blindness of Experts</a></li>
@@ -686,7 +686,7 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 
         MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
 </script><!--End of body content-->
-<footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2022 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
 <script src="assets/js/all-nocdn.js"></script>

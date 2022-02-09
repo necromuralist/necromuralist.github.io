@@ -76,27 +76,27 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org720e8b1">What is this?</a></li>
-<li><a href="#orgd75dcc7">Imports</a></li>
-<li><a href="#org0cf45c7">The Data</a></li>
-<li><a href="#orgb533c21">The Mean</a></li>
-<li><a href="#org19cffa4">Getting the Mean Back Into the Frame</a></li>
-<li><a href="#orgf178e7e">Calculating the RMSE</a></li>
+<li><a href="#org4cee0a8">What is this?</a></li>
+<li><a href="#org71b603a">Imports</a></li>
+<li><a href="#orgfd57beb">The Data</a></li>
+<li><a href="#org11eafd8">The Mean</a></li>
+<li><a href="#orgf68dfcd">Getting the Mean Back Into the Frame</a></li>
+<li><a href="#orgfa2f542">Calculating the RMSE</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org720e8b1">
-<h2 id="org720e8b1">What is this?</h2>
-<div class="outline-text-2" id="text-org720e8b1">
+<div class="outline-2" id="outline-container-org4cee0a8">
+<h2 id="org4cee0a8">What is this?</h2>
+<div class="outline-text-2" id="text-org4cee0a8">
 <p>This is a short sketch to figure out how to group a bunch of values by month and calculate the <a href="https://en.wikipedia.org/wiki/Root-mean-square_deviation">Root-Mean-Squared-Error</a> (RMSE) for the mean for the values in that month. This probably isn't the most efficient way to do this, but I'm trying to double check everything as I go and doing the typical <a href="http://wiki.c2.com/?TrainWreck">Train Wreck</a> like you see in most examples on Stack Overflow.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgd75dcc7">
-<h2 id="orgd75dcc7">Imports</h2>
-<div class="outline-text-2" id="text-orgd75dcc7"></div>
-<div class="outline-3" id="outline-container-org3c2143a">
-<h3 id="org3c2143a">From PyPi</h3>
-<div class="outline-text-3" id="text-org3c2143a">
+<div class="outline-2" id="outline-container-org71b603a">
+<h2 id="org71b603a">Imports</h2>
+<div class="outline-text-2" id="text-org71b603a"></div>
+<div class="outline-3" id="outline-container-org0596ab6">
+<h3 id="org0596ab6">From PyPi</h3>
+<div class="outline-text-3" id="text-org0596ab6">
 <p>Just pandas.</p>
 <div class="highlight">
 <pre><span></span>import pandas
@@ -104,9 +104,9 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0cf45c7">
-<h2 id="org0cf45c7">The Data</h2>
-<div class="outline-text-2" id="text-org0cf45c7">
+<div class="outline-2" id="outline-container-orgfd57beb">
+<h2 id="orgfd57beb">The Data</h2>
+<div class="outline-text-2" id="text-orgfd57beb">
 <p>I'm going to create some simple values so that it's easy(ish) to do the math by hand and double-check what comes out. I'll use the pandas <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Timestamp.html">Timestamp</a> for the dates. I'm still not one-hundred percent sure why it's better than date-time, but hopefully it's optimized or something.</p>
 <div class="highlight">
 <pre><span></span>data = {"date": [
@@ -125,9 +125,9 @@ frame = pandas.DataFrame.from_dict(data)
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgb533c21">
-<h2 id="orgb533c21">The Mean</h2>
-<div class="outline-text-2" id="text-orgb533c21">
+<div class="outline-2" id="outline-container-org11eafd8">
+<h2 id="org11eafd8">The Mean</h2>
+<div class="outline-text-2" id="text-org11eafd8">
 <p>The value I'm going to use to estimate the values for each month is the mean.</p>
 <div class="highlight">
 <pre><span></span>monthly = date_frame.resample("M")
@@ -142,9 +142,9 @@ date
 2018-10-31    1.5
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-org19cffa4">
-<h2 id="org19cffa4">Getting the Mean Back Into the Frame</h2>
-<div class="outline-text-2" id="text-org19cffa4">
+<div class="outline-2" id="outline-container-orgf68dfcd">
+<h2 id="orgf68dfcd">Getting the Mean Back Into the Frame</h2>
+<div class="outline-text-2" id="text-orgf68dfcd">
 <p>Now that we have the monthly means, I want to re-add them to the original data-frame by giving them a common column named <code>year_month</code> (using <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.apply.html">apply</a>) so I can broadcast the means by merging the two data-frames.</p>
 <div class="highlight">
 <pre><span></span>frame["year_month"] = frame.date.apply(
@@ -203,12 +203,12 @@ assert all(merged["mean"] == [2, 2, 2, 1.5, 1.5])
 <p>Note that I had to use the <code>merged["mean"]</code> form because the data-frame has a <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.mean.html">mean</a> method which the dot-notation (<code>merged.mean</code>) would call instead of grabbing the column.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf178e7e">
-<h2 id="orgf178e7e">Calculating the RMSE</h2>
-<div class="outline-text-2" id="text-orgf178e7e"></div>
-<div class="outline-3" id="outline-container-orge01d3a2">
-<h3 id="orge01d3a2">Error</h3>
-<div class="outline-text-3" id="text-orge01d3a2">
+<div class="outline-2" id="outline-container-orgfa2f542">
+<h2 id="orgfa2f542">Calculating the RMSE</h2>
+<div class="outline-text-2" id="text-orgfa2f542"></div>
+<div class="outline-3" id="outline-container-org34bff84">
+<h3 id="org34bff84">Error</h3>
+<div class="outline-text-3" id="text-org34bff84">
 <p>Since I'm estimating the values for each month using the mean the <i>error</i> is the difference between the <i>mean</i> and each of the <i>values</i>.</p>
 <div class="highlight">
 <pre><span></span>merged["error"] = merged["value"] - merged["mean"]
@@ -224,9 +224,9 @@ assert all(merged.error==[-1, 0, 1, -.5, .5])
 4 2018-10-05      2 2018-10-01   1.5    0.5
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orga0851f8">
-<h3 id="orga0851f8">Error Squared</h3>
-<div class="outline-text-3" id="text-orga0851f8">
+<div class="outline-3" id="outline-container-org411851c">
+<h3 id="org411851c">Error Squared</h3>
+<div class="outline-text-3" id="text-org411851c">
 <p>Now I'll square the error to get rid of the negative error values (which would cancel each other out when we take the mean errors) and to make the effect of the errors non-linear (the errors are exagerrated).</p>
 <div class="highlight">
 <pre><span></span>merged["error_squared"] = merged.error.pow(2)
@@ -243,9 +243,9 @@ assert all(merged.error==[-1, 0, 1, -.5, .5])
 4 2018-10-05      2 2018-10-01   1.5    0.5           0.25
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-orgc6557e6">
-<h3 id="orgc6557e6">Mean Squared Error</h3>
-<div class="outline-text-3" id="text-orgc6557e6">
+<div class="outline-3" id="outline-container-orga28341d">
+<h3 id="orga28341d">Mean Squared Error</h3>
+<div class="outline-text-3" id="text-orga28341d">
 <p>So now we take the mean of our squared errors to get an initial estimate of how much we are off each month.</p>
 <div class="highlight">
 <pre><span></span>mean_of = merged.groupby("year_month").mean()
@@ -258,9 +258,9 @@ year_month
 Name: error_squared, dtype: float64
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org025e73c">
-<h3 id="org025e73c">RMSE</h3>
-<div class="outline-text-3" id="text-org025e73c">
+<div class="outline-3" id="outline-container-org60d6b6e">
+<h3 id="org60d6b6e">RMSE</h3>
+<div class="outline-text-3" id="text-org60d6b6e">
 <p>Since the squared error would have units squared, I'll take the root of it to get a more interpretable estimate of the error.</p>
 <div class="highlight">
 <pre><span></span>print(mean_of.error_squared.pow(.5))
@@ -289,7 +289,7 @@ Name: error_squared, dtype: float64
 </aside>
 </article>
 <!--End of body content-->
-<footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2022 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
 <script src="../../assets/js/all-nocdn.js"></script>

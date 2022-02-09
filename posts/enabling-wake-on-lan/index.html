@@ -75,43 +75,43 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org8d6095c">Beginning</a></li>
-<li><a href="#org12699d0">Middle</a>
+<li><a href="#orgb536b95">Beginning</a></li>
+<li><a href="#org78eb9bb">Middle</a>
 <ul>
-<li><a href="#org48191cc">Ethtool</a></li>
-<li><a href="#org325df56">Checking the Interface</a></li>
-<li><a href="#org058b29d">Turn It On Temporarily</a></li>
-<li><a href="#org4ddba1d">Test It Out</a></li>
-<li><a href="#org3430b00">Take Two</a></li>
-<li><a href="#org7fcf0dd">Making It Permanent</a></li>
+<li><a href="#orgb540722">Ethtool</a></li>
+<li><a href="#org72d3fc6">Checking the Interface</a></li>
+<li><a href="#orga86fca7">Turn It On Temporarily</a></li>
+<li><a href="#org2482918">Test It Out</a></li>
+<li><a href="#org04762b2">Take Two</a></li>
+<li><a href="#org64bb34d">Making It Permanent</a></li>
 </ul>
 </li>
-<li><a href="#org5704759">End</a></li>
+<li><a href="#orgd7fbbd0">End</a></li>
 </ul>
 </div>
 </div>
 <p><b>Note:</b> The systemd configuration here isn't quite right, but since this post is kind of long and convoluted I made a standalone update about the systemd configuration file in <a href="../using-systemd-to-enable-wake-on-lan/">this post</a>.</p>
-<div class="outline-2" id="outline-container-org8d6095c">
-<h2 id="org8d6095c">Beginning</h2>
-<div class="outline-text-2" id="text-org8d6095c">
+<div class="outline-2" id="outline-container-orgb536b95">
+<h2 id="orgb536b95">Beginning</h2>
+<div class="outline-text-2" id="text-orgb536b95">
 <p>These are my notes on getting <a href="https://en.wikipedia.org/wiki/Wake-on-LAN">Wake-On-LAN</a> working in Ubuntu 20.10. I have a server that I use to run most of the computation on when I use emacs/jupyter but I have it in a corner upstairs and although it's only a little walk, I find that the fact that I have to stop what I'm doing and go upstairs to push that little button on the front makes me lazy and so it ends up running more than it has to so I thought I'd enable Wake-On-LAN so I can suspend it and wake it up whenever I need to. I'm only going to use suspend (<a href="https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface">APM</a> S3). When I tried to use hibernate (S4) it ended up shutting down my machine (S5). Interestingly, my BIOS menu has an option to enable waking up from shutdown, but since my disk is encrypted, and I didn't set up a separate SSH server, I have to go enter the passphrase to unlock the disk before the operating system can boot up, so it kind of defeats its own purpose.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org12699d0">
-<h2 id="org12699d0">Middle</h2>
-<div class="outline-text-2" id="text-org12699d0"></div>
-<div class="outline-3" id="outline-container-org48191cc">
-<h3 id="org48191cc">Ethtool</h3>
-<div class="outline-text-3" id="text-org48191cc">
+<div class="outline-2" id="outline-container-org78eb9bb">
+<h2 id="org78eb9bb">Middle</h2>
+<div class="outline-text-2" id="text-org78eb9bb"></div>
+<div class="outline-3" id="outline-container-orgb540722">
+<h3 id="orgb540722">Ethtool</h3>
+<div class="outline-text-3" id="text-orgb540722">
 <p>The command I used to set up Wake-On-LAN on the remote machine is called <a href="https://en.wikipedia.org/wiki/Ethtool">ethtool</a>. It's in the Ubuntu repositories but wasn't installed on my machine so I had to add it.</p>
 <div class="highlight">
 <pre><span></span>sudo apt install ethtool
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org325df56">
-<h3 id="org325df56">Checking the Interface</h3>
-<div class="outline-text-3" id="text-org325df56">
+<div class="outline-3" id="outline-container-org72d3fc6">
+<h3 id="org72d3fc6">Checking the Interface</h3>
+<div class="outline-text-3" id="text-org72d3fc6">
 <p>From what I've read, not all ethernet interfaces support Wake-On-LAN (although I've never seen one that doesn't) so a quick check might be useful. First, find the name of your ethernet interface.</p>
 <div class="highlight">
 <pre><span></span>ip a
@@ -171,9 +171,9 @@ Wake-on: d
 <p>There's an additional option which is what the interface was set on – <code>d</code> – as you can see in the last line of the output. This means <i>Disable (wake on nothing). This option clears all previous options.</i> I don't have many devices on my network, so I don't know that there's a lot of broadcasts, multicasts, etc. that would be waking it up all the time, but since one feature of Wake-On-LAN is that it only wakes the machine when it gets the "Magic Packet", only the <code>g</code> and <code>d</code> options matter. Now that I knew it was supported, it was time to try it out.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org058b29d">
-<h3 id="org058b29d">Turn It On Temporarily</h3>
-<div class="outline-text-3" id="text-org058b29d">
+<div class="outline-3" id="outline-container-orga86fca7">
+<h3 id="orga86fca7">Turn It On Temporarily</h3>
+<div class="outline-text-3" id="text-orga86fca7">
 <p>The <code>ethtool</code> will turn on Wake-On-LAN, but (supposedly) everytime you reboot the machine it will reset to disabled. I haven't really tested this out, but I'll document how to make it permanent later, anyway.</p>
 <div class="highlight">
 <pre><span></span>sudo ethtool --change enp4s0 wol g
@@ -192,9 +192,9 @@ Wake-on: d
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4ddba1d">
-<h3 id="org4ddba1d">Test It Out</h3>
-<div class="outline-text-3" id="text-org4ddba1d">
+<div class="outline-3" id="outline-container-org2482918">
+<h3 id="org2482918">Test It Out</h3>
+<div class="outline-text-3" id="text-org2482918">
 <p>Now, on my local machine I needed to install <a href="https://github.com/jpoliv/wakeonlan">wakeonlan</a>. There's a surprising number of programs to send the Magic Packet, but this just happened to be the one I used.</p>
 <div class="highlight">
 <pre><span></span>sudo apt install wakeonlan
@@ -206,9 +206,9 @@ Wake-on: d
 <p>And then I pinged the machine and I waited. And I waited. And I waited… Eventually I went upstairs and saw that it was still sleeping so I pushed the power button to wake it up and went back downstairs.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org3430b00">
-<h3 id="org3430b00">Take Two</h3>
-<div class="outline-text-3" id="text-org3430b00">
+<div class="outline-3" id="outline-container-org04762b2">
+<h3 id="org04762b2">Take Two</h3>
+<div class="outline-text-3" id="text-org04762b2">
 <p>Something wasn't right so I SSHd into the server and started up <a href="https://www.tcpdump.org/">tcpdump</a> to see if the packets were going through.</p>
 <div class="highlight">
 <pre><span></span>sudo tcpdump -i enp4s0 '(udp and port 7) or (udp and port 9)'
@@ -239,12 +239,12 @@ listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
 <p>So, something was different. I suspended the machine again and sent the Magic Packet and this time it worked. Go figure.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org7fcf0dd">
-<h3 id="org7fcf0dd">Making It Permanent</h3>
-<div class="outline-text-3" id="text-org7fcf0dd"></div>
-<div class="outline-4" id="outline-container-orgdb4821f">
-<h4 id="orgdb4821f">Set It Up</h4>
-<div class="outline-text-4" id="text-orgdb4821f">
+<div class="outline-3" id="outline-container-org64bb34d">
+<h3 id="org64bb34d">Making It Permanent</h3>
+<div class="outline-text-3" id="text-org64bb34d"></div>
+<div class="outline-4" id="outline-container-org20a840b">
+<h4 id="org20a840b">Set It Up</h4>
+<div class="outline-text-4" id="text-org20a840b">
 <p>The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is temporary is that:</p>
 <ol class="org-ol">
 <li>I haven't really re-booted that machine to test it out (I have rebooted, but I haven't disable the <a href="https://en.wikipedia.org/wiki/Systemd">systemd</a> service that I'm documenting here).</li>
@@ -269,9 +269,9 @@ WantedBy=basic.target
 <p>The only thing specific to my machine is <code>enp4s0</code>, the name of the ethernet interface, although it's possible that the path to the <code>ethtool</code> executable might be different too… but it should be the same on Ubuntu 20.10, anyway.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org09ac69e">
-<h4 id="org09ac69e">Enable The Service</h4>
-<div class="outline-text-4" id="text-org09ac69e">
+<div class="outline-4" id="outline-container-orgc3eb398">
+<h4 id="orgc3eb398">Enable The Service</h4>
+<div class="outline-text-4" id="text-orgc3eb398">
 <p>To enable it you can do this:</p>
 <div class="highlight">
 <pre><span></span>sudo systemctl daemon-reload
@@ -286,9 +286,9 @@ sudo systemctl enable wol.service
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5704759">
-<h2 id="org5704759">End</h2>
-<div class="outline-text-2" id="text-org5704759">
+<div class="outline-2" id="outline-container-orgd7fbbd0">
+<h2 id="orgd7fbbd0">End</h2>
+<div class="outline-text-2" id="text-orgd7fbbd0">
 <p>So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't have to look so hard the next time. Here's the pages that I stole this from.</p>
 <ul class="org-ul">
 <li><a href="https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/">TechRepublic</a> on using <code>ethtool</code> and setting up a <code>systemd</code> service for this (don't use the systemd file here, though).</li>
@@ -315,7 +315,7 @@ sudo systemctl enable wol.service
 </aside>
 </article>
 <!--End of body content-->
-<footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2022 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
 <script src="../../assets/js/all-nocdn.js"></script>

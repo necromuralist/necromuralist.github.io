@@ -72,37 +72,35 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div>
 <p>This is how I built a docker container to run a jupyter server. The reason why I did it was that I wanted to isolate any non-python dependencies I needed to install, but so far I haven't done any, so this could actually be done more easily using <cite>virtualenv</cite>, but this is a starting point.</p>
 <section id="the-dockerfile">
 <h2>The Dockerfile</h2>
 <p>This is the configuration for building the docker image.</p>
-<pre class="code dockerfile"><a id="rest_code_358a857c1012455a96c254a14e02707c-1" name="rest_code_358a857c1012455a96c254a14e02707c-1"></a><span class="k">FROM</span> <span class="s">ubuntu:latest</span>
-<a id="rest_code_358a857c1012455a96c254a14e02707c-2" name="rest_code_358a857c1012455a96c254a14e02707c-2"></a><span class="k">WORKDIR</span><span class="s"> /code</span>
-<a id="rest_code_358a857c1012455a96c254a14e02707c-3" name="rest_code_358a857c1012455a96c254a14e02707c-3"></a><span class="k">RUN</span> apt-get update <span class="o">&amp;&</span> apt-get -y upgrade
-<a id="rest_code_358a857c1012455a96c254a14e02707c-4" name="rest_code_358a857c1012455a96c254a14e02707c-4"></a><span class="k">RUN</span> apt-get install -y build-essential python-dev
-<a id="rest_code_358a857c1012455a96c254a14e02707c-5" name="rest_code_358a857c1012455a96c254a14e02707c-5"></a><span class="k">RUN</span> apt-get install -y python python-distribute python-pip
-<a id="rest_code_358a857c1012455a96c254a14e02707c-6" name="rest_code_358a857c1012455a96c254a14e02707c-6"></a><span class="k">RUN</span> pip install pip --upgrade
-<a id="rest_code_358a857c1012455a96c254a14e02707c-7" name="rest_code_358a857c1012455a96c254a14e02707c-7"></a><span class="k">ADD</span> requirements.txt /code
-<a id="rest_code_358a857c1012455a96c254a14e02707c-8" name="rest_code_358a857c1012455a96c254a14e02707c-8"></a><span class="k">RUN</span> pip install -r requirements.txt
-<a id="rest_code_358a857c1012455a96c254a14e02707c-9" name="rest_code_358a857c1012455a96c254a14e02707c-9"></a><span class="k">RUN</span> mkdir /notebooks
-<a id="rest_code_358a857c1012455a96c254a14e02707c-10" name="rest_code_358a857c1012455a96c254a14e02707c-10"></a><span class="k">CMD</span> jupyter notebook --no-browser --ip <span class="m">0</span>.0.0.0 --port <span class="m">8888</span> /notebooks
+<pre class="code dockerfile"><a id="rest_code_5e28943144bd4ef99482041774124cf3-1" name="rest_code_5e28943144bd4ef99482041774124cf3-1"></a><span class="k">FROM</span> <span class="s">ubuntu:latest</span>
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-2" name="rest_code_5e28943144bd4ef99482041774124cf3-2"></a><span class="k">WORKDIR</span><span class="s"> /code</span>
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-3" name="rest_code_5e28943144bd4ef99482041774124cf3-3"></a><span class="k">RUN</span> apt-get update <span class="o">&amp;&</span> apt-get -y upgrade
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-4" name="rest_code_5e28943144bd4ef99482041774124cf3-4"></a><span class="k">RUN</span> apt-get install -y build-essential python-dev
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-5" name="rest_code_5e28943144bd4ef99482041774124cf3-5"></a><span class="k">RUN</span> apt-get install -y python python-distribute python-pip
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-6" name="rest_code_5e28943144bd4ef99482041774124cf3-6"></a><span class="k">RUN</span> pip install pip --upgrade
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-7" name="rest_code_5e28943144bd4ef99482041774124cf3-7"></a><span class="k">ADD</span> requirements.txt /code
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-8" name="rest_code_5e28943144bd4ef99482041774124cf3-8"></a><span class="k">RUN</span> pip install -r requirements.txt
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-9" name="rest_code_5e28943144bd4ef99482041774124cf3-9"></a><span class="k">RUN</span> mkdir /notebooks
+<a id="rest_code_5e28943144bd4ef99482041774124cf3-10" name="rest_code_5e28943144bd4ef99482041774124cf3-10"></a><span class="k">CMD</span> jupyter notebook --no-browser --ip <span class="m">0</span>.0.0.0 --port <span class="m">8888</span> /notebooks
 </pre>
 <p>The <code class="docutils literal">FROM</code> line shows that I'm building my container using an ubuntu image (the latest image). The <code class="docutils literal">WORKDIR</code> sets the current working directory so commands that are run will look there for files. The next set of <code class="docutils literal">RUN</code> lines just say to update <code class="docutils literal"><span class="pre">apt-get</span></code> and install some basic python packages. The <code class="docutils literal">ADD</code> line takes the <code class="docutils literal">requirements.txt</code> file in the directory where I'm going to run this and put it in <code class="docutils literal">/CODE</code> which I pointed to with the <code class="docutils literal">WORKDIR</code> line. The next <code class="docutils literal">RUN</code> commands install my python dependencies and make a folder called <code class="docutils literal">/notebooks</code> to put the jupyter notebooks in. The last line (<code class="docutils literal">CMD</code>) is what will be executed when the container is run.</p>
 </section>
 <section id="building-the-image">
 <h2>Building the Image</h2>
 <p>If the docker-file is stored in a file named <code class="docutils literal">jupyter.dockerfile</code> next to the <code class="docutils literal">requirements.txt</code> file, both of which are in the directory where I run the build command. To build it (and name the image <code class="docutils literal">jupyter</code>) I'd run the command:</p>
-<pre class="code bash"><a id="rest_code_e2f1c57939754977a42647638623be6a-1" name="rest_code_e2f1c57939754977a42647638623be6a-1"></a>docker -f jupyter.dockerfile -t jupyter:latest .
+<pre class="code bash"><a id="rest_code_18403c28ad0044b2a4ba94ee72b4d805-1" name="rest_code_18403c28ad0044b2a4ba94ee72b4d805-1"></a>docker -f jupyter.dockerfile -t jupyter:latest .
 </pre></section>
 <section id="running-the-server">
 <h2>Running the Server</h2>
 <p>To run the server in the same directory where the notebooks should be stored and using the default port of 8888:</p>
-<pre class="code bash"><a id="rest_code_c223e41fdbc54561bc18e7e29e95ba09-1" name="rest_code_c223e41fdbc54561bc18e7e29e95ba09-1"></a>docker --name jupyter -p <span class="m">8888</span>:8888 -v <span class="nv">$PWD</span>:/notebooks -d jupyter
+<pre class="code bash"><a id="rest_code_0545ae430a2d4e34935e5a6823e1785a-1" name="rest_code_0545ae430a2d4e34935e5a6823e1785a-1"></a>docker --name jupyter -p <span class="m">8888</span>:8888 -v <span class="nv">$PWD</span>:/notebooks -d jupyter
 </pre>
 <p>Now the server should be reachable at <code class="docutils literal"><span class="pre">http://localhost:8888</span></code>.</p>
 </section>
-</div>
 </div>
 <aside class="postpromonav">
 <nav>
@@ -119,7 +117,7 @@
 </aside>
 </article>
 <!--End of body content-->
-<footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2022 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
 <script src="../../assets/js/all-nocdn.js"></script>

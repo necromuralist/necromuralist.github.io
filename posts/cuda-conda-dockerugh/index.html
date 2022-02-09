@@ -72,16 +72,16 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-orge7b7de2">
-<h2 id="orge7b7de2">The Beginning</h2>
-<div class="outline-text-2" id="text-orge7b7de2">
+<div class="outline-2" id="outline-container-orgc390cbf">
+<h2 id="orgc390cbf">The Beginning</h2>
+<div class="outline-text-2" id="text-orgc390cbf">
 <p>I haven't been doing anything with pytorch recently so I decided to restart by setting up a docker container on my machine with a beefier nvidia card than the machine I had been using. I've learned a little bit more about docker since I built my earlier container so I decided to update the image and found it both easier and harder than I remember it being. It went easier because I knew more or less what I had to do so I knew what to look up. Harder because there's some workarounds that you have to work with that weren't there before, and I decided to stick with <code>conda</code>, which seems to add an extra layer of difficulty compared to pip and virtualenv when you use docker. But, anyway, enough with the whining, here's the stuff.</p>
 <p><b>Note:</b> I'm doing this on Ubuntu 21.10.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf9ef7cb">
-<h2 id="orgf9ef7cb">Nvidia-Container-Toolkit and Ubuntu</h2>
-<div class="outline-text-2" id="text-orgf9ef7cb">
+<div class="outline-2" id="outline-container-org9cbb521">
+<h2 id="org9cbb521">Nvidia-Container-Toolkit and Ubuntu</h2>
+<div class="outline-text-2" id="text-org9cbb521">
 <p>The first thing you should do is install the <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker">nvidia-container-toolkit</a>. The instructions say to add the repository this way:</p>
 <div class="highlight">
 <pre><span></span>distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
@@ -107,18 +107,18 @@ sudo apt install nvidia-container-toolkit
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgb64488c">
-<h2 id="orgb64488c">The Cuda Image</h2>
-<div class="outline-text-2" id="text-orgb64488c">
+<div class="outline-2" id="outline-container-org1d45dd6">
+<h2 id="org1d45dd6">The Cuda Image</h2>
+<div class="outline-text-2" id="text-org1d45dd6">
 <p>Now that I was setup to run the container I ran a test.</p>
 <div class="highlight">
 <pre><span></span>docker run --rm --gpus all nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
 </pre></div>
 <p>Which gave me an error, something like <code>Error response from daemon</code> (I don't remember exactly), which turns out to be the result of a pretty major flaw right now (as noted on the <a href="https://github.com/NVIDIA/libnvidia-container/issues/111">github issue for it</a>). One of the commenters <a href="https://github.com/NVIDIA/libnvidia-container/issues/111#issuecomment-932742403">posted a work-around for it</a> which seems to work.</p>
 </div>
-<div class="outline-3" id="outline-container-org88abc51">
-<h3 id="org88abc51">Edit /etc/nvidia-container-runtime/config.toml</h3>
-<div class="outline-text-3" id="text-org88abc51">
+<div class="outline-3" id="outline-container-orga5e1b66">
+<h3 id="orga5e1b66">Edit /etc/nvidia-container-runtime/config.toml</h3>
+<div class="outline-text-3" id="text-orga5e1b66">
 <p>In the file there's a line:</p>
 <div class="highlight">
 <pre><span></span>#no-cgroups = false
@@ -139,9 +139,9 @@ sudo apt install nvidia-container-toolkit
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgb143a80">
-<h2 id="orgb143a80">Now for Conda</h2>
-<div class="outline-text-2" id="text-orgb143a80">
+<div class="outline-2" id="outline-container-org6b49165">
+<h2 id="org6b49165">Now for Conda</h2>
+<div class="outline-text-2" id="text-org6b49165">
 <p>This next bit probably shouldn't be registered as a problem, but the last time I tried to run pytorch in docker there was some kind of bug when I installed it with <code>pip</code> that went away when I installed it with <code>conda</code> so I decided to stick with cuda, but I also wanted to try and set it up the way I do with virtualenv - cached by docker and run non-root. This turns out to be much harder to do than with virtualenv for some reason. I looked through some posts on StackOverflow and elsewhere and didn't really see any good solutions, but <a href="https://towardsdatascience.com/conda-pip-and-docker-ftw-d64fe638dc45">this one on Toward Data Science</a> got close enough. The way that post suggests is to change the shell that docker uses to <code>bash</code> and moving the <code>miniconda</code> install path into the home directory of the user that you want to run it.</p>
 <p>I won't bother with all of the <code>Dockerfile</code>, but the basic changes are:</p>
 <p>Change the shell.</p>
@@ -195,7 +195,7 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 </aside>
 </article>
 <!--End of body content-->
-<footer id="footer">Contents © 2021 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<footer id="footer">Contents © 2022 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
 <script src="../../assets/js/all-nocdn.js"></script>
