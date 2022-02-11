@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/codewars-vowel-count/" rel="prefetch" type="text/html">
+<link href="posts/coding-train-starfield/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,171 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/coding-train-starfield/">Coding Train Starfield</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/coding-train-starfield/" rel="bookmark"><time class="published dt-published" datetime="2022-02-10T15:19:02-08:00" itemprop="datePublished" title="2022-02-10 15:19">2022-02-10 15:19</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/coding-train-starfield/#org7e69717">The Starfield</a></li>
+<li><a href="posts/coding-train-starfield/#orgbb39cbf">The Main Sketch</a>
+<ul>
+<li><a href="posts/coding-train-starfield/#org9b57460">The Setup Function</a></li>
+<li><a href="posts/coding-train-starfield/#org40a7855">Draw</a></li>
+</ul>
+</li>
+<li><a href="posts/coding-train-starfield/#orgbbc8c0a">The Star Class</a>
+<ul>
+<li><a href="posts/coding-train-starfield/#org85db680">The Update</a></li>
+<li><a href="posts/coding-train-starfield/#orgd636ac3">The Show Function</a></li>
+</ul>
+</li>
+<li><a href="posts/coding-train-starfield/#orgf20a62d">Attaching the Sketch</a></li>
+<li><a href="posts/coding-train-starfield/#org688eed5">Source</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org7e69717">
+<h2 id="org7e69717">The Starfield</h2>
+<div class="outline-text-2" id="text-org7e69717">
+<p>This is another <a href="https://p5js.org/">p5.js</a> hello-world, this time taken from Daniel Schiffman's <a href="https://thecodingtrain.com/CodingChallenges/001-starfield.html">Starfield in Processing</a> coding challenge. It's a rough version of traveling through the stars at warp speed. He managed to do it in about 15 minutes, if I remember correctly. It starts static but if you move your mouse back and forth horizontally it adjusts the speed.</p>
+<script language="javascript" src="posts/coding-train-starfield/starfield.js" type="text/javascript"></script>
+<div id="schiffman-starfield"></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgbb39cbf">
+<h2 id="orgbb39cbf">The Main Sketch</h2>
+<div class="outline-text-2" id="text-orgbb39cbf">
+<p>The most basic processing/p5 sketch uses two functions <code>setup</code> to initially set up your canvas and <code>draw</code> to update the frames over time. This function creates our canvas and star objects in the <code>setup</code> and then calculates a <code>speed</code> based on the mouse position of the user in order to update the stars. It gets passed a p5 element, called p, in order to get access to the p5.js code.</p>
+<div class="highlight">
+<pre><span></span><span class="cm">/** The main sketch</span>
+<span class="cm"> * this gets passed to p5 so it defines the setup and draw functions</span>
+<span class="cm"> * that p5 expects</span>
+<span class="cm">*/</span>
+<span class="kd">let</span> <span class="nx">starfield_sketch</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">star_count</span> <span class="o">=</span> <span class="mf">800</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">parent_div_id</span> <span class="o">=</span> <span class="s2">"schiffman-starfield"</span><span class="p">;</span>
+  <span class="nx">p</span><span class="p">.</span><span class="nx">BLACK</span> <span class="o">=</span> <span class="mf">0</span><span class="p">;</span>
+  <span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span> <span class="o">=</span> <span class="mf">255</span><span class="p">;</span>
+  <span class="nx">p</span><span class="p">.</span><span class="nx">ALPHA</span> <span class="o">=</span> <span class="mf">100</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-org9b57460">
+<h3 id="org9b57460">The Setup Function</h3>
+<div class="outline-text-3" id="text-org9b57460">
+<p>Not too much voodoo here, other than the use of the <a href="https://api.jquery.com/outerWidth/">JQuery outerWidth</a> method which gets the width of the DIV that we're using to hold the sketch and uses it as the width for the canvas.</p>
+<div class="highlight">
+<pre><span></span><span class="nx">p</span><span class="p">.</span><span class="nx">setup</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">p</span><span class="p">.</span><span class="nx">stars</span> <span class="o">=</span> <span class="p">[];</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">canvas</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">createCanvas</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">"#"</span> <span class="o">+</span> <span class="nx">parent_div_id</span><span class="p">).</span><span class="nx">outerWidth</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span> <span class="mf">800</span><span class="p">);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">star_count</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Star</span><span class="p">(</span><span class="nx">p</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span> <span class="c1">// end setup</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org40a7855">
+<h3 id="org40a7855">Draw</h3>
+<div class="outline-text-3" id="text-org40a7855">
+<p>Again, not too fancy. The draw function:</p>
+<ul class="org-ul">
+<li>Sets the background to black to wipe out our previous drawing</li>
+<li>gets the "speed" of the stars using the x-position of the mouse and mapping this location from 0 to the width of the canvas to a smaller range from 0 to 50</li>
+<li>Translate the (0, 0) of the coordinate system from the top left of the canvas to the middle so our stars emerge from the center instead of the top left</li>
+<li>update all the stars with the speed and re-draw them</li>
+</ul>
+<div class="highlight">
+<pre><span></span>  <span class="nx">p</span><span class="p">.</span><span class="nx">draw</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">p</span><span class="p">.</span><span class="nx">background</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">BLACK</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">ALPHA</span><span class="p">);</span>
+    <span class="nx">speed</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">mouseX</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="mf">50</span><span class="p">);</span>
+    <span class="nx">p</span><span class="p">.</span><span class="nx">translate</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="o">/</span><span class="mf">2</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="o">/</span><span class="mf">2</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+      <span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">update</span><span class="p">(</span><span class="nx">speed</span><span class="p">);</span>
+      <span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">show</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">}</span> <span class="c1">//end draw</span>
+<span class="p">};</span> <span class="c1">//end starfield_sketch</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgbbc8c0a">
+<h2 id="orgbbc8c0a">The Star Class</h2>
+<div class="outline-text-2" id="text-orgbbc8c0a">
+<p>The <code>Star</code> stores the position of a "star" and updates it based on the speed that it's given. Our initial constructor sets up the coordinates of the star using random values.</p>
+<div class="highlight">
+<pre><span></span><span class="kd">function</span> <span class="nx">Star</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">z</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-org85db680">
+<h3 id="org85db680">The Update</h3>
+<div class="outline-text-3" id="text-org85db680">
+<p>Most of the time the update reduces the <code>z</code> value by the current speed, but since we don't want the stars to go off the canvas and disappear, if it gets too small we re-randomize the position of the star.</p>
+<div class="highlight">
+<pre><span></span><span class="k">this</span><span class="p">.</span><span class="nx">update</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">speed</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">z</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">z</span> <span class="o">-</span> <span class="nx">speed</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span> <span class="o">&lt;</span> <span class="mf">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">x</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">y</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">z</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span> <span class="c1">//end update</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgd636ac3">
+<h3 id="orgd636ac3">The Show Function</h3>
+<div class="outline-text-3" id="text-orgd636ac3">
+<p>The <code>show</code> function is where most of the work is done. It calculates the proprotions of x and y to z and then maps that to the width and height of the canvas and then draws an ellipse. To get the radius of the ellipse we map the current z-value using an inverted target of 16, 0. This means that as z gets smaller our radius gets bigger.</p>
+<div class="highlight">
+<pre><span></span>  <span class="k">this</span><span class="p">.</span><span class="nx">show</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">p</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">x_now</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">x</span><span class="o">/</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="mf">1</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">y_now</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">y</span><span class="o">/</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="mf">1</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+
+    <span class="kd">var</span> <span class="nx">radius</span> <span class="o">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span> <span class="mf">0</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span> <span class="mf">16</span><span class="p">,</span> <span class="mf">0</span><span class="p">);</span>
+    <span class="nx">p</span><span class="p">.</span><span class="nx">ellipse</span><span class="p">(</span><span class="nx">x_now</span><span class="p">,</span> <span class="nx">y_now</span><span class="p">,</span> <span class="nx">radius</span><span class="p">,</span> <span class="nx">radius</span><span class="p">);</span>
+
+    <span class="nx">p</span><span class="p">.</span><span class="nx">stroke</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span><span class="p">);</span>
+  <span class="p">}</span> <span class="c1">// end show</span>
+<span class="p">};</span> <span class="c1">//end class Star</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgf20a62d">
+<h2 id="orgf20a62d">Attaching the Sketch</h2>
+<div class="outline-text-2" id="text-orgf20a62d">
+<p>This next bit attaches our sketch to a specific DIV defined in the HTML. You don't have to do this, you could just use the parts as universal functions like the examples show, but if you have more than one sketch on a page sometimes things get funky so I prefer this pattern to keep everything in place.</p>
+<div class="highlight">
+<pre><span></span><span class="c1">// Attach the starfield_sketch function at the top to the div with ID</span>
+<span class="c1">// schiffman-starfield</span>
+<span class="nx">sketch_container</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">p5</span><span class="p">(</span><span class="nx">starfield_sketch</span><span class="p">,</span> <span class="s1">'schiffman-starfield'</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org688eed5">
+<h2 id="org688eed5">Source</h2>
+<div class="outline-text-2" id="text-org688eed5">
+<ul class="org-ul">
+<li>Starfield in Processing [Internet]. The Coding Train. 2016 [cited 2022 Feb 10]. Available from: <a href="https://thecodingtrain.com/CodingChallenges/001-starfield.html">https://thecodingtrain.com/CodingChallenges/001-starfield.html</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-vowel-count/">CodeWars: Vowel Count</a></h1>
@@ -907,246 +1072,6 @@ sudo mount /dev/mapper/wddata /media/data
 <li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line</a></li>
 </ul>
 <p>The accepted answer uses <code>udiskctl</code> but further down is an answer by George Schölly using <code>cryptsetup</code>. The syntax in the answer is the older <code>cryptsetup</code> syntax (which should still work) so it doesn't look exactly like what I used.</p>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/enabling-wake-on-lan/">Enabling Wake-On-LAN (In Ubuntu 20.10)</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/enabling-wake-on-lan/" rel="bookmark"><time class="published dt-published" datetime="2020-11-28T17:57:35-08:00" itemprop="datePublished" title="2020-11-28 17:57">2020-11-28 17:57</time> <span class="updated">(updated <time class="dt-updated" datetime="2020-12-06T15:14:00-08:00" itemprop="dateUpdated" title="2020-12-06 15:14">2020-12-06 15:14</time>)</span></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/enabling-wake-on-lan/#orgb536b95">Beginning</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org78eb9bb">Middle</a>
-<ul>
-<li><a href="posts/enabling-wake-on-lan/#orgb540722">Ethtool</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org72d3fc6">Checking the Interface</a></li>
-<li><a href="posts/enabling-wake-on-lan/#orga86fca7">Turn It On Temporarily</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org2482918">Test It Out</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org04762b2">Take Two</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org64bb34d">Making It Permanent</a></li>
-</ul>
-</li>
-<li><a href="posts/enabling-wake-on-lan/#orgd7fbbd0">End</a></li>
-</ul>
-</div>
-</div>
-<p><b>Note:</b> The systemd configuration here isn't quite right, but since this post is kind of long and convoluted I made a standalone update about the systemd configuration file in <a href="posts/using-systemd-to-enable-wake-on-lan/">this post</a>.</p>
-<div class="outline-2" id="outline-container-orgb536b95">
-<h2 id="orgb536b95">Beginning</h2>
-<div class="outline-text-2" id="text-orgb536b95">
-<p>These are my notes on getting <a href="https://en.wikipedia.org/wiki/Wake-on-LAN">Wake-On-LAN</a> working in Ubuntu 20.10. I have a server that I use to run most of the computation on when I use emacs/jupyter but I have it in a corner upstairs and although it's only a little walk, I find that the fact that I have to stop what I'm doing and go upstairs to push that little button on the front makes me lazy and so it ends up running more than it has to so I thought I'd enable Wake-On-LAN so I can suspend it and wake it up whenever I need to. I'm only going to use suspend (<a href="https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface">APM</a> S3). When I tried to use hibernate (S4) it ended up shutting down my machine (S5). Interestingly, my BIOS menu has an option to enable waking up from shutdown, but since my disk is encrypted, and I didn't set up a separate SSH server, I have to go enter the passphrase to unlock the disk before the operating system can boot up, so it kind of defeats its own purpose.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org78eb9bb">
-<h2 id="org78eb9bb">Middle</h2>
-<div class="outline-text-2" id="text-org78eb9bb"></div>
-<div class="outline-3" id="outline-container-orgb540722">
-<h3 id="orgb540722">Ethtool</h3>
-<div class="outline-text-3" id="text-orgb540722">
-<p>The command I used to set up Wake-On-LAN on the remote machine is called <a href="https://en.wikipedia.org/wiki/Ethtool">ethtool</a>. It's in the Ubuntu repositories but wasn't installed on my machine so I had to add it.</p>
-<div class="highlight">
-<pre><span></span>sudo apt install ethtool
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org72d3fc6">
-<h3 id="org72d3fc6">Checking the Interface</h3>
-<div class="outline-text-3" id="text-org72d3fc6">
-<p>From what I've read, not all ethernet interfaces support Wake-On-LAN (although I've never seen one that doesn't) so a quick check might be useful. First, find the name of your ethernet interface.</p>
-<div class="highlight">
-<pre><span></span>ip a
-</pre></div>
-<p>My machine shows four interfaces so I'll just show the output for the interface I'm interested in rather than the whole output for the command.</p>
-<div class="highlight">
-<pre><span></span>2: enp4s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
-    link/ether 38:d5:47:79:ab:0b brd ff:ff:ff:ff:ff:ff
-    inet 192.168.86.97/24 brd 192.168.86.255 scope global dynamic noprefixroute enp4s0
-       valid_lft 84752sec preferred_lft 84752sec
-    inet6 fe80::685d:374d:a577:f787/64 scope link noprefixroute 
-       valid_lft forever preferred_lft forever
-</pre></div>
-<p>Ethtool uses the name of the interface, in this case it's <code>enp4s0</code>, so we'll need to note that. Additionally, the machine that I used to wake up the machine needs the MAC address (<code>38:d5:47:79:ab:0b</code>) so it'd be useful to write that down someplace. I'm waking it up from the LAN so the IP address isn't so important, and to be able to SSH into it I need to know it anyway, so it's really those two pieces of information that I need. Now to check if it supports Wake-On-LAN.</p>
-<div class="highlight">
-<pre><span></span>sudo ethtool enp4s0
-</pre></div>
-<p>Ethtool will give you some information if you don't run it as root but for Wake-On-LAN you need to run it as root. The important lines in the output is near the bottom and it looks something like this if it supports Wake-On-LAN.</p>
-<div class="highlight">
-<pre><span></span>Supports Wake-on: pumbg
-Wake-on: d
-</pre></div>
-<p>The man-page for <code>ethtool</code> tell you what that cryptic <code>pumbg</code> means - the letters are different options that this interface supports for Wake-On-LAN. In this case they are:</p>
-<table border="2" cellpadding="6" cellspacing="0" frame="hsides" rules="groups">
-<colgroup>
-<col class="org-left">
-<col class="org-left"></colgroup>
-<thead>
-<tr>
-<th class="org-left" scope="col">Option</th>
-<th class="org-left" scope="col">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="org-left">p</td>
-<td class="org-left">Wake on PHY activity</td>
-</tr>
-<tr>
-<td class="org-left">u</td>
-<td class="org-left">Wake on unicast messages</td>
-</tr>
-<tr>
-<td class="org-left">m</td>
-<td class="org-left">Wake on multicast messages</td>
-</tr>
-<tr>
-<td class="org-left">b</td>
-<td class="org-left">Wake on broadcast messages</td>
-</tr>
-<tr>
-<td class="org-left">g</td>
-<td class="org-left">Wake on MagicPacket messages</td>
-</tr>
-</tbody>
-</table>
-<p>There's an additional option which is what the interface was set on – <code>d</code> – as you can see in the last line of the output. This means <i>Disable (wake on nothing). This option clears all previous options.</i> I don't have many devices on my network, so I don't know that there's a lot of broadcasts, multicasts, etc. that would be waking it up all the time, but since one feature of Wake-On-LAN is that it only wakes the machine when it gets the "Magic Packet", only the <code>g</code> and <code>d</code> options matter. Now that I knew it was supported, it was time to try it out.</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-orga86fca7">
-<h3 id="orga86fca7">Turn It On Temporarily</h3>
-<div class="outline-text-3" id="text-orga86fca7">
-<p>The <code>ethtool</code> will turn on Wake-On-LAN, but (supposedly) everytime you reboot the machine it will reset to disabled. I haven't really tested this out, but I'll document how to make it permanent later, anyway.</p>
-<div class="highlight">
-<pre><span></span>sudo ethtool --change enp4s0 wol g
-</pre></div>
-<p>So, as you might guess, we changed the Wake-On-LAN setting to listen for MagicPacket messages. You can check using the ethtool again.</p>
-<div class="highlight">
-<pre><span></span>sudo ethtool enp4s0
-</pre></div>
-<p>The <code>Wake-on</code> line should have changed to:</p>
-<div class="highlight">
-<pre><span></span>Wake-on: g
-</pre></div>
-<p>Now to suspend the machine so we can test it out.</p>
-<div class="highlight">
-<pre><span></span>sudo systemctl suspend
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org2482918">
-<h3 id="org2482918">Test It Out</h3>
-<div class="outline-text-3" id="text-org2482918">
-<p>Now, on my local machine I needed to install <a href="https://github.com/jpoliv/wakeonlan">wakeonlan</a>. There's a surprising number of programs to send the Magic Packet, but this just happened to be the one I used.</p>
-<div class="highlight">
-<pre><span></span>sudo apt install wakeonlan
-</pre></div>
-<p>The default way to use <code>wakeonlan</code> is apparently to just pass it the MAC address of the computer to wake up, and it will send the Magic Packet out as a broadcast, so that's what I did.</p>
-<div class="highlight">
-<pre><span></span>wakeonlan 38:d5:47:79:ab:0b
-</pre></div>
-<p>And then I pinged the machine and I waited. And I waited. And I waited… Eventually I went upstairs and saw that it was still sleeping so I pushed the power button to wake it up and went back downstairs.</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org04762b2">
-<h3 id="org04762b2">Take Two</h3>
-<div class="outline-text-3" id="text-org04762b2">
-<p>Something wasn't right so I SSHd into the server and started up <a href="https://www.tcpdump.org/">tcpdump</a> to see if the packets were going through.</p>
-<div class="highlight">
-<pre><span></span>sudo tcpdump -i enp4s0 '(udp and port 7) or (udp and port 9)'
-</pre></div>
-<p>Which gave me this output:</p>
-<div class="highlight">
-<pre><span></span>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
-</pre></div>
-<p>And then I sent the Magic Packet again.</p>
-<div class="highlight">
-<pre><span></span>wakeonlan 38:d5:47:79:ab:0b
-</pre></div>
-<p>…And nothing happened. For some reason the packets weren't getting picked up by the machine. Luckily, <code>wakeonlan</code> lets you pass in an IP address as an option. The man page recommends using a broadcast address, but I have the IP addresses of my machines on the LAN reserved on my router/access-point so I just passed in the full address (I did try the LAN broadcast and it worked too).</p>
-<div class="highlight">
-<pre><span></span>wakeonlan -i erebus 38:d5:47:79:ab:0b
-</pre></div>
-<p>I have my machine's IP address aliased in my <code>/etc/hosts</code> file so <code>erebus</code> is just an alias for the machine's IP address. The subnet broadcast version looked like this.</p>
-<div class="highlight">
-<pre><span></span>wakeonlan -i 192.168.86.255 38:d5:47:79:ab:0b
-</pre></div>
-<p>The output from <code>tcpdump</code> for the first packet looked like this.</p>
-<div class="highlight">
-<pre><span></span>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
-20:47:11.689587 IP 192.168.86.141.34805 &gt; erebus.discard: UDP, length 102
-</pre></div>
-<p>So, something was different. I suspended the machine again and sent the Magic Packet and this time it worked. Go figure.</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org64bb34d">
-<h3 id="org64bb34d">Making It Permanent</h3>
-<div class="outline-text-3" id="text-org64bb34d"></div>
-<div class="outline-4" id="outline-container-org20a840b">
-<h4 id="org20a840b">Set It Up</h4>
-<div class="outline-text-4" id="text-org20a840b">
-<p>The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is temporary is that:</p>
-<ol class="org-ol">
-<li>I haven't really re-booted that machine to test it out (I have rebooted, but I haven't disable the <a href="https://en.wikipedia.org/wiki/Systemd">systemd</a> service that I'm documenting here).</li>
-<li>The machine that I'm typing this on had Wake-On-LAN enabled and it doesn't have a <code>systemd</code> service enabled.</li>
-</ol>
-<p>But, really, I don't remember even enabling Wake-On-LAN on this machine so maybe it just was the default and I didn't realise it… another thing I should look into one of these days. Anyway, to make a service that always enables Wake-On-LAN the first step is to find the path to <code>ethertool</code>.</p>
-<div class="highlight">
-<pre><span></span>which ethtool
-</pre></div>
-<p>In my case the path was <code>/sbin/ethtool</code>, so once you know this you can create a file at <code>/etc/systemd/system/wol.service</code> (I think you can use another systemd sub-folder, and you can name the file anything you want, within reason, but this one seems to work well enough). In this file you put settings that look something like this:</p>
-<div class="highlight">
-<pre><span></span>[Unit]
-Description=Enable Wake On Lan
-
-[Service]
-Type=oneshot
-ExecStart = /sbin/ethtool --change enp4s0 wol g
-
-[Install]
-WantedBy=basic.target
-</pre></div>
-<p>The only thing specific to my machine is <code>enp4s0</code>, the name of the ethernet interface, although it's possible that the path to the <code>ethtool</code> executable might be different too… but it should be the same on Ubuntu 20.10, anyway.</p>
-</div>
-</div>
-<div class="outline-4" id="outline-container-orgc3eb398">
-<h4 id="orgc3eb398">Enable The Service</h4>
-<div class="outline-text-4" id="text-orgc3eb398">
-<p>To enable it you can do this:</p>
-<div class="highlight">
-<pre><span></span>sudo systemctl daemon-reload
-sudo systemctl enable wol.service
-</pre></div>
-<p>Where <code>wol.service</code> is the name of the file you created with the settings. You can check its status if you want.</p>
-<div class="highlight">
-<pre><span></span>systemctl status wol
-</pre></div>
-<p>And that's that.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgd7fbbd0">
-<h2 id="orgd7fbbd0">End</h2>
-<div class="outline-text-2" id="text-orgd7fbbd0">
-<p>So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't have to look so hard the next time. Here's the pages that I stole this from.</p>
-<ul class="org-ul">
-<li><a href="https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/">TechRepublic</a> on using <code>ethtool</code> and setting up a <code>systemd</code> service for this (don't use the systemd file here, though).</li>
-<li><a href="https://askubuntu.com/questions/1792/how-can-i-suspend-hibernate-from-command-line">Stack Overflow</a> on how to suspend and hibernate from the command-line</li>
-<li><a href="https://askubuntu.com/questions/3369/what-is-the-difference-between-hibernate-and-suspend">Stack Overflow</a> on what the difference is between suspend and hibernate</li>
-<li><a href="https://unix.stackexchange.com/questions/318137/wake-on-lan-not-working-on-ubuntu-16-04">Stack Overflow</a> on using <code>tcpdump</code> to look for the Magic Packets on the remote machine</li>
-<li><a href="https://stackoverflow.com/questions/2177687/open-file-via-ssh-and-sudo-with-emacs">Stack Overflow</a> on editing remote files as root with emacs (not documented here, but maybe later)</li>
-<li><a href="https://stackoverflow.com/questions/95631/open-a-file-with-su-sudo-inside-emacs">Stack Overflow</a> on editing a local file as root with emacs (not used here, but I can never remember the syntax)</li>
-</ul>
 </div>
 </div>
 </div>
