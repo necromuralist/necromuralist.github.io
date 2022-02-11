@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/coding-train-starfield/" rel="prefetch" type="text/html">
+<link href="posts/codewars-calculating-with-functions/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,206 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-calculating-with-functions/">CodeWars: Calculating With Functions</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/codewars-calculating-with-functions/" rel="bookmark"><time class="published dt-published" datetime="2022-02-10T17:52:52-08:00" itemprop="datePublished" title="2022-02-10 17:52">2022-02-10 17:52</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/codewars-calculating-with-functions/#orgd2c92a4">The Problem</a></li>
+<li><a href="posts/codewars-calculating-with-functions/#orged047f5">The Solution</a>
+<ul>
+<li><a href="posts/codewars-calculating-with-functions/#org44e2fc0">The Tests</a></li>
+</ul>
+</li>
+<li><a href="posts/codewars-calculating-with-functions/#orge683379">Alternatives</a></li>
+<li><a href="posts/codewars-calculating-with-functions/#org008359d">A Hybrid</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgd2c92a4">
+<h2 id="orgd2c92a4">The Problem</h2>
+<div class="outline-text-2" id="text-orgd2c92a4">
+<p>Write functions that calculate integer arithmetic. For example.</p>
+<div class="highlight">
+<pre><span></span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">()))</span>
+</pre></div>
+<p>Should return thirty-five. Every number has a function and there are four operation-functions:</p>
+<ul class="org-ul">
+<li><code>plus</code></li>
+<li><code>minus</code></li>
+<li><code>times</code></li>
+<li><code>divided_by</code></li>
+</ul>
+<p>All operations should return integers, not floats.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orged047f5">
+<h2 id="orged047f5">The Solution</h2>
+<div class="outline-text-2" id="text-orged047f5">
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="k">def</span> <span class="nf">digit</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">"""A base function to define a digit</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     operation: a function that expects an integer argument when called</span>
+<span class="sd">     integer: an integer to return if no operation is passed in</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">operation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">operation</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">integer</span>
+
+<span class="c1"># the digits</span>
+<span class="n">zero</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">three</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">four</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">five</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">six</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">seven</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">eight</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">nine</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="c1"># the operations</span>
+<span class="k">def</span> <span class="nf">plus</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
+
+<span class="k">def</span> <span class="nf">minus</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">-</span> <span class="n">right</span>
+
+<span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">*</span> <span class="n">right</span>
+
+<span class="k">def</span> <span class="nf">divided_by</span><span class="p">(</span><span class="n">right</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">//</span> <span class="n">right</span>
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-org44e2fc0">
+<h3 id="org44e2fc0">The Tests</h3>
+<div class="outline-text-3" id="text-org44e2fc0">
+<div class="highlight">
+<pre><span></span><span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orge683379">
+<h2 id="orge683379">Alternatives</h2>
+<div class="outline-text-2" id="text-orge683379">
+<p>There are several variations on the theme. One that I thought was similar in spirit to what I did but better was <a href="https://www.codewars.com/kata/reviews/5b0ce29de86c548f16000e76/groups/5c92714817647a0001bac149">this one</a>. Instead of separate operation and integer they use a default function that only returns what gets passed to it. So the definitions look like this.</p>
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">integer</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">integer</span>
+
+<span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">one</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">two</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">three</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">four</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">five</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">six</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">seven</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">eight</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">nine</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org008359d">
+<h2 id="org008359d">A Hybrid</h2>
+<div class="outline-text-2" id="text-org008359d">
+<p>To add a little of what the other solution is doing…</p>
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">integer</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">"""A pass-through function</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     integer: a digit input</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">     the integer given</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">integer</span>
+
+<span class="k">def</span> <span class="nf">digit</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">"""A base function to define a digit</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     operation: a function that expects an integer argument when called</span>
+<span class="sd">     integer: an integer to return if no operation is passed in</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">operation</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span>
+
+<span class="c1"># the digits</span>
+<span class="n">zero</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">three</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">four</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">five</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">six</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">seven</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">eight</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">nine</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="c1"># the operations</span>
+<span class="c1"># this is a style some people used. I'm not sure I like it.</span>
+<span class="n">plus</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">right</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
+<span class="n">minus</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">right</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">-</span> <span class="n">right</span>
+
+<span class="c1"># alternatively you could just do this</span>
+<span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">*</span> <span class="n">right</span>
+<span class="k">def</span> <span class="nf">divided_by</span><span class="p">(</span><span class="n">right</span><span class="p">):</span> <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">//</span> <span class="n">right</span>
+
+<span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/coding-train-starfield/">Coding Train Starfield</a></h1>
@@ -1017,61 +1217,6 @@ Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
 <ul class="org-ul">
 <li>The Arch wiki has a page on <a href="https://wiki.archlinux.org/index.php/Wake-on-LAN">Wake-On-LAN</a> that tells you many different ways to set it up – I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).</li>
 </ul>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/mount-an-encrypted-drive-using-cryptsetup/">Mount An Encrypted Drive Using cryptsetup</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/mount-an-encrypted-drive-using-cryptsetup/" rel="bookmark"><time class="published dt-published" datetime="2020-12-05T16:20:32-08:00" itemprop="datePublished" title="2020-12-05 16:20">2020-12-05 16:20</time> <span class="updated">(updated <time class="dt-updated" datetime="2020-12-06T17:25:00-08:00" itemprop="dateUpdated" title="2020-12-06 17:25">2020-12-06 17:25</time>)</span></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#org53da148">What Is This About?</a></li>
-<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#orga634585">So, How Do You Do It?</a></li>
-<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#orgaa1bef2">Source</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org53da148">
-<h2 id="org53da148">What Is This About?</h2>
-<div class="outline-text-2" id="text-org53da148">
-<p>This is how to mount a LUKS encrypted drive with <a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html">cryptsetup</a> in Ubuntu 20.10 (Groovy Gorilla). My use-case is I have a headless server that has an external USB drive that's encrypted with <a href="https://en.wikipedia.org/wiki/Linux_Unified_Key_Setup">LUKS</a> that I need to mount from the command line. I like the flexibility it gives a little more than the what the Gnome GUI does so I'll probably use it on my desktop as well. I previously documented how to do it with <a href="http://storaged.org/doc/udisks2-api/latest/udisksctl.1.html">udiskctl</a> in <a href="posts/mounting-an-encrypted-usb-drive/">this post</a> but I like <code>cryptsetup</code> a little better. This assumes that you know the partition/device (in my case it's <code>/dev/sdb1</code>). That previous post shows how I found it so I'll just do the decrypting and mounting here.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orga634585">
-<h2 id="orga634585">So, How Do You Do It?</h2>
-<div class="outline-text-2" id="text-orga634585">
-<p>The syntax to decrypt the device is:</p>
-<pre class="example">
-sudo cryptsetup open &lt;device&gt; &lt;name&gt;
-</pre>
-<p>As I mentioned above, in this case my <code>device</code> is <code>/dev/sdb1</code>. The name can be an arbitrary one (although there are limitiations on special characters so let's say it can be any alpha-numeric name) and I'll use <code>wddata</code> as the name. Then my command to decrypt the drive is:</p>
-<pre class="example">
-sudo cryptsetup open /dev/sdb1 wddata
-</pre>
-<p>This will prompt you for your password and then the encryption passphrase. Once the command succeeds, it adds a link in <code>/dev/mapper</code> using the name you passed in so you can mount the device (assuming the directory you want to mount it in exists) like this:</p>
-<pre class="example">
-sudo mount /dev/mapper/wddata /media/data
-</pre>
-<p>Where <code>wddata</code> is the name I told <code>cryptsetup</code> to use and <code>/media/data</code> is a directory that I had previously created.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgaa1bef2">
-<h2 id="orgaa1bef2">Source</h2>
-<div class="outline-text-2" id="text-orgaa1bef2">
-<p>Besides the man-page for <code>cryptsetup</code> on my server, I was pointed to use <code>cryptsetup</code> from this StackOverflow post:</p>
-<ul class="org-ul">
-<li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line</a></li>
-</ul>
-<p>The accepted answer uses <code>udiskctl</code> but further down is an answer by George Schölly using <code>cryptsetup</code>. The syntax in the answer is the older <code>cryptsetup</code> syntax (which should still work) so it doesn't look exactly like what I used.</p>
 </div>
 </div>
 </div>
