@@ -1,0 +1,181 @@
+#+BEGIN_COMMENT
+.. title: CodeWars: Calculating With Functions
+.. slug: codewars-calculating-with-functions
+.. date: 2022-02-10 17:52:52 UTC-08:00
+.. tags: codewars,kata,python
+.. category: CodeWars
+.. link: 
+.. description: Using functions for integer arithmetic.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-f7ebe7fa-5518-40ec-b1d6-482dbc0e580d-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+* The Problem
+Write functions that calculate integer arithmetic. For example.
+
+#+begin_src python
+seven(times(five()))
+#+end_src
+
+Should return thirty-five. Every number has a function and there are four operation-functions:
+ - ~plus~
+ - ~minus~
+ - ~times~
+ - ~divided_by~
+
+All operations should return integers, not floats.
+
+* The Solution
+#+begin_src python :results none
+# python
+from functools import partial
+
+def digit(operation=None, integer=None):
+    """A base function to define a digit
+
+    Args:
+     operation: a function that expects an integer argument when called
+     integer: an integer to return if no operation is passed in
+    """
+    if operation is not None:
+        return operation(integer)
+    return integer
+
+# the digits
+zero = partial(digit, integer=0)
+one = partial(digit, integer=1)
+two = partial(digit, integer=2)
+three = partial(digit, integer=3)
+four = partial(digit, integer=4)
+five = partial(digit, integer=5)
+six = partial(digit, integer=6)
+seven = partial(digit, integer=7)
+eight = partial(digit, integer=8)
+nine = partial(digit, integer=9)
+
+# the operations
+def plus(right: int):
+    return lambda left: left + right
+    
+def minus(right: int):
+    return lambda left: left - right
+
+def times(right: int):
+    return lambda left: left * right
+
+def divided_by(right):
+    return lambda left: left // right
+#+end_src
+** The Tests
+#+begin_src python :results none
+expect(seven(times(five()))).to(equal(35))
+expect(four(plus(nine()))).to(equal(13))
+expect(eight(minus(three()))).to(equal(5))
+expect(six(divided_by(two()))).to(equal(3))
+#+end_src
+
+* Alternatives
+There are several variations on the theme. One that I thought was similar in spirit to what I did but better was [[https://www.codewars.com/kata/reviews/5b0ce29de86c548f16000e76/groups/5c92714817647a0001bac149][this one]]. Instead of separate operation and integer they use a default function that only returns what gets passed to it. So the definitions look like this.
+
+#+begin_src python :results none
+def identity(integer: int) -> int:
+    return integer
+
+def zero(f=identity):
+    return f(0)
+
+def one(f=identity):
+    return f(1)
+
+def two(f=identity):
+    return f(2)
+
+def three(f=identity):
+    return f(3)
+
+def four(f=identity):
+    return f(4)
+
+def five(f=identity):
+    return f(5)
+
+def six(f=identity):
+    return f(6)
+
+def seven(f=identity):
+    return f(7)
+
+def eight(f=identity):
+    return f(8)
+
+def nine(f=identity):
+    return f(9)
+
+expect(seven(times(five()))).to(equal(35))
+expect(four(plus(nine()))).to(equal(13))
+expect(eight(minus(three()))).to(equal(5))
+expect(six(divided_by(two()))).to(equal(3))
+#+end_src
+* A Hybrid
+To add a little of what the other solution is doing...
+
+#+begin_src python :results none
+# python
+from functools import partial
+
+def identity(integer: int) -> int:
+    """A pass-through function
+    
+    Args:
+     integer: a digit input
+    
+    Returns:
+     the integer given
+    """
+    return integer
+
+def digit(operation=identity, integer=None):
+    """A base function to define a digit
+
+    Args:
+     operation: a function that expects an integer argument when called
+     integer: an integer to return if no operation is passed in
+    """
+    return operation(integer)
+
+# the digits
+zero = partial(digit, integer=0)
+one = partial(digit, integer=1)
+two = partial(digit, integer=2)
+three = partial(digit, integer=3)
+four = partial(digit, integer=4)
+five = partial(digit, integer=5)
+six = partial(digit, integer=6)
+seven = partial(digit, integer=7)
+eight = partial(digit, integer=8)
+nine = partial(digit, integer=9)
+
+# the operations
+# this is a style some people used. I'm not sure I like it.
+plus = lambda right: lambda left: left + right
+minus = lambda right: lambda left: left - right
+
+# alternatively you could just do this
+def times(right: int): return lambda left: left * right
+def divided_by(right): return lambda left: left // right
+
+expect(seven(times(five()))).to(equal(35))
+expect(four(plus(nine()))).to(equal(13))
+expect(eight(minus(three()))).to(equal(5))
+expect(six(divided_by(two()))).to(equal(3))
+#+end_src
+
