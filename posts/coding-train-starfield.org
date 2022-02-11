@@ -1,0 +1,146 @@
+#+BEGIN_COMMENT
+.. title: Coding Train Starfield
+.. slug: coding-train-starfield
+.. date: 2022-02-10 15:19:02 UTC-08:00
+.. tags: 
+.. category: 
+.. link: 
+.. description: 
+.. type: text
+.. status: 
+.. updated: 
+.. template: p5.tmpl
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+* The Starfield
+This is another [[https://p5js.org/][p5.js]] hello-world, this time taken from Daniel Schiffman's [[https://thecodingtrain.com/CodingChallenges/001-starfield.html][Starfield in Processing]] coding challenge. It's a rough version of traveling through the stars at warp speed. He managed to do it in about 15 minutes, if I remember correctly. It starts static but if you move your mouse back and forth horizontally it adjusts the speed.
+
+#+begin_export html
+<script language="javascript" type="text/javascript" src="starfield.js"></script>
+<div id="schiffman-starfield">
+</div>
+#+end_export
+
+#+begin_src js :tangle ../files/posts/coding-train-starfield/starfield.js :exports none
+<<starfield-sketch>>
+
+  <<setup>>
+
+<<draw>>
+
+<<star-class>>
+
+  <<update>>
+
+<<show>>
+
+<<attach-it>>
+#+end_src
+
+* The Main Sketch
+The most basic processing/p5 sketch uses two functions ~setup~ to initially set up your canvas and ~draw~ to update the frames over time. This function creates our canvas and star objects in the ~setup~ and then calculates a ~speed~ based on the mouse position of the user in order to update the stars. It gets passed a p5 element, called p, in order to get access to the p5.js code.
+
+#+begin_src js :noweb-ref starfield-sketch
+/** The main sketch
+ * this gets passed to p5 so it defines the setup and draw functions
+ * that p5 expects
+*/
+let starfield_sketch = function(p) {
+  let star_count = 800;
+  let parent_div_id = "schiffman-starfield";
+  p.BLACK = 0;
+  p.WHITE = 255;
+  p.ALPHA = 100;
+#+end_src
+** The Setup Function
+Not too much voodoo here, other than the use of the [[https://api.jquery.com/outerWidth/][JQuery outerWidth]] method which gets the width of the DIV that we're using to hold the sketch and uses it as the width for the canvas.
+
+#+begin_src js :noweb-ref setup
+p.setup = function() {
+  p.stars = [];
+  this.canvas = p.createCanvas($("#" + parent_div_id).outerWidth(true), 800);
+  for (let i=0; i < star_count; i++) {
+    p.stars[i] = new Star(p);
+  }
+} // end setup
+#+end_src
+
+** Draw
+Again, not too fancy. The draw function:
+
+ - Sets the background to black to wipe out our previous drawing
+ - gets the "speed" of the stars using the x-position of the mouse and mapping this location from 0 to the width of the canvas to a smaller range from 0 to 50
+ - Translate the (0, 0) of the coordinate system from the top left of the canvas to the middle so our stars emerge from the center instead of the top left
+ - update all the stars with the speed and re-draw them
+
+#+begin_src js :noweb-ref draw
+  p.draw = function() {
+    p.background(p.BLACK, p.ALPHA);
+    speed = p.map(p.mouseX, 0, p.width, 0, 50);
+    p.translate(p.width/2, p.height/2);
+    for (let i=0; i < p.stars.length; i++){
+      p.stars[i].update(speed);
+      p.stars[i].show();
+    }
+  } //end draw
+}; //end starfield_sketch
+#+end_src
+
+* The Star Class
+The ~Star~ stores the position of a "star" and updates it based on the speed that it's given. Our initial constructor sets up the coordinates of the star using random values. 
+
+#+begin_src js :noweb-ref star-class
+function Star(p) {
+  this.x = p.random(-p.width, p.width);
+  this.y = p.random(-p.height, p.height);
+  this.z = p.random(p.width);
+ #+end_src
+
+** The Update
+Most of the time the update reduces the ~z~ value by the current speed, but since we don't want the stars to go off the canvas and disappear, if it gets too small we re-randomize the position of the star.
+
+#+begin_src js :noweb-ref update
+this.update = function(speed) {
+  this.z = this.z - speed
+  
+  if (this.z < 1) {
+    this.x = p.random(-p.width, p.width);
+    this.y = p.random(-p.height, p.height);
+    this.z = p.random(p.width);
+  }
+} //end update
+#+end_src
+
+** The Show Function
+The ~show~ function is where most of the work is done. It calculates the proprotions of x and y to z and then maps that to the width and height of the canvas and then draws an ellipse. To get the radius of the ellipse we map the current z-value using an inverted target of 16, 0. This means that as z gets smaller our radius gets bigger.
+
+#+begin_src js :noweb-ref show
+  this.show = function() {
+    p.fill(p.WHITE);
+    var x_now = p.map(this.x/this.z, 0, 1, 0, p.width);
+    var y_now = p.map(this.y/this.z, 0, 1, 0, p.height);
+
+    var radius = p.map(this.z, 0, p.width, 16, 0);
+    p.ellipse(x_now, y_now, radius, radius);
+
+    p.stroke(p.WHITE);
+  } // end show
+}; //end class Star
+#+end_src
+
+* Attaching the Sketch
+This next bit attaches our sketch to a specific DIV defined in the HTML. You don't have to do this, you could just use the parts as universal functions like the examples show, but if you have more than one sketch on a page sometimes things get funky so I prefer this pattern to keep everything in place.
+
+#+begin_src js :noweb-ref attach-it
+// Attach the starfield_sketch function at the top to the div with ID
+// schiffman-starfield
+sketch_container = new p5(starfield_sketch, 'schiffman-starfield');
+#+end_src
+
+
+#+INCLUDE: ../files/posts/coding-train-starfield/starfield.js export js
+
+* Source
+ - Starfield in Processing [Internet]. The Coding Train. 2016 [cited 2022 Feb 10]. Available from: https://thecodingtrain.com/CodingChallenges/001-starfield.html
