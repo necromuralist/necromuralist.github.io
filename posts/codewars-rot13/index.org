@@ -1,0 +1,146 @@
+#+BEGIN_COMMENT
+.. title: CodeWars: Rot13
+.. slug: codewars-rot13
+.. date: 2022-02-12 13:03:26 UTC-08:00
+.. tags: codewars,kata,python
+.. category: Code Kata
+.. link: 
+.. description: Implement a Caesar Cipher.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-375c5bf7-d772-4642-a456-54a36bf23324-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+
+* Description
+Given a string, replace each letter with the one that comes 13 letters after it in the alphabet. Ignore non-English aphabetical characters.
+
+* The Code
+** Imports
+- [[https://docs.python.org/3/library/string.html][Python Strings]]
+  + [[https://docs.python.org/3/library/string.html#string.ascii_lowercase][ascii_lowercase]]
+  + [[https://docs.python.org/3/library/string.html#string.ascii_lowercase][ascii_uppercase]]
+
+#+begin_src python :results none
+# python
+from string import ascii_lowercase as lowercase
+from string import ascii_uppercase as uppercase
+
+# pypi
+from expects import equal, expect
+#+end_src
+
+** The Submitted Function
+This is the version I submitted to CodeWars. It uses the dict [[https://docs.python.org/3/library/stdtypes.html#dict.update][update]] method to build a dict (although the solutions below seem neater) and the [[https://docs.python.org/3/library/stdtypes.html#dict.get][get]] method to handle the cases where the letter in the message isn't in the dictionary.
+
+
+#+begin_src python :results none
+def rot13(message: str) -> str:
+    """Implement a Caesar Cipher by shifting letters 13 places
+
+    Non-english letters are left as-is
+
+    Args:
+     message: string to encode
+
+    Return:
+     the encoded version of the input string
+    """
+    code = {letter: lowercase[(index + 13) % 26] 
+             for index, letter in enumerate(lowercase)}
+    code.update((letter, uppercase[(index + 13) % 26])
+                  for index, letter in enumerate(uppercase))
+    return "".join(code.get(letter, letter) for letter in message)
+#+end_src
+** A Test
+
+#+begin_src python :results none
+def tester(encoder):
+    inputs = ("test", "Test", "Test5")
+    expecteds = ("grfg", "Grfg", "Grfg5")
+
+    for message, expected in zip(inputs, expecteds):
+        encoded = encoder(message)
+        expect(encoded).to(equal(expected))
+        expect(encoder(encoded)).to(equal(message))
+    return
+
+tester(rot13)
+#+end_src
+* Alternatives
+Quite a few of the other solutions (on the first page, anyway) used the built in [[https://docs.python.org/3/library/stdtypes.html#str.maketrans][str.maketrans]] and [[https://docs.python.org/3/library/stdtypes.html#str.translate][str.translate]] methods (they complement each other). I didn't see anything in the documentation about how defaults are handled so I'd have to look into it more. The [[https://www.codewars.com/kata/reviews/545683f329ccbfe984000087/groups/545747a40a80d2f02800014a][top answer]] also used slicing instead of modulo (~lower[13:] + lower[:13])~ which might be better. The comments mention that the top answer actually won't work anymore since the ~maketrans~ and ~translate~ functions got moved out of ~string~ (which is where it's importing it from).
+
+The top solutions seem to have a mix of current python and deprecated python (python 2?) so you'd have to be careful in using any of them.
+
+** Using the Slicing
+If you were use slicing instead of the modulo I think it might look like this (from here on out I'm going to declare the code-books outside the function the way I would normally do it, I kind of didn't really think about it when submitting the solution above so I'll leave it as is).
+
+#+begin_src python :results none
+CODE = dict(zip(lowercase + uppercase,
+                lowercase[13:] + lowercase[:13] +
+                uppercase[13:] + uppercase[:13]))
+
+def rot13_2(message: str) -> str:
+    """Implement a Caesar Cipher by shifting letters 13 places
+
+    Non-english letters are left as-is
+
+    Args:
+     message: string to encode
+
+    Return:
+     the encoded version of the input string
+    """
+    return "".join(CODE.get(letter, letter) for letter in message)
+#+end_src
+
+#+begin_src python :results none
+tester(rot13_2)
+#+end_src
+
+This is more compact, although I'm not sure that the slicing is as immediately obvious as the use of the modulo is.
+
+** Using translate and maketrans
+Here's a version using the built-in ~maketrans~ and ~translate~ functions.
+
+#+begin_src python :results none
+CODE = str.maketrans(lowercase + uppercase,
+                     lowercase[13:] + lowercase[:13] +
+                     uppercase[13:] + uppercase[:13])
+
+
+def rot13_3(message: str) -> str:
+    """Implement a Caesar Cipher by shifting letters 13 places
+
+    Non-english letters are left as-is
+
+    Args:
+     message: string to encode
+
+    Return:
+     the encoded version of the input string
+    """
+    return message.translate(CODE)
+#+end_src
+
+#+begin_src python :results output :exports both
+tester(rot13_3)
+coded = rot13_3("I have been to paradise 3 times, but I have never been to me. "
+                "Oh, the humanity!")
+print(coded)
+print(rot13_3(coded))
+#+end_src
+
+#+RESULTS:
+: V unir orra gb cnenqvfr 3 gvzrf, ohg V unir arire orra gb zr. Bu, gur uhznavgl!
+: I have been to paradise 3 times, but I have never been to me. Oh, the humanity!
+
+It kind of seems too much to use translate for this exercise, but it does seem cleaner than the dictionary, so I'll have to keep it in mind for the future.

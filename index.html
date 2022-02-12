@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/codewars-calculating-with-functions/" rel="prefetch" type="text/html">
+<link href="posts/codewars-rot13/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,183 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-rot13/">CodeWars: Rot13</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/codewars-rot13/" rel="bookmark"><time class="published dt-published" datetime="2022-02-12T13:03:26-08:00" itemprop="datePublished" title="2022-02-12 13:03">2022-02-12 13:03</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/codewars-rot13/#orgea7434f">Description</a></li>
+<li><a href="posts/codewars-rot13/#org4586aa9">The Code</a>
+<ul>
+<li><a href="posts/codewars-rot13/#orgea06528">Imports</a></li>
+<li><a href="posts/codewars-rot13/#orgcaddee1">The Submitted Function</a></li>
+<li><a href="posts/codewars-rot13/#org1da5697">A Test</a></li>
+</ul>
+</li>
+<li><a href="posts/codewars-rot13/#orgd965171">Alternatives</a>
+<ul>
+<li><a href="posts/codewars-rot13/#org754e5b2">Using the Slicing</a></li>
+<li><a href="posts/codewars-rot13/#org237d051">Using translate and maketrans</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgea7434f">
+<h2 id="orgea7434f">Description</h2>
+<div class="outline-text-2" id="text-orgea7434f">
+<p>Given a string, replace each letter with the one that comes 13 letters after it in the alphabet. Ignore non-English aphabetical characters.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org4586aa9">
+<h2 id="org4586aa9">The Code</h2>
+<div class="outline-text-2" id="text-org4586aa9"></div>
+<div class="outline-3" id="outline-container-orgea06528">
+<h3 id="orgea06528">Imports</h3>
+<div class="outline-text-3" id="text-orgea06528">
+<ul class="org-ul">
+<li><a href="https://docs.python.org/3/library/string.html">Python Strings</a>
+<ul class="org-ul">
+<li><a href="https://docs.python.org/3/library/string.html#string.ascii_lowercase">ascii_lowercase</a></li>
+<li><a href="https://docs.python.org/3/library/string.html#string.ascii_lowercase">ascii_uppercase</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_lowercase</span> <span class="k">as</span> <span class="n">lowercase</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_uppercase</span> <span class="k">as</span> <span class="n">uppercase</span>
+
+<span class="c1"># pypi</span>
+<span class="kn">from</span> <span class="nn">expects</span> <span class="kn">import</span> <span class="n">equal</span><span class="p">,</span> <span class="n">expect</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgcaddee1">
+<h3 id="orgcaddee1">The Submitted Function</h3>
+<div class="outline-text-3" id="text-orgcaddee1">
+<p>This is the version I submitted to CodeWars. It uses the dict <a href="https://docs.python.org/3/library/stdtypes.html#dict.update">update</a> method to build a dict (although the solutions below seem neater) and the <a href="https://docs.python.org/3/library/stdtypes.html#dict.get">get</a> method to handle the cases where the letter in the message isn't in the dictionary.</p>
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">rot13</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Implement a Caesar Cipher by shifting letters 13 places</span>
+
+<span class="sd">    Non-english letters are left as-is</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     message: string to encode</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">     the encoded version of the input string</span>
+<span class="sd">    """</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="p">{</span><span class="n">letter</span><span class="p">:</span> <span class="n">lowercase</span><span class="p">[(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">13</span><span class="p">)</span> <span class="o">%</span> <span class="mi">26</span><span class="p">]</span> 
+             <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">letter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lowercase</span><span class="p">)}</span>
+    <span class="n">code</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">letter</span><span class="p">,</span> <span class="n">uppercase</span><span class="p">[(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">13</span><span class="p">)</span> <span class="o">%</span> <span class="mi">26</span><span class="p">])</span>
+                  <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">letter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uppercase</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">code</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">letter</span><span class="p">)</span> <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">message</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org1da5697">
+<h3 id="org1da5697">A Test</h3>
+<div class="outline-text-3" id="text-org1da5697">
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">tester</span><span class="p">(</span><span class="n">encoder</span><span class="p">):</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"test"</span><span class="p">,</span> <span class="s2">"Test"</span><span class="p">,</span> <span class="s2">"Test5"</span><span class="p">)</span>
+    <span class="n">expecteds</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"grfg"</span><span class="p">,</span> <span class="s2">"Grfg"</span><span class="p">,</span> <span class="s2">"Grfg5"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">message</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">expecteds</span><span class="p">):</span>
+        <span class="n">encoded</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">expect</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="n">expected</span><span class="p">))</span>
+        <span class="n">expect</span><span class="p">(</span><span class="n">encoder</span><span class="p">(</span><span class="n">encoded</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+    <span class="k">return</span>
+
+<span class="n">tester</span><span class="p">(</span><span class="n">rot13</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgd965171">
+<h2 id="orgd965171">Alternatives</h2>
+<div class="outline-text-2" id="text-orgd965171">
+<p>Quite a few of the other solutions (on the first page, anyway) used the built in <a href="https://docs.python.org/3/library/stdtypes.html#str.maketrans">str.maketrans</a> and <a href="https://docs.python.org/3/library/stdtypes.html#str.translate">str.translate</a> methods (they complement each other). I didn't see anything in the documentation about how defaults are handled so I'd have to look into it more. The <a href="https://www.codewars.com/kata/reviews/545683f329ccbfe984000087/groups/545747a40a80d2f02800014a">top answer</a> also used slicing instead of modulo (<code>lower[13:] + lower[:13])</code> which might be better. The comments mention that the top answer actually won't work anymore since the <code>maketrans</code> and <code>translate</code> functions got moved out of <code>string</code> (which is where it's importing it from).</p>
+<p>The top solutions seem to have a mix of current python and deprecated python (python 2?) so you'd have to be careful in using any of them.</p>
+</div>
+<div class="outline-3" id="outline-container-org754e5b2">
+<h3 id="org754e5b2">Using the Slicing</h3>
+<div class="outline-text-3" id="text-org754e5b2">
+<p>If you were use slicing instead of the modulo I think it might look like this (from here on out I'm going to declare the code-books outside the function the way I would normally do it, I kind of didn't really think about it when submitting the solution above so I'll leave it as is).</p>
+<div class="highlight">
+<pre><span></span><span class="n">CODE</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lowercase</span> <span class="o">+</span> <span class="n">uppercase</span><span class="p">,</span>
+                <span class="n">lowercase</span><span class="p">[</span><span class="mi">13</span><span class="p">:]</span> <span class="o">+</span> <span class="n">lowercase</span><span class="p">[:</span><span class="mi">13</span><span class="p">]</span> <span class="o">+</span>
+                <span class="n">uppercase</span><span class="p">[</span><span class="mi">13</span><span class="p">:]</span> <span class="o">+</span> <span class="n">uppercase</span><span class="p">[:</span><span class="mi">13</span><span class="p">]))</span>
+
+<span class="k">def</span> <span class="nf">rot13_2</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Implement a Caesar Cipher by shifting letters 13 places</span>
+
+<span class="sd">    Non-english letters are left as-is</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     message: string to encode</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">     the encoded version of the input string</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CODE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">letter</span><span class="p">)</span> <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">message</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">tester</span><span class="p">(</span><span class="n">rot13_2</span><span class="p">)</span>
+</pre></div>
+<p>This is more compact, although I'm not sure that the slicing is as immediately obvious as the use of the modulo is.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org237d051">
+<h3 id="org237d051">Using translate and maketrans</h3>
+<div class="outline-text-3" id="text-org237d051">
+<p>Here's a version using the built-in <code>maketrans</code> and <code>translate</code> functions.</p>
+<div class="highlight">
+<pre><span></span><span class="n">CODE</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="n">lowercase</span> <span class="o">+</span> <span class="n">uppercase</span><span class="p">,</span>
+                     <span class="n">lowercase</span><span class="p">[</span><span class="mi">13</span><span class="p">:]</span> <span class="o">+</span> <span class="n">lowercase</span><span class="p">[:</span><span class="mi">13</span><span class="p">]</span> <span class="o">+</span>
+                     <span class="n">uppercase</span><span class="p">[</span><span class="mi">13</span><span class="p">:]</span> <span class="o">+</span> <span class="n">uppercase</span><span class="p">[:</span><span class="mi">13</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">rot13_3</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Implement a Caesar Cipher by shifting letters 13 places</span>
+
+<span class="sd">    Non-english letters are left as-is</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     message: string to encode</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">     the encoded version of the input string</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">CODE</span><span class="p">)</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">tester</span><span class="p">(</span><span class="n">rot13_3</span><span class="p">)</span>
+<span class="n">coded</span> <span class="o">=</span> <span class="n">rot13_3</span><span class="p">(</span><span class="s2">"I have been to paradise 3 times, but I have never been to me. "</span>
+                <span class="s2">"Oh, the humanity!"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">coded</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rot13_3</span><span class="p">(</span><span class="n">coded</span><span class="p">))</span>
+</pre></div>
+<pre class="example">
+V unir orra gb cnenqvfr 3 gvzrf, ohg V unir arire orra gb zr. Bu, gur uhznavgl!
+I have been to paradise 3 times, but I have never been to me. Oh, the humanity!
+</pre>
+<p>It kind of seems too much to use translate for this exercise, but it does seem cleaner than the dictionary, so I'll have to keep it in mind for the future.</p>
+</div>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-calculating-with-functions/">CodeWars: Calculating With Functions</a></h1>
@@ -429,30 +606,30 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="posts/codewars-vowel-count/#orgdd4575d">The Problem</a></li>
-<li><a href="posts/codewars-vowel-count/#org2b940e8">The Solution</a>
+<li><a href="posts/codewars-vowel-count/#org644aaca">The Problem</a></li>
+<li><a href="posts/codewars-vowel-count/#org7dc6755">The Solution</a>
 <ul>
-<li><a href="posts/codewars-vowel-count/#org7b1b24f">The Tests</a></li>
-<li><a href="posts/codewars-vowel-count/#orga12ff06">The Function</a></li>
+<li><a href="posts/codewars-vowel-count/#org870e2e4">The Tests</a></li>
+<li><a href="posts/codewars-vowel-count/#org8ceda09">The Function</a></li>
 </ul>
 </li>
-<li><a href="posts/codewars-vowel-count/#orgef680ff">Alternatives</a></li>
-<li><a href="posts/codewars-vowel-count/#orge8b5296">End</a></li>
+<li><a href="posts/codewars-vowel-count/#orgaede425">Alternatives</a></li>
+<li><a href="posts/codewars-vowel-count/#orgc56237e">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgdd4575d">
-<h2 id="orgdd4575d">The Problem</h2>
-<div class="outline-text-2" id="text-orgdd4575d">
+<div class="outline-2" id="outline-container-org644aaca">
+<h2 id="org644aaca">The Problem</h2>
+<div class="outline-text-2" id="text-org644aaca">
 <p>Given a string, count the number of vowels in it. The vowels are "aeiou" and the letters will be lower-cased.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2b940e8">
-<h2 id="org2b940e8">The Solution</h2>
-<div class="outline-text-2" id="text-org2b940e8"></div>
-<div class="outline-3" id="outline-container-org7b1b24f">
-<h3 id="org7b1b24f">The Tests</h3>
-<div class="outline-text-3" id="text-org7b1b24f">
+<div class="outline-2" id="outline-container-org7dc6755">
+<h2 id="org7dc6755">The Solution</h2>
+<div class="outline-text-2" id="text-org7dc6755"></div>
+<div class="outline-3" id="outline-container-org870e2e4">
+<h3 id="org870e2e4">The Tests</h3>
+<div class="outline-text-3" id="text-org870e2e4">
 <div class="highlight">
 <pre><span></span><span class="c1"># pypi</span>
 <span class="kn">from</span> <span class="nn">expects</span> <span class="kn">import</span> <span class="n">equal</span><span class="p">,</span> <span class="n">expect</span>
@@ -463,9 +640,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orga12ff06">
-<h3 id="orga12ff06">The Function</h3>
-<div class="outline-text-3" id="text-orga12ff06">
+<div class="outline-3" id="outline-container-org8ceda09">
+<h3 id="org8ceda09">The Function</h3>
+<div class="outline-text-3" id="text-org8ceda09">
 <div class="highlight">
 <pre><span></span><span class="n">VOWELS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="s2">"aeiou"</span><span class="p">)</span>
 
@@ -483,16 +660,16 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgef680ff">
-<h2 id="orgef680ff">Alternatives</h2>
-<div class="outline-text-2" id="text-orgef680ff">
+<div class="outline-2" id="outline-container-orgaede425">
+<h2 id="orgaede425">Alternatives</h2>
+<div class="outline-text-2" id="text-orgaede425">
 <p><a href="https://www.codewars.com/kata/reviews/54ff37ee355cfd937000105c/groups/54ff8310c50295aa890004d3">One solution</a> used regular expressions and the <code>findall</code> method. This seems better in a generalizable sense, but I think that the <code>findall</code> will build a list rather than a generator so might not be as efficient space-wise, and is probably slower. Others used the python string method - <code>count</code>. I think this problem is so easy that there's really not a lot of stuff you can do that doesn't overcomplicate things.</p>
 <p>Anyway, day one.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orge8b5296">
-<h2 id="orge8b5296">End</h2>
-<div class="outline-text-2" id="text-orge8b5296">
+<div class="outline-2" id="outline-container-orgc56237e">
+<h2 id="orgc56237e">End</h2>
+<div class="outline-text-2" id="text-orgc56237e">
 <ul class="org-ul">
 <li><a href="https://www.codewars.com/kata/54ff3102c1bad923760001f3">CodeWars Vowel Count</a>: One of the beginner's kata.</li>
 </ul>
@@ -1117,106 +1294,6 @@ Expected: 539, Actual: 539
 </pre>
 <p>Seems to be working.</p>
 </div>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/using-systemd-to-enable-wake-on-lan/">Using Systemd To Enable Wake-On-Lan</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/using-systemd-to-enable-wake-on-lan/" rel="bookmark"><time class="published dt-published" datetime="2020-12-06T15:10:53-08:00" itemprop="datePublished" title="2020-12-06 15:10">2020-12-06 15:10</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org965482a">What is this about?</a></li>
-<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org00649a9">So, how do you do it?</a></li>
-<li><a href="posts/using-systemd-to-enable-wake-on-lan/#orga05105d">So, That Fixed It?</a></li>
-<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org78736f9">Where did you find out about this?</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org965482a">
-<h2 id="org965482a">What is this about?</h2>
-<div class="outline-text-2" id="text-org965482a">
-<p>I made a previous post (<a href="posts/enabling-wake-on-lan/">Enabling Wake-On-LAN (In Ubuntu 20.10)</a>) about enabling Wake-On-LAN on my server, but it didn't seem to work after a re-boot. I looked in the logs using <a href="https://www.commandlinux.com/man-page/man1/journalctl.1.html">journalctl</a> and noticed that the <code>wol.service</code> that I set up didn't get enabled after the re-boot. I thought about it and I remembered that when I was working with bluetooth and set up a service for it I had to make it wait for the bluetooth service to start first or it wouldn't work and realized that there was nothing in the <code>wol.service</code> file to tell it to wait so I went poking around and found what I hope to be a fix.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org00649a9">
-<h2 id="org00649a9">So, how do you do it?</h2>
-<div class="outline-text-2" id="text-org00649a9">
-<p>We need to update the <code>/etc/systemd/system/wol.service</code> that I created in that earlier post. Previously it looked like this:</p>
-<div class="highlight">
-<pre><span></span>[Unit]
-Description=Enable Wake On Lan
-
-[Service]
-Type=oneshot
-ExecStart = /sbin/ethtool --change enp4s0 wol g
-
-[Install]
-WantedBy=basic.target
-</pre></div>
-<p>We need to update the <code>[Unit]</code> section by adding</p>
-<div class="highlight">
-<pre><span></span>Requires=network.target
-After=network.target
-</pre></div>
-<p>To let systemd know that we don't want this to run until after the network service has run. I also changed the <code>WantedBy</code> to <code>multi-user.target</code>. So the updated file looks like this:</p>
-<div class="highlight">
-<pre><span></span>[Unit]
-Description=Enable Wake On Lan
-Requires=network.target
-After=network.target
-
-[Service]
-Type=oneshot
-ExecStart = /sbin/ethtool --change enp4s0 wol g
-
-[Install]
-WantedBy=multi-user.target
-</pre></div>
-<p>Now reload the daemon and re-enable it.</p>
-<div class="highlight">
-<pre><span></span>sudo systemctl daemon-reload
-sudo systemctl enable wol.service
-</pre></div>
-<p>To make sure I didn't introduce any errors I ran it once.</p>
-<div class="highlight">
-<pre><span></span>sudo systemctl start wol
-</pre></div>
-<p>Then I rebooted it.</p>
-<div class="highlight">
-<pre><span></span>sudo reboot now
-</pre></div>
-<p>This time in journalctl I saw this:</p>
-<pre class="example">
-Dec 07 00:02:17 erebus systemd[1]: Finished Enable Wake On Lan.
-Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
-</pre>
-<p>And running <code>ethtool</code> showed that it was enabled.</p>
-<div class="highlight">
-<pre><span></span>Wake-on: g
-</pre></div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orga05105d">
-<h2 id="orga05105d">So, That Fixed It?</h2>
-<div class="outline-text-2" id="text-orga05105d">
-<p>Well, insofar as it's working now, yes. But since I change more than one thing I don't really know exactly what did it (was it one of the three lines I changed or all of them?). Anyway, since it works I'll let it lie for now.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org78736f9">
-<h2 id="org78736f9">Where did you find out about this?</h2>
-<div class="outline-text-2" id="text-org78736f9">
-<ul class="org-ul">
-<li>The Arch wiki has a page on <a href="https://wiki.archlinux.org/index.php/Wake-on-LAN">Wake-On-LAN</a> that tells you many different ways to set it up – I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).</li>
-</ul>
 </div>
 </div>
 </div>
