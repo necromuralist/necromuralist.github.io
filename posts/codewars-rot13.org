@@ -98,3 +98,44 @@ expect(rot13_2("Test5")).to(equal("Grfg5"))
 #+end_src
 
 This is more compact, although I'm not sure that the slicing is as immediately obvious as the use of the modulo is.
+
+** Using translate and maketrans
+Here' what it'd be if you moved the data structure outside of the function (which I think I would normally do) and then use translate.
+
+#+begin_src python :results none
+code = str.maketrans(lowercase + uppercase,
+                     lowercase[13:] + lowercase[:13] +
+                     uppercase[13:] + uppercase[:13])
+
+
+def rot13_3(message: str) -> str:
+    """Implement a Caesar Cipher by shifting letters 13 places
+
+    Non-english letters are left as-is
+
+    Args:
+     message: string to encode
+
+    Return:
+     the encoded version of the input string
+    """
+    return message.translate(code)
+#+end_src
+
+#+begin_src python :results none
+expect(rot13_3("test")).to(equal("grfg"))
+expect(rot13_3("Test")).to(equal("Grfg"))
+expect(rot13_3("Test5")).to(equal("Grfg5"))
+#+end_src
+
+#+begin_src python :results output :exports both
+coded = rot13_3("I have been to paradise 3 times, but I have never been to me.")
+print(coded)
+print(rot13_3(coded))
+#+end_src
+
+#+RESULTS:
+: V unir orra gb cnenqvfr 3 gvzrf, ohg V unir arire orra gb zr.
+: I have been to paradise 3 times, but I have never been to me.
+
+It kind of seems too much to use translate for this exercise, but it does seem cleaner than the dictionary, so I'll have to keep it in mind for the future.
