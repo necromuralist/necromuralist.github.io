@@ -12,12 +12,12 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/" rel="canonical">
-<link href="index-19.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+<link href="index-20.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
 <link href="apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/codewars-rot13/" rel="prefetch" type="text/html">
+<link href="posts/codewars-rgb-to-hexadecimal/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,124 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-rgb-to-hexadecimal/">CodeWars: RGB To Hexadecimal</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/codewars-rgb-to-hexadecimal/" rel="bookmark"><time class="published dt-published" datetime="2022-02-14T20:07:51-08:00" itemprop="datePublished" title="2022-02-14 20:07">2022-02-14 20:07</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/codewars-rgb-to-hexadecimal/#org1042489">Description</a></li>
+<li><a href="posts/codewars-rgb-to-hexadecimal/#org08ca73a">The Code</a>
+<ul>
+<li><a href="posts/codewars-rgb-to-hexadecimal/#org1b5cc92">Imports</a></li>
+<li><a href="posts/codewars-rgb-to-hexadecimal/#org3aab512">Submission</a></li>
+<li><a href="posts/codewars-rgb-to-hexadecimal/#org59201d4">Alternatives</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org1042489">
+<h2 id="org1042489">Description</h2>
+<div class="outline-text-2" id="text-org1042489">
+<p>Given three arguments <code>r</code>, <code>g</code>, and <code>b</code> which are integers from 0 to 255 representing RGB values, convert them to a six digit (zero-padded) hexadecimal string. Invalid (out of range) values need to be rounded to nearest value.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org08ca73a">
+<h2 id="org08ca73a">The Code</h2>
+<div class="outline-text-2" id="text-org08ca73a"></div>
+<div class="outline-3" id="outline-container-org1b5cc92">
+<h3 id="org1b5cc92">Imports</h3>
+<div class="outline-text-3" id="text-org1b5cc92">
+<div class="highlight">
+<pre><span></span><span class="c1"># pypi</span>
+<span class="kn">from</span> <span class="nn">expects</span> <span class="kn">import</span> <span class="n">equal</span><span class="p">,</span> <span class="n">expect</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org3aab512">
+<h3 id="org3aab512">Submission</h3>
+<div class="outline-text-3" id="text-org3aab512">
+<div class="highlight">
+<pre><span></span><span class="n">HEX_DIGITS</span> <span class="o">=</span> <span class="s2">"0123456789ABCDEF"</span>
+<span class="n">RGB_TO_HEX</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">HEX_DIGITS</span><span class="p">)),</span> <span class="n">HEX_DIGITS</span><span class="p">))</span>
+<span class="n">HEX</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="k">def</span> <span class="nf">rgb</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Convert RGB to Hexadecimal</span>
+
+<span class="sd">    If the values are out of bounds they will be set to the nearest limit</span>
+
+<span class="sd">    e.g. -1 becomes 0 and 2919 becomes 255</span>
+
+<span class="sd">    Non-integers will raise an error</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     r: red channel (0-255)</span>
+<span class="sd">     g: green channel (0-255)</span>
+<span class="sd">     b: blue channel (0-255)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">     6-digit hexadecimal equivalent of r, g, b</span>
+<span class="sd">    """</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+    <span class="n">converted</span> <span class="o">=</span> <span class="p">((</span><span class="n">RGB_TO_HEX</span><span class="p">[</span><span class="n">color</span><span class="o">//</span><span class="n">HEX</span><span class="p">],</span> <span class="n">RGB_TO_HEX</span><span class="p">[</span><span class="n">color</span> <span class="o">%</span> <span class="n">HEX</span><span class="p">])</span>
+                 <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">y</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">converted</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">))</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">expect</span><span class="p">(</span><span class="n">rgb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"000000"</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">rgb</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"010203"</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">rgb</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"FFFFFF"</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">rgb</span><span class="p">(</span><span class="mi">254</span><span class="p">,</span><span class="mi">253</span><span class="p">,</span><span class="mi">252</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"FEFDFC"</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">rgb</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="mi">275</span><span class="p">,</span><span class="mi">125</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"00FF7D"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org59201d4">
+<h3 id="org59201d4">Alternatives</h3>
+<div class="outline-text-3" id="text-org59201d4">
+<p>A surprising number of people used the string formatting - <code>{:02X}</code> to convert the numbers to hexadecimal. I think that's sort of the problem with these earlier puzzles - there's a big question of how much of python's built in functionality you should use. I guess since I use string formatting a lot that might make sense as a shortcut in this case.</p>
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">rgb_2</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">"""Convert RGB to Hexadecimal</span>
+
+<span class="sd">    If the values are out of bounds they will be set to the nearest limit</span>
+
+<span class="sd">    e.g. -1 becomes 0 and 2919 becomes 255</span>
+
+<span class="sd">    Non-integers will raise an error</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     r: red channel (0-255)</span>
+<span class="sd">     g: green channel (0-255)</span>
+<span class="sd">     b: blue channel (0-255)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">     6-digit hexadecimal equivalent of r, g, b</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">02X</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">)))</span>
+</pre></div>
+<div class="highlight">
+<pre><span></span><span class="n">expect</span><span class="p">(</span><span class="n">rgb_2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"000000"</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">rgb_2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"010203"</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">rgb_2</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"FFFFFF"</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">rgb_2</span><span class="p">(</span><span class="mi">254</span><span class="p">,</span><span class="mi">253</span><span class="p">,</span><span class="mi">252</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"FEFDFC"</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">rgb_2</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="mi">275</span><span class="p">,</span><span class="mi">125</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="s2">"00FF7D"</span><span class="p">))</span>
+</pre></div>
+<p>Not quite so readable, but short.</p>
+</div>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-rot13/">CodeWars: Rot13</a></h1>
@@ -1151,156 +1269,9 @@ bundle exec jekyll serve
 </div>
 </div>
 </article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/coding-comics-recursion/">Coding Comics: Recursion</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/coding-comics-recursion/" rel="bookmark"><time class="published dt-published" datetime="2021-01-27T15:59:39-08:00" itemprop="datePublished" title="2021-01-27 15:59">2021-01-27 15:59</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/coding-comics-recursion/#org718c767">What Is This?</a></li>
-<li><a href="posts/coding-comics-recursion/#orgaa120ad">The Comic</a></li>
-<li><a href="posts/coding-comics-recursion/#org3abf4e7">In English-Ish</a>
-<ul>
-<li><a href="posts/coding-comics-recursion/#orgf534fcc">Forward</a></li>
-<li><a href="posts/coding-comics-recursion/#org05f5ff4">Base Case</a></li>
-<li><a href="posts/coding-comics-recursion/#orga4d8386">Backwards</a></li>
-</ul>
-</li>
-<li><a href="posts/coding-comics-recursion/#org94608c0">The Code</a>
-<ul>
-<li><a href="posts/coding-comics-recursion/#org5340c6f">A Person</a></li>
-<li><a href="posts/coding-comics-recursion/#org1dc0a50">The Recursion</a></li>
-<li><a href="posts/coding-comics-recursion/#orgd718fff">Check If It Works</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org718c767">
-<h2 id="org718c767">What Is This?</h2>
-<div class="outline-text-2" id="text-org718c767">
-<p>This is a re-working of the <a href="posts/coding-strip/">Coding Strip</a> Recursion example. Not because I can do it better, but because I've never done one before so stealing their idea seems like an easier way to start. In the original they had a comic showing a character who wants to buy a ticket but there's a long line so she asks the person in front of her how many people are in front of him, and he asks the person in front of him, and so on. They then followed up the comics with some code that translated the comic to a concrete function.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgaa120ad">
-<h2 id="orgaa120ad">The Comic</h2>
-<div class="outline-text-2" id="text-orgaa120ad">
-<p>(Coming Soon)</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org3abf4e7">
-<h2 id="org3abf4e7">In English-Ish</h2>
-<div class="outline-text-2" id="text-org3abf4e7"></div>
-<div class="outline-3" id="outline-container-orgf534fcc">
-<h3 id="orgf534fcc">Forward</h3>
-<div class="outline-text-3" id="text-orgf534fcc">
-<p>To find the length of the line, each person asks the person in front how many people are in front of them.</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org05f5ff4">
-<h3 id="org05f5ff4">Base Case</h3>
-<div class="outline-text-3" id="text-org05f5ff4">
-<p>When the person at the front of the line is reached, he reports that there's no one in front of him (zero).</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-orga4d8386">
-<h3 id="orga4d8386">Backwards</h3>
-<div class="outline-text-3" id="text-orga4d8386">
-<p>Once the front of the line is reached, each person then relays back how many people the person in front reports and adds one to include the person who reported the count until the back of the line is reached.</p>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org94608c0">
-<h2 id="org94608c0">The Code</h2>
-<div class="outline-text-2" id="text-org94608c0">
-<p>Here's some code to illustrate the idea of asking the person in front of you how many people are in front of them and having that question propagate forward and then have the answer propagate back.</p>
-</div>
-<div class="outline-3" id="outline-container-org5340c6f">
-<h3 id="org5340c6f">A Person</h3>
-<div class="outline-text-3" id="text-org5340c6f">
-<p>I originally thought of using a list, but then you'd have to criple the length method… so I'm making a linked list of a sorts, where each person knows the person in front of them.</p>
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Person</span><span class="p">:</span>
-    <span class="sd">"""A person in line</span>
-<span class="sd">    """</span>
-    <span class="n">person_in_front</span> <span class="o">=</span> <span class="kc">None</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org1dc0a50">
-<h3 id="org1dc0a50">The Recursion</h3>
-<div class="outline-text-3" id="text-org1dc0a50">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">hey_fella_how_many_people_are_in_front_of_me</span><span class="p">(</span><span class="n">fella</span><span class="p">:</span> <span class="n">Person</span><span class="p">):</span>
-    <span class="sd">"""Finds out how many people are in front of current person</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     fella: the current person being asked</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">     Number of people in front (including last person)</span>
-<span class="sd">    """</span>
-    <span class="n">COUNT_THIS_FELLA</span> <span class="o">=</span> <span class="mi">1</span>    
-    <span class="k">if</span> <span class="n">fella</span><span class="o">.</span><span class="n">person_in_front</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">COUNT_THIS_FELLA</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">hey_fella_how_many_people_are_in_front_of_me</span><span class="p">(</span><span class="n">fella</span><span class="o">.</span><span class="n">person_in_front</span><span class="p">)</span>
-            <span class="o">+</span> <span class="n">COUNT_THIS_FELLA</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-orgd718fff">
-<h3 id="orgd718fff">Check If It Works</h3>
-<div class="outline-text-3" id="text-orgd718fff">
-<p>Now I'll create a line of unknown length so we can check it.</p>
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_letters</span>
-<span class="kn">import</span> <span class="nn">random</span>
-
-<span class="n">waiting</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">line_of_people</span><span class="p">(</span><span class="n">people</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Person</span><span class="p">:</span>
-    <span class="sd">"""Builds the lengthless line</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     people: how many people to queue up</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">     line of people</span>
-<span class="sd">    """</span>
-    <span class="n">line</span> <span class="o">=</span> <span class="n">this_person</span> <span class="o">=</span> <span class="n">Person</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">waiting</span><span class="p">):</span>
-        <span class="n">this_person</span><span class="o">.</span><span class="n">person_in_front</span> <span class="o">=</span> <span class="n">Person</span><span class="p">()</span>
-        <span class="n">this_person</span> <span class="o">=</span> <span class="n">this_person</span><span class="o">.</span><span class="n">person_in_front</span>
-    <span class="k">return</span> <span class="n">line</span>
-
-<span class="n">in_line</span> <span class="o">=</span> <span class="n">line_of_people</span><span class="p">(</span><span class="n">waiting</span><span class="p">)</span>
-</pre></div>
-<p>So at this point we have a line of people of unknown length. Each person only knows the existence of the person in front of them so there's no way to get the length of the line directly, but we can use the recursive function to find out how many people there are.</p>
-<div class="highlight">
-<pre><span></span><span class="n">reported</span> <span class="o">=</span> <span class="n">hey_fella_how_many_people_are_in_front_of_me</span><span class="p">(</span><span class="n">in_line</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected: </span><span class="si">{</span><span class="n">waiting</span><span class="si">}</span><span class="s2">, Actual: </span><span class="si">{</span><span class="n">reported</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-<span class="k">assert</span> <span class="n">waiting</span> <span class="o">==</span> <span class="n">reported</span>
-</pre></div>
-<pre class="example">
-Expected: 539, Actual: 539
-</pre>
-<p>Seems to be working.</p>
-</div>
-</div>
-</div>
-</div>
-</article>
 </div>
 <ul class="pager postindexpager clearfix">
-<li class="next"><a href="index-19.html" rel="next">Older posts</a></li>
+<li class="next"><a href="index-20.html" rel="next">Older posts</a></li>
 </ul>
 <!--End of body content-->
 <footer id="footer">Contents © 2022 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>

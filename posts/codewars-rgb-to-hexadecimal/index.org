@@ -1,0 +1,100 @@
+#+BEGIN_COMMENT
+.. title: CodeWars: RGB To Hexadecimal
+.. slug: codewars-rgb-to-hexadecimal
+.. date: 2022-02-14 20:07:51 UTC-08:00
+.. tags: codewars,kata,python
+.. category: Code Kata
+.. link: 
+.. description: Implement an RGB to Hexadecimal Converter
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-62790d90-1403-4dff-96ce-76e45441e168-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+* Description
+Given three arguments ~r~, ~g~, and ~b~ which are integers from 0 to 255 representing RGB values, convert them to a six digit (zero-padded) hexadecimal string. Invalid (out of range) values need to be rounded to nearest value.
+* The Code
+** Imports
+#+begin_src python :results none
+# pypi
+from expects import equal, expect
+#+end_src
+
+** Submission
+#+begin_src python :results none
+HEX_DIGITS = "0123456789ABCDEF"
+RGB_TO_HEX = dict(zip(range(len(HEX_DIGITS)), HEX_DIGITS))
+HEX = 16
+
+def rgb(r: int, g: int, b: int) -> str:
+    """Convert RGB to Hexadecimal
+
+    If the values are out of bounds they will be set to the nearest limit
+    
+    e.g. -1 becomes 0 and 2919 becomes 255
+
+    Non-integers will raise an error
+
+    Args:
+     r: red channel (0-255)
+     g: green channel (0-255)
+     b: blue channel (0-255)
+
+    Returns:
+     6-digit hexadecimal equivalent of r, g, b
+    """
+    colors = (max(min(color, 255), 0) for color in (r, g, b))
+    converted = ((RGB_TO_HEX[color//HEX], RGB_TO_HEX[color % HEX])
+                 for color in colors)
+    return "".join((y for x in converted for y in x))
+#+end_src
+
+#+begin_src python :results none
+expect(rgb(0,0,0)).to(equal("000000"))
+expect(rgb(1,2,3)).to(equal("010203"))
+expect(rgb(255,255,255)).to(equal("FFFFFF"))
+expect(rgb(254,253,252)).to(equal("FEFDFC"))
+expect(rgb(-20,275,125)).to(equal("00FF7D"))
+#+end_src
+
+** Alternatives
+ A surprising number of people used the string formatting - ~{:02X}~ to convert the numbers to hexadecimal. I think that's sort of the problem with these earlier puzzles - there's a big question of how much of python's built in functionality you should use. I guess since I use string formatting a lot that might make sense as a shortcut in this case.
+
+#+begin_src python :results none
+def rgb_2(r: int, g: int, b: int) -> str:
+    """Convert RGB to Hexadecimal
+
+    If the values are out of bounds they will be set to the nearest limit
+    
+    e.g. -1 becomes 0 and 2919 becomes 255
+
+    Non-integers will raise an error
+
+    Args:
+     r: red channel (0-255)
+     g: green channel (0-255)
+     b: blue channel (0-255)
+
+    Returns:
+     6-digit hexadecimal equivalent of r, g, b
+    """
+    return "".join((f"{max(min(color, 255), 0):02X}" for color in (r, g, b)))
+#+end_src
+
+#+begin_src python :results none
+expect(rgb_2(0,0,0)).to(equal("000000"))
+expect(rgb_2(1,2,3)).to(equal("010203"))
+expect(rgb_2(255,255,255)).to(equal("FFFFFF"))
+expect(rgb_2(254,253,252)).to(equal("FEFDFC"))
+expect(rgb_2(-20,275,125)).to(equal("00FF7D"))
+#+end_src
+
+Not quite so readable, but short.
