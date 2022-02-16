@@ -1,0 +1,72 @@
+#+BEGIN_COMMENT
+.. title: CodeWars: Simple Pig Latin
+.. slug: codewars-simple-pig-latin
+.. date: 2022-02-15 18:12:05 UTC-08:00
+.. tags: codewars,kata,python
+.. category: Code Kata
+.. link: 
+.. description: 
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-7562f77d-df49-456b-93ce-186be1056d1d-ssh.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+* Description
+Move the first letter of each word to the end of it, then add "ay" to the end of the word. Leave punctuation marks untouched.
+* Code
+** Imports
+#+begin_src python :results none
+# pypi
+from expects import equal, expect
+#+end_src
+
+** Submission
+#+begin_src python :results none
+import re
+
+LETTERS = re.compile(r"[a-zA-Z]")
+WORD_BOUNDARY = re.compile(r"\b")
+
+
+def convert(token: str) -> str:
+    """Convert a single word to pig-latin
+
+    Args:
+     token: string representing a single token
+    
+    Returns: 
+     pig-latinized word (if appropriate)
+    """
+    return (f"{token[1:]}{token[0]}ay"
+            if token and LETTERS.match(token) else token)
+
+
+def pig_it(text: str) -> str:
+    """Basic pig latin converter
+    
+    Moves first letter of words to the end and adds 'ay' to the end
+
+    Args:
+     text: string to pig-latinize
+
+    Returns:
+     pig-latin version of text
+    """
+    return "".join(convert(token) for token in WORD_BOUNDARY.split(text))
+#+end_src
+
+#+begin_src python :results none
+expect(pig_it('Pig latin is cool')).to(equal('igPay atinlay siay oolcay'))
+expect(pig_it('This is my string')).to(equal('hisTay siay ymay tringsay'))
+expect(pig_it("Hello World !")).to(equal("elloHay orldWay !"))
+#+end_src
+* Sources
+- [[https://www.codewars.com/kata/520b9d2ad5c005041100000f/train/python][CodeWars: Simple Pig Latin]]
