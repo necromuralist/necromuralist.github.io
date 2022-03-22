@@ -1,0 +1,89 @@
+#+BEGIN_COMMENT
+.. title: Tangling Multiple Org Files
+.. slug: tangling-multiple-org-files
+.. date: 2022-03-21 17:30:14 UTC-07:00
+.. tags: emacs,org,literate programming
+.. category: Emacs
+.. link: 
+.. description: Tangling sources from multiple files into one file.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+
+I've been looking off and on for ways to combine separate code-blocks in org-mode into a single tangled file. I wanted to use it because I tangle code that I want to re-use out of posts but then if I want to break the posts up I need to create a separate file (tangle) for each post. I'm hopeful that this method will allow me to break up a tangle across multiple posts. I've only tried it on toy files but I want to get some initial documentation for it in place.
+* The Steps
+Let's say that there are two source org-files:
+
+- ~one.org~: contains the tangle block and a source block
+- ~two.org~: contains another block that we want to tangle with the one in ~one.org~
+
+The steps are:
+
+1. Put an ~#+INCLUDE~ directive to include ~two.org~ into ~one.org~
+2. Export ~one.org~ to an ~org~ file
+3. Open the exported org file (~one.org.org~)
+4. Tangle it.
+
+** Create one.org
+The file ~one.org~ is going to have the tangle and the first source-block:
+
+#+begin_src org
+,#+begin_src python :tangle ~/test.py :exports none
+<<block-one>>
+
+<<block-two>>
+,#+end_src
+#+end_src
+
+#+begin_src org
+,#+begin_src python :noweb-ref block-one
+def one():
+    print("One")
+,#+end_src
+#+end_src
+
+We also need to include what's in the second file (~two.org~). The code we want to include is in a section called ~Two~ so we can include just that section by adding a search term at the end.
+
+#+begin_src org
+#+INCLUDE: "./two.org::*Two"
+#+end_src
+
+** Create two.org
+In the other file add the section header to match the ~INCLUDE~ search term (~*Two~) and put a code block with a reference named ~block-two~ to match what's in the tangle block above.
+
+#+begin_src org
+  * Two
+  #+begin_src python :noweb-ref block-two
+  def two():
+  print("Two")
+  ,#+end_src
+#+end_src
+
+** Export one.org
+Tangling unfortunately ignores the ~INCLUDE~ directive so we have to export it first to another org-file in order to get the text from ~org.two~ into our source file. By default, exporting to ~org~ is disabled so you need to enable it (e.g. starting with ~M-x customize~ ~org-export-backends~).
+
+Once it's enabled you can export ~one.org~ to an org-mode file using ~C-c C-e O v~ (the default name will be ~one.org.org~). 
+
+** Tangle one.org.org
+The last choice when we exported the file in the previous step (~v~) will save it to a file and open it up in an emacs buffer. When the buffer is open you can then tangle it (~C-c C-v C-t~) and the output (~/test.py~ from our tangle block) should contain both of our functions.
+
+* Sources
+This is where I got the information on breaking up the files. It includes some emacs-lisp to run the steps automatically (although I didn't try it):
+
+- Multi-File Org-Babel Tangles with Include Directives [Internet]. DEV Community. [cited 2022 Mar 21]. Available from: https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522
+
+This is the post that mentions that exporting org-files to org-format needs to be enabled (and how to do it):
+
+- exporting - Org mode export subtree to new org file - option missing? [Internet]. Emacs Stack Exchange. [cited 2022 Mar 21]. Available from: https://emacs.stackexchange.com/a/70453
+
+This is the manual page explaining the search syntax (which is what the ~#+INCLUDE~ format uses).
+
+- Search Options (The Org Manual) [Internet]. [cited 2022 Mar 21]. Available from: https://orgmode.org/manual/Search-Options.html
+
+This explains the ~#+INCLUDE~ directive options:
+
+- Include Files (The Org Manual) [Internet]. [cited 2022 Mar 21]. Available from: https://orgmode.org/manual/Include-Files.html

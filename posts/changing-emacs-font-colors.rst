@@ -2,7 +2,7 @@
 .. slug: changing-emacs-font-colors
 .. date: 2016-09-25 14:16:40 UTC-07:00
 .. tags: how-to,emacs
-.. category: emacs
+.. category: Emacs
 .. link: 
 .. description: How to change font-colors in Emacs.
 .. type: text
