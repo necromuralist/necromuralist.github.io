@@ -1,18 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about emacs)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/emacs.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2022 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 15 Feb 2022 05:11:34 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Emacs Scrollbar Artifact on Kubuntu</title><link>https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about emacs)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/emacs.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2022 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 22 Mar 2022 01:39:09 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Tangling Multiple Org Files</title><link>https://necromuralist.github.io/posts/tangling-multiple-org-files/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/#orgcf2a9fd"&gt;What's this then?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/#org440b80d"&gt;The Cause&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/#orgc431d59"&gt;The Fix&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/#org94d3163"&gt;The Source&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/tangling-multiple-org-files/#orgc46e6fd"&gt;The Steps&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/tangling-multiple-org-files/#orgad4a1b1"&gt;Create one.org&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/tangling-multiple-org-files/#org7f56982"&gt;Create two.org&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/tangling-multiple-org-files/#orgac5fe93"&gt;Export one.org&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/tangling-multiple-org-files/#orgb5dde53"&gt;Tangle one.org.org&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/tangling-multiple-org-files/#org09e45ce"&gt;Sources&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgcf2a9fd" class="outline-2"&gt;
-&lt;h2 id="orgcf2a9fd"&gt;What's this then?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcf2a9fd"&gt;
+
+&lt;p&gt;
+I've been looking off and on for ways to combine separate code-blocks in org-mode into a single tangled file. I wanted to use it because I tangle code that I want to re-use out of posts but then if I want to break the posts up I need to create a separate file (tangle) for each post. I'm hopeful that this method will allow me to break up a tangle across multiple posts. I've only tried it on toy files but I want to get some initial documentation for it in place.
+&lt;/p&gt;
+&lt;div id="outline-container-orgc46e6fd" class="outline-2"&gt;
+&lt;h2 id="orgc46e6fd"&gt;The Steps&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc46e6fd"&gt;
+&lt;p&gt;
+Let's say that there are two source org-files:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;code&gt;one.org&lt;/code&gt;: contains the tangle block and a source block&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;two.org&lt;/code&gt;: contains another block that we want to tangle with the one in &lt;code&gt;one.org&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+The steps are:
+&lt;/p&gt;
+
+&lt;ol class="org-ol"&gt;
+&lt;li&gt;Put an &lt;code&gt;#+INCLUDE&lt;/code&gt; directive to include &lt;code&gt;two.org&lt;/code&gt; into &lt;code&gt;one.org&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Export &lt;code&gt;one.org&lt;/code&gt; to an &lt;code&gt;org&lt;/code&gt; file&lt;/li&gt;
+&lt;li&gt;Open the exported org file (&lt;code&gt;one.org.org&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;Tangle it.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgad4a1b1" class="outline-3"&gt;
+&lt;h3 id="orgad4a1b1"&gt;Create one.org&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgad4a1b1"&gt;
+&lt;p&gt;
+The file &lt;code&gt;one.org&lt;/code&gt; is going to have the tangle and the first source-block:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+begin_src python :tangle ~/test.py :exports none
+&amp;lt;&amp;lt;block-one&amp;gt;&amp;gt;
+
+&amp;lt;&amp;lt;block-two&amp;gt;&amp;gt;
+#+end_src
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+begin_src python :noweb-ref block-one
+def one():
+    print("One")
+#+end_src
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+We also need to include what's in the second file (&lt;code&gt;two.org&lt;/code&gt;). The code we want to include is in a section called &lt;code&gt;Two&lt;/code&gt; so we can include just that section by adding a search term at the end.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+INCLUDE: "./two.org::*Two"
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org7f56982" class="outline-3"&gt;
+&lt;h3 id="org7f56982"&gt;Create two.org&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7f56982"&gt;
+&lt;p&gt;
+In the other file add the section header to match the &lt;code&gt;INCLUDE&lt;/code&gt; search term (&lt;code&gt;*Two&lt;/code&gt;) and put a code block with a reference named &lt;code&gt;block-two&lt;/code&gt; to match what's in the tangle block above.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;* Two
+#+begin_src python :noweb-ref block-two
+def two():
+print("Two")
+#+end_src
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgac5fe93" class="outline-3"&gt;
+&lt;h3 id="orgac5fe93"&gt;Export one.org&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgac5fe93"&gt;
+&lt;p&gt;
+Tangling unfortunately ignores the &lt;code&gt;INCLUDE&lt;/code&gt; directive so we have to export it first to another org-file in order to get the text from &lt;code&gt;org.two&lt;/code&gt; into our source file. By default, exporting to &lt;code&gt;org&lt;/code&gt; is disabled so you need to enable it (e.g. starting with &lt;code&gt;M-x customize&lt;/code&gt; &lt;code&gt;org-export-backends&lt;/code&gt;).
+&lt;/p&gt;
+
+&lt;p&gt;
+Once it's enabled you can export &lt;code&gt;one.org&lt;/code&gt; to an org-mode file using &lt;code&gt;C-c C-e O v&lt;/code&gt; (the default name will be &lt;code&gt;one.org.org&lt;/code&gt;). 
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgb5dde53" class="outline-3"&gt;
+&lt;h3 id="orgb5dde53"&gt;Tangle one.org.org&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb5dde53"&gt;
+&lt;p&gt;
+The last choice when we exported the file in the previous step (&lt;code&gt;v&lt;/code&gt;) will save it to a file and open it up in an emacs buffer. When the buffer is open you can then tangle it (&lt;code&gt;C-c C-v C-t&lt;/code&gt;) and the output (&lt;code&gt;/test.py&lt;/code&gt; from our tangle block) should contain both of our functions.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org09e45ce" class="outline-2"&gt;
+&lt;h2 id="org09e45ce"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org09e45ce"&gt;
+&lt;p&gt;
+This is where I got the information on breaking up the files. It includes some emacs-lisp to run the steps automatically (although I didn't try it):
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Multi-File Org-Babel Tangles with Include Directives [Internet]. DEV Community. [cited 2022 Mar 21]. Available from: &lt;a href="https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522"&gt;https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+This is the post that mentions that exporting org-files to org-format needs to be enabled (and how to do it):
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;exporting - Org mode export subtree to new org file - option missing? [Internet]. Emacs Stack Exchange. [cited 2022 Mar 21]. Available from: &lt;a href="https://emacs.stackexchange.com/a/70453"&gt;https://emacs.stackexchange.com/a/70453&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+This is the manual page explaining the search syntax (which is what the &lt;code&gt;#+INCLUDE&lt;/code&gt; format uses).
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Search Options (The Org Manual) [Internet]. [cited 2022 Mar 21]. Available from: &lt;a href="https://orgmode.org/manual/Search-Options.html"&gt;https://orgmode.org/manual/Search-Options.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+This explains the &lt;code&gt;#+INCLUDE&lt;/code&gt; directive options:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Include Files (The Org Manual) [Internet]. [cited 2022 Mar 21]. Available from: &lt;a href="https://orgmode.org/manual/Include-Files.html"&gt;https://orgmode.org/manual/Include-Files.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>emacs</category><category>literate programming</category><category>org</category><guid>https://necromuralist.github.io/posts/tangling-multiple-org-files/</guid><pubDate>Tue, 22 Mar 2022 00:30:14 GMT</pubDate></item><item><title>Emacs Scrollbar Artifact on Kubuntu</title><link>https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/#org8fa0e72"&gt;What's this then?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/#org145c5ea"&gt;The Cause&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/#org3de5cd8"&gt;The Fix&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-artifact-on-kubuntu/#orgeba7bd3"&gt;The Source&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org8fa0e72" class="outline-2"&gt;
+&lt;h2 id="org8fa0e72"&gt;What's this then?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org8fa0e72"&gt;
 &lt;p&gt;
 I switch back and forth between Kubuntu and Ubuntu (Ubuntu seems to work better, but I like the aesthetics of Kubuntu) and one of the problems I had was that when I launched emacs in Kubuntu it had a permanent scrollbar in the center of the window that blocked out whatever text was there.
 &lt;/p&gt;
@@ -26,9 +173,9 @@ It's more of an annoyance than anything else but since it doesn't happen on Ubun
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org440b80d" class="outline-2"&gt;
-&lt;h2 id="org440b80d"&gt;The Cause&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org440b80d"&gt;
+&lt;div id="outline-container-org145c5ea" class="outline-2"&gt;
+&lt;h2 id="org145c5ea"&gt;The Cause&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org145c5ea"&gt;
 &lt;p&gt;
 This is the desktop that's causing the problem:
 &lt;/p&gt;
@@ -42,9 +189,9 @@ It turns out that it's because my monitors are of different resolutions and in o
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc431d59" class="outline-2"&gt;
-&lt;h2 id="orgc431d59"&gt;The Fix&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc431d59"&gt;
+&lt;div id="outline-container-org3de5cd8" class="outline-2"&gt;
+&lt;h2 id="org3de5cd8"&gt;The Fix&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3de5cd8"&gt;
 &lt;p&gt;
 The fix for me was to edit the &lt;code&gt;~/.local/share/applications/emacs.desktop&lt;/code&gt; file so that the EXEC line read:
 &lt;/p&gt;
@@ -63,9 +210,9 @@ Once this was in place the artifact went away.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org94d3163" class="outline-2"&gt;
-&lt;h2 id="org94d3163"&gt;The Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org94d3163"&gt;
+&lt;div id="outline-container-orgeba7bd3" class="outline-2"&gt;
+&lt;h2 id="orgeba7bd3"&gt;The Source&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgeba7bd3"&gt;
 &lt;p&gt;
 I linked to it above, but this is the reddit post where I found the fix:
 &lt;/p&gt;
@@ -216,33 +363,33 @@ Okay, so this was a very basic hello world for javascript in emacs. The lack of 
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org9925b6d"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org9c59238"&gt;Middle&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org554e2f4"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org27002b3"&gt;Middle&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org49642aa"&gt;Starting the Jupyter Server&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org57b7234"&gt;Start a Console&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org6f2eec2"&gt;Setting the Session&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org891d1e3"&gt;Starting the Jupyter Server&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#orgfc2295e"&gt;Start a Console&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#orga779a20"&gt;Setting the Session&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org3042f6b"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/jupyter-emacs-sessions/#org185fa57"&gt;End&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9925b6d" class="outline-2"&gt;
-&lt;h2 id="org9925b6d"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9925b6d"&gt;
+&lt;div id="outline-container-org554e2f4" class="outline-2"&gt;
+&lt;h2 id="org554e2f4"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org554e2f4"&gt;
 &lt;p&gt;
 These are my notes on using &lt;a href="https://github.com/dzop/emacs-jupyter"&gt;emacs-jupyter&lt;/a&gt; using a remote session. It works with a local session as well, but I'll just relate the steps as if you're running the jupyter session on a remote machine.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9c59238" class="outline-2"&gt;
-&lt;h2 id="org9c59238"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9c59238"&gt;
+&lt;div id="outline-container-org27002b3" class="outline-2"&gt;
+&lt;h2 id="org27002b3"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org27002b3"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org49642aa" class="outline-3"&gt;
-&lt;h3 id="org49642aa"&gt;Starting the Jupyter Server&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org49642aa"&gt;
+&lt;div id="outline-container-org891d1e3" class="outline-3"&gt;
+&lt;h3 id="org891d1e3"&gt;Starting the Jupyter Server&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org891d1e3"&gt;
 &lt;p&gt;
 The first thing to do is start the jupyter session on the remote machine. Since I'm doing this with &lt;b&gt;nikola&lt;/b&gt; I should note that you want to start the session in the same location as the file you're editing in emacs, because all your file references will be based on that directory (so if you, for instance, create an image and want to place it in the &lt;code&gt;files&lt;/code&gt; folder, you will need to note where that stands relative to the file you are editing and where you start the jupyter kernel).
 &lt;/p&gt;
@@ -282,9 +429,9 @@ scp Hades:/home/hades/.local/share/jupyter/runtime/kernel-ae33a6cd-f607-450e-a03
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org57b7234" class="outline-3"&gt;
-&lt;h3 id="org57b7234"&gt;Start a Console&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org57b7234"&gt;
+&lt;div id="outline-container-orgfc2295e" class="outline-3"&gt;
+&lt;h3 id="orgfc2295e"&gt;Start a Console&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfc2295e"&gt;
 &lt;p&gt;
 Now that you've copied over the information for the jupyter session you can start a console for it. I'll assume you're still in the directory with the json file in it, so I won't pass in the full path.
 &lt;/p&gt;
@@ -306,9 +453,9 @@ Note that &lt;code&gt;--existing&lt;/code&gt; argument for the next session (it 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6f2eec2" class="outline-3"&gt;
-&lt;h3 id="org6f2eec2"&gt;Setting the Session&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6f2eec2"&gt;
+&lt;div id="outline-container-orga779a20" class="outline-3"&gt;
+&lt;h3 id="orga779a20"&gt;Setting the Session&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga779a20"&gt;
 &lt;p&gt;
 Since this is org-mode-based the first thing you should do is connect your emacs buffer to the console. Add this to the top of your buffer (the file where you intend to run python).
 &lt;/p&gt;
@@ -323,9 +470,9 @@ If you have this in your file when you open it you don't need to do anything spe
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org3042f6b" class="outline-2"&gt;
-&lt;h2 id="org3042f6b"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3042f6b"&gt;
+&lt;div id="outline-container-org185fa57" class="outline-2"&gt;
+&lt;h2 id="org185fa57"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org185fa57"&gt;
 &lt;p&gt;
 At this point you can run org-mode code blocs that are set up to use &lt;code&gt;emacs-jupyter&lt;/code&gt; and they will redirect to the remote jupyter session. That is a whole other adventure so I'll leave it for another time (or to someone else).
 &lt;/p&gt;
@@ -334,55 +481,55 @@ At this point you can run org-mode code blocs that are set up to use &lt;code&gt
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org89c30e0"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org920493f"&gt;Middle&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgab20f28"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org26ead3b"&gt;Middle&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgc6a71ed"&gt;Finding the Problem&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org03a147f"&gt;Fixing the Problem&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgbdf85ab"&gt;Finding the Problem&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org97e2284"&gt;Fixing the Problem&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org4db2c89"&gt;First Clone the Repository&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org4c1878a"&gt;Then Install the Dependencies&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org89cc239"&gt;Then Build It&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgf75a8fb"&gt;First Clone the Repository&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgc20c544"&gt;Then Install the Dependencies&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgb6697cf"&gt;Then Build It&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgb7c48de"&gt;Fix the Other Problem&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgba4ab45"&gt;An Update That Broke It&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orgbfe638c"&gt;Fix the Other Problem&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orge00646b"&gt;An Update That Broke It&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#org02d54fd"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/emacs-jupyter/#orge7ec757"&gt;End&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org89c30e0" class="outline-2"&gt;
-&lt;h2 id="org89c30e0"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org89c30e0"&gt;
+&lt;div id="outline-container-orgab20f28" class="outline-2"&gt;
+&lt;h2 id="orgab20f28"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgab20f28"&gt;
 &lt;p&gt;
 &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; has become one of the most important tools in my workflow (along with &lt;a href="https://getnikola.com/"&gt;Nikola&lt;/a&gt;, and the &lt;a href="https://plugins.getnikola.com/v8/orgmode/"&gt;org-mode plugin&lt;/a&gt;), but earlier this week I stumbled upon &lt;a href="https://github.com/dzop/emacs-jupyter"&gt;emacs-jupyter&lt;/a&gt; and I thought maybe it'd be worth it to at least take a look. If the &lt;code&gt;readme&lt;/code&gt; file is to be believed, it does everything &lt;code&gt;ob-ipython&lt;/code&gt; does and more, so maybe my world would change once again. But then I ran into a little problem - trying to install it from &lt;a href="https://melpa.org/#/"&gt;MELPA&lt;/a&gt; caused emacs to crash… with no messages, nothing. So is this thing ready for the world to use yet?
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org920493f" class="outline-2"&gt;
-&lt;h2 id="org920493f"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org920493f"&gt;
+&lt;div id="outline-container-org26ead3b" class="outline-2"&gt;
+&lt;h2 id="org26ead3b"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org26ead3b"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc6a71ed" class="outline-3"&gt;
-&lt;h3 id="orgc6a71ed"&gt;Finding the Problem&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc6a71ed"&gt;
+&lt;div id="outline-container-orgbdf85ab" class="outline-3"&gt;
+&lt;h3 id="orgbdf85ab"&gt;Finding the Problem&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbdf85ab"&gt;
 &lt;p&gt;
 I tried different things based on the errors in the emacs-jupyter's &lt;a href="https://github.com/dzop/emacs-jupyter/issues"&gt;"Issues"&lt;/a&gt; but it turned out that &lt;a href="https://github.com/dzop/emacs-zmq/issues/14"&gt;this emacs-zmq bug&lt;/a&gt; had the answer - the &lt;a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa"&gt;emacs snapshot&lt;/a&gt; for Ubuntu wasn't built in a way that works with emacs-jupyter. The bug-report mentions an out of date gcc version, but I didn't confirm that.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org03a147f" class="outline-3"&gt;
-&lt;h3 id="org03a147f"&gt;Fixing the Problem&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org03a147f"&gt;
+&lt;div id="outline-container-org97e2284" class="outline-3"&gt;
+&lt;h3 id="org97e2284"&gt;Fixing the Problem&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org97e2284"&gt;
 &lt;p&gt;
 So, knowing that the version of emacs I was using was the problem I decided to build it myself. In the earlier days of Ubuntu this was something I did all the time, but it seems like it's been forever since I had to do this so I was a little worried that it might be a huge mess of Makefile debugging, but I found &lt;a href="https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian"&gt;this page on the emacs wiki&lt;/a&gt; which made it pretty easy.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4db2c89" class="outline-4"&gt;
-&lt;h4 id="org4db2c89"&gt;First Clone the Repository&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org4db2c89"&gt;
+&lt;div id="outline-container-orgf75a8fb" class="outline-4"&gt;
+&lt;h4 id="orgf75a8fb"&gt;First Clone the Repository&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgf75a8fb"&gt;
 &lt;pre class="example"&gt;
 git clone --depth 1 git://git.sv.gnu.org/emacs.git
 &lt;/pre&gt;
@@ -393,17 +540,17 @@ git clone --depth 1 git://git.sv.gnu.org/emacs.git
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org4c1878a" class="outline-4"&gt;
-&lt;h4 id="org4c1878a"&gt;Then Install the Dependencies&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org4c1878a"&gt;
+&lt;div id="outline-container-orgc20c544" class="outline-4"&gt;
+&lt;h4 id="orgc20c544"&gt;Then Install the Dependencies&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgc20c544"&gt;
 &lt;pre class="example"&gt;
 sudo apt-fast install autoconf automake libtool texinfo build-essential xorg-dev libgtk2.0-dev libjpeg-dev libncurses5-dev libdbus-1-dev libgif-dev libtiff-dev libm17n-dev libpng-dev librsvg2-dev libotf-dev libgnutls28-dev libxml2-dev
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org89cc239" class="outline-4"&gt;
-&lt;h4 id="org89cc239"&gt;Then Build It&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org89cc239"&gt;
+&lt;div id="outline-container-orgb6697cf" class="outline-4"&gt;
+&lt;h4 id="orgb6697cf"&gt;Then Build It&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgb6697cf"&gt;
 &lt;p&gt;
 &lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; This is how I first did it and it doesn't work the way I wanted it to so see the next section for the one that did work.
 &lt;/p&gt;
@@ -446,9 +593,9 @@ That bit about installing it in my home directory and linking it isn't necessary
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb7c48de" class="outline-3"&gt;
-&lt;h3 id="orgb7c48de"&gt;Fix the Other Problem&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb7c48de"&gt;
+&lt;div id="outline-container-orgbfe638c" class="outline-3"&gt;
+&lt;h3 id="orgbfe638c"&gt;Fix the Other Problem&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbfe638c"&gt;
 &lt;p&gt;
 It turned out that the build went okay, and I could even install emacs-jupyter (yay), but when I tried to execute &lt;code&gt;M-x jupyter-run-repl&lt;/code&gt; I got an error message saying that modules weren't supported (what?). So then I found &lt;a href="http://diobla.info/blog-archive/modules-tut.html"&gt;this blog post&lt;/a&gt; that said you have to pass in the &lt;code&gt;--with-modules&lt;/code&gt; argument when you run &lt;code&gt;configure&lt;/code&gt;… So now the process became this:
 &lt;/p&gt;
@@ -467,9 +614,9 @@ And what do you know, it worked.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgba4ab45" class="outline-3"&gt;
-&lt;h3 id="orgba4ab45"&gt;An Update That Broke It&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgba4ab45"&gt;
+&lt;div id="outline-container-orge00646b" class="outline-3"&gt;
+&lt;h3 id="orge00646b"&gt;An Update That Broke It&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge00646b"&gt;
 &lt;p&gt;
 At some point after I first wrote this I switched to using the &lt;a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa"&gt;emacs-snapshot&lt;/a&gt; package, which worked for a while, but when I updated it on March 9, 2021, it caused emacs-jupyter to fail with a ZMQ error:
 &lt;/p&gt;
@@ -508,9 +655,9 @@ Also, since I pulled an older version I had to re-compile the packages as mentio
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org02d54fd" class="outline-2"&gt;
-&lt;h2 id="org02d54fd"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org02d54fd"&gt;
+&lt;div id="outline-container-orge7ec757" class="outline-2"&gt;
+&lt;h2 id="orge7ec757"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge7ec757"&gt;
 &lt;p&gt;
 &lt;code&gt;emacs-jupyter&lt;/code&gt; looks like an improvement over &lt;code&gt;ob-ipython&lt;/code&gt; in that it adds a lot of features (and claims to be faster), but getting it to work was way harder than I'm used to. I don't think it was "difficult" in a real sense, given what it used to be like to make and install things on Ubuntu, but I think I've gotten used to things just working. Anyway, now I can see if emacs-jupyter lives up to its own hype.
 &lt;/p&gt;
@@ -523,32 +670,32 @@ Also, since I pulled an older version I had to re-compile the packages as mentio
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#org0d1681d"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#org47a3a48"&gt;Middle&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#org988514a"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#org6e27d21"&gt;Middle&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#orgdd0fdbe"&gt;Editing a Remote User File&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#orgc492130"&gt;Editing a Remote File As Root&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#orgc4a0f2b"&gt;Editing a Remote User File&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#orgbcbf658"&gt;Editing a Remote File As Root&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#org883f63c"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/opening-remote-files-in-emacs-using-ssh/#org014e6a6"&gt;End&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org0d1681d" class="outline-2"&gt;
-&lt;h2 id="org0d1681d"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0d1681d"&gt;
+&lt;div id="outline-container-org988514a" class="outline-2"&gt;
+&lt;h2 id="org988514a"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org988514a"&gt;
 &lt;p&gt;
 For some strange reason, &lt;a href="https://www.emacswiki.org/emacs/TrampMode"&gt;the emacs wiki page on tramp mode&lt;/a&gt; doesn't have instructions on how to open a file on a remote machine using tramp in its main section. You instead have to go down to the &lt;i&gt;Tips and Tricks&lt;/i&gt; and try and pick out a version that works. So I'm writing this here so I maybe won't have to do all the searching I did the next time. This is the version that worked for me (Emacs 27.0.50, Ubuntu 19.04).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org47a3a48" class="outline-2"&gt;
-&lt;h2 id="org47a3a48"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org47a3a48"&gt;
+&lt;div id="outline-container-org6e27d21" class="outline-2"&gt;
+&lt;h2 id="org6e27d21"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6e27d21"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgdd0fdbe" class="outline-3"&gt;
-&lt;h3 id="orgdd0fdbe"&gt;Editing a Remote User File&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgdd0fdbe"&gt;
+&lt;div id="outline-container-orgc4a0f2b" class="outline-3"&gt;
+&lt;h3 id="orgc4a0f2b"&gt;Editing a Remote User File&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc4a0f2b"&gt;
 &lt;p&gt;
 You start by opening the file like you would a local file (&lt;code&gt;C-x C-f&lt;/code&gt;) and then in when the minibuffer opens up you use this syntax for the path:
 &lt;/p&gt;
@@ -565,9 +712,9 @@ So, for example, I have an SSH alias to &lt;code&gt;hades@erebus&lt;/code&gt; na
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgc492130" class="outline-3"&gt;
-&lt;h3 id="orgc492130"&gt;Editing a Remote File As Root&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc492130"&gt;
+&lt;div id="outline-container-orgbcbf658" class="outline-3"&gt;
+&lt;h3 id="orgbcbf658"&gt;Editing a Remote File As Root&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbcbf658"&gt;
 &lt;p&gt;
 To open a file as root you stick an extra pipe (&lt;code&gt;|sudo&lt;/code&gt;) into the previous path syntax.
 &lt;/p&gt;
@@ -586,9 +733,9 @@ This syntax doesn't work with SSH aliases (or didn't seem to when I tried), so e
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org883f63c" class="outline-2"&gt;
-&lt;h2 id="org883f63c"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org883f63c"&gt;
+&lt;div id="outline-container-org014e6a6" class="outline-2"&gt;
+&lt;h2 id="org014e6a6"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org014e6a6"&gt;
 &lt;p&gt;
 I got the &lt;code&gt;sudo&lt;/code&gt; version from &lt;a href="https://stackoverflow.com/questions/20624024/what-is-the-best-way-to-open-remote-files-with-emacs-and-ssh"&gt;Stack Overflow&lt;/a&gt; (of course).
 &lt;/p&gt;
@@ -1081,7 +1228,7 @@ print("tester")
 This documents a problem that I ran into wherein the &lt;code&gt;elpy&lt;/code&gt; settings I used broke the execution of code blocks by &lt;code&gt;ob-ipython&lt;/code&gt; . Just remember to use &lt;code&gt;ipython&lt;/code&gt; instead of &lt;code&gt;jupyter&lt;/code&gt; and it should be okay. Another day of my life lost to troubleshooting (well, not a &lt;i&gt;whole&lt;/i&gt; day, but too much).
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>elpy</category><category>emacs</category><category>org-mode</category><category>python</category><guid>https://necromuralist.github.io/posts/org-babel-ipython-and-elpy-conflict/</guid><pubDate>Fri, 16 Feb 2018 23:50:23 GMT</pubDate></item><item><title>Shell Output With Org-Babel Ipython</title><link>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div&gt;&lt;p&gt;One of the nice things about ipython is the ability to run shell commands with &lt;code class="docutils literal"&gt;!&lt;/code&gt;. When you use it in an &lt;a class="reference external" href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; block, though, it will dump the output into a popup rather than in the same emacs org-file. One alternative is to use a shell block instead. I wrote earlier that this requires you to put an echo command in the block to prevent the text going to a pop-up.&lt;/p&gt;
+&lt;/div&gt;</description><category>elpy</category><category>emacs</category><category>org-mode</category><category>python</category><guid>https://necromuralist.github.io/posts/org-babel-ipython-and-elpy-conflict/</guid><pubDate>Fri, 16 Feb 2018 23:50:23 GMT</pubDate></item><item><title>Shell Output With Org-Babel Ipython</title><link>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;One of the nice things about ipython is the ability to run shell commands with &lt;code class="docutils literal"&gt;!&lt;/code&gt;. When you use it in an &lt;a class="reference external" href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; block, though, it will dump the output into a popup rather than in the same emacs org-file. One alternative is to use a shell block instead. I wrote earlier that this requires you to put an echo command in the block to prevent the text going to a pop-up.&lt;/p&gt;
 &lt;pre class="code bash"&gt;&lt;a id="rest_code_f30e985619494240ad68f83fe9e029fb-1" name="rest_code_f30e985619494240ad68f83fe9e029fb-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
 &lt;a id="rest_code_f30e985619494240ad68f83fe9e029fb-2" name="rest_code_f30e985619494240ad68f83fe9e029fb-2"&gt;&lt;/a&gt;head Future_Connections.csv
 &lt;a id="rest_code_f30e985619494240ad68f83fe9e029fb-3" name="rest_code_f30e985619494240ad68f83fe9e029fb-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
@@ -1118,61 +1265,4 @@ This documents a problem that I ran into wherein the &lt;code&gt;elpy&lt;/code&g
 &lt;a id="rest_code_d899f056aa024992a90a0556ebc23055-17" name="rest_code_d899f056aa024992a90a0556ebc23055-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
 &lt;a id="rest_code_d899f056aa024992a90a0556ebc23055-18" name="rest_code_d899f056aa024992a90a0556ebc23055-18"&gt;&lt;/a&gt;
 &lt;a id="rest_code_d899f056aa024992a90a0556ebc23055-19" name="rest_code_d899f056aa024992a90a0556ebc23055-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
-&lt;/pre&gt;&lt;p&gt;I actually prefer the shell version, and since this is org-babel it makes more sense to use it, but I forgot about it just now and it took me a little while to figure out how to get the ob-ipython block to work so &lt;strong&gt;*note to future self:&lt;/strong&gt; &lt;em&gt;This is how to make it work, but use a shell block instead.&lt;/em&gt;&lt;/p&gt;&lt;/div&gt;</description><category>emacs</category><category>orgmode</category><category>python</category><guid>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</guid><pubDate>Wed, 11 Oct 2017 19:49:19 GMT</pubDate></item><item><title>Org To Jupyter Notebook</title><link>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-I've grown to really like &lt;a href="http://orgmode.org"&gt;org-mode&lt;/a&gt;, particularly with &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt;, but there are times when a real Jupyter notebook is better - if you want to render it on github or use the &lt;code&gt;%matplotlib notebook&lt;/code&gt; feature, for instance. I found a blog post the &lt;a href="http://kitchingroup.cheme.cmu.edu/blog/2017/01/21/Exporting-org-mode-to-Jupyter-notebooks/"&gt;Kitchin Research Group site&lt;/a&gt; announcing the creation of an exporter and this is some documentation about how to set it up.
-&lt;/p&gt;
-
-&lt;div id="outline-container-orgf3cbdff" class="outline-2"&gt;
-&lt;h2 id="orgf3cbdff"&gt;Download&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf3cbdff"&gt;
-&lt;p&gt;
-When I originally set this up it was only available from a link on the blog-post, but it has since been added to a much larger github repository called &lt;a href="https://github.com/jkitchin/scimax"&gt;scimax&lt;/a&gt;. I'm assuming this is where the latest version will be kept. Unfortunately there's no license so I don't think you can fork the repository, even more importantly, I can't get it to work, so skip it for now and grab the old one.
-&lt;/p&gt;
-
-&lt;pre class="example"&gt;
-cd ~/.emacs.d
-mkdir lisp
-wget http://kitchingroup.cheme.cmu.edu/media/ox-ipynb.el
-&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org2d250ca" class="outline-2"&gt;
-&lt;h2 id="org2d250ca"&gt;Install&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2d250ca"&gt;
-&lt;p&gt;
-Make sure that the lisp folder is in the emacs path by putting this line in &lt;code&gt;init.el&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;add-to-list&lt;/span&gt; &lt;span class="ss"&gt;'load-path&lt;/span&gt; &lt;span class="s"&gt;"~/.emacs.d/lisp"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Also make sure that it's loaded by putting this in &lt;code&gt;init.el&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;require&lt;/span&gt; &lt;span class="ss"&gt;'ox-ipynb&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgb418548" class="outline-2"&gt;
-&lt;h2 id="orgb418548"&gt;Use&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb418548"&gt;
-&lt;p&gt;
-In your org-mode file use the &lt;code&gt;export-ipython&lt;/code&gt; function to export it to an &lt;code&gt;ipynb&lt;/code&gt; file.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;M-x&lt;/span&gt; &lt;span class="nv"&gt;export-ipynb-buffer&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Note that this will only work if you have &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; installed and at least one ipython code block in the org-file.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#+BEGIN_SRC ipython :session
-print("a")
-#+END_SRC
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>emacs</category><category>jupyter</category><category>orgmode</category><guid>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</guid><pubDate>Fri, 14 Apr 2017 03:00:28 GMT</pubDate></item></channel></rss>
+&lt;/pre&gt;&lt;p&gt;I actually prefer the shell version, and since this is org-babel it makes more sense to use it, but I forgot about it just now and it took me a little while to figure out how to get the ob-ipython block to work so &lt;strong&gt;*note to future self:&lt;/strong&gt; &lt;em&gt;This is how to make it work, but use a shell block instead.&lt;/em&gt;&lt;/p&gt;</description><category>emacs</category><category>orgmode</category><category>python</category><guid>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</guid><pubDate>Wed, 11 Oct 2017 19:49:19 GMT</pubDate></item></channel></rss>

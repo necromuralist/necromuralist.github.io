@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/code-wars-pick-peaks/" rel="prefetch" type="text/html">
+<link href="posts/tangling-multiple-org-files/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,121 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/tangling-multiple-org-files/">Tangling Multiple Org Files</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/tangling-multiple-org-files/" rel="bookmark"><time class="published dt-published" datetime="2022-03-21T17:30:14-07:00" itemprop="datePublished" title="2022-03-21 17:30">2022-03-21 17:30</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/tangling-multiple-org-files/#orgc46e6fd">The Steps</a>
+<ul>
+<li><a href="posts/tangling-multiple-org-files/#orgad4a1b1">Create one.org</a></li>
+<li><a href="posts/tangling-multiple-org-files/#org7f56982">Create two.org</a></li>
+<li><a href="posts/tangling-multiple-org-files/#orgac5fe93">Export one.org</a></li>
+<li><a href="posts/tangling-multiple-org-files/#orgb5dde53">Tangle one.org.org</a></li>
+</ul>
+</li>
+<li><a href="posts/tangling-multiple-org-files/#org09e45ce">Sources</a></li>
+</ul>
+</div>
+</div>
+<p>I've been looking off and on for ways to combine separate code-blocks in org-mode into a single tangled file. I wanted to use it because I tangle code that I want to re-use out of posts but then if I want to break the posts up I need to create a separate file (tangle) for each post. I'm hopeful that this method will allow me to break up a tangle across multiple posts. I've only tried it on toy files but I want to get some initial documentation for it in place.</p>
+<div class="outline-2" id="outline-container-orgc46e6fd">
+<h2 id="orgc46e6fd">The Steps</h2>
+<div class="outline-text-2" id="text-orgc46e6fd">
+<p>Let's say that there are two source org-files:</p>
+<ul class="org-ul">
+<li><code>one.org</code>: contains the tangle block and a source block</li>
+<li><code>two.org</code>: contains another block that we want to tangle with the one in <code>one.org</code></li>
+</ul>
+<p>The steps are:</p>
+<ol class="org-ol">
+<li>Put an <code>#+INCLUDE</code> directive to include <code>two.org</code> into <code>one.org</code></li>
+<li>Export <code>one.org</code> to an <code>org</code> file</li>
+<li>Open the exported org file (<code>one.org.org</code>)</li>
+<li>Tangle it.</li>
+</ol>
+</div>
+<div class="outline-3" id="outline-container-orgad4a1b1">
+<h3 id="orgad4a1b1">Create one.org</h3>
+<div class="outline-text-3" id="text-orgad4a1b1">
+<p>The file <code>one.org</code> is going to have the tangle and the first source-block:</p>
+<div class="highlight">
+<pre><span></span>#+begin_src python :tangle ~/test.py :exports none
+&lt;&lt;block-one&gt;&gt;
+
+&lt;&lt;block-two&gt;&gt;
+#+end_src
+</pre></div>
+<div class="highlight">
+<pre><span></span>#+begin_src python :noweb-ref block-one
+def one():
+    print("One")
+#+end_src
+</pre></div>
+<p>We also need to include what's in the second file (<code>two.org</code>). The code we want to include is in a section called <code>Two</code> so we can include just that section by adding a search term at the end.</p>
+<div class="highlight">
+<pre><span></span>#+INCLUDE: "./two.org::*Two"
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org7f56982">
+<h3 id="org7f56982">Create two.org</h3>
+<div class="outline-text-3" id="text-org7f56982">
+<p>In the other file add the section header to match the <code>INCLUDE</code> search term (<code>*Two</code>) and put a code block with a reference named <code>block-two</code> to match what's in the tangle block above.</p>
+<div class="highlight">
+<pre><span></span>* Two
+#+begin_src python :noweb-ref block-two
+def two():
+print("Two")
+#+end_src
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgac5fe93">
+<h3 id="orgac5fe93">Export one.org</h3>
+<div class="outline-text-3" id="text-orgac5fe93">
+<p>Tangling unfortunately ignores the <code>INCLUDE</code> directive so we have to export it first to another org-file in order to get the text from <code>org.two</code> into our source file. By default, exporting to <code>org</code> is disabled so you need to enable it (e.g. starting with <code>M-x customize</code> <code>org-export-backends</code>).</p>
+<p>Once it's enabled you can export <code>one.org</code> to an org-mode file using <code>C-c C-e O v</code> (the default name will be <code>one.org.org</code>).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgb5dde53">
+<h3 id="orgb5dde53">Tangle one.org.org</h3>
+<div class="outline-text-3" id="text-orgb5dde53">
+<p>The last choice when we exported the file in the previous step (<code>v</code>) will save it to a file and open it up in an emacs buffer. When the buffer is open you can then tangle it (<code>C-c C-v C-t</code>) and the output (<code>/test.py</code> from our tangle block) should contain both of our functions.</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org09e45ce">
+<h2 id="org09e45ce">Sources</h2>
+<div class="outline-text-2" id="text-org09e45ce">
+<p>This is where I got the information on breaking up the files. It includes some emacs-lisp to run the steps automatically (although I didn't try it):</p>
+<ul class="org-ul">
+<li>Multi-File Org-Babel Tangles with Include Directives [Internet]. DEV Community. [cited 2022 Mar 21]. Available from: <a href="https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522">https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522</a></li>
+</ul>
+<p>This is the post that mentions that exporting org-files to org-format needs to be enabled (and how to do it):</p>
+<ul class="org-ul">
+<li>exporting - Org mode export subtree to new org file - option missing? [Internet]. Emacs Stack Exchange. [cited 2022 Mar 21]. Available from: <a href="https://emacs.stackexchange.com/a/70453">https://emacs.stackexchange.com/a/70453</a></li>
+</ul>
+<p>This is the manual page explaining the search syntax (which is what the <code>#+INCLUDE</code> format uses).</p>
+<ul class="org-ul">
+<li>Search Options (The Org Manual) [Internet]. [cited 2022 Mar 21]. Available from: <a href="https://orgmode.org/manual/Search-Options.html">https://orgmode.org/manual/Search-Options.html</a></li>
+</ul>
+<p>This explains the <code>#+INCLUDE</code> directive options:</p>
+<ul class="org-ul">
+<li>Include Files (The Org Manual) [Internet]. [cited 2022 Mar 21]. Available from: <a href="https://orgmode.org/manual/Include-Files.html">https://orgmode.org/manual/Include-Files.html</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/code-wars-pick-peaks/">CodeWars: Pick Peaks</a></h1>
@@ -1165,64 +1280,6 @@ I have been to paradise 3 times, but I have never been to me. Oh, the humanity!
 <h2 id="org9ac8f3e">But It's Not Fixed?</h2>
 <div class="outline-text-2" id="text-org9ac8f3e">
 <p>Well, if this were a more intense debug I really would want the <code>ipython~/~ptipython</code> terminal, but since this is the first time I've tried to run <code>PuDB</code> under <code>KUbuntu's</code> <code>Konsole</code> instead of the <code>GNOME</code> terminal I'm hoping that just switching back to the other terminal will be enough - I'll have to test that once I'm more motivated.</p>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/emacs-artifact-on-kubuntu/">Emacs Scrollbar Artifact on Kubuntu</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/emacs-artifact-on-kubuntu/" rel="bookmark"><time class="published dt-published" datetime="2021-10-03T13:58:02-07:00" itemprop="datePublished" title="2021-10-03 13:58">2021-10-03 13:58</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/emacs-artifact-on-kubuntu/#orgcf2a9fd">What's this then?</a></li>
-<li><a href="posts/emacs-artifact-on-kubuntu/#org440b80d">The Cause</a></li>
-<li><a href="posts/emacs-artifact-on-kubuntu/#orgc431d59">The Fix</a></li>
-<li><a href="posts/emacs-artifact-on-kubuntu/#org94d3163">The Source</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgcf2a9fd">
-<h2 id="orgcf2a9fd">What's this then?</h2>
-<div class="outline-text-2" id="text-orgcf2a9fd">
-<p>I switch back and forth between Kubuntu and Ubuntu (Ubuntu seems to work better, but I like the aesthetics of Kubuntu) and one of the problems I had was that when I launched emacs in Kubuntu it had a permanent scrollbar in the center of the window that blocked out whatever text was there.</p>
-<p><img alt="nil" src="posts/emacs-artifact-on-kubuntu/emacs-scrol-artifact.png"></p>
-<p>It's more of an annoyance than anything else but since it doesn't happen on Ubuntu I figured I'd try and fix it. It took me a couple of different searches to find the answer so I thought I'd document it in case I need to remember this later.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org440b80d">
-<h2 id="org440b80d">The Cause</h2>
-<div class="outline-text-2" id="text-org440b80d">
-<p>This is the desktop that's causing the problem:</p>
-<p><img alt="nil" src="posts/emacs-artifact-on-kubuntu/kubuntu-version.png"></p>
-<p>It turns out that it's because my monitors are of different resolutions and in order to be able to read anything on the higher-resolution monitor I had to set the display scale to 200%, but this causes a problem with the scaling of the widgets (at least that's what it said on the <a href="https://www.reddit.com/r/emacs/comments/am64y8/bug_with_scrollbar_on_ubuntu_1804/">reddit</a> post where I found the solution).</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgc431d59">
-<h2 id="orgc431d59">The Fix</h2>
-<div class="outline-text-2" id="text-orgc431d59">
-<p>The fix for me was to edit the <code>~/.local/share/applications/emacs.desktop</code> file so that the EXEC line read:</p>
-<pre class="example">
-Exec= /usr/bin/env GDK_SCALE= emacs
-</pre>
-<p>Once this was in place the artifact went away.</p>
-<p><img alt="nil" src="posts/emacs-artifact-on-kubuntu/emacs-no-artifact.png"></p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org94d3163">
-<h2 id="org94d3163">The Source</h2>
-<div class="outline-text-2" id="text-org94d3163">
-<p>I linked to it above, but this is the reddit post where I found the fix:</p>
-<ul class="org-ul">
-<li><a href="https://www.reddit.com/r/emacs/comments/am64y8/bug_with_scrollbar_on_ubuntu_1804/">https://www.reddit.com/r/emacs/comments/am64y8/bug_with_scrollbar_on_ubuntu_1804/</a></li>
-</ul>
 </div>
 </div>
 </div>
