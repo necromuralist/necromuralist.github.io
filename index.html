@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/tangling-multiple-org-files/" rel="prefetch" type="text/html">
+<link href="posts/pytorch-and-the-unknown-cuda-error/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -51,6 +51,76 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/pytorch-and-the-unknown-cuda-error/">PyTorch and the Unknown CUDA Error</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/pytorch-and-the-unknown-cuda-error/" rel="bookmark"><time class="published dt-published" datetime="2022-10-31T17:58:27-07:00" itemprop="datePublished" title="2022-10-31 17:58">2022-10-31 17:58</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/pytorch-and-the-unknown-cuda-error/#org0edd95b">The Problem</a></li>
+<li><a href="posts/pytorch-and-the-unknown-cuda-error/#org3ff7dfd">The Symptom</a></li>
+<li><a href="posts/pytorch-and-the-unknown-cuda-error/#org56848d2">The Disease and Its Cure</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org0edd95b">
+<h2 id="org0edd95b">The Problem</h2>
+<div class="outline-text-2" id="text-org0edd95b">
+<p>I recently decided to get back into using neural networks again and tried to update my docker container to get <a href="https://www.fast.ai/">fastai</a> up and running, but couldn't get CUDA working. After a while spent trying different configurations of CUDA, pytorch, pip, conda, and on and on I eventually found out that there's some kind of problem with using CUDA after suspending and then resuming your system (at least with linux/Ubuntu). This is a documentation of that particular problem and it's fixes (fastest but not necessarily the best answer: always shutdown or reboot the machine, don't suspend and resume).</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org3ff7dfd">
+<h2 id="org3ff7dfd">The Symptom</h2>
+<div class="outline-text-2" id="text-org3ff7dfd">
+<p>This is what happens if I try to use CUDA after waking the machine from a suspend.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+</pre></div>
+<pre class="example">
+/home/athena/.conda/envs/neurotic-fastai/lib/python3.9/site-packages/torch/cuda/__init__.py:88: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at /opt/conda/conda-bld/pytorch_1666642975993/work/c10/cuda/CUDAFunctions.cpp:109.)
+  return torch._C._cuda_getDeviceCount() &gt; 0
+</pre>
+<p>As you can see, the error message doesn't really give any useful information about what's wrong - there <i>are</i> a couple of suggestions but neither seems relevant or at least doesn't lead you to the fix.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org56848d2">
+<h2 id="org56848d2">The Disease and Its Cure</h2>
+<div class="outline-text-2" id="text-org56848d2">
+<p>There's a post on the <a href="https://discuss.pytorch.org/t/userwarning-cuda-initialization-cuda-unknown-error-this-may-be-due-to-an-incorrectly-set-up-environment-e-g-changing-env-variable-cuda-visible-devices-after-program-start-setting-the-available-devices-to-be-zero/129335/2">pytorch discussion boards</a> about this error in which "ptrblck" says that he runs into this problem if his machine is put into the suspend state. While mentioning this he also says that restarting his machine fixes the problem, but restarting it every time seems to defeat the purpose of using suspend (and I'd have to walk to a different room to log in and decrypt the drive after restarting the machine - ugh, so much work).</p>
+<p>Luckily, in a <a href="https://discuss.pytorch.org/t/userwarning-cuda-initialization-cuda-unknown-error-this-may-be-due-to-an-incorrectly-set-up-environment-e-g-changing-env-variable-cuda-visible-devices-after-program-start-setting-the-available-devices-to-be-zero/129335/5">later post</a> in the thread the same user mentions that you can also fix it by reloading the <code>nvidia_uvm</code> kernel module by entering these commands in the terminal:</p>
+<div class="highlight">
+<pre><span></span>sudo rmmod nvidia_uvm
+sudo modprobe nvidia_uvm
+</pre></div>
+<p>Which seems to fix the problem for me right at the moment, without the need to restart the machine.</p>
+<div class="highlight">
+<pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+</pre></div>
+<pre class="example">
+False
+</pre>
+<p>Ummm… oops. Well, it did sort of fix one problem - the <code>CUDA unknown error</code>, but now it's saying that CUDA isn't available on this machine. Every fix begets a new problem. Let's try it again after restarting the Jupyter kernel.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+</pre></div>
+<pre class="example">
+True
+</pre>
+<p>Okay, that's better, I guess. It feels a little inelegant to have to do this, but at least it seems to work.</p>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/tangling-multiple-org-files/">Tangling Multiple Org Files</a></h1>
@@ -1161,125 +1231,6 @@ I have been to paradise 3 times, but I have never been to me. Oh, the humanity!
 <p>So it's a bug, right? It seemed like one, but there were already reports of this phenomena for other sites going back years so they appear to have done it on purpose. I was trying to figure out whether it was something that should be reported or not when I came upon this bug: <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1666160">Users enable `privacy.resistFingerprinting` and then are surprised when it causes problems</a>.</p>
 <p><img alt="nil" src="posts/mozilla-madness-resist-fingerprinting/surprise-bug.png"></p>
 <p>Despite the fact that I've seen multiple sites saying to enable this "feature" maybe it isn't really a good idea after all. In the near-term I installed the <a href="https://addons.mozilla.org/en-US/firefox/addon/toggle-resist-fingerprinting/">Toggle Resist Fingerprinting</a> extension and use it to turn <code>resistFingerprinting</code> on and off. To be honest, I'm not convinced that it really matters, I just got sucked into a trail of sites making conflicting assertions about what to do and convinced myself that I cared. At least I can read kindle books in the browser again.</p>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/pudb-remote/">PuDB Remote</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/pudb-remote/" rel="bookmark"><time class="published dt-published" datetime="2021-11-17T18:29:13-08:00" itemprop="datePublished" title="2021-11-17 18:29">2021-11-17 18:29</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="posts/pudb-remote/#org724cd7d">In the Beginning</a></li>
-<li><a href="posts/pudb-remote/#orgcda43b5">Short Version</a></li>
-<li><a href="posts/pudb-remote/#org1c0e96f">Okay, So Now Why Would You Do This?</a></li>
-<li><a href="posts/pudb-remote/#orgd21e824">Dead Ends</a>
-<ul>
-<li><a href="posts/pudb-remote/#orgdf8a889">Another Screen</a></li>
-<li><a href="posts/pudb-remote/#org3ad59ea"><code>term_size</code></a></li>
-</ul>
-</li>
-<li><a href="posts/pudb-remote/#orgc3b9c53">Telnet</a></li>
-<li><a href="posts/pudb-remote/#org9ac8f3e">But It's Not Fixed?</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org724cd7d">
-<h2 id="org724cd7d">In the Beginning</h2>
-<div class="outline-text-2" id="text-org724cd7d">
-<p>This is a post on using <a href="https://documen.tician.de/pudb/index.html">PuDB</a> via telnet.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgcda43b5">
-<h2 id="orgcda43b5">Short Version</h2>
-<div class="outline-text-2" id="text-orgcda43b5">
-<p>In case I forgot what to do and just want to read this to remember.</p>
-<ol class="org-ol">
-<li>In the screen where you are going to run telnet, run <code>tput cols</code> and <code>tput lines</code> to find out the number of columns and lines that the screen is using.</li>
-<li>In the code where you want the break, instead of the usual <code>import pudb; pudb.set_trace()</code> use:</li>
-</ol>
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">pudb.remote</span> <span class="kn">import</span> <span class="n">set_trace</span>
-<span class="n">set_trace</span><span class="p">(</span><span class="n">term_size</span><span class="o">=</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">lines</span><span class="p">))</span>
-</pre></div>
-<p>When the code hits the breakpoint it will start up a telnet service and you can log into it from the other screen:</p>
-<div class="highlight">
-<pre><span></span>telnet 127.0.0.1 6899
-</pre></div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org1c0e96f">
-<h2 id="org1c0e96f">Okay, So Now Why Would You Do This?</h2>
-<div class="outline-text-2" id="text-org1c0e96f">
-<p>I was trying to build one of my sites that uses <a href="https://nikola.readthedocs.io/en/latest/">nikola</a> and this strange error came out saying that one of the shortcodes was getting the "site" argument multiple times. I had no idea what was going on and nikola doesn't pre-define the arguments to the shortcode-plugins (it parses the text and then passes the arguments along using the <code>*args</code> <code>**kwargs</code> convention) which makes it flexible, but figuring out a problem with the arguments is pretty tough, so I decided to turn to my old standby <code>PuDB</code>, which I've been using for so many years now, and is my favorite of the python debuggers I've tried.</p>
-<p>I did my usual thing and found the line in the <code>nikola</code> code that was raising the error and inserted a breakpoint further up in the code.</p>
-<div class="highlight">
-<pre><span></span><span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"lancelot"</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">pudb</span>
-    <span class="n">pudb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
-</pre></div>
-<p>I figured the problem was with my shortcode, named <code>lancelot</code>, and the conditional allowed me to skip all the other shortcodes being used. But then, when I ran the build (<code>nikola build -v2</code>)… disaster.</p>
-<p><img alt="nil" src="posts/pudb-remote/pudb-broken.png"></p>
-<p>For some reason it wouldn't use the entire screen, making it impossible (or at least really hard) to read some of the variables that I wanted to check - and even worse, when I tried to open up the ipython terminal in it I got an error message.</p>
-<p><img alt="nil" src="posts/pudb-remote/pudb-ui-exception.png"></p>
-<p>The error-message is one of those error-after-the-error messages that you sometimes run into. It was trying to notify me of an error by popping up some kind of dialog but then the dialog wouldn't open so it told me about the dialog error and didn't get around to telling me what the original error was. In any case, something was broken, so I had to resort to desperate measures - I went to read the documentation.</p>
-<p>Surprisingly, <a href="https://documen.tician.de/pudb/index.html">there actually is some</a> (there wasn't really much when I first started using it).</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgd21e824">
-<h2 id="orgd21e824">Dead Ends</h2>
-<div class="outline-text-2" id="text-orgd21e824">
-<p>The first couple of things I tried seemed promising, but they didn't work.</p>
-</div>
-<div class="outline-3" id="outline-container-orgdf8a889">
-<h3 id="orgdf8a889">Another Screen</h3>
-<div class="outline-text-3" id="text-orgdf8a889">
-<p>There wasn't anything about re-sizing the window, but it did mention that you can have the output come out in a different terminal from the one where you run the code, so I gave it a go. I made a different screen and got its file-path using the <code>tty</code> command (<code>/dev/pts/6</code> in this case). Then I set an environment variable to hold the file-path in the screen where I was running the code (<code>set -x PUDB_TTY /dev/pts/6</code>). This caused <code>PuDB</code> to pipe the output to the next screen - and it <i>did</i> work to send the first PuDB output to the other screen, and it <i>did</i> use the whole window, but then it quit instead of letting me use the debugger. Not <i>quite</i> what I wanted, so I unset the environment variable and moved on.</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org3ad59ea">
-<h3 id="org3ad59ea"><code>term_size</code></h3>
-<div class="outline-text-3" id="text-org3ad59ea">
-<p>The documentation also showed how to use <code>PuDB</code> as a remote debugger, and in the example they passed in the argument <code>term_size</code> to <code>set_trace</code> so I thought, since the functions have the same name, that the <code>set_trace</code> I was using would take the same arguments. So I tried it.</p>
-<div class="highlight">
-<pre><span></span><span class="kn">import</span> <span class="nn">pudb</span>
-<span class="n">pudb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">(</span><span class="n">term_size</span><span class="o">=</span><span class="p">(</span><span class="mi">236</span><span class="p">,</span> <span class="mi">61</span><span class="p">))</span>
-</pre></div>
-<p>Using the values that I had gotten from <a href="https://linux.die.net/man/1/tput">tput</a> using <code>tput cols</code> and <code>tput lines</code>. But that just raised an <code>ArgumentError</code>. The functions have the same name, but not the same arguments.</p>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgc3b9c53">
-<h2 id="orgc3b9c53">Telnet</h2>
-<div class="outline-text-2" id="text-orgc3b9c53">
-<p>So then I decided to try their remote version. It doesn't really make sense to me that it would work better than the regular version, but I didn't see any other choice. So instead of the usual code to insert a breakpoint I used:</p>
-<div class="highlight">
-<pre><span></span><span class="kn">from</span> <span class="nn">pudb.remote</span> <span class="kn">import</span> <span class="n">set_trace</span>
-<span class="n">set_trace</span><span class="p">(</span><span class="n">term_size</span><span class="o">=</span><span class="p">(</span><span class="mi">236</span><span class="p">,</span> <span class="mi">61</span><span class="p">))</span>
-</pre></div>
-<p>When I ran the build it stopped and told me to telnet into the localhost address at port 6899.</p>
-<p><img alt="nil" src="posts/pudb-remote/please-telnet.png"></p>
-<p>So I changed into the other screen and ran telnet.</p>
-<div class="highlight">
-<pre><span></span>telnet 127.0.0.1 6899
-</pre></div>
-<p>And what do you know.</p>
-<p><img alt="nil" src="posts/pudb-remote/pudb-fixed.png"></p>
-<p>This turns out to not be a complete fix. Hitting <code>!</code> to get to the <code>ipython</code> terminal froze <code>PuDB</code>, but this was enough for me to inspect the variables and realize that I just needed to move one of the parameters in the definition of my shortcode method and it worked.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org9ac8f3e">
-<h2 id="org9ac8f3e">But It's Not Fixed?</h2>
-<div class="outline-text-2" id="text-org9ac8f3e">
-<p>Well, if this were a more intense debug I really would want the <code>ipython~/~ptipython</code> terminal, but since this is the first time I've tried to run <code>PuDB</code> under <code>KUbuntu's</code> <code>Konsole</code> instead of the <code>GNOME</code> terminal I'm hoping that just switching back to the other terminal will be enough - I'll have to test that once I'm more motivated.</p>
 </div>
 </div>
 </div>

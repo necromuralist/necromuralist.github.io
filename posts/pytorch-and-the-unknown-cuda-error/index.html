@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+<head>
+<meta charset="utf-8">
+<meta content="Fixing the pytorch unknown CUDA error." name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>PyTorch and the Unknown CUDA Error | The Cloistered Monkey</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/pytorch-and-the-unknown-cuda-error/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<link href="../../apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+<link href="../../favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+<link href="../../favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+<link href="../../site.webmanifest" rel="manifest">
+<meta content="Cloistered Monkey" name="author">
+<link href="../tangling-multiple-org-files/" rel="prev" title="Tangling Multiple Org Files" type="text/html">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="PyTorch and the Unknown CUDA Error" property="og:title">
+<meta content="https://necromuralist.github.io/posts/pytorch-and-the-unknown-cuda-error/" property="og:url">
+<meta content="Fixing the pytorch unknown CUDA error." property="og:description">
+<meta content="article" property="og:type">
+<meta content="2022-10-31T17:58:27-07:00" property="article:published_time">
+<meta content="cuda" property="article:tag">
+<meta content="pytorch" property="article:tag">
+<meta content="troubleshooting" property="article:tag">
+</head>
+<body>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="../../"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Anechoic-Echolalia/">Anechoic Echolalia</a> <a class="dropdown-item" href="https://necromuralist.github.io/Ape-Iron/">Ape Iron</a> <a class="dropdown-item" href="https://necromuralist.github.io/Homunculi-Hypergraphia/">Honumculi Hypergraphia</a> <a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="../../machine-learning-projects/">Machine Learning</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
+</li>
+</ul>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
+<!-- 
+<button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-search"></span>
+</button>
+-->
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
+<!-- End of custom search -->
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
+</ul>
+</div>
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">PyTorch and the Unknown CUDA Error</a></h1>
+<div class="metadata">
+<p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author"><a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2022-10-31T17:58:27-07:00" itemprop="datePublished" title="2022-10-31 17:58">2022-10-31 17:58</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
+</div>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org0edd95b">The Problem</a></li>
+<li><a href="#org3ff7dfd">The Symptom</a></li>
+<li><a href="#org56848d2">The Disease and Its Cure</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org0edd95b">
+<h2 id="org0edd95b">The Problem</h2>
+<div class="outline-text-2" id="text-org0edd95b">
+<p>I recently decided to get back into using neural networks again and tried to update my docker container to get <a href="https://www.fast.ai/">fastai</a> up and running, but couldn't get CUDA working. After a while spent trying different configurations of CUDA, pytorch, pip, conda, and on and on I eventually found out that there's some kind of problem with using CUDA after suspending and then resuming your system (at least with linux/Ubuntu). This is a documentation of that particular problem and it's fixes (fastest but not necessarily the best answer: always shutdown or reboot the machine, don't suspend and resume).</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org3ff7dfd">
+<h2 id="org3ff7dfd">The Symptom</h2>
+<div class="outline-text-2" id="text-org3ff7dfd">
+<p>This is what happens if I try to use CUDA after waking the machine from a suspend.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span>
+</pre></div>
+<pre class="example">
+/home/athena/.conda/envs/neurotic-fastai/lib/python3.9/site-packages/torch/cuda/__init__.py:88: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at /opt/conda/conda-bld/pytorch_1666642975993/work/c10/cuda/CUDAFunctions.cpp:109.)
+  return torch._C._cuda_getDeviceCount() &gt; 0
+</pre>
+<p>As you can see, the error message doesn't really give any useful information about what's wrong - there <i>are</i> a couple of suggestions but neither seems relevant or at least doesn't lead you to the fix.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org56848d2">
+<h2 id="org56848d2">The Disease and Its Cure</h2>
+<div class="outline-text-2" id="text-org56848d2">
+<p>There's a post on the <a href="https://discuss.pytorch.org/t/userwarning-cuda-initialization-cuda-unknown-error-this-may-be-due-to-an-incorrectly-set-up-environment-e-g-changing-env-variable-cuda-visible-devices-after-program-start-setting-the-available-devices-to-be-zero/129335/2">pytorch discussion boards</a> about this error in which "ptrblck" says that he runs into this problem if his machine is put into the suspend state. While mentioning this he also says that restarting his machine fixes the problem, but restarting it every time seems to defeat the purpose of using suspend (and I'd have to walk to a different room to log in and decrypt the drive after restarting the machine - ugh, so much work).</p>
+<p>Luckily, in a <a href="https://discuss.pytorch.org/t/userwarning-cuda-initialization-cuda-unknown-error-this-may-be-due-to-an-incorrectly-set-up-environment-e-g-changing-env-variable-cuda-visible-devices-after-program-start-setting-the-available-devices-to-be-zero/129335/5">later post</a> in the thread the same user mentions that you can also fix it by reloading the <code>nvidia_uvm</code> kernel module by entering these commands in the terminal:</p>
+<div class="highlight">
+<pre><span></span>sudo rmmod nvidia_uvm
+sudo modprobe nvidia_uvm
+</pre></div>
+<p>Which seems to fix the problem for me right at the moment, without the need to restart the machine.</p>
+<div class="highlight">
+<pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+</pre></div>
+<pre class="example">
+False
+</pre>
+<p>Ummm… oops. Well, it did sort of fix one problem - the <code>CUDA unknown error</code>, but now it's saying that CUDA isn't available on this machine. Every fix begets a new problem. Let's try it again after restarting the Jupyter kernel.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+</pre></div>
+<pre class="example">
+True
+</pre>
+<p>Okay, that's better, I guess. It feels a little inelegant to have to do this, but at least it seems to work.</p>
+</div>
+</div>
+</div>
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
+<li><a class="tag p-category" href="../../categories/cuda/" rel="tag">cuda</a></li>
+<li><a class="tag p-category" href="../../categories/pytorch/" rel="tag">pytorch</a></li>
+<li><a class="tag p-category" href="../../categories/troubleshooting/" rel="tag">troubleshooting</a></li>
+</ul>
+<ul class="pager hidden-print">
+<li class="previous"><a href="../tangling-multiple-org-files/" rel="prev" title="Tangling Multiple Org Files">Previous post</a></li>
+</ul>
+</nav>
+</aside>
+</article>
+<!--End of body content-->
+<footer id="footer">Contents © 2022 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+</div>
+</div>
+<script src="../../assets/js/all-nocdn.js"></script>
+<script>
+
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
+</script>
+</body>
+</html>

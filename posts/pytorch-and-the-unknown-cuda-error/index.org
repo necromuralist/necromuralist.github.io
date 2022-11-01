@@ -1,0 +1,73 @@
+#+BEGIN_COMMENT
+.. title: PyTorch and the Unknown CUDA Error
+.. slug: pytorch-and-the-unknown-cuda-error
+.. date: 2022-10-31 17:58:27 UTC-07:00
+.. tags: pytorch,cuda,troubleshooting
+.. category: CUDA
+.. link: 
+.. description: Fixing the pytorch unknown CUDA error.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+OPTIONS: H:5
+#+TOC: headlines 2
+#+BEGIN_SRC python :session fastai :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-9c7661bb-c4e1-4dc7-9666-2039ec24943a-ssh.json
+* The Problem
+
+I recently decided to get back into using neural networks again and tried to update my docker container to get [[https://www.fast.ai/][fastai]] up and running, but couldn't get CUDA working. After a while spent trying different configurations of CUDA, pytorch, pip, conda, and on and on I eventually found out that there's some kind of problem with using CUDA after suspending and then resuming your system (at least with linux/Ubuntu). This is a documentation of that particular problem and it's fixes (fastest but not necessarily the best answer: always shutdown or reboot the machine, don't suspend and resume).
+
+
+* The Symptom
+
+This is what happens if I try to use CUDA after waking the machine from a suspend.
+
+#+begin_src python :results output :exports both
+import torch
+
+torch.cuda.is_available()
+#+end_src
+
+#+RESULTS:
+: /home/athena/.conda/envs/neurotic-fastai/lib/python3.9/site-packages/torch/cuda/__init__.py:88: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at /opt/conda/conda-bld/pytorch_1666642975993/work/c10/cuda/CUDAFunctions.cpp:109.)
+:   return torch._C._cuda_getDeviceCount() > 0
+
+As you can see, the error message doesn't really give any useful information about what's wrong - there /are/ a couple of suggestions but neither seems relevant or at least doesn't lead you to the fix.
+
+* The Disease and Its Cure
+
+There's a post on the [[https://discuss.pytorch.org/t/userwarning-cuda-initialization-cuda-unknown-error-this-may-be-due-to-an-incorrectly-set-up-environment-e-g-changing-env-variable-cuda-visible-devices-after-program-start-setting-the-available-devices-to-be-zero/129335/2][pytorch discussion boards]] about this error in which "ptrblck" says that he runs into this problem if his machine is put into the suspend state. While mentioning this he also says that restarting his machine fixes the problem, but restarting it every time seems to defeat the purpose of using suspend (and I'd have to walk to a different room to log in and decrypt the drive after restarting the machine - ugh, so much work). 
+
+Luckily, in a [[https://discuss.pytorch.org/t/userwarning-cuda-initialization-cuda-unknown-error-this-may-be-due-to-an-incorrectly-set-up-environment-e-g-changing-env-variable-cuda-visible-devices-after-program-start-setting-the-available-devices-to-be-zero/129335/5][later post]] in the thread the same user mentions that you can also fix it by reloading the ~nvidia_uvm~ kernel module by entering these commands in the terminal:
+
+#+begin_src bash
+sudo rmmod nvidia_uvm
+sudo modprobe nvidia_uvm
+#+end_src
+
+Which seems to fix the problem for me right at the moment, without the need to restart the machine.
+
+#+begin_src python :results output :exports both
+print(torch.cuda.is_available())
+#+end_src
+
+#+RESULTS:
+: False
+
+Ummm... oops. Well, it did sort of fix one problem - the ~CUDA unknown error~, but now it's saying that CUDA isn't available on this machine. Every fix begets a new problem. Let's try it again after restarting the Jupyter kernel.
+
+#+begin_src python :results output :exports both :session ~/.local/share/jupyter/runtime/kernel-a7fc698d-695b-4684-8519-5752148bee37-ssh.json
+import torch
+print(torch.cuda.is_available())
+#+end_src
+
+#+RESULTS:
+: True
+
+Okay, that's better, I guess. It feels a little inelegant to have to do this, but at least it seems to work.

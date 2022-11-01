@@ -53,6 +53,125 @@
 <div class="postindex">
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/pudb-remote/">PuDB Remote</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/pudb-remote/" rel="bookmark"><time class="published dt-published" datetime="2021-11-17T18:29:13-08:00" itemprop="datePublished" title="2021-11-17 18:29">2021-11-17 18:29</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="posts/pudb-remote/#org724cd7d">In the Beginning</a></li>
+<li><a href="posts/pudb-remote/#orgcda43b5">Short Version</a></li>
+<li><a href="posts/pudb-remote/#org1c0e96f">Okay, So Now Why Would You Do This?</a></li>
+<li><a href="posts/pudb-remote/#orgd21e824">Dead Ends</a>
+<ul>
+<li><a href="posts/pudb-remote/#orgdf8a889">Another Screen</a></li>
+<li><a href="posts/pudb-remote/#org3ad59ea"><code>term_size</code></a></li>
+</ul>
+</li>
+<li><a href="posts/pudb-remote/#orgc3b9c53">Telnet</a></li>
+<li><a href="posts/pudb-remote/#org9ac8f3e">But It's Not Fixed?</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org724cd7d">
+<h2 id="org724cd7d">In the Beginning</h2>
+<div class="outline-text-2" id="text-org724cd7d">
+<p>This is a post on using <a href="https://documen.tician.de/pudb/index.html">PuDB</a> via telnet.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgcda43b5">
+<h2 id="orgcda43b5">Short Version</h2>
+<div class="outline-text-2" id="text-orgcda43b5">
+<p>In case I forgot what to do and just want to read this to remember.</p>
+<ol class="org-ol">
+<li>In the screen where you are going to run telnet, run <code>tput cols</code> and <code>tput lines</code> to find out the number of columns and lines that the screen is using.</li>
+<li>In the code where you want the break, instead of the usual <code>import pudb; pudb.set_trace()</code> use:</li>
+</ol>
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">pudb.remote</span> <span class="kn">import</span> <span class="n">set_trace</span>
+<span class="n">set_trace</span><span class="p">(</span><span class="n">term_size</span><span class="o">=</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">lines</span><span class="p">))</span>
+</pre></div>
+<p>When the code hits the breakpoint it will start up a telnet service and you can log into it from the other screen:</p>
+<div class="highlight">
+<pre><span></span>telnet 127.0.0.1 6899
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org1c0e96f">
+<h2 id="org1c0e96f">Okay, So Now Why Would You Do This?</h2>
+<div class="outline-text-2" id="text-org1c0e96f">
+<p>I was trying to build one of my sites that uses <a href="https://nikola.readthedocs.io/en/latest/">nikola</a> and this strange error came out saying that one of the shortcodes was getting the "site" argument multiple times. I had no idea what was going on and nikola doesn't pre-define the arguments to the shortcode-plugins (it parses the text and then passes the arguments along using the <code>*args</code> <code>**kwargs</code> convention) which makes it flexible, but figuring out a problem with the arguments is pretty tough, so I decided to turn to my old standby <code>PuDB</code>, which I've been using for so many years now, and is my favorite of the python debuggers I've tried.</p>
+<p>I did my usual thing and found the line in the <code>nikola</code> code that was raising the error and inserted a breakpoint further up in the code.</p>
+<div class="highlight">
+<pre><span></span><span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"lancelot"</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pudb</span>
+    <span class="n">pudb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+</pre></div>
+<p>I figured the problem was with my shortcode, named <code>lancelot</code>, and the conditional allowed me to skip all the other shortcodes being used. But then, when I ran the build (<code>nikola build -v2</code>)… disaster.</p>
+<p><img alt="nil" src="posts/pudb-remote/pudb-broken.png"></p>
+<p>For some reason it wouldn't use the entire screen, making it impossible (or at least really hard) to read some of the variables that I wanted to check - and even worse, when I tried to open up the ipython terminal in it I got an error message.</p>
+<p><img alt="nil" src="posts/pudb-remote/pudb-ui-exception.png"></p>
+<p>The error-message is one of those error-after-the-error messages that you sometimes run into. It was trying to notify me of an error by popping up some kind of dialog but then the dialog wouldn't open so it told me about the dialog error and didn't get around to telling me what the original error was. In any case, something was broken, so I had to resort to desperate measures - I went to read the documentation.</p>
+<p>Surprisingly, <a href="https://documen.tician.de/pudb/index.html">there actually is some</a> (there wasn't really much when I first started using it).</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgd21e824">
+<h2 id="orgd21e824">Dead Ends</h2>
+<div class="outline-text-2" id="text-orgd21e824">
+<p>The first couple of things I tried seemed promising, but they didn't work.</p>
+</div>
+<div class="outline-3" id="outline-container-orgdf8a889">
+<h3 id="orgdf8a889">Another Screen</h3>
+<div class="outline-text-3" id="text-orgdf8a889">
+<p>There wasn't anything about re-sizing the window, but it did mention that you can have the output come out in a different terminal from the one where you run the code, so I gave it a go. I made a different screen and got its file-path using the <code>tty</code> command (<code>/dev/pts/6</code> in this case). Then I set an environment variable to hold the file-path in the screen where I was running the code (<code>set -x PUDB_TTY /dev/pts/6</code>). This caused <code>PuDB</code> to pipe the output to the next screen - and it <i>did</i> work to send the first PuDB output to the other screen, and it <i>did</i> use the whole window, but then it quit instead of letting me use the debugger. Not <i>quite</i> what I wanted, so I unset the environment variable and moved on.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org3ad59ea">
+<h3 id="org3ad59ea"><code>term_size</code></h3>
+<div class="outline-text-3" id="text-org3ad59ea">
+<p>The documentation also showed how to use <code>PuDB</code> as a remote debugger, and in the example they passed in the argument <code>term_size</code> to <code>set_trace</code> so I thought, since the functions have the same name, that the <code>set_trace</code> I was using would take the same arguments. So I tried it.</p>
+<div class="highlight">
+<pre><span></span><span class="kn">import</span> <span class="nn">pudb</span>
+<span class="n">pudb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">(</span><span class="n">term_size</span><span class="o">=</span><span class="p">(</span><span class="mi">236</span><span class="p">,</span> <span class="mi">61</span><span class="p">))</span>
+</pre></div>
+<p>Using the values that I had gotten from <a href="https://linux.die.net/man/1/tput">tput</a> using <code>tput cols</code> and <code>tput lines</code>. But that just raised an <code>ArgumentError</code>. The functions have the same name, but not the same arguments.</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgc3b9c53">
+<h2 id="orgc3b9c53">Telnet</h2>
+<div class="outline-text-2" id="text-orgc3b9c53">
+<p>So then I decided to try their remote version. It doesn't really make sense to me that it would work better than the regular version, but I didn't see any other choice. So instead of the usual code to insert a breakpoint I used:</p>
+<div class="highlight">
+<pre><span></span><span class="kn">from</span> <span class="nn">pudb.remote</span> <span class="kn">import</span> <span class="n">set_trace</span>
+<span class="n">set_trace</span><span class="p">(</span><span class="n">term_size</span><span class="o">=</span><span class="p">(</span><span class="mi">236</span><span class="p">,</span> <span class="mi">61</span><span class="p">))</span>
+</pre></div>
+<p>When I ran the build it stopped and told me to telnet into the localhost address at port 6899.</p>
+<p><img alt="nil" src="posts/pudb-remote/please-telnet.png"></p>
+<p>So I changed into the other screen and ran telnet.</p>
+<div class="highlight">
+<pre><span></span>telnet 127.0.0.1 6899
+</pre></div>
+<p>And what do you know.</p>
+<p><img alt="nil" src="posts/pudb-remote/pudb-fixed.png"></p>
+<p>This turns out to not be a complete fix. Hitting <code>!</code> to get to the <code>ipython</code> terminal froze <code>PuDB</code>, but this was enough for me to inspect the variables and realize that I just needed to move one of the parameters in the definition of my shortcode method and it worked.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org9ac8f3e">
+<h2 id="org9ac8f3e">But It's Not Fixed?</h2>
+<div class="outline-text-2" id="text-org9ac8f3e">
+<p>Well, if this were a more intense debug I really would want the <code>ipython~/~ptipython</code> terminal, but since this is the first time I've tried to run <code>PuDB</code> under <code>KUbuntu's</code> <code>Konsole</code> instead of the <code>GNOME</code> terminal I'm hoping that just switching back to the other terminal will be enough - I'll have to test that once I'm more motivated.</p>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/emacs-artifact-on-kubuntu/">Emacs Scrollbar Artifact on Kubuntu</a></h1>
 <div class="metadata">
 <p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
