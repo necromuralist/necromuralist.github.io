@@ -11,46 +11,62 @@
 #+END_COMMENT
 #+OPTIONS: ^:{}
 #+TOC: headlines 3
-This is a [[http://p5js.org/][p5]] test based on their [[http://p5js.org/get-started/][get started]] tutorial. It's also an indirect test of using the raw directive to write HTML to pass to nikola.
 
-And now the sketch. If you run your mouse over the blank area you should see a bunch of circles following the cursor.
+* What Is This, Then?
+This is a re-working of a [[https://p5js.org/][p5js]] post I made a while ago to see if I could remember how to use it with [[https://getnikola.com/][nikola]], my static site generator of choice. Upon revisiting it again I realized that the text was describing how to do it with posts written in [[https://www.writethedocs.org/guide/writing/reStructuredText/][~restructuredText~]] even though I re-wrote the post in [[https://orgmode.org/][org-mode]], and haven't used ~restructuredText~ in a while so I wasn't really sure what I was talking about. Additionally, I had assumed since I have the original org source I could just read it and figure out what I had done, but while that was sort of true, it wasn't as obvious as I would have liked so, this is going to be a post showing:
 
-#+begin_comment
-This displays the HTML within the post so the reader can see what it's supposed to look like.
-#+end_comment
+- How to put a p5js sketch into an org-mode post for HTML exporting.
+- How to put multiple p5js sketches on the same page without them conflicting with each other.
+- How to display the javascript for the p5js sketch when it's in a separate file.
+- How to put the javascript in the org-mode post and tangle it out.
 
-#+begin_src html
-    <div id="get_started">
-        <script language="javascript" type="text/javascript" src='get_started.js'></script>
-    </div>
-#+END_SRC
+This is nikola specific, but I'm assuming it'd be similar if I switched again to another system.
 
-#+begin_comment
-This is the block that gets embedded as actual html when it's exported and is where the p5 sketch ends up.
-#+end_comment
+* The First Sketch
+
+The sketches I'll be using came from [[GSWP][Getting Started With Processing]]. This first one creates a circle that follows your mouse as you move it around. 
+
+** The HTML Elements
+
+The first thing we'll do is create two HTML elements that we want to export as HTML. One is a ~script~ element that imports the javascript for the p5 sketch, the other is a ~div~ element which the javascript puts the sketch into.
+
+#+begin_src org
+#+begin_export html
+  <script language="javascript" type="text/javascript" src='get_started.js'></script>
+  <div id="get_started"></div>
+#+end_export
+#+end_src
 
 #+begin_export html
-  <div id="get_started">
   <script language="javascript" type="text/javascript" src='get_started.js'></script>
+  <div id="get_started">
   </div>
 #+end_export
 
-#+include: ../files/posts/processing-test/get_started.js src js
+Wherever you put that block in the org-mode post is where the p5 sketch will be. I created the sketch in a file called ~get_started.js~ so the script tag imports it and the ~div id~ is how the javascript knows where to put the sketch (the big white space above this line is where I put it so if you move your cursor over it you should see something happen).
 
+** The Javascript
+
+When nikola creates the page from this post it's going to copy over the javascript file ("get_started.js") and put it next to the HTML for the post, which is why we can just put the file name in the ~script~ tag and don't need a path. In order for nikola to find it we need to put the file in a folder whose path looks like ~files/posts/<SLUG>/get_started.js~ (starting from the root of the nikola repository). You can probably change it but this is the way it works by default.
+
+The ~<SLUG>~ folder has to be the name of the slugified name for the post (for nikola this is set in the ~slug~ metadata at the top of the post). In this case I used the much too long slug ~p5-js-with-org-mode-and-nikola~ so the path to the javascript file is ~files/posts/p5-js-with-org-mode-and-nikola/get_started.js~. 
+
+We need to know this for two things - one is that's where you have to put the file or it won't get copied over. The other is that I want to show the javascript itself in this post so we need to put an [[https://orgmode.org/manual/Include-Files.html][~include~ directive]] with the path to the file. The thing that I always stumble over is that the path for the ~include~ directive is relative to the location of the org-mode post, not the root of the nikola repository. Since the post is in a sub-folder named ~posts~, our path needs to go up one directory first, then back down, like this:
+
+#+begin_src org
+#+include: ../files/posts/p5-js-with-org-mode-and-nikola/get_started.js src js
+#+end_src
+
+Wherever you put that in the post is where org-mode will insert the file. The arguments after the path tell org that it's a source block (and not, say, an example) and that it's in javascript so org will apply syntax highlighting to it, like so:
+
+#+include: ../files/posts/p5-js-with-org-mode-and-nikola/get_started.js src js
+
+Of course, you don't need to actually show the javascript, but this is for the future me that's probably going to forget what's going on here.
+
+* The Second Sketch
+* And the Rest
 * Notes
-This was a little harder than I thought it would be. First, regarding the javascript file:
-
-- In order to get it to the final HTML you need to put in the =listings=
-  folder at the root of the nikola folder and use the
-  [[https://www.getnikola.com/handbook.html#listing][listing]]
-  reStructuredText directive instead of =include= (this is a special
-  /nikola/ directive).
-
-And then there's the html trick:
-
-- to get the sketch to stay in the post (instead of showing up on the
-  bottom of the page), you have to use the div trick - create a div
-  where you want the sketch to be and give it a unique ID (use the =raw=
-  /reStructuredText/ to put the HTML tags displayed above into the
-  post), then set the parent in the sketch
-  (=canvas.parent("get_started")= in this example).
+- [[https://p5js.org][p5js.org]]: The site for p5.js.
+- [[https://p5js.org/examples/instance-mode-instantiation.html][Instantiation]]: The p5.js example page for keeping variables local to a sketch so sketches don't collide with each other.
+- [[https://p5js.org/examples/instance-mode-instance-container.html][Instance Container]]: The p5.js example page for putting a sketch in a specific location (using ~div~ tags). It gives several variations of how to do it, I used what I thought was the easiest way.
+- <<GSWP>>Reas C, Fry B. Getting started with Processing. 1st ed. Beijing ; Sebastopol, [CA]: O’Reilly; 2010. 194 p. (Make: projects). 
