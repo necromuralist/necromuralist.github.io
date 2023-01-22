@@ -64,6 +64,71 @@ Wherever you put that in the post is where org-mode will insert the file. The ar
 Of course, you don't need to actually show the javascript, but this is for the future me that's probably going to forget what's going on here.
 
 * The Second Sketch
+
+#+begin_src js :tangle ../files/posts/p5-js-with-org-mode-and-nikola/rotate_translate.js :exports none
+<<div-id>>
+
+<<sketch-function>>
+
+<<mouse-pressed>>
+
+<<setup-function>>
+
+<<draw-function>>
+
+<<create-sketch>>
+#+end_src
+
+#+begin_src js :noweb-ref div-id
+const ROTATE_TRANSLATE_ID = "rotate-translate";
+#+end_src
+
+#+begin_src js :noweb-ref sketch-function
+let rotate_translate_sketch = function(p5js) {
+  const WHITE = 255;
+  const BLUE = p5js.color(0, 0, 255);
+
+  let angle = 0.0;
+  let side;
+#+end_src
+
+
+#+begin_src js :noweb-ref mouse-pressed
+  p5js.mousePressed = function() {
+    p5js.background(WHITE);
+  }; // mouse_pressed
+#+end_src
+
+#+begin_src js :noweb-ref setup-function
+  p5js.setup = function(){
+    let canvas = p5js.createCanvas(0.8 * p5js.windowWidth, 200);
+    canvas.parent(ROTATE_TRANSLATE_ID);
+    p5js.strokeWeight(3);
+    p5js.smooth();
+  }; //setup
+#+end_src
+
+#+begin_src js :noweb-ref draw-function
+  p5js.draw = function(){
+    p5js.stroke(BLUE);
+    p5js.translate(p5js.mouseX, p5js.mouseY);
+    side = p5js.pow(p5js.dist(p5js.pmouseX, p5js.pmouseY,
+                              p5js.mouseX, p5js.mouseY), 1.5);
+    p5js.rotate(angle);
+    p5js.square(-15, -15, side);
+    angle += 0.1;
+  } // draw
+}; // rotate_translate_sketch
+#+end_src
+
+#+begin_src js :noweb-ref create-sketch
+new p5(rotate_translate_sketch, ROTATE_TRANSLATE_ID);
+#+end_src
+
+#+begin_export html
+<script language="javascript" type="text/javascript" src="rotate_translate.js"></script>
+<div id="rotate-translate"></div>
+#+end_export
 * And the Rest
 * Notes
 - [[https://p5js.org][p5js.org]]: The site for p5.js.
