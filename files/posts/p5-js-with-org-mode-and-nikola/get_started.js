@@ -1,22 +1,18 @@
-const GET_STARTED_ID = "get_started";
-
-
 function get_started(p5js){
   const WHITE = 255;
-  const BLUE = p5js.color(0, 0, 255);
+  const COLOR = p5js.color(0, 0, 255);
   let diameter;
   
   p5js.setup = function() {
     let canvas = p5js.createCanvas(0.8 * p5js.windowWidth, 200);
-    canvas.parent(GET_STARTED_ID);
     p5js.background(WHITE);
     p5js.strokeWeight(3);
-    p5js.stroke(BLUE);
+    p5js.stroke(COLOR);
     p5js.fill(WHITE);
   }; // setup
 
   p5js.mousePressed = function() {
-    p5js.background(BLUE);
+    p5js.background(COLOR);
   }; // mouse_pressed
 
   p5js.mouseReleased = function() {
@@ -27,11 +23,11 @@ function get_started(p5js){
     /* Draw circles that change diameter based on mouse speed */
     /* and color based on if mouse-pressed (or not pressed)   */
     if (p5js.mouseIsPressed) {
-        p5js.fill(BLUE);
+        p5js.fill(COLOR);
         p5js.stroke(WHITE);
     } else {
         p5js.fill(WHITE);
-        p5js.stroke(BLUE);
+        p5js.stroke(COLOR);
     }
     diameter = p5js.pow(p5js.dist(p5js.pmouseX, p5js.pmouseY,
                                   p5js.mouseX, p5js.mouseY), 1.5);
@@ -39,4 +35,4 @@ function get_started(p5js){
 }
 }; // get started
 
-new p5(get_started, GET_STARTED_ID);
+new p5(get_started, "get-started");
