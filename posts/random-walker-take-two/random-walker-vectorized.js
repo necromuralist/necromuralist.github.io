@@ -1,32 +1,54 @@
-let random_walker_sketch = function(p) {
-    p.setup = function() {
-        let parent_div_id = "random-walker-vectorized";
-        this.canvas = p.createCanvas($("#" + parent_div_id).outerWidth(true), 300);
-        this.canvas.parent(parent_div_id);
-        p.walker = new Walker(p);
-    }
+const VECTOR_WALKER_DIV_ID = "random-walker-vectorized";
 
-    p.draw = function() {
-        p.background(255);
-        p.walker.walk();
-        p.walker.display();
-    }
-};
 
-function Walker(p) {
-    this.position = p.createVector(p.width/2, p.height/2);
+function random_walker_sketch (p5js) {
+  const colors = {
+    BLACK: 0,
+    WHITE: 255,
+    TRANSPARENCY: 50
+  }; // colors
+
+  const line_stroke = {
+    color: colors.BLACK,
+    weight: 4
+  }; //line_stroke
+
+  let walker;
   
-    this.walk = function() {
-        velocity = p.createVector(p.random(-5, 5), p.random(-5, 5));
-        this.position = this.position.add(this.velocity)
-  }
-  
-  this.display = function() {
-      p.stroke(0);
-      p.noFill();
-      p.background(255, 255, 255, 100);
-      p.ellipse(this.position.x, this.position.y, 48, 48);
-  }
-}
+  p5js.setup = function() {
+    let canvas = p5js.createCanvas($("#" + VECTOR_WALKER_DIV_ID).outerWidth(true), 300);
+    canvas.parent(VECTOR_WALKER_DIV_ID);
+    walker = new VectorWalker(p5js, line_stroke.color, line_stroke.weight);
+  } //setup
 
-sketch_container = new p5(random_walker_sketch, 'random-walker-vectorized');
+  p5js.draw = function() {
+    p5js.background(colors.WHITE, colors.TRANSPARENCY);
+    walker.walk();
+    walker.display();
+  } //draw
+}; //random_walker_sketch
+
+
+class VectorWalker {
+  constructor(p5js, color, weight){
+    this.p5js = p5js;
+    this.color = color;
+    this.weight = weight;
+    this.position = p5js.createVector(p5js.width/2, p5js.height/2);
+    } //constructor
+  
+  walk() {
+    let velocity = this.p5js.createVector(this.p5js.random(-5, 5),
+                                                this.p5js.random(-5, 5));
+    this.position = this.position.add(velocity);
+  }; // walk
+  
+  display() {
+    this.p5js.stroke(this.color);
+    this.p5js.strokeWeight(this.weight);
+    this.p5js.noFill();
+    this.p5js.ellipse(this.position.x, this.position.y, 48, 48);
+  }; // display
+} // Walker
+
+new p5(random_walker_sketch, VECTOR_WALKER_DIV_ID);
