@@ -1,7 +1,7 @@
 .. title: Shell Output With Org-Babel Ipython
 .. slug: shell-output-with-org-babel-ipython
 .. date: 2017-10-11 12:49:19 UTC-07:00
-.. tags: emacs,python,orgmode
+.. tags: emacs,python,org-mode
 .. category: HowTo
 .. link: 
 .. description: How to include shell output in ob-ipython blocks
