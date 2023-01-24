@@ -75,7 +75,7 @@ Wherever you put the include directive in the post is where org-mode will insert
 
 #+include: ../files/posts/p5-js-with-org-mode-and-nikola/get_started.js src js
 
-You don't need to actually show the javascript, and I would normally do it by putting the code in the post itself and then tangling it out, the way I did it for the next sketch, but this is how I did it originally and so this is for the future me that might want to but will probably forget how to do it.
+You don't need to actually show the javascript, and I would normally do it by putting the code in the post itself and then tangling it out, the way I do it for the next sketch, but this is how I did it originally and so this is for the future me that might want to but will probably forget how to do it.
 
 * The Second Sketch
 This second sketch is also from the "Getting Started With Processing" book and I'm including it to show that the way we're creating the p5 sketches not only specifies the location of the sketch (via the Instance Container) but we're also using what the p5js documentation calls [[https://p5js.org/examples/instance-mode-instantiation.html][Instance Mode Instantiation]] to keep the sketches from stomping on each other's variables.
@@ -104,7 +104,7 @@ let rotate_translate_sketch = function(p5js) {
   let side;
 #+end_src
 
-Normally I would have called the ~COLOR~ constant ~RED~ (or ~BLUE~ in the case of the first sketch) but I thought it'd be a simple way to show that they're not conflicting with each other - if they were declared globally you would get a syntax error and the sketch wouldn't run, since you're re-declaring a constant. If they were variables instead of constants then you wouldn't get an error but the sketches would end up the same color, with one definition of ~COLOR~ overriding the other. This seems like a trivial thing, but it can have worse effects than this and more importantly it creates sometimes unpredictable conflicts that are hard to troubleshoot and tedious to work around.
+Normally I would have called the ~COLOR~ constant ~RED~ (or ~BLUE~ in the case of the first sketch) but I thought it'd be a simple way to show that they're not conflicting with each other - if they were declared globally you would get a syntax error and the sketch wouldn't run, since you're re-declaring a constant. If they were variables instead of constants then you wouldn't get an error but the sketches would end up the same color, with one definition of ~COLOR~ overriding the other. This seems like a trivial thing, but it can sometimes create unpredictable conflicts that are hard to troubleshoot and tedious to work around.
 
 ** Mouse Pressed
 I'm not really sure what's going on under the hood, but in order to define behaviors for the p5js methods we have to do what looks like [[https://en.wikipedia.org/wiki/Monkey_patch?useskin=vector][monkey-patching]] on the p5js object that gets passed in to the sketch function. In this case I want to white-out the sketch whenever the mouse is pressed so I define/re-define the p5js ~mousePressed~ function and assign it to the p5js object.
@@ -116,7 +116,7 @@ I'm not really sure what's going on under the hood, but in order to define behav
 #+end_src
 
 ** Setup and Draw
-As with ~mousePressed~, the way to define the ~setup~ and ~draw~ behaviors for p5js is to create new functions and assign them to the p5js object. Note that in most examples the p5js methods are global, but in this case I'm using the methods and attributes associated with the p5js object (e.g. ~p5js.createCanvas~, instead of ~createCanvas~).
+As with ~mousePressed~, the way to define the ~setup~ and ~draw~ behaviors for p5js is to create new functions and assign them to the p5js object. Note that in most of the documentation examples the p5js methods are global, but in this case I'm using the methods and attributes associated with the p5js object (e.g. ~p5js.createCanvas~, instead of ~createCanvas~).
 
 #+begin_src js :noweb-ref setup-function
   p5js.setup = function(){
@@ -142,7 +142,7 @@ As with ~mousePressed~, the way to define the ~setup~ and ~draw~ behaviors for p
 And that's the end of our sketch function.
 
 ** Attaching Our Sketch Definition
-So now we have our sketch definition, but how do we pass in the p5js object so we can call it? Well, we don't. Instead of calling the function we create a new p5 object and pass the function in as the first argument and the ID of the ~div~ block that we want to put it in as the second argument (I'll create the div afterwards).
+So now we have our sketch definition, but how do we pass in the p5js object so we can call it? Well, we don't. Instead of calling the function we create a new p5 object, passing in the function in as the first argument and the ID of the ~div~ block that we want to put it in as the second argument (I'll create the div afterwards).
 
 #+begin_src js :noweb-ref create-sketch
 new p5(sketch=rotate_translate_sketch, node="rotate-translate");
@@ -165,6 +165,8 @@ As with the first sketch, we need to include the javascript file in a ~script~ t
 <script language="javascript" type="text/javascript" src="rotate_translate.js"></script>
 <div id="rotate-translate"></div>
 #+end_export
+
+And there you go, two p5js sketches put in an org-mode post and exported to HTML using nikola.
 * One More Thing
 
 Something I didn't go over is that the p5js library itself has to be pulled into the page so somewhere you need to put an element that looks something like this (assuming it's coming from the CDN):
