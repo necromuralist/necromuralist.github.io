@@ -136,6 +136,7 @@ TRANSLATIONS_PATTERN = '{path}.{lang}.{ext}'
 
 NAVIGATION_LINKS = {
     DEFAULT_LANG: (
+        ("/pages/", "Pages"),
         ("/archive.html", "Archive"),
         ("/categories/", "Tags"),
         ("/rss.xml", "RSS feed"),
@@ -233,20 +234,20 @@ THEME_CONFIG = {
 #     )
 
 POSTS = (
+    ("posts/*.org", "posts", "post.tmpl"),
     ("posts/*.rst", "posts", "post.tmpl"),
     ("posts/*.md", "posts", "post.tmpl"),
     ("posts/*.txt", "posts", "post.tmpl"),
     ("posts/*.html", "posts", "post.tmpl"),
     ("posts/*.ipynb", "posts", "post.tmpl"),
-    ("posts/*.org", "posts", "post.tmpl"),    
 )
 PAGES = (
+    ("pages/*.org", "pages", "page.tmpl"),
     ("pages/*.rst", "pages", "page.tmpl"),
     ("pages/*.md", "pages", "page.tmpl"),
     ("pages/*.txt", "pages", "page.tmpl"),
     ("pages/*.html", "pages", "page.tmpl"),
     ("pages/*.ipynb", "pages", "page.tmpl"),
-    ("pages/*.org", "pages", "page.tmpl"),    
 )
 
 
@@ -308,14 +309,15 @@ TIMEZONE = "America/Los_Angeles"
 # 'markdown' is Markdown
 # 'html' assumes the file is HTML and just copies it
 COMPILERS = {
+    "orgmode": (".org",),
     "rest": ('.rst', '.txt'),
     "markdown": ('.md', '.mdown', '.markdown'),
+    "ipynb": ('.ipynb',),
+    "html": ('.html', '.htm'),
     #"textile": ('.textile',),
     #"txt2tags": ('.t2t',),
     #"bbcode": ('.bb',),
     #"wiki": ('.wiki',),
-    "ipynb": ('.ipynb',),
-    "html": ('.html', '.htm'),
     # PHP files are rendered the usual way (i.e. with the full templates).
     # The resulting files have .php extensions, making it possible to run
     # them without reconfiguring your server to recognize them.
@@ -324,7 +326,6 @@ COMPILERS = {
     # but is disabled by default as it would conflict
     # with many of the others.
     # "pandoc": ('.rst', '.md', '.txt'),
-    "orgmode": (".org",),    
 }
 
 # Create by default posts in one file format?
