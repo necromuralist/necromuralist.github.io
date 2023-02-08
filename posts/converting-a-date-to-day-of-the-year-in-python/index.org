@@ -1,0 +1,65 @@
+#+BEGIN_COMMENT
+.. title: Converting A Date To Day of the Year In Python
+.. slug: converting-a-date-to-day-of-the-year-in-python
+.. date: 2023-02-07 16:56:59 UTC-08:00
+.. tags: python,calendar
+.. category: 
+.. link: 
+.. description: Using python to convert between dates and days of the year.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+OPTIONS: H:5
+#+TOC: headlines 2
+#+PROPERTY: header-args :session ~/.local/share/jupyter/runtime/kernel-afe3f7eb-c42d-40b0-bc36-d7c3bf9baf47.json
+
+#+BEGIN_SRC python :results none :exports none
+%load_ext autoreload
+%autoreload 2
+#+END_SRC
+
+This is a quick note on how to take a date and convert it to the day of the year (and back again) using python.
+
+* Date To Day of Year
+
+We're going to use python's built-in [[https://docs.python.org/3/library/datetime.html#datetime-objects][datetime]] object to create the date then convert it to a timetuple using its [[https://docs.python.org/3/library/datetime.html#datetime-objects][timetuple]] method. The timetuple has an attribute ~tm_yday~ which is the number of days in the year that the date represents.
+
+#+begin_src python :results output :exports both
+from datetime import datetime
+
+YEAR, MONTH, DAY = 2023, 2, 7
+
+DAY_OF_YEAR = datetime(YEAR, MONTH, DAY).timetuple().tm_yday
+print(DAY_OF_YEAR)
+#+end_src
+
+#+RESULTS:
+: 38
+
+So, February 7, 2023 is the 38th day of the year.
+
+* Day Of Year To Date
+
+Now to go in the other direction we start with the first day of the year (represented as a datetime object) and add the number of days into the year we want. You can't create a datetime object with day zero so we need to start it on day one and then subtract one day from the number of days that we want.
+
+#+begin_src python ;results output :exports both
+from datetime import timedelta
+
+JANUARY = 1
+
+date = datetime(YEAR, JANUARY, 1) + timedelta(DAY_OF_YEAR - 1)
+
+print(date.strftime("%Y-%m-%d"))
+#+end_src
+
+#+RESULTS:
+: 2023-02-07
+
+Easy-peasey.
+
+* Source
+ - [[https://stackoverflow.com/a/623312][Answer on StackOverflow]] that shows how to get the day of the year from the date.
+ - [[https://stackoverflow.com/a/13032755][Answer to the same question]] that shows how to go from the day of the year back to the date.
