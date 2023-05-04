@@ -1,497 +1,313 @@
 <!DOCTYPE html>
-<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
+" lang="en">
 <head>
 <meta charset="utf-8">
-<meta content="Seek behavior of flocking." name="description">
-<meta content="width=device-width, initial-scale=1" name="viewport">
+<meta name="description" content="Seek behavior of flocking.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seek With Cocos2D | The Cloistered Monkey</title>
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
-<meta content="#5670d4" name="theme-color">
-<meta content="Nikola (getnikola.com)" name="generator">
-<link href="../../rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
-<link href="https://necromuralist.github.io/posts/seek-with-cocos2d/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
-<link href="../../apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
-<link href="../../favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
-<link href="../../favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
-<link href="../../site.webmanifest" rel="manifest">
-<meta content="Cloistered Monkey" name="author">
-<link href="../flocking-with-cocos2d/" rel="prev" title="Flocking With Cocos2D" type="text/html">
-<link href="../ubuntu-1604-and-the-brother-hl-2140-printer/" rel="next" title="Ubuntu 16.04 and the Brother HL-2140 Printer" type="text/html">
-<meta content="The Cloistered Monkey" property="og:site_name">
-<meta content="Seek With Cocos2D" property="og:title">
-<meta content="https://necromuralist.github.io/posts/seek-with-cocos2d/" property="og:url">
-<meta content="Seek behavior of flocking." property="og:description">
-<meta content="article" property="og:type">
-<meta content="2017-02-20T16:24:39-08:00" property="article:published_time">
-<meta content="cocos2d" property="article:tag">
-<meta content="emergence" property="article:tag">
-<meta content="flocking" property="article:tag">
-<meta content="games" property="article:tag">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="https://necromuralist.github.io/posts/seek-with-cocos2d/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
+<link rel="manifest" href="../../site.webmanifest">
+<meta name="author" content="Cloistered Monkey">
+<link rel="prev" href="../flocking-with-cocos2d/" title="Flocking With Cocos2D" type="text/html">
+<link rel="next" href="../ubuntu-1604-and-the-brother-hl-2140-printer/" title="Ubuntu 16.04 and the Brother HL-2140 Printer" type="text/html">
+<meta property="og:site_name" content="The Cloistered Monkey">
+<meta property="og:title" content="Seek With Cocos2D">
+<meta property="og:url" content="https://necromuralist.github.io/posts/seek-with-cocos2d/">
+<meta property="og:description" content="Seek behavior of flocking.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2017-02-20T16:24:39-08:00">
+<meta property="article:tag" content="cocos2d">
+<meta property="article:tag" content="emergence">
+<meta property="article:tag" content="flocking">
+<meta property="article:tag" content="games">
 </head>
 <body>
-<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
-<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
-<div class="container"><!-- This keeps the margins nice -->
- <a class="navbar-brand" href="../../"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
-<div class="collapse navbar-collapse" id="bs-navbar">
-<ul class="navbar-nav mr-auto">
-<li class="nav-item"><a class="nav-link" href="../../pages/">Pages</a></li>
-<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
-<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
-<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
-<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
-<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Bowling-For-Data/">Bowling For Data</a> <a class="dropdown-item" href="https://necromuralist.github.io/Anechoic-Echolalia/">Anechoic Echolalia</a> <a class="dropdown-item" href="https://necromuralist.github.io/Ape-Iron/">Ape Iron</a> <a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
-</li>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Menubar -->
+
+<nav class="navbar navbar-expand-md static-top mb-4
+navbar-light
+bg-light
+"><div class="container">
+<!-- This keeps the margins nice -->
+        <a class="navbar-brand" href="../../">
+
+            <span id="blog-title">The Cloistered Monkey</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bs-navbar">
+            <ul class="navbar-nav mr-auto">
+<li class="nav-item">
+<a href="../../pages/" class="nav-link">Pages</a>
+                </li>
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+            </li>
+<li class="nav-item dropdown">
+<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects</a>
+            <div class="dropdown-menu">
+                    <a href="https://necromuralist.github.io/Bowling-For-Data/" class="dropdown-item">Bowling For Data</a>
+                    <a href="https://necromuralist.github.io/Anechoic-Echolalia/" class="dropdown-item">Anechoic Echolalia</a>
+                    <a href="https://necromuralist.github.io/Ape-Iron/" class="dropdown-item">Ape Iron</a>
+                    <a href="https://necromuralist.github.io/Neurotic-Networking/" class="dropdown-item">Neurotic Networking</a>
+                    <a href="https://necromuralist.github.io/student_intervention/" class="dropdown-item">Student Intervention Project</a>
+                    <a href="https://necromuralist.github.io/boston_housing/" class="dropdown-item">Boston Housing Project</a>
+                    <a href="https://necromuralist.github.io/data_science/" class="dropdown-item">Data Science With Python</a>
+                    <a href="https://necromuralist.github.io/Visions-Voices-Data/" class="dropdown-item">Visions, Voices, Data</a>
+            </div>
+
+                
+            </li>
 </ul>
-<!-- Google custom search -->
-<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
-<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
+<!-- Google custom search --><form method="get" action="https://www.google.com/search" class="navbar-form navbar-right" role="search">
+<div class="form-group">
+<input type="text" name="q" class="form-control" placeholder="Search">
+</div>
 <!-- 
 <button type="submit" class="btn btn-primary">
-        <span class="glyphicon glyphicon-search"></span>
+	<span class="glyphicon glyphicon-search"></span>
 </button>
 -->
-<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
+<input type="hidden" name="sitesearch" value="https://necromuralist.github.io/">
+</form>
 <!-- End of custom search -->
-<ul class="navbar-nav navbar-right">
-<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
-</ul>
+
+
+            <ul class="navbar-nav navbar-right">
+<li class="nav-item">
+    <a href="index.org" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                
+            </ul>
 </div>
-<!-- /.navbar-collapse --></div>
-<!-- /.container --></nav>
-<!-- End of Menubar -->
-<div class="container" id="content" role="main">
-<div class="body-content"><!--Body content-->
-<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">Seek With Cocos2D</a></h1>
-<div class="metadata">
-<p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author"><a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2017-02-20T16:24:39-08:00" itemprop="datePublished" title="2017-02-20 16:24">2017-02-20 16:24</time></a></p>
-<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
-</div>
-</header>
-<div class="e-content entry-content" itemprop="articleBody text">
-<p>This is an implementation of Craig Reynold's flocking behavior based on the book <a href="https://www.packtpub.com/game-development/python-game-programming-example">Python Game Programming By Example</a>. Reynolds mentions many variations for flocking. This will implement a basic boid that flocks to the mouse pointer.</p>
-<div class="outline-2" id="outline-container-org5e7ebe2">
-<h2 id="org5e7ebe2">Imports</h2>
-<div class="outline-text-2" id="text-org5e7ebe2">
-<div class="highlight">
-<pre><span></span><span class="c1"># third party</span>
-<span class="kn">from</span> <span class="nn">cocos.cocosnode</span> <span class="kn">import</span> <span class="n">CocosNode</span>
-<span class="kn">from</span> <span class="nn">cocos.euclid</span> <span class="kn">import</span> <span class="n">Vector2</span>
-<span class="kn">import</span> <span class="nn">cocos</span>
-<span class="kn">import</span> <span class="nn">cocos.particle_systems</span> <span class="k">as</span> <span class="nn">particle_system</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgdd56f62">
-<h2 id="orgdd56f62">Constants</h2>
-<div class="outline-text-2" id="text-orgdd56f62">
-<div class="highlight">
-<pre><span></span><span class="n">CHASE</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">RUN_AWAY</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-<span class="n">CHANGE_BEHAVIOR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org163c7c1">
-<h2 id="org163c7c1">The Boid</h2>
-<div class="outline-text-2" id="text-org163c7c1"></div>
-<div class="outline-3" id="outline-container-org544661c">
-<h3 id="org544661c">Boid Settings</h3>
-<div class="outline-text-3" id="text-org544661c">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">BoidSettings</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">"""a settings object"""</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">slowing_radius</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span>
+<!-- /.navbar-collapse -->
+    </div>
+<!-- /.container -->
+</nav><!-- End of Menubar --><div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        
+        
+        
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Seek With Cocos2D</a></h1>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""list of required attributes"""</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"position"</span><span class="p">,</span>
-                                <span class="s2">"velocity"</span><span class="p">,</span>
-                                <span class="s2">"speed"</span><span class="p">,</span>
-                                <span class="s2">"slowing_radius"</span><span class="p">,</span>
-                                <span class="s2">"max_force"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attributes</span>
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    <a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a>
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2017-02-20T16:24:39-08:00" itemprop="datePublished" title="2017-02-20 16:24">2017-02-20 16:24</time></a>
+            </p>
+            
+        <p class="sourceline"><a href="index.org" class="sourcelink">Source</a></p>
 
-    <span class="k">def</span> <span class="nf">x_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
-        <span class="sd">"""sets the initial x, y coordinates</span>
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
+        </div>
+        
 
-<span class="sd">       position: tuple</span>
-<span class="sd">         (x, y) coordinates</span>
-<span class="sd">       """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_types</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="s2">"position"</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">position</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">check_numeric</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">"position"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <p>
+This is an implementation of Craig Reynold's flocking behavior based on the book <a href="https://www.packtpub.com/game-development/python-game-programming-example">Python Game Programming By Example</a>. Reynolds mentions many variations for flocking. This will implement a basic boid that flocks to the mouse pointer.
+</p>
 
-    <span class="k">def</span> <span class="nf">velocity_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity</span><span class="p">):</span>
-        <span class="sd">"""initial velocity</span>
-
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
-
-<span class="sd">       velocity: Vector2</span>
-<span class="sd">         2-d vector representing boid's velocity</span>
-<span class="sd">       """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="n">velocity</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_type</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="s2">"velocity"</span><span class="p">,</span> <span class="n">Vector2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">speed_scalar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speed</span><span class="p">):</span>
-        <span class="sd">"""scalar for the velocity vector</span>
-
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
-
-<span class="sd">       speed: number</span>
-<span class="sd">         pixels per frame to scale velocity</span>
-<span class="sd">       """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">speed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_numeric</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span> <span class="s2">"speed"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">slow_down_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slowing_radius</span><span class="p">):</span>
-        <span class="sd">"""denominator to create ratio to slow down</span>
-
-<span class="sd">       Used to reduce steering-force (distance/radius)</span>
-
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
-
-<span class="sd">       slowing_radius: numeric</span>
-<span class="sd">         steering-force reduction factor</span>
-<span class="sd">       """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">slowing_radius</span> <span class="o">=</span> <span class="n">slowing_radius</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_numeric</span><span class="p">(</span><span class="n">slowing_radius</span><span class="p">,</span> <span class="s2">"slowing radius"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">maximum_force</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_force</span><span class="p">):</span>
-        <span class="sd">"""sets the max force magnitude</span>
-
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
-<span class="sd">       max_force: numeric</span>
-<span class="sd">         upper-bound for the steering force</span>
-<span class="sd">       """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="n">max_force</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_numeric</span><span class="p">(</span><span class="n">max_force</span><span class="p">,</span> <span class="s2">"max force"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">maximum_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_velocity</span><span class="p">):</span>
-        <span class="sd">"""sets the max-velocity</span>
-
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
-
-<span class="sd">       max_velocity: numeric</span>
-<span class="sd">         upper-bound for magnitude of velocity</span>
-<span class="sd">       """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_velocity</span> <span class="o">=</span> <span class="n">max_velocity</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_numeric</span><span class="p">(</span><span class="n">max_velocity</span><span class="p">,</span> <span class="s2">"max velocity"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="nf">check_numeric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">identifier</span><span class="p">):</span>
-        <span class="sd">"""checks value is numeric</span>
-
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
-
-<span class="sd">       value: object</span>
-<span class="sd">         item to check</span>
-
-<span class="sd">       identifier: string</span>
-<span class="sd">         name for error message</span>
-
-<span class="sd">       Raises</span>
-<span class="sd">       ------</span>
-
-<span class="sd">       TypeError if value is not int or float</span>
-<span class="sd">       """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_types</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
-        <span class="k">return</span>
-
-    <span class="k">def</span> <span class="nf">check_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-        <span class="sd">"""checks type of value</span>
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
-
-<span class="sd">       value: object</span>
-<span class="sd">         the thing to check</span>
-<span class="sd">       identifier: string</span>
-<span class="sd">         id for error message</span>
-<span class="sd">       expected: collection</span>
-<span class="sd">         types to check if value is one of them</span>
-
-<span class="sd">       Raises</span>
-<span class="sd">       ------</span>
-
-<span class="sd">       TypeError if type of value not in expected</span>
-<span class="sd">       """</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expected</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"</span><span class="si">{0}</span><span class="s2"> must be one of </span><span class="si">{1}</span><span class="s2">, not </span><span class="si">{2}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">identifier</span><span class="p">,</span>
-                <span class="n">expected</span><span class="p">,</span>
-                <span class="n">value</span><span class="p">))</span>
-        <span class="k">return</span>
-
-    <span class="k">def</span> <span class="nf">check_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-        <span class="sd">"""checks type of the value</span>
-<span class="sd">       Parameters</span>
-<span class="sd">       ----------</span>
-
-<span class="sd">       value: object</span>
-<span class="sd">         thing to check</span>
-<span class="sd">       identifier: string</span>
-<span class="sd">         id for error messages</span>
-<span class="sd">       expected: type</span>
-<span class="sd">         what the value should be</span>
-
-<span class="sd">       Raises</span>
-<span class="sd">       ------</span>
-<span class="sd">       TypeError if type of value is not expected</span>
-<span class="sd">       """</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"</span><span class="si">{0}</span><span class="s2"> must be </span><span class="si">{1}</span><span class="s2"> not </span><span class="si">{2}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span>
-                                                             <span class="n">expected</span><span class="p">,</span>
-                                                             <span class="n">value</span><span class="p">))</span>
-        <span class="k">return</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""checks all the attributes are set</span>
-
-<span class="sd">       Raises</span>
-<span class="sd">       ------</span>
-
-<span class="sd">       TypeError if an attribute is None</span>
-<span class="sd">       """</span>
-        <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"</span><span class="si">{0}</span><span class="s2"> must be set, not None"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attribute</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span>
-</pre></div>
+<div id="outline-container-orgafd1cf5" class="outline-2">
+<h2 id="orgafd1cf5">Imports</h2>
+<div class="outline-text-2" id="text-orgafd1cf5">
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
+</module>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org0d41036">
-<h3 id="org0d41036">Boid Node</h3>
-</div>
-<div class="outline-3" id="outline-container-org21a823d">
-<h3 id="org21a823d">the Constructor</h3>
-<div class="outline-text-3" id="text-org21a823d">
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">Boid</span><span class="p">(</span><span class="n">CocosNode</span><span class="p">):</span>
-    <span class="sd">"""represents a boid</span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-
-<span class="sd">    settings: BoidSettings</span>
-<span class="sd">      settings for this node</span>
-<span class="sd">    """</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Boid</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">settings</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">position</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">speed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">slowing_radius</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">slowing_radius</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">max_force</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_velocity</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">max_velocity</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="kc">None</span>
-</pre></div>
-<p>I'm not a fan of method calls in the constructor, but these next two lines help set up the node.</p>
-<div class="highlight">
-<pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">particle_system</span><span class="o">.</span><span class="n">Sun</span><span class="p">())</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">)</span>
-<span class="k">return</span>
-</pre></div>
-<p>The <code>add</code> method sets the <code>Sun</code> instance as a child of the <code>Boid</code> node and the <code>schedule</code> method sets the <code>Boid's</code> <code>update</code> method to be called once per frame.</p>
+<div id="outline-container-org5559e26" class="outline-2">
+<h2 id="org5559e26">Constants</h2>
+<div class="outline-text-2" id="text-org5559e26">
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
+</module>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org519c98f">
-<h3 id="org519c98f">The Current Position</h3>
-<div class="outline-text-3" id="text-org519c98f">
-<p>This is just a convenience attribute. It probably takes a performance hit, but the original code was a little obscure so I thought I'd pull it out to document it.</p>
-<div class="highlight">
-<pre><span></span><span class="nd">@property</span>
-<span class="k">def</span> <span class="nf">current_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">"""this node's position</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-
-<span class="sd">    Vector2: the current of this node</span>
-<span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">Vector2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-</pre></div>
-<p>I had to look it up, since there's no setting of <code>self.x</code> or <code>self.y</code> here - these two attributes are built into the <a href="http://python.cocos2d.org/doc/api/cocos.cocosnode.html">CocosNode</a> object and are always the current values.</p>
+<div id="outline-container-org58a1559" class="outline-2">
+<h2 id="org58a1559">The Boid</h2>
+<div class="outline-text-2" id="text-org58a1559">
+</div>
+<div id="outline-container-org1312f5d" class="outline-3">
+<h3 id="org1312f5d">Boid Settings</h3>
+<div class="outline-text-3" id="text-org1312f5d">
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
+</module>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org7f44fc0">
-<h3 id="org7f44fc0">The Update Method</h3>
-<div class="outline-text-3" id="text-org7f44fc0">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
-    <span class="sd">"""updates the current position</span>
+<div id="outline-container-org6b7d0be" class="outline-3">
+<h3 id="org6b7d0be">Boid Node</h3>
+</div>
+<div id="outline-container-org6185f45" class="outline-3">
+<h3 id="org6185f45">the Constructor</h3>
+<div class="outline-text-3" id="text-org6185f45">
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
+<p>
+I'm not a fan of method calls in the constructor, but these next two lines help set up the node.
+</p>
 
-<span class="sd">    delta: float</span>
-<span class="sd">      seconds since the last clock tick</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span>
-</pre></div>
-<p>The target is going to be set when the mouse is move. Because of this it's initially not set, so we need to short circuit if that's the case.</p>
-<div class="highlight">
-<pre><span></span><span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span>
-<span class="n">ramp_down</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">magnitude</span><span class="p">()</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">slowing_radius</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">steering_force</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">*</span> <span class="n">ramp_down</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span>
-<span class="n">steering_force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="n">steering_force</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_force</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">+</span> <span class="n">steering_force</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">max_velocity</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">*</span> <span class="n">delta</span>
-<span class="k">return</span>
-</pre></div>
-<p>In the snippet above, <code>distance</code> is a vector with the tail on our current position and the head on the target. The steering-force is created by scaling the distance by our <code>speed</code> and then subtracting our current velocity, creating a vector that over-compensates to turn us toward the target. The new velocity is our old velocity plus the steering-force and our position is updated to be our new velocity times the elapsed time. That doesn't look like it's doing anything, but <code>position</code> is another special attribute on the <code>CocosNode</code>.</p>
-<p>This next method reduces a vector if its magnitude is above a given threshold.</p>
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">):</span>
-    <span class="sd">"""limits magnitude of vector</span>
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
-<span class="sd">    Re-scales all values in the vector if the magnitude exceeds limit</span>
+<p>
+The <code>add</code> method sets the <code>Sun</code> instance as a child of the <code>Boid</code> node and the <code>schedule</code> method sets the <code>Boid's</code> <code>update</code> method to be called once per frame.
+</p>
+</module></module>
+</div>
+</div>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
+<div id="outline-container-org194fe66" class="outline-3">
+<h3 id="org194fe66">The Current Position</h3>
+<div class="outline-text-3" id="text-org194fe66">
+<p>
+This is just a convenience attribute. It probably takes a performance hit, but the original code was a little obscure so I thought I'd pull it out to document it.
+</p>
 
-<span class="sd">    vector:</span>
-<span class="sd">      vector to check</span>
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
-<span class="sd">    upper_bound: number</span>
-<span class="sd">      upper limit for magnitude of vector</span>
+<p>
+I had to look it up, since there's no setting of <code>self.x</code> or <code>self.y</code> here - these two attributes are built into the <a href="http://python.cocos2d.org/doc/api/cocos.cocosnode.html">CocosNode</a> object and are always the current values.
+</p>
+</module>
+</div>
+</div>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
+<div id="outline-container-orgdaecc1c" class="outline-3">
+<h3 id="orgdaecc1c">The Update Method</h3>
+<div class="outline-text-3" id="text-orgdaecc1c">
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
-<span class="sd">    vector whose magnitude is no greater than upper_bound</span>
-<span class="sd">    """</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">magnitude</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">magnitude</span><span class="p">()</span>
-    <span class="k">except</span> <span class="ne">OverflowError</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
-        <span class="k">raise</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">vector</span> <span class="k">if</span> <span class="n">magnitude</span> <span class="o">&lt;=</span> <span class="n">upper_bound</span>
-            <span class="k">else</span> <span class="n">vector</span><span class="o">*</span><span class="p">(</span><span class="n">upper_bound</span><span class="o">/</span><span class="n">magnitude</span><span class="p">))</span>
-</pre></div>
+<p>
+The target is going to be set when the mouse is move. Because of this it's initially not set, so we need to short circuit if that's the case.
+</p>
+
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
+
+<p>
+In the snippet above, <code>distance</code> is a vector with the tail on our current position and the head on the target. The steering-force is created by scaling the distance by our <code>speed</code> and then subtracting our current velocity, creating a vector that over-compensates to turn us toward the target. The new velocity is our old velocity plus the steering-force and our position is updated to be our new velocity times the elapsed time. That doesn't look like it's doing anything, but <code>position</code> is another special attribute on the <code>CocosNode</code>.
+</p>
+
+<p>
+This next method reduces a vector if its magnitude is above a given threshold.
+</p>
+
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
+</module></module></module>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2a3d0c7">
-<h2 id="org2a3d0c7">Main Layer</h2>
-<div class="outline-text-2" id="text-org2a3d0c7">
-<p>This is the class to act as the event handler.</p>
-<div class="highlight">
-<pre><span></span><span class="k">class</span> <span class="nc">MainLayer</span><span class="p">(</span><span class="n">cocos</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">"""sets up the interaction</span>
+<div id="outline-container-orgdb28875" class="outline-2">
+<h2 id="orgdb28875">Main Layer</h2>
+<div class="outline-text-2" id="text-orgdb28875">
+<p>
+This is the class to act as the event handler.
+</p>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
-<span class="sd">    boids: collection</span>
-<span class="sd">      boids to maintain</span>
-<span class="sd">    """</span>
-    <span class="n">is_event_handler</span> <span class="o">=</span> <span class="kc">True</span>
-</pre></div>
-<p>That value (<code>is_event_handler</code>) has to be true or the <code>Layer</code> class doesn't handle events.</p>
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boids</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">MainLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">boids</span> <span class="o">=</span> <span class="n">boids</span>
-    <span class="k">for</span> <span class="n">boid</span> <span class="ow">in</span> <span class="n">boids</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">boid</span><span class="p">)</span>
-    <span class="k">return</span>
+<p>
+That value (<code>is_event_handler</code>) has to be true or the <code>Layer</code> class doesn't handle events.
+</p>
 
-<span class="k">def</span> <span class="nf">on_mouse_motion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">):</span>
-    <span class="sd">"""sets the boids' targets</span>
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
+<p>
+The <code>on_mouse_motion</code> method is a pass through to <code>pyglet</code> so the method is documented <a href="https://pyglet.readthedocs.io/en/pyglet-1.2-maintenance/programming_guide/mouse.html">there</a> more than on the <i>cocos2d</i> site.
+</p>
 
-<span class="sd">    x, y:</span>
-<span class="sd">      current mouse cursor position</span>
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
-<span class="sd">    dx, dy:</span>
-<span class="sd">      change in position since the last report</span>
-<span class="sd">    """</span>
-    <span class="k">for</span> <span class="n">boid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boids</span><span class="p">:</span>
-        <span class="n">boid</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">Vector2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-    <span class="k">return</span>
-
-<span class="k">def</span> <span class="nf">on_mouse_press</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">button</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">):</span>
-    <span class="sd">"""handles mouse-clicks"""</span>
-    <span class="k">for</span> <span class="n">boid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">boids</span><span class="p">:</span>
-        <span class="n">boid</span><span class="o">.</span><span class="n">speed</span> <span class="o">*=</span> <span class="n">CHANGE_BEHAVIOR</span>
-    <span class="k">return</span>
-</pre></div>
-<p>The <code>on_mouse_motion</code> method is a pass through to <code>pyglet</code> so the method is documented <a href="https://pyglet.readthedocs.io/en/pyglet-1.2-maintenance/programming_guide/mouse.html">there</a> more than on the <i>cocos2d</i> site.</p>
-<div class="highlight">
-<pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-    <span class="n">boid_settings</span> <span class="o">=</span> <span class="p">(</span><span class="n">BoidSettings</span><span class="p">()</span>
-                     <span class="o">.</span><span class="n">x_y</span><span class="p">((</span><span class="mi">300</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
-                     <span class="o">.</span><span class="n">velocity_vector</span><span class="p">(</span><span class="n">Vector2</span><span class="p">())</span>
-                     <span class="o">.</span><span class="n">speed_scalar</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-                     <span class="o">.</span><span class="n">slow_down_distance</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
-                     <span class="o">.</span><span class="n">maximum_force</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-                     <span class="o">.</span><span class="n">maximum_velocity</span><span class="p">(</span><span class="mi">2000</span><span class="p">)())</span>
-    <span class="n">cocos</span><span class="o">.</span><span class="n">director</span><span class="o">.</span><span class="n">director</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">caption</span><span class="o">=</span><span class="s2">"Seeker"</span><span class="p">)</span>
-    <span class="n">boid</span> <span class="o">=</span> <span class="n">Boid</span><span class="p">(</span><span class="n">boid_settings</span><span class="p">)</span>
-    <span class="n">scene</span> <span class="o">=</span> <span class="n">cocos</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">Scene</span><span class="p">(</span><span class="n">MainLayer</span><span class="p">([</span><span class="n">boid</span><span class="p">]))</span>
-    <span class="n">cocos</span><span class="o">.</span><span class="n">director</span><span class="o">.</span><span class="n">director</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
-</pre></div>
-<p>The first thing to note is that the <code>cocos.director.init</code> function has to be called before any of the other <i>cocos2D</i> objects are created. If you move the instantiation of the <i>Boid</i> above that line, for instance, it will crash with a <code>AttributeError: 'Director' object has no attribute '_window_virtual_width'</code> error.</p>
+<p>
+The first thing to note is that the <code>cocos.director.init</code> function has to be called before any of the other <i>cocos2D</i> objects are created. If you move the instantiation of the <i>Boid</i> above that line, for instance, it will crash with a <code>AttributeError: 'Director' object has no attribute '_window_virtual_width'</code> error.
+</p>
+</module></module></module>
 </div>
 </div>
-</div>
-<aside class="postpromonav">
-<nav>
-<ul class="tags" itemprop="keywords">
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
 <li><a class="tag p-category" href="../../categories/cocos2d/" rel="tag">cocos2d</a></li>
-<li><a class="tag p-category" href="../../categories/emergence/" rel="tag">emergence</a></li>
-<li><a class="tag p-category" href="../../categories/flocking/" rel="tag">flocking</a></li>
-<li><a class="tag p-category" href="../../categories/games/" rel="tag">games</a></li>
-</ul>
+            <li><a class="tag p-category" href="../../categories/emergence/" rel="tag">emergence</a></li>
+            <li><a class="tag p-category" href="../../categories/flocking/" rel="tag">flocking</a></li>
+            <li><a class="tag p-category" href="../../categories/games/" rel="tag">games</a></li>
+        </ul>
 <ul class="pager hidden-print">
-<li class="previous"><a href="../flocking-with-cocos2d/" rel="prev" title="Flocking With Cocos2D">Previous post</a></li>
-<li class="next"><a href="../ubuntu-1604-and-the-brother-hl-2140-printer/" rel="next" title="Ubuntu 16.04 and the Brother HL-2140 Printer">Next post</a></li>
-</ul>
-</nav>
-</aside>
-</article>
-<!--End of body content-->
-<footer id="footer">Contents © 2023 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
+<li class="previous">
+                <a href="../flocking-with-cocos2d/" rel="prev" title="Flocking With Cocos2D">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="../ubuntu-1604-and-the-brother-hl-2140-printer/" rel="next" title="Ubuntu 16.04 and the Brother HL-2140 Printer">Next post</a>
+            </li>
+        </ul></nav></aside></article><!--End of body content--><footer id="footer">
+            Contents © 2023         <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
 </div>
 </div>
-<script src="../../assets/js/all-nocdn.js"></script>
-<script>
 
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
-</script>
+    </script>
 </body>
 </html>

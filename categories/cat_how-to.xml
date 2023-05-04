@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about How-To)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_how-to.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Tue, 24 Jan 2023 03:48:36 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Mount An Encrypted Drive Using cryptsetup</title><link>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about How-To)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_how-to.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 04 May 2023 00:33:51 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Mount An Encrypted Drive Using cryptsetup</title><link>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
+&lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org53da148"&gt;What Is This About?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#orga634585"&gt;So, How Do You Do It?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#orgaa1bef2"&gt;Source&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org86bd92f"&gt;What Is This About?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#orgb39e3cb"&gt;So, How Do You Do It?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org1fc63a5"&gt;Source&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org53da148" class="outline-2"&gt;
-&lt;h2 id="org53da148"&gt;What Is This About?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org53da148"&gt;
+&lt;div id="outline-container-org86bd92f" class="outline-2"&gt;
+&lt;h2 id="org86bd92f"&gt;What Is This About?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org86bd92f"&gt;
 &lt;p&gt;
 This is how to mount a LUKS encrypted drive with &lt;a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html"&gt;cryptsetup&lt;/a&gt; in Ubuntu 20.10 (Groovy Gorilla). My use-case is I have a headless server that has an external USB drive that's encrypted with &lt;a href="https://en.wikipedia.org/wiki/Linux_Unified_Key_Setup"&gt;LUKS&lt;/a&gt; that I need to mount from the command line. I like the flexibility it gives a little more than the what the Gnome GUI does so I'll probably use it on my desktop as well. I previously documented how to do it with &lt;a href="http://storaged.org/doc/udisks2-api/latest/udisksctl.1.html"&gt;udiskctl&lt;/a&gt; in &lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/"&gt;this post&lt;/a&gt; but I like &lt;code&gt;cryptsetup&lt;/code&gt; a little better. This assumes that you know the partition/device (in my case it's &lt;code&gt;/dev/sdb1&lt;/code&gt;). That previous post shows how I found it so I'll just do the decrypting and mounting here.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga634585" class="outline-2"&gt;
-&lt;h2 id="orga634585"&gt;So, How Do You Do It?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga634585"&gt;
+&lt;div id="outline-container-orgb39e3cb" class="outline-2"&gt;
+&lt;h2 id="orgb39e3cb"&gt;So, How Do You Do It?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb39e3cb"&gt;
 &lt;p&gt;
 The syntax to decrypt the device is:
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orge9aad52"&gt;
 sudo cryptsetup open &amp;lt;device&amp;gt; &amp;lt;name&amp;gt;
 &lt;/pre&gt;
 
@@ -32,7 +32,7 @@ sudo cryptsetup open &amp;lt;device&amp;gt; &amp;lt;name&amp;gt;
 As I mentioned above, in this case my &lt;code&gt;device&lt;/code&gt; is &lt;code&gt;/dev/sdb1&lt;/code&gt;. The name can be an arbitrary one (although there are limitiations on special characters so let's say it can be any alpha-numeric name) and I'll use &lt;code&gt;wddata&lt;/code&gt; as the name. Then my command to decrypt the drive is:
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgaef676a"&gt;
 sudo cryptsetup open /dev/sdb1 wddata
 &lt;/pre&gt;
 
@@ -40,7 +40,7 @@ sudo cryptsetup open /dev/sdb1 wddata
 This will prompt you for your password and then the encryption passphrase. Once the command succeeds, it adds a link in &lt;code&gt;/dev/mapper&lt;/code&gt; using the name you passed in so you can mount the device (assuming the directory you want to mount it in exists) like this:
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org135145d"&gt;
 sudo mount /dev/mapper/wddata /media/data
 &lt;/pre&gt;
 
@@ -50,9 +50,9 @@ Where &lt;code&gt;wddata&lt;/code&gt; is the name I told &lt;code&gt;cryptsetup&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgaa1bef2" class="outline-2"&gt;
-&lt;h2 id="orgaa1bef2"&gt;Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgaa1bef2"&gt;
+&lt;div id="outline-container-org1fc63a5" class="outline-2"&gt;
+&lt;h2 id="org1fc63a5"&gt;Source&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1fc63a5"&gt;
 &lt;p&gt;
 Besides the man-page for &lt;code&gt;cryptsetup&lt;/code&gt; on my server, I was pointed to use &lt;code&gt;cryptsetup&lt;/code&gt; from this StackOverflow post:
 &lt;/p&gt;
@@ -64,29 +64,29 @@ Besides the man-page for &lt;code&gt;cryptsetup&lt;/code&gt; on my server, I was
 The accepted answer uses &lt;code&gt;udiskctl&lt;/code&gt; but further down is an answer by George Schölly using &lt;code&gt;cryptsetup&lt;/code&gt;. The syntax in the answer is the older &lt;code&gt;cryptsetup&lt;/code&gt; syntax (which should still work) so it doesn't look exactly like what I used.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>how-to</category><category>luks</category><category>ubunt</category><guid>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</guid><pubDate>Sun, 06 Dec 2020 00:20:32 GMT</pubDate></item><item><title>Mounting An Encrypted USB Drive From the Command Line</title><link>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;/div&gt;</description><category>how-to</category><category>luks</category><category>ubunt</category><guid>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</guid><pubDate>Sun, 06 Dec 2020 00:20:32 GMT</pubDate></item><item><title>Mounting An Encrypted USB Drive From the Command Line</title><link>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
+&lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orgb1fe2c9"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orgc6a2fe5"&gt;Middle&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org5ce9a63"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org73da179"&gt;Middle&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org623d011"&gt;Find the USB Device Name&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orge4c195e"&gt;Unlock the Drive&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org0209d1e"&gt;Mount the Drive&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orgce3a021"&gt;Find the USB Device Name&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org9728843"&gt;Unlock the Drive&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org191c14e"&gt;Mount the Drive&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org6a93c2c"&gt;End&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org55b419f"&gt;End&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org3362536"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org397202b"&gt;Sources&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb1fe2c9" class="outline-2"&gt;
-&lt;h2 id="orgb1fe2c9"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb1fe2c9"&gt;
+&lt;div id="outline-container-org5ce9a63" class="outline-2"&gt;
+&lt;h2 id="org5ce9a63"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5ce9a63"&gt;
 &lt;p&gt;
 I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:
 &lt;/p&gt;
@@ -103,42 +103,48 @@ So, here's the subset of steps that I did to mount the drive.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgc6a2fe5" class="outline-2"&gt;
-&lt;h2 id="orgc6a2fe5"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc6a2fe5"&gt;
+&lt;div id="outline-container-org73da179" class="outline-2"&gt;
+&lt;h2 id="org73da179"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org73da179"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org623d011" class="outline-3"&gt;
-&lt;h3 id="org623d011"&gt;Find the USB Device Name&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org623d011"&gt;
+&lt;div id="outline-container-orgce3a021" class="outline-3"&gt;
+&lt;h3 id="orgce3a021"&gt;Find the USB Device Name&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgce3a021"&gt;
 &lt;p&gt;
 The first think to do is to make sure that the USB device is recognized by the operating system.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lsusb
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 Which produced a lot of listings, the most relevant one being:
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Bus 001 Device 002: ID 1058:0748 Western Digital Technologies, Inc. My Passport (WDBKXH, WDBY8L)
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 Which is the drive I wanted to unencrypt and mount. The next thing is to find the file name (in this case I know the name of the device - "My Passport" - so I used &lt;code&gt;grep&lt;/code&gt;, otherwise I'd use &lt;code&gt;less&lt;/code&gt;).
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo fdisk -l | grep "My Passport" -B 1
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 Which currently gives this:
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Partition 2 does not start on physical sector boundary.
-Disk /dev/sdb: 931.49 GiB, 1000170586112 bytes, 1953458176 sectors
-Disk model: My Passport 0748
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 It might have looked a little different when I originally ran it since the drive is already mounted but whatever is in that second line is what we want.
@@ -148,33 +154,29 @@ It might have looked a little different when I originally ran it since the drive
 That is the name we need for the drive, but we're going to mount a partition so you need to know the partition name. &lt;code&gt;lsblk&lt;/code&gt; will show it to us.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;lsblk -e7
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 Which gave me the output:
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;NAME                        MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
-sda                           8:0    0 931.5G  0 disk  
-├─sda1                        8:1    0     1M  0 part  
-├─sda2                        8:2    0     1G  0 part  /boot
-└─sda3                        8:3    0 930.5G  0 part  
-  └─dm_crypt-0              253:0    0 930.5G  0 crypt 
-    └─ubuntu--vg-ubuntu--lv 253:1    0   200G  0 lvm   /
-sdb                           8:16   0 931.5G  0 disk  
-└─sdb1                        8:17   0 931.5G  0 part
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 Now you can see that the partion for our disk is &lt;code&gt;sdb1&lt;/code&gt; (the last row where it's shown to be a child of &lt;code&gt;sdb&lt;/code&gt; and that its TYPE is a partition).
 &lt;/p&gt;
-&lt;/div&gt;
+&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orge4c195e" class="outline-3"&gt;
-&lt;h3 id="orge4c195e"&gt;Unlock the Drive&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge4c195e"&gt;
+&lt;div id="outline-container-org9728843" class="outline-3"&gt;
+&lt;h3 id="org9728843"&gt;Unlock the Drive&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9728843"&gt;
 &lt;p&gt;
 &lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; This works, but there's an alternative way to do it with &lt;a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html"&gt;cryptsetup&lt;/a&gt; that I find a little easier (but not much). I documented that command as if it continued from this point in &lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/"&gt;this post&lt;/a&gt;.
 &lt;/p&gt;
@@ -183,63 +185,69 @@ Now you can see that the partion for our disk is &lt;code&gt;sdb1&lt;/code&gt; (
 Next unlock the drive. When you do this it will create a file in &lt;code&gt;/dev/mapper/&lt;/code&gt; that you'll need so it would be a good idea to see what's there before you run it.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ls /dev/mapper/
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 And then do the decrypting, remembering that the partition is &lt;code&gt;sdb1&lt;/code&gt; and like our disk the file is in the &lt;code&gt;/dev&lt;/code&gt; directory.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;udisksctl unlock -b /dev/sdb1
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 
 &lt;p&gt;
 This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).
 &lt;/p&gt;
-&lt;/div&gt;
+&lt;/module&gt;&lt;/module&gt;&lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org0209d1e" class="outline-3"&gt;
-&lt;h3 id="org0209d1e"&gt;Mount the Drive&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org0209d1e"&gt;
+&lt;div id="outline-container-org191c14e" class="outline-3"&gt;
+&lt;h3 id="org191c14e"&gt;Mount the Drive&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org191c14e"&gt;
 &lt;p&gt;
 If the last command went okay you now need to mount it. There's going to be a file in &lt;code&gt;/dev/mapper&lt;/code&gt; that you need to know. When I did it there was only one new file (&lt;code&gt;luks-3eea956c-e684-4bcb-a640-97d0c8c5a700&lt;/code&gt;) so I didn't have to do anything special to get it.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 If you run the command &lt;code&gt;lsblk -e7&lt;/code&gt; it will show you a tree with the &lt;code&gt;/dev/mapper/&lt;/code&gt; file mapped to the mount point where you can access it.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sdb                                             8:16   0 931.5G  0 disk  
-└─sdb1                                          8:17   0 931.5G  0 part  
-  └─luks-3eea956c-e684-4bcb-a640-97d0c8c5a700 253:3    0 931.5G  0 crypt /media/hades/WDData
-&lt;/pre&gt;&lt;/div&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
 
 &lt;p&gt;
 So in this case the drive is accessible at &lt;code&gt;/media/hades/WDData&lt;/code&gt; (it's always the same place but I wanted to document the &lt;code&gt;lsblk -e7&lt;/code&gt; command).
 &lt;/p&gt;
+&lt;/module&gt;&lt;/module&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org6a93c2c" class="outline-2"&gt;
-&lt;h2 id="org6a93c2c"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6a93c2c"&gt;
+&lt;div id="outline-container-org55b419f" class="outline-2"&gt;
+&lt;h2 id="org55b419f"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org55b419f"&gt;
 &lt;p&gt;
 So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udisksctl.
 &lt;/p&gt;
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo fdisk -l
-udisksctl unlock -b /dev/sdb1
-udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org3362536" class="outline-3"&gt;
-&lt;h3 id="org3362536"&gt;Sources&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3362536"&gt;
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
+&lt;/module&gt;&lt;/div&gt;
+&lt;div id="outline-container-org397202b" class="outline-3"&gt;
+&lt;h3 id="org397202b"&gt;Sources&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org397202b"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/"&gt;sourcedigit.com&lt;/a&gt; - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line"&gt;Stack Overflow&lt;/a&gt; - "Mount encrypted volumes from command line?"&lt;/li&gt;
