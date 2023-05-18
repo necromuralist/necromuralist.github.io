@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about optimization)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/optimization.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 04 May 2023 00:33:49 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Tuning a TCP Connection</title><link>https://necromuralist.github.io/posts/201209tuning-tcp-connection/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about optimization)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/optimization.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 18 May 2023 07:55:21 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Tuning a TCP Connection</title><link>https://necromuralist.github.io/posts/201209tuning-tcp-connection/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org6b62376"&gt;TCP Background&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org14ae9e2"&gt;TCP Background&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgc798771"&gt;The TCP Congestion Window&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org0a795ff"&gt;Optimal Buffer Size&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orga3da918"&gt;The TCP Congestion Window&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org42e16a7"&gt;Optimal Buffer Size&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org3d30b28"&gt;Changing the Buffer Size&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org0014077"&gt;Picking a Buffer Size&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org375df43"&gt;Changing the Buffer Size&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org84ab590"&gt;Picking a Buffer Size&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org6cf2961"&gt;The Maximum Throughput&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orge7c06b5"&gt;Bandwidth Delay Product&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orga27efa6"&gt;The Maximum Throughput&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgb32cc6b"&gt;Bandwidth Delay Product&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orge21f292"&gt;Iperf Tuning&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgefbe758"&gt;Iperf Tuning&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgacb2532"&gt;Iperf Warnings&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgda1902a"&gt;Parallel Streams&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org82806cf"&gt;Maximum Transmission Unit (MTU)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org4fee682"&gt;Iperf Warnings&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgbbf4746"&gt;Parallel Streams&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org07b282d"&gt;Maximum Transmission Unit (MTU)&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -30,13 +30,13 @@
 I wrote this a long time ago so I don't remember the source or really the intent. I think it was about trying to maximize the throughput when running iperf over TCP.
 &lt;/p&gt;
 
-&lt;div id="outline-container-org6b62376" class="outline-2"&gt;
-&lt;h2 id="org6b62376"&gt;TCP Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6b62376"&gt;
+&lt;div id="outline-container-org14ae9e2" class="outline-2"&gt;
+&lt;h2 id="org14ae9e2"&gt;TCP Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org14ae9e2"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc798771" class="outline-3"&gt;
-&lt;h3 id="orgc798771"&gt;The TCP Congestion Window&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc798771"&gt;
+&lt;div id="outline-container-orga3da918" class="outline-3"&gt;
+&lt;h3 id="orga3da918"&gt;The TCP Congestion Window&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga3da918"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Larger window implies higher throughput&lt;/li&gt;
 &lt;li&gt;The max allowed is based on the buffer space the kernel allocates for
@@ -47,9 +47,9 @@ each socket&lt;/li&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org0a795ff" class="outline-3"&gt;
-&lt;h3 id="org0a795ff"&gt;Optimal Buffer Size&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org0a795ff"&gt;
+&lt;div id="outline-container-org42e16a7" class="outline-3"&gt;
+&lt;h3 id="org42e16a7"&gt;Optimal Buffer Size&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org42e16a7"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Too small - Sender will be throttled
 &lt;ul class="org-ul"&gt;
@@ -64,22 +64,22 @@ each socket&lt;/li&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org3d30b28" class="outline-2"&gt;
-&lt;h2 id="org3d30b28"&gt;Changing the Buffer Size&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3d30b28"&gt;
+&lt;div id="outline-container-org375df43" class="outline-2"&gt;
+&lt;h2 id="org375df43"&gt;Changing the Buffer Size&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org375df43"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;TCP chooses the smaller of both sides of the transaction.&lt;/li&gt;
 &lt;li&gt;Set the receiver high and let the sender negotiate&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org0014077" class="outline-2"&gt;
-&lt;h2 id="org0014077"&gt;Picking a Buffer Size&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0014077"&gt;
+&lt;div id="outline-container-org84ab590" class="outline-2"&gt;
+&lt;h2 id="org84ab590"&gt;Picking a Buffer Size&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org84ab590"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6cf2961" class="outline-3"&gt;
-&lt;h3 id="org6cf2961"&gt;The Maximum Throughput&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6cf2961"&gt;
+&lt;div id="outline-container-orga27efa6" class="outline-3"&gt;
+&lt;h3 id="orga27efa6"&gt;The Maximum Throughput&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga27efa6"&gt;
 &lt;p&gt;
 If the network isn't congested the throughput is characterized by TCP buffer size and network latency.
 &lt;/p&gt;
@@ -89,9 +89,9 @@ If the network isn't congested the throughput is characterized by TCP buffer siz
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orge7c06b5" class="outline-3"&gt;
-&lt;h3 id="orge7c06b5"&gt;Bandwidth Delay Product&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge7c06b5"&gt;
+&lt;div id="outline-container-orgb32cc6b" class="outline-3"&gt;
+&lt;h3 id="orgb32cc6b"&gt;Bandwidth Delay Product&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb32cc6b"&gt;
 &lt;p&gt;
 This is a rule of thumb to calculate the optimal buffer size.
 &lt;/p&gt;
@@ -107,13 +107,13 @@ This is a rule of thumb to calculate the optimal buffer size.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orge21f292" class="outline-2"&gt;
-&lt;h2 id="orge21f292"&gt;Iperf Tuning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge21f292"&gt;
+&lt;div id="outline-container-orgefbe758" class="outline-2"&gt;
+&lt;h2 id="orgefbe758"&gt;Iperf Tuning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgefbe758"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgacb2532" class="outline-3"&gt;
-&lt;h3 id="orgacb2532"&gt;Iperf Warnings&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgacb2532"&gt;
+&lt;div id="outline-container-org4fee682" class="outline-3"&gt;
+&lt;h3 id="org4fee682"&gt;Iperf Warnings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4fee682"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Iperf can set the buffer size up to a point – but the OS sets the
 upper limit on window sizes.&lt;/li&gt;
@@ -121,9 +121,9 @@ upper limit on window sizes.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgda1902a" class="outline-3"&gt;
-&lt;h3 id="orgda1902a"&gt;Parallel Streams&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgda1902a"&gt;
+&lt;div id="outline-container-orgbbf4746" class="outline-3"&gt;
+&lt;h3 id="orgbbf4746"&gt;Parallel Streams&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgbbf4746"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Iperf lets you run multiple parallel sessions using the -P flag.&lt;/li&gt;
 
@@ -136,9 +136,9 @@ upper limit on window sizes.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org82806cf" class="outline-3"&gt;
-&lt;h3 id="org82806cf"&gt;Maximum Transmission Unit (MTU)&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org82806cf"&gt;
+&lt;div id="outline-container-org07b282d" class="outline-3"&gt;
+&lt;h3 id="org07b282d"&gt;Maximum Transmission Unit (MTU)&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org07b282d"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;the most effective way to set it is if both hosts support Path MTU Discovery and set it themselves.&lt;/li&gt;
 &lt;li&gt;iperf's -m flag displays what mss is being used&lt;/li&gt;
@@ -156,51 +156,51 @@ upper limit on window sizes.&lt;/li&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgd399047"&gt;What is Optimization?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgb659e18"&gt;What is a Global Optimization?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org3389bca"&gt;What is a Local Optimization?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org8bfbe51"&gt;What Are the Three Types of Optimization?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org3b8f69d"&gt;What Is the First Phase of Optimization?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgadab4d0"&gt;How Do You Create a Model of the System?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orga08a8af"&gt;What is a &lt;i&gt;Solution&lt;/i&gt; In Optimization?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orga395526"&gt;What is the &lt;i&gt;Domain&lt;/i&gt;?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgc1d9a98"&gt;What is the &lt;i&gt;Feasible Domain&lt;/i&gt;?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgf3b6d89"&gt;What is a &lt;i&gt;Feasible Solution&lt;/i&gt;?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org3b0efdc"&gt;What is the &lt;i&gt;Cost Function&lt;/i&gt;?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgd9a50bd"&gt;What is Optimization?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org2e6911a"&gt;What is a Global Optimization?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org879f135"&gt;What is a Local Optimization?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org4cf4632"&gt;What Are the Three Types of Optimization?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgb70c597"&gt;What Is the First Phase of Optimization?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgcd71a9a"&gt;How Do You Create a Model of the System?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org774e4e3"&gt;What is a &lt;i&gt;Solution&lt;/i&gt; In Optimization?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org6deb36f"&gt;What is the &lt;i&gt;Domain&lt;/i&gt;?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#org9a8cb33"&gt;What is the &lt;i&gt;Feasible Domain&lt;/i&gt;?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgd6580fa"&gt;What is a &lt;i&gt;Feasible Solution&lt;/i&gt;?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201207optimization/#orgba160f8"&gt;What is the &lt;i&gt;Cost Function&lt;/i&gt;?&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgd399047" class="outline-2"&gt;
-&lt;h2 id="orgd399047"&gt;What is Optimization?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd399047"&gt;
+&lt;div id="outline-container-orgd9a50bd" class="outline-2"&gt;
+&lt;h2 id="orgd9a50bd"&gt;What is Optimization?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd9a50bd"&gt;
 &lt;p&gt;
 &lt;i&gt;Optimization&lt;/i&gt; means to find the set of parameters that minimize the cost of a solution to a problem.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgb659e18" class="outline-2"&gt;
-&lt;h2 id="orgb659e18"&gt;What is a Global Optimization?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb659e18"&gt;
+&lt;div id="outline-container-org2e6911a" class="outline-2"&gt;
+&lt;h2 id="org2e6911a"&gt;What is a Global Optimization?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2e6911a"&gt;
 &lt;p&gt;
 A &lt;i&gt;Global Optimization&lt;/i&gt; is the optimal solution out of all possible solutions. [PSOAI]
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org3389bca" class="outline-2"&gt;
-&lt;h2 id="org3389bca"&gt;What is a Local Optimization?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3389bca"&gt;
+&lt;div id="outline-container-org879f135" class="outline-2"&gt;
+&lt;h2 id="org879f135"&gt;What is a Local Optimization?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org879f135"&gt;
 &lt;p&gt;
 A &lt;i&gt;Local Optimization&lt;/i&gt; is a solution that may not be the global optimum but is good enough. [PSOAI]
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8bfbe51" class="outline-2"&gt;
-&lt;h2 id="org8bfbe51"&gt;What Are the Three Types of Optimization?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8bfbe51"&gt;
+&lt;div id="outline-container-org4cf4632" class="outline-2"&gt;
+&lt;h2 id="org4cf4632"&gt;What Are the Three Types of Optimization?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4cf4632"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;i&gt;Exhaustive&lt;/i&gt;: Try all the combinations.&lt;/li&gt;
 &lt;li&gt;&lt;i&gt;Stochastic&lt;/i&gt;: Try a random subset and pick the best.&lt;/li&gt;
@@ -209,18 +209,18 @@ A &lt;i&gt;Local Optimization&lt;/i&gt; is a solution that may not be the global
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org3b8f69d" class="outline-2"&gt;
-&lt;h2 id="org3b8f69d"&gt;What Is the First Phase of Optimization?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3b8f69d"&gt;
+&lt;div id="outline-container-orgb70c597" class="outline-2"&gt;
+&lt;h2 id="orgb70c597"&gt;What Is the First Phase of Optimization?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb70c597"&gt;
 &lt;p&gt;
 The first phase is to create a mathematical model of the system.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgadab4d0" class="outline-2"&gt;
-&lt;h2 id="orgadab4d0"&gt;How Do You Create a Model of the System?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgadab4d0"&gt;
+&lt;div id="outline-container-orgcd71a9a" class="outline-2"&gt;
+&lt;h2 id="orgcd71a9a"&gt;How Do You Create a Model of the System?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgcd71a9a"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Translate parameters for the solution to numbers.&lt;/li&gt;
 &lt;li&gt;Represent solutions as vectors of parameters.&lt;/li&gt;
@@ -229,45 +229,45 @@ The first phase is to create a mathematical model of the system.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orga08a8af" class="outline-2"&gt;
-&lt;h2 id="orga08a8af"&gt;What is a &lt;i&gt;Solution&lt;/i&gt; In Optimization?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga08a8af"&gt;
+&lt;div id="outline-container-org774e4e3" class="outline-2"&gt;
+&lt;h2 id="org774e4e3"&gt;What is a &lt;i&gt;Solution&lt;/i&gt; In Optimization?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org774e4e3"&gt;
 &lt;p&gt;
 A set of parameters that solves the problem with the least cost while still meeting constraints. [IIS]
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orga395526" class="outline-2"&gt;
-&lt;h2 id="orga395526"&gt;What is the &lt;i&gt;Domain&lt;/i&gt;?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga395526"&gt;
+&lt;div id="outline-container-org6deb36f" class="outline-2"&gt;
+&lt;h2 id="org6deb36f"&gt;What is the &lt;i&gt;Domain&lt;/i&gt;?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6deb36f"&gt;
 &lt;p&gt;
 The set of valid parameters (those that solve the problem no matter the cost). [IIS]
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgc1d9a98" class="outline-2"&gt;
-&lt;h2 id="orgc1d9a98"&gt;What is the &lt;i&gt;Feasible Domain&lt;/i&gt;?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc1d9a98"&gt;
+&lt;div id="outline-container-org9a8cb33" class="outline-2"&gt;
+&lt;h2 id="org9a8cb33"&gt;What is the &lt;i&gt;Feasible Domain&lt;/i&gt;?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9a8cb33"&gt;
 &lt;p&gt;
 The subset of valid parameters that meet the constraints of the problem. [IIS]
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgf3b6d89" class="outline-2"&gt;
-&lt;h2 id="orgf3b6d89"&gt;What is a &lt;i&gt;Feasible Solution&lt;/i&gt;?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf3b6d89"&gt;
+&lt;div id="outline-container-orgd6580fa" class="outline-2"&gt;
+&lt;h2 id="orgd6580fa"&gt;What is a &lt;i&gt;Feasible Solution&lt;/i&gt;?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd6580fa"&gt;
 &lt;p&gt;
 A solution that meets all the constraints. [PSOAI]
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org3b0efdc" class="outline-2"&gt;
-&lt;h2 id="org3b0efdc"&gt;What is the &lt;i&gt;Cost Function&lt;/i&gt;?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org3b0efdc"&gt;
+&lt;div id="outline-container-orgba160f8" class="outline-2"&gt;
+&lt;h2 id="orgba160f8"&gt;What is the &lt;i&gt;Cost Function&lt;/i&gt;?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgba160f8"&gt;
 &lt;p&gt;
 A function that maps solutions to their cost (maps the best solution to the best outcome and the worst solution to the worst outcome).
 &lt;/p&gt;

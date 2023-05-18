@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about conda)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/conda.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 18 May 2023 07:55:24 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Cuda, Conda, Docker...ugh</title><link>https://necromuralist.github.io/posts/cuda-conda-dockerugh/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9d35f4c" class="outline-2"&gt;
+&lt;h2 id="org9d35f4c"&gt;The Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9d35f4c"&gt;
+&lt;p&gt;
+I haven't been doing anything with pytorch recently so I decided to restart by setting up a docker container on my machine with a beefier nvidia card than the machine I had been using. I've learned a little bit more about docker since I built my earlier container so I decided to update the image and found it both easier and harder than I remember it being. It went easier because I knew more or less what I had to do so I knew what to look up. Harder because there's some workarounds that you have to work with that weren't there before, and I decided to stick with &lt;code&gt;conda&lt;/code&gt;, which seems to add an extra layer of difficulty compared to pip and virtualenv when you use docker. But, anyway, enough with the whining, here's the stuff.
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; I'm doing this on Ubuntu 21.10.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org5e1af0a" class="outline-2"&gt;
+&lt;h2 id="org5e1af0a"&gt;Nvidia-Container-Toolkit and Ubuntu&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5e1af0a"&gt;
+&lt;p&gt;
+The first thing you should do is install the &lt;a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker"&gt;nvidia-container-toolkit&lt;/a&gt;. The instructions say to add the repository this way:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+   &amp;amp;&amp;amp; curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+   &amp;amp;&amp;amp; curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This introduces two problems for me. The first is that this assumes you use bash, but I'm using fish so the command doesn't work. This is no big deal since I just looking in the &lt;code&gt;/etc/os-release&lt;/code&gt; file to get the &lt;code&gt;ID&lt;/code&gt; and &lt;code&gt;VERSION_ID&lt;/code&gt; and wrote it out.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu21.10/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+But then this introduces the second problem - the second curl fails with the message:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Unsupported distribution!
+Check https://nvidia.github.io/nvidia-docker
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+It turns out there's an &lt;a href="https://github.com/NVIDIA/nvidia-docker/issues/1574"&gt;open bug report&lt;/a&gt; on GitHub, with a comment that only Long-Term-Support versions are supported. The commenter suggested using 18.04 for some reason, but I went with 20.04 and it seemed to work.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+sudo apt update
+sudo apt install nvidia-container-toolkit
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org6415ea6" class="outline-2"&gt;
+&lt;h2 id="org6415ea6"&gt;The Cuda Image&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6415ea6"&gt;
+&lt;p&gt;
+Now that I was setup to run the container I ran a test.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker run --rm --gpus all nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which gave me an error, something like &lt;code&gt;Error response from daemon&lt;/code&gt; (I don't remember exactly), which turns out to be the result of a pretty major flaw right now (as noted on the &lt;a href="https://github.com/NVIDIA/libnvidia-container/issues/111"&gt;github issue for it&lt;/a&gt;). One of the commenters &lt;a href="https://github.com/NVIDIA/libnvidia-container/issues/111#issuecomment-932742403"&gt;posted a work-around for it&lt;/a&gt; which seems to work.
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org4c4afbc" class="outline-3"&gt;
+&lt;h3 id="org4c4afbc"&gt;Edit /etc/nvidia-container-runtime/config.toml&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4c4afbc"&gt;
+&lt;p&gt;
+In the file there's a line:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#no-cgroups = false
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Uncomment it and set it to true.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;no-cgroups = true
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Okay, easy-peasy. All fixed, then, right? Well, doing this fix means that you now have to pass in more flags when you run the container. First you need to check what you have.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ls /dev | grep nvidia
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then when you run the container you need to pass in most of those things as &lt;code&gt;--device&lt;/code&gt; arguments.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker run --rm --gpus all --device /dev/nvidia0 --device /dev/nvidiactl --device /dev/nvidia-modeset --device /dev/nvidia-uvm nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+You might not need to actually look in &lt;code&gt;/dev&lt;/code&gt; first. I had to because the post on github was referring to a &lt;code&gt;/dev/nvidia1&lt;/code&gt; device, but I don't have one. This appears to work, although it's a bit unwieldy.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org4ce0c40" class="outline-2"&gt;
+&lt;h2 id="org4ce0c40"&gt;Now for Conda&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4ce0c40"&gt;
+&lt;p&gt;
+This next bit probably shouldn't be registered as a problem, but the last time I tried to run pytorch in docker there was some kind of bug when I installed it with &lt;code&gt;pip&lt;/code&gt; that went away when I installed it with &lt;code&gt;conda&lt;/code&gt; so I decided to stick with cuda, but I also wanted to try and set it up the way I do with virtualenv - cached by docker and run non-root. This turns out to be much harder to do than with virtualenv for some reason. I looked through some posts on StackOverflow and elsewhere and didn't really see any good solutions, but &lt;a href="https://towardsdatascience.com/conda-pip-and-docker-ftw-d64fe638dc45"&gt;this one on Toward Data Science&lt;/a&gt; got close enough.
+The way that post suggests is to change the shell that docker uses to &lt;code&gt;bash&lt;/code&gt; and moving the &lt;code&gt;miniconda&lt;/code&gt; install path into the home directory of the user that you want to run it.
+&lt;/p&gt;
+
+&lt;p&gt;
+I won't bother with all of the &lt;code&gt;Dockerfile&lt;/code&gt;, but the basic changes are:
+&lt;/p&gt;
+
+&lt;p&gt;
+Change the shell.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SHELL [ "/bin/bash", "--login", "-c" ]
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Switch to the user (assuming you added the user and home directory earlier in the docker file) and add an environment file to store the directory in (I don't think you need to use &lt;code&gt;ENV&lt;/code&gt; but the post used it. I'll try &lt;code&gt;ARG&lt;/code&gt; later).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;USER ${USER_NAME}
+WORKDIR ${USER_HOME}
+
+ENV CONDA_DIR=${USER_HOME}/miniconda3
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then install miniconda.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ARG MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+ARG SHA256SUM="1ea2f885b4dbc3098662845560bc64271eb17085387a70c2ba3f29fff6f8d52f"
+ARG CONDA_VERSION=py39_4.10.3
+RUN --mount=type=cache,target=/root/.cache \
+    wget "${MINICONDA_URL}" --output-document miniconda.sh --quiet --force-directories --directory-prefix ${CONDA_DIR} &amp;amp;&amp;amp; \
+    echo "${SHA256SUM} miniconda.sh" &amp;gt; shasum &amp;amp;&amp;amp; \
+    sha256sum --check --status shasum &amp;amp;&amp;amp; \
+    /bin/bash miniconda.sh -b -p ${CONDA_DIR} &amp;amp;&amp;amp; \
+    rm miniconda.sh shasum
+
+ENV PATH=$CONDA_DIR/bin:$PATH
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Update conda.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" &amp;gt;&amp;gt; ~/.profile &amp;amp;&amp;amp; \
+    conda init bash &amp;amp;&amp;amp; \
+    conda update -n base -c defaults conda
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Install the packages. This is where I added the caching to try and reduce the re-downloading of files. I don't really know if this helps a lot, to be truthful, but it's nice to have new things.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;RUN --mount=type=cache,target=/root/.cache \
+    conda install pytorch torchvision torchaudio cudatoolkit --channel pytorch --yes
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>conda</category><category>cuda</category><category>docker</category><category>howto</category><guid>https://necromuralist.github.io/posts/cuda-conda-dockerugh/</guid><pubDate>Tue, 07 Dec 2021 02:04:16 GMT</pubDate></item></channel></rss>

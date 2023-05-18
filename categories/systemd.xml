@@ -1,85 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about systemd)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/systemd.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 04 May 2023 00:33:48 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Using Systemd To Enable Wake-On-Lan</title><link>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about systemd)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/systemd.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 18 May 2023 07:55:24 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Using Systemd To Enable Wake-On-Lan</title><link>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org96d761c"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org92c716f"&gt;So, how do you do it?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org273f61c"&gt;So, That Fixed It?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org4687af9"&gt;Where did you find out about this?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org304d3b7"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org12ad9aa"&gt;So, how do you do it?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org7007309"&gt;So, That Fixed It?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#orga24893c"&gt;Where did you find out about this?&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org96d761c" class="outline-2"&gt;
-&lt;h2 id="org96d761c"&gt;What is this about?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org96d761c"&gt;
+&lt;div id="outline-container-org304d3b7" class="outline-2"&gt;
+&lt;h2 id="org304d3b7"&gt;What is this about?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org304d3b7"&gt;
 &lt;p&gt;
 I made a previous post (&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/"&gt;Enabling Wake-On-LAN (In Ubuntu 20.10)&lt;/a&gt;) about enabling Wake-On-LAN on my server, but it didn't seem to work after a re-boot. I looked in the logs using &lt;a href="https://www.commandlinux.com/man-page/man1/journalctl.1.html"&gt;journalctl&lt;/a&gt; and noticed that the &lt;code&gt;wol.service&lt;/code&gt; that I set up didn't get enabled after the re-boot. I thought about it and I remembered that when I was working with bluetooth and set up a service for it I had to make it wait for the bluetooth service to start first or it wouldn't work and realized that there was nothing in the &lt;code&gt;wol.service&lt;/code&gt; file to tell it to wait so I went poking around and found what I hope to be a fix.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org92c716f" class="outline-2"&gt;
-&lt;h2 id="org92c716f"&gt;So, how do you do it?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org92c716f"&gt;
+&lt;div id="outline-container-org12ad9aa" class="outline-2"&gt;
+&lt;h2 id="org12ad9aa"&gt;So, how do you do it?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org12ad9aa"&gt;
 &lt;p&gt;
 We need to update the &lt;code&gt;/etc/systemd/system/wol.service&lt;/code&gt; that I created in that earlier post. Previously it looked like this:
 &lt;/p&gt;
 
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[Unit]
+Description=Enable Wake On Lan
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=basic.target
+&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
 We need to update the &lt;code&gt;[Unit]&lt;/code&gt; section by adding
 &lt;/p&gt;
 
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Requires=network.target
+After=network.target
+&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
 To let systemd know that we don't want this to run until after the network service has run. I also changed the &lt;code&gt;WantedBy&lt;/code&gt;  to &lt;code&gt;multi-user.target&lt;/code&gt;. So the updated file looks like this:
 &lt;/p&gt;
 
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[Unit]
+Description=Enable Wake On Lan
+Requires=network.target
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart = /sbin/ethtool --change enp4s0 wol g
+
+[Install]
+WantedBy=multi-user.target
+&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
 Now reload the daemon and re-enable it.
 &lt;/p&gt;
 
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo systemctl daemon-reload
+sudo systemctl enable wol.service
+&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
 To make sure I didn't introduce any errors I ran it once.
 &lt;/p&gt;
 
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo systemctl start wol
+&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
 Then I rebooted it.
 &lt;/p&gt;
 
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo reboot now
+&lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
 This time in journalctl I saw this:
 &lt;/p&gt;
 
-&lt;pre class="example" id="org35e4155"&gt;
+&lt;pre class="example" id="orgcc314ca"&gt;
 Dec 07 00:02:17 erebus systemd[1]: Finished Enable Wake On Lan.
 Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
 &lt;/pre&gt;
@@ -88,23 +96,21 @@ Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
 And running &lt;code&gt;ethtool&lt;/code&gt; showed that it was enabled.
 &lt;/p&gt;
 
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in &lt;module&gt;
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/module&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Wake-on: g
+&lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org273f61c" class="outline-2"&gt;
-&lt;h2 id="org273f61c"&gt;So, That Fixed It?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org273f61c"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7007309" class="outline-2"&gt;
+&lt;h2 id="org7007309"&gt;So, That Fixed It?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org7007309"&gt;
 &lt;p&gt;
 Well, insofar as it's working now, yes. But since I change more than one thing I don't really know exactly what did it (was it one of the three lines I changed or all of them?). Anyway, since it works I'll let it lie for now.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4687af9" class="outline-2"&gt;
-&lt;h2 id="org4687af9"&gt;Where did you find out about this?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4687af9"&gt;
+&lt;div id="outline-container-orga24893c" class="outline-2"&gt;
+&lt;h2 id="orga24893c"&gt;Where did you find out about this?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga24893c"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;The Arch wiki has a page on &lt;a href="https://wiki.archlinux.org/index.php/Wake-on-LAN"&gt;Wake-On-LAN&lt;/a&gt; that tells you many different ways to set it up – I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).&lt;/li&gt;
 &lt;/ul&gt;

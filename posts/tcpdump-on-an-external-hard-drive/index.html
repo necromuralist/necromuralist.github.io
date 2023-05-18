@@ -41,7 +41,7 @@
 <li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
 <li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
 <li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
-<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Bowling-For-Data/">Bowling For Data</a> <a class="dropdown-item" href="https://necromuralist.github.io/Anechoic-Echolalia/">Anechoic Echolalia</a> <a class="dropdown-item" href="https://necromuralist.github.io/Ape-Iron/">Ape Iron</a> <a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="https://necromuralist.github.io/student_intervention/">Student Intervention Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/boston_housing/">Boston Housing Project</a> <a class="dropdown-item" href="https://necromuralist.github.io/data_science/">Data Science With Python</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Ape-Iron/">Ape Iron</a> <a class="dropdown-item" href="https://necromuralist.github.io/Bowling-For-Data/">Bowling For Data</a> <a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
 </li>
 </ul>
 <!-- Google custom search -->
@@ -73,21 +73,21 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org9178360">
-<h2 id="org9178360">Introduction</h2>
-<div class="outline-text-2" id="text-org9178360">
+<div class="outline-2" id="outline-container-orged5149b">
+<h2 id="orged5149b">Introduction</h2>
+<div class="outline-text-2" id="text-orged5149b">
 <p>I'm using <a href="http://www.tcpdump.org/">tcpdump</a> to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org61fb8be">
-<h2 id="org61fb8be">Setting Up The Drive</h2>
-<div class="outline-text-2" id="text-org61fb8be">
+<div class="outline-2" id="outline-container-org6af3874">
+<h2 id="org6af3874">Setting Up The Drive</h2>
+<div class="outline-text-2" id="text-org6af3874">
 <p>The first thing I wanted to do was format the drive. First I needed to get the name.</p>
-<pre class="example" id="org8ee885c">
+<pre class="example" id="org8658df0">
 sudo lshw -C disk
 </pre>
 <p>Gave me this</p>
-<pre class="example" id="org3559caa">
+<pre class="example" id="org0dd8db6">
 *-disk
       description: SCSI Disk
       product: Elements 25A1
@@ -102,10 +102,10 @@ sudo lshw -C disk
       configuration: ansiversion=6 guid=7ff8067e-6905-4746-a8ec-f3a1f90f99d0 logicalsectorsize=512 sectorsize=4096
 </pre>
 <p>So it's named <code>/dev/sda</code>. Now let's see if it's mounted.</p>
-<pre class="example" id="org0f89b4d">
+<pre class="example" id="org1d1441b">
 lsblk -f
 </pre>
-<pre class="example" id="orgf897428">
+<pre class="example" id="orgf4f5c73">
 NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
 sda
 └─sda1      ntfs   Elements A4F2DF7DF2DF5262
@@ -114,16 +114,16 @@ mmcblk0
 └─mmcblk0p2 ext4   PI_ROOT  9d97a4df-a4eb-4b09-92b6-bb1ccfade0ee /
 </pre>
 <p>So you can see that there is a partition named <code>sda1</code> and it's formatted using <code>ntfs</code> and it isn't mounted. Since I'm running it with linux I'll reformant the drive using <code>ext4</code>. I'm also going to give it the label <code>westerndigital</code>.</p>
-<pre class="example" id="orgd6377cf">
+<pre class="example" id="org1572fa4">
 sudo mkfs -t ext4 -L westerndigital /dev/sda1
 </pre>
-<pre class="example" id="orgc39e331">
+<pre class="example" id="org9dde143">
 mke2fs 1.42.13 (17-May-2015)
 /dev/sda1 contains a ntfs file system labelled 'Elements'
 Proceed anyway? (y,n) y
 </pre>
 <p>Apparently Western Digital named the partition <code>Elements</code>. I entered <code>y</code> and continued.</p>
-<pre class="example" id="org84de52b">
+<pre class="example" id="orgadab557">
 Creating filesystem with 976745728 4k blocks and 244187136 inodes
 Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
 Superblock backups stored on blocks:
@@ -132,10 +132,10 @@ Superblock backups stored on blocks:
         102400000, 214990848, 512000000, 550731776, 644972544
 </pre>
 <p>So checking it again.</p>
-<pre class="example" id="org17a592b">
+<pre class="example" id="orgb506e27">
 lsblk -f
 </pre>
-<pre class="example" id="orgde9ff3c">
+<pre class="example" id="orgde7505b">
 NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
 sda
 └─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
@@ -147,22 +147,22 @@ mmcblk0
 <p>Shows that it's now <code>ext4</code> and it has the label <code>westerndigital</code>. According to <a href="https://help.ubuntu.com/community/UsingUUID">this page</a> the Hardware Abstraction Layer (HAL) will auto-mount drives that have labels, although I haven't tested this yet.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org80f4e31">
-<h2 id="org80f4e31">Mounting It</h2>
-<div class="outline-text-2" id="text-org80f4e31">
+<div class="outline-2" id="outline-container-orge65c292">
+<h2 id="orge65c292">Mounting It</h2>
+<div class="outline-text-2" id="text-orge65c292">
 <p>First make a directory for it.</p>
-<pre class="example" id="org27ca04b">
+<pre class="example" id="org48c85b9">
 sudo mkdir /media/westerndigital
 </pre>
 <p>Then mount it.</p>
-<pre class="example" id="orgbeabf75">
+<pre class="example" id="org4ff7b9f">
 sudo mount /dev/sda1 /media/westerndigital/
 </pre>
 <p>Now we can check on it.</p>
-<pre class="example" id="orgb2a4a55">
+<pre class="example" id="orgedde315">
 lsblk
 </pre>
-<pre class="example" id="org747caa6">
+<pre class="example" id="org33f8318">
 NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
 sda           8:0    0  3.7T  0 disk
 └─sda1        8:1    0  3.7T  0 part /media/westerndigital
@@ -173,33 +173,33 @@ mmcblk0     179:0    0 29.8G  0 disk
 <p>So we can see that it's mounted at <code>/media/westerndigital/</code>.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org7ff01d6">
-<h2 id="org7ff01d6">Running TCP Dump with Rotating files</h2>
-<div class="outline-text-2" id="text-org7ff01d6">
+<div class="outline-2" id="outline-container-org6ee0edf">
+<h2 id="org6ee0edf">Running TCP Dump with Rotating files</h2>
+<div class="outline-text-2" id="text-org6ee0edf">
 <p>First I needed to put the wireless interface into monitor mode.</p>
-<pre class="example" id="orgcdc58d0">
+<pre class="example" id="org3285cde">
 iwconfig wlx00c0ca967afb mode monitor
 </pre>
 <p>Then I ran tcpdump.</p>
-<pre class="example" id="org7ab55b1">
+<pre class="example" id="org73fba91">
 sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
 </pre>
 <p>Which gave me this.</p>
-<pre class="example" id="orgdae3683">
+<pre class="example" id="orgc141fa2">
 tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
 </pre>
 <p>On my desktop the solution was in the comments of this <a href="https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied">StackOverflow post</a>.</p>
-<pre class="example" id="orgbf515d4">
+<pre class="example" id="org6ef150e">
 sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
 </pre>
 <p>But on my raspberry pi this raised an error.</p>
-<pre class="example" id="org939ba40">
+<pre class="example" id="orga055d9f">
 Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
 Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
 Use --subdomainfs to override.
 </pre>
 <p>The solution was in the same post. I just made the permissions wide open.</p>
-<pre class="example" id="org0390df8">
+<pre class="example" id="orgdec3524">
 sudo chmod 777 /media/westerndigital
 </pre>
 <p>This is probably a security risk, but it works.</p>

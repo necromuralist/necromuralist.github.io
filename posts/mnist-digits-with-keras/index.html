@@ -1,264 +1,163 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
-" lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 <head>
 <meta charset="utf-8">
-<meta name="description" content="A look at using keras and tensor flow to recognize handwritten digits.">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta content="A look at using keras and tensor flow to recognize handwritten digits." name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
 <title>MNIST Digits With Keras | The Cloistered Monkey</title>
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
-<meta name="theme-color" content="#5670d4">
-<meta name="generator" content="Nikola (getnikola.com)">
-<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
-<link rel="canonical" href="https://necromuralist.github.io/posts/mnist-digits-with-keras/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
-<link rel="manifest" href="../../site.webmanifest">
-<meta name="author" content="Cloistered Monkey">
-<link rel="prev" href="../bokeh-org-mode/" title="bokeh org-mode" type="text/html">
-<link rel="next" href="../tcp-dump-notes/" title="TCP Dump Notes" type="text/html">
-<meta property="og:site_name" content="The Cloistered Monkey">
-<meta property="og:title" content="MNIST Digits With Keras">
-<meta property="og:url" content="https://necromuralist.github.io/posts/mnist-digits-with-keras/">
-<meta property="og:description" content="A look at using keras and tensor flow to recognize handwritten digits.">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2018-04-28T16:22:20-07:00">
-<meta property="article:tag" content="deep learning">
-<meta property="article:tag" content="keras">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/mnist-digits-with-keras/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<link href="../../apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+<link href="../../favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+<link href="../../favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+<link href="../../site.webmanifest" rel="manifest">
+<meta content="Cloistered Monkey" name="author">
+<link href="../bokeh-org-mode/" rel="prev" title="bokeh org-mode" type="text/html">
+<link href="../tcp-dump-notes/" rel="next" title="TCP Dump Notes" type="text/html">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="MNIST Digits With Keras" property="og:title">
+<meta content="https://necromuralist.github.io/posts/mnist-digits-with-keras/" property="og:url">
+<meta content="A look at using keras and tensor flow to recognize handwritten digits." property="og:description">
+<meta content="article" property="og:type">
+<meta content="2018-04-28T16:22:20-07:00" property="article:published_time">
+<meta content="deep learning" property="article:tag">
+<meta content="keras" property="article:tag">
 </head>
 <body>
-<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
-
-<!-- Menubar -->
-
-<nav class="navbar navbar-expand-md static-top mb-4
-navbar-light
-bg-light
-"><div class="container">
-<!-- This keeps the margins nice -->
-        <a class="navbar-brand" href="../../">
-
-            <span id="blog-title">The Cloistered Monkey</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="bs-navbar">
-            <ul class="navbar-nav mr-auto">
-<li class="nav-item">
-<a href="../../pages/" class="nav-link">Pages</a>
-                </li>
-<li class="nav-item">
-<a href="../../archive.html" class="nav-link">Archive</a>
-                </li>
-<li class="nav-item">
-<a href="../../categories/" class="nav-link">Tags</a>
-                </li>
-<li class="nav-item">
-<a href="../../rss.xml" class="nav-link">RSS feed</a>
-            </li>
-<li class="nav-item dropdown">
-<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects</a>
-            <div class="dropdown-menu">
-                    <a href="https://necromuralist.github.io/Bowling-For-Data/" class="dropdown-item">Bowling For Data</a>
-                    <a href="https://necromuralist.github.io/Anechoic-Echolalia/" class="dropdown-item">Anechoic Echolalia</a>
-                    <a href="https://necromuralist.github.io/Ape-Iron/" class="dropdown-item">Ape Iron</a>
-                    <a href="https://necromuralist.github.io/Neurotic-Networking/" class="dropdown-item">Neurotic Networking</a>
-                    <a href="https://necromuralist.github.io/student_intervention/" class="dropdown-item">Student Intervention Project</a>
-                    <a href="https://necromuralist.github.io/boston_housing/" class="dropdown-item">Boston Housing Project</a>
-                    <a href="https://necromuralist.github.io/data_science/" class="dropdown-item">Data Science With Python</a>
-                    <a href="https://necromuralist.github.io/Visions-Voices-Data/" class="dropdown-item">Visions, Voices, Data</a>
-            </div>
-
-                
-            </li>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="../../"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="../../pages/">Pages</a></li>
+<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Ape-Iron/">Ape Iron</a> <a class="dropdown-item" href="https://necromuralist.github.io/Bowling-For-Data/">Bowling For Data</a> <a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
+</li>
 </ul>
-<!-- Google custom search --><form method="get" action="https://www.google.com/search" class="navbar-form navbar-right" role="search">
-<div class="form-group">
-<input type="text" name="q" class="form-control" placeholder="Search">
-</div>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
 <!-- 
 <button type="submit" class="btn btn-primary">
-	<span class="glyphicon glyphicon-search"></span>
+        <span class="glyphicon glyphicon-search"></span>
 </button>
 -->
-<input type="hidden" name="sitesearch" value="https://necromuralist.github.io/">
-</form>
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
 <!-- End of custom search -->
-
-
-            <ul class="navbar-nav navbar-right">
-<li class="nav-item">
-    <a href="index.org" id="sourcelink" class="nav-link">Source</a>
-    </li>
-
-
-                
-            </ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
+</ul>
 </div>
-<!-- /.navbar-collapse -->
-    </div>
-<!-- /.container -->
-</nav><!-- End of Menubar --><div class="container" id="content" role="main">
-    <div class="body-content">
-        <!--Body content-->
-        
-        
-        
-<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">MNIST Digits With Keras</a></h1>
-
-        <div class="metadata">
-            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
-                    <a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a>
-            </span></p>
-            <p class="dateline">
-            <a href="." rel="bookmark">
-            <time class="published dt-published" datetime="2018-04-28T16:22:20-07:00" itemprop="datePublished" title="2018-04-28 16:22">2018-04-28 16:22</time></a>
-            </p>
-            
-        <p class="sourceline"><a href="index.org" class="sourcelink">Source</a></p>
-
-        </div>
-        
-
-    </header><div class="e-content entry-content" itemprop="articleBody text">
-    <p>
-These are the parts that will make up the model.
-</p>
-<div id="outline-container-orge63a351" class="outline-2">
-<h2 id="orge63a351">Imports</h2>
-<div class="outline-text-2" id="text-orge63a351">
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">MNIST Digits With Keras</a></h1>
+<div class="metadata">
+<p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author"><a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2018-04-28T16:22:20-07:00" itemprop="datePublished" title="2018-04-28 16:22">2018-04-28 16:22</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
 </div>
-<div id="outline-container-org8c6da20" class="outline-3">
-<h3 id="org8c6da20">The Sequential Model</h3>
-<div class="outline-text-3" id="text-org8c6da20">
-<p>
-The Keras <a href="https://keras.io/getting-started/sequential-model-guide/">Sequential Model</a> is a stack of layers that will make up the neural network.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-</module>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<p>These are the parts that will make up the model.</p>
+<div class="outline-2" id="outline-container-org7cb8c6d">
+<h2 id="org7cb8c6d">Imports</h2>
+<div class="outline-text-2" id="text-org7cb8c6d"></div>
+<div class="outline-3" id="outline-container-orgf759aa8">
+<h3 id="orgf759aa8">The Sequential Model</h3>
+<div class="outline-text-3" id="text-orgf759aa8">
+<p>The Keras <a href="https://keras.io/getting-started/sequential-model-guide/">Sequential Model</a> is a stack of layers that will make up the neural network.</p>
+<div class="highlight">
+<pre><span></span>from keras.models import Sequential
+</pre></div>
 </div>
 </div>
-
-<div id="outline-container-org901e0c3" class="outline-3">
-<h3 id="org901e0c3">The Dense Layers</h3>
-<div class="outline-text-3" id="text-org901e0c3">
-<p>
-The Keras <a href="https://keras.io/layers/core/">Dense</a> layer is a densely-connected layer within our neural network.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-</module>
+<div class="outline-3" id="outline-container-org4ebc7b5">
+<h3 id="org4ebc7b5">The Dense Layers</h3>
+<div class="outline-text-3" id="text-org4ebc7b5">
+<p>The Keras <a href="https://keras.io/layers/core/">Dense</a> layer is a densely-connected layer within our neural network.</p>
+<div class="highlight">
+<pre><span></span>from keras.layers.core import Activation
+</pre></div>
 </div>
 </div>
-
-<div id="outline-container-orgfb66f0c" class="outline-3">
-<h3 id="orgfb66f0c">Activation</h3>
-<div class="outline-text-3" id="text-orgfb66f0c">
-<p>
-The <a href="https://keras.io/layers/core/#activation">Activation</a> represents the activation function for each layer (e.g. <b>relu</b>).
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-</module>
+<div class="outline-3" id="outline-container-org1687f9d">
+<h3 id="org1687f9d">Activation</h3>
+<div class="outline-text-3" id="text-org1687f9d">
+<p>The <a href="https://keras.io/layers/core/#activation">Activation</a> represents the activation function for each layer (e.g. <b>relu</b>).</p>
+<div class="highlight">
+<pre><span></span>from keras.layers.core import Activation
+</pre></div>
 </div>
 </div>
-
-<div id="outline-container-org104f0bb" class="outline-3">
-<h3 id="org104f0bb">Adam</h3>
-<div class="outline-text-3" id="text-org104f0bb">
-<p>
-To tune the model to the data we'll use the <a href="https://keras.io/optimizers/#adam">Adam</a> optimizer
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-</module>
+<div class="outline-3" id="outline-container-org7f48233">
+<h3 id="org7f48233">Adam</h3>
+<div class="outline-text-3" id="text-org7f48233">
+<p>To tune the model to the data we'll use the <a href="https://keras.io/optimizers/#adam">Adam</a> optimizer</p>
+<div class="highlight">
+<pre><span></span>from keras.optimizers import Adam
+</pre></div>
 </div>
 </div>
-
-<div id="outline-container-org58f19ee" class="outline-3">
-<h3 id="org58f19ee">Categorical Converter</h3>
-<div class="outline-text-3" id="text-org58f19ee">
-<p>
-Finally, since our problem is a classification problem (identify which of 10 digits an image represents) I'll import the Keras <a href="https://keras.io/utils/#to_categorical"><code>to_categorical</code></a> function to enable classification of our data.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-The <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a> is made up of human-classified hand-written digits. Keras includes it as part of their installation so we can load it directly from keras.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-We're going to use numpy to reshape the data.
-</p>
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-To make our output the same every time, I'll set the random seed to April 28, 2018 as a string of digits.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-</module></module></module></module>
+<div class="outline-3" id="outline-container-org5ac335f">
+<h3 id="org5ac335f">Categorical Converter</h3>
+<div class="outline-text-3" id="text-org5ac335f">
+<p>Finally, since our problem is a classification problem (identify which of 10 digits an image represents) I'll import the Keras <a href="https://keras.io/utils/#to_categorical"><code>to_categorical</code></a> function to enable classification of our data.</p>
+<div class="highlight">
+<pre><span></span>from keras.utils import np_utils
+</pre></div>
+<p>The <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a> is made up of human-classified hand-written digits. Keras includes it as part of their installation so we can load it directly from keras.</p>
+<div class="highlight">
+<pre><span></span>from keras.datasets import mnist
+</pre></div>
+<p>We're going to use numpy to reshape the data.</p>
+<div class="highlight">
+<pre><span></span>import numpy
+</pre></div>
+<p>To make our output the same every time, I'll set the random seed to April 28, 2018 as a string of digits.</p>
+<div class="highlight">
+<pre><span></span>numpy.random.seed(4282018)
+</pre></div>
 </div>
 </div>
 </div>
-    </div>
-    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+</div>
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
 <li><a class="tag p-category" href="../../categories/deep-learning/" rel="tag">deep learning</a></li>
-            <li><a class="tag p-category" href="../../categories/keras/" rel="tag">keras</a></li>
-        </ul>
+<li><a class="tag p-category" href="../../categories/keras/" rel="tag">keras</a></li>
+</ul>
 <ul class="pager hidden-print">
-<li class="previous">
-                <a href="../bokeh-org-mode/" rel="prev" title="bokeh org-mode">Previous post</a>
-            </li>
-            <li class="next">
-                <a href="../tcp-dump-notes/" rel="next" title="TCP Dump Notes">Next post</a>
-            </li>
-        </ul></nav></aside></article><!--End of body content--><footer id="footer">
-            Contents © 2023         <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
-            
-            
-        </footer>
+<li class="previous"><a href="../bokeh-org-mode/" rel="prev" title="bokeh org-mode">Previous post</a></li>
+<li class="next"><a href="../tcp-dump-notes/" rel="next" title="TCP Dump Notes">Next post</a></li>
+</ul>
+</nav>
+</aside>
+</article>
+<!--End of body content-->
+<footer id="footer">Contents © 2023 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
+<script src="../../assets/js/all-nocdn.js"></script>
+<script>
 
-
-        <script src="../../assets/js/all-nocdn.js"></script><script>
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
-    </script>
+</script>
 </body>
 </html>

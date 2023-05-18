@@ -1,30 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about How-To)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_how-to.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Sat, 13 May 2023 18:44:07 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Mount An Encrypted Drive Using cryptsetup</title><link>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about How-To)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_how-to.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 18 May 2023 07:55:21 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Cuda, Conda, Docker...ugh</title><link>https://necromuralist.github.io/posts/cuda-conda-dockerugh/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org9d35f4c" class="outline-2"&gt;
+&lt;h2 id="org9d35f4c"&gt;The Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9d35f4c"&gt;
+&lt;p&gt;
+I haven't been doing anything with pytorch recently so I decided to restart by setting up a docker container on my machine with a beefier nvidia card than the machine I had been using. I've learned a little bit more about docker since I built my earlier container so I decided to update the image and found it both easier and harder than I remember it being. It went easier because I knew more or less what I had to do so I knew what to look up. Harder because there's some workarounds that you have to work with that weren't there before, and I decided to stick with &lt;code&gt;conda&lt;/code&gt;, which seems to add an extra layer of difficulty compared to pip and virtualenv when you use docker. But, anyway, enough with the whining, here's the stuff.
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; I'm doing this on Ubuntu 21.10.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org5e1af0a" class="outline-2"&gt;
+&lt;h2 id="org5e1af0a"&gt;Nvidia-Container-Toolkit and Ubuntu&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5e1af0a"&gt;
+&lt;p&gt;
+The first thing you should do is install the &lt;a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker"&gt;nvidia-container-toolkit&lt;/a&gt;. The instructions say to add the repository this way:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+   &amp;amp;&amp;amp; curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+   &amp;amp;&amp;amp; curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This introduces two problems for me. The first is that this assumes you use bash, but I'm using fish so the command doesn't work. This is no big deal since I just looking in the &lt;code&gt;/etc/os-release&lt;/code&gt; file to get the &lt;code&gt;ID&lt;/code&gt; and &lt;code&gt;VERSION_ID&lt;/code&gt; and wrote it out.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu21.10/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+But then this introduces the second problem - the second curl fails with the message:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Unsupported distribution!
+Check https://nvidia.github.io/nvidia-docker
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+It turns out there's an &lt;a href="https://github.com/NVIDIA/nvidia-docker/issues/1574"&gt;open bug report&lt;/a&gt; on GitHub, with a comment that only Long-Term-Support versions are supported. The commenter suggested using 18.04 for some reason, but I went with 20.04 and it seemed to work.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+sudo apt update
+sudo apt install nvidia-container-toolkit
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org6415ea6" class="outline-2"&gt;
+&lt;h2 id="org6415ea6"&gt;The Cuda Image&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6415ea6"&gt;
+&lt;p&gt;
+Now that I was setup to run the container I ran a test.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker run --rm --gpus all nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which gave me an error, something like &lt;code&gt;Error response from daemon&lt;/code&gt; (I don't remember exactly), which turns out to be the result of a pretty major flaw right now (as noted on the &lt;a href="https://github.com/NVIDIA/libnvidia-container/issues/111"&gt;github issue for it&lt;/a&gt;). One of the commenters &lt;a href="https://github.com/NVIDIA/libnvidia-container/issues/111#issuecomment-932742403"&gt;posted a work-around for it&lt;/a&gt; which seems to work.
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org4c4afbc" class="outline-3"&gt;
+&lt;h3 id="org4c4afbc"&gt;Edit /etc/nvidia-container-runtime/config.toml&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4c4afbc"&gt;
+&lt;p&gt;
+In the file there's a line:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;#no-cgroups = false
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Uncomment it and set it to true.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;no-cgroups = true
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Okay, easy-peasy. All fixed, then, right? Well, doing this fix means that you now have to pass in more flags when you run the container. First you need to check what you have.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ls /dev | grep nvidia
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then when you run the container you need to pass in most of those things as &lt;code&gt;--device&lt;/code&gt; arguments.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker run --rm --gpus all --device /dev/nvidia0 --device /dev/nvidiactl --device /dev/nvidia-modeset --device /dev/nvidia-uvm nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+You might not need to actually look in &lt;code&gt;/dev&lt;/code&gt; first. I had to because the post on github was referring to a &lt;code&gt;/dev/nvidia1&lt;/code&gt; device, but I don't have one. This appears to work, although it's a bit unwieldy.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org4ce0c40" class="outline-2"&gt;
+&lt;h2 id="org4ce0c40"&gt;Now for Conda&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4ce0c40"&gt;
+&lt;p&gt;
+This next bit probably shouldn't be registered as a problem, but the last time I tried to run pytorch in docker there was some kind of bug when I installed it with &lt;code&gt;pip&lt;/code&gt; that went away when I installed it with &lt;code&gt;conda&lt;/code&gt; so I decided to stick with cuda, but I also wanted to try and set it up the way I do with virtualenv - cached by docker and run non-root. This turns out to be much harder to do than with virtualenv for some reason. I looked through some posts on StackOverflow and elsewhere and didn't really see any good solutions, but &lt;a href="https://towardsdatascience.com/conda-pip-and-docker-ftw-d64fe638dc45"&gt;this one on Toward Data Science&lt;/a&gt; got close enough.
+The way that post suggests is to change the shell that docker uses to &lt;code&gt;bash&lt;/code&gt; and moving the &lt;code&gt;miniconda&lt;/code&gt; install path into the home directory of the user that you want to run it.
+&lt;/p&gt;
+
+&lt;p&gt;
+I won't bother with all of the &lt;code&gt;Dockerfile&lt;/code&gt;, but the basic changes are:
+&lt;/p&gt;
+
+&lt;p&gt;
+Change the shell.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SHELL [ "/bin/bash", "--login", "-c" ]
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Switch to the user (assuming you added the user and home directory earlier in the docker file) and add an environment file to store the directory in (I don't think you need to use &lt;code&gt;ENV&lt;/code&gt; but the post used it. I'll try &lt;code&gt;ARG&lt;/code&gt; later).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;USER ${USER_NAME}
+WORKDIR ${USER_HOME}
+
+ENV CONDA_DIR=${USER_HOME}/miniconda3
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then install miniconda.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ARG MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+ARG SHA256SUM="1ea2f885b4dbc3098662845560bc64271eb17085387a70c2ba3f29fff6f8d52f"
+ARG CONDA_VERSION=py39_4.10.3
+RUN --mount=type=cache,target=/root/.cache \
+    wget "${MINICONDA_URL}" --output-document miniconda.sh --quiet --force-directories --directory-prefix ${CONDA_DIR} &amp;amp;&amp;amp; \
+    echo "${SHA256SUM} miniconda.sh" &amp;gt; shasum &amp;amp;&amp;amp; \
+    sha256sum --check --status shasum &amp;amp;&amp;amp; \
+    /bin/bash miniconda.sh -b -p ${CONDA_DIR} &amp;amp;&amp;amp; \
+    rm miniconda.sh shasum
+
+ENV PATH=$CONDA_DIR/bin:$PATH
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Update conda.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" &amp;gt;&amp;gt; ~/.profile &amp;amp;&amp;amp; \
+    conda init bash &amp;amp;&amp;amp; \
+    conda update -n base -c defaults conda
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Install the packages. This is where I added the caching to try and reduce the re-downloading of files. I don't really know if this helps a lot, to be truthful, but it's nice to have new things.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;RUN --mount=type=cache,target=/root/.cache \
+    conda install pytorch torchvision torchaudio cudatoolkit --channel pytorch --yes
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>conda</category><category>cuda</category><category>docker</category><category>howto</category><guid>https://necromuralist.github.io/posts/cuda-conda-dockerugh/</guid><pubDate>Tue, 07 Dec 2021 02:04:16 GMT</pubDate></item><item><title>Mount An Encrypted Drive Using cryptsetup</title><link>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org86bd92f"&gt;What Is This About?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#orgb39e3cb"&gt;So, How Do You Do It?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org1fc63a5"&gt;Source&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org8dd56f5"&gt;What Is This About?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#orga9934ce"&gt;So, How Do You Do It?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org0c7a23b"&gt;Source&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org86bd92f" class="outline-2"&gt;
-&lt;h2 id="org86bd92f"&gt;What Is This About?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org86bd92f"&gt;
+&lt;div id="outline-container-org8dd56f5" class="outline-2"&gt;
+&lt;h2 id="org8dd56f5"&gt;What Is This About?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org8dd56f5"&gt;
 &lt;p&gt;
 This is how to mount a LUKS encrypted drive with &lt;a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html"&gt;cryptsetup&lt;/a&gt; in Ubuntu 20.10 (Groovy Gorilla). My use-case is I have a headless server that has an external USB drive that's encrypted with &lt;a href="https://en.wikipedia.org/wiki/Linux_Unified_Key_Setup"&gt;LUKS&lt;/a&gt; that I need to mount from the command line. I like the flexibility it gives a little more than the what the Gnome GUI does so I'll probably use it on my desktop as well. I previously documented how to do it with &lt;a href="http://storaged.org/doc/udisks2-api/latest/udisksctl.1.html"&gt;udiskctl&lt;/a&gt; in &lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/"&gt;this post&lt;/a&gt; but I like &lt;code&gt;cryptsetup&lt;/code&gt; a little better. This assumes that you know the partition/device (in my case it's &lt;code&gt;/dev/sdb1&lt;/code&gt;). That previous post shows how I found it so I'll just do the decrypting and mounting here.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb39e3cb" class="outline-2"&gt;
-&lt;h2 id="orgb39e3cb"&gt;So, How Do You Do It?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb39e3cb"&gt;
+&lt;div id="outline-container-orga9934ce" class="outline-2"&gt;
+&lt;h2 id="orga9934ce"&gt;So, How Do You Do It?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga9934ce"&gt;
 &lt;p&gt;
 The syntax to decrypt the device is:
 &lt;/p&gt;
 
-&lt;pre class="example" id="orge9aad52"&gt;
+&lt;pre class="example" id="org0bdc7d0"&gt;
 sudo cryptsetup open &amp;lt;device&amp;gt; &amp;lt;name&amp;gt;
 &lt;/pre&gt;
 
@@ -32,7 +201,7 @@ sudo cryptsetup open &amp;lt;device&amp;gt; &amp;lt;name&amp;gt;
 As I mentioned above, in this case my &lt;code&gt;device&lt;/code&gt; is &lt;code&gt;/dev/sdb1&lt;/code&gt;. The name can be an arbitrary one (although there are limitiations on special characters so let's say it can be any alpha-numeric name) and I'll use &lt;code&gt;wddata&lt;/code&gt; as the name. Then my command to decrypt the drive is:
 &lt;/p&gt;
 
-&lt;pre class="example" id="orgaef676a"&gt;
+&lt;pre class="example" id="org21a495a"&gt;
 sudo cryptsetup open /dev/sdb1 wddata
 &lt;/pre&gt;
 
@@ -40,7 +209,7 @@ sudo cryptsetup open /dev/sdb1 wddata
 This will prompt you for your password and then the encryption passphrase. Once the command succeeds, it adds a link in &lt;code&gt;/dev/mapper&lt;/code&gt; using the name you passed in so you can mount the device (assuming the directory you want to mount it in exists) like this:
 &lt;/p&gt;
 
-&lt;pre class="example" id="org135145d"&gt;
+&lt;pre class="example" id="org2f27dea"&gt;
 sudo mount /dev/mapper/wddata /media/data
 &lt;/pre&gt;
 
@@ -50,9 +219,9 @@ Where &lt;code&gt;wddata&lt;/code&gt; is the name I told &lt;code&gt;cryptsetup&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org1fc63a5" class="outline-2"&gt;
-&lt;h2 id="org1fc63a5"&gt;Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1fc63a5"&gt;
+&lt;div id="outline-container-org0c7a23b" class="outline-2"&gt;
+&lt;h2 id="org0c7a23b"&gt;Source&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0c7a23b"&gt;
 &lt;p&gt;
 Besides the man-page for &lt;code&gt;cryptsetup&lt;/code&gt; on my server, I was pointed to use &lt;code&gt;cryptsetup&lt;/code&gt; from this StackOverflow post:
 &lt;/p&gt;
@@ -68,25 +237,25 @@ The accepted answer uses &lt;code&gt;udiskctl&lt;/code&gt; but further down is a
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org25195b1"&gt;Some Background&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org8696469"&gt;Middle&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org950b320"&gt;Some Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orgcc2db9a"&gt;Middle&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org6bd6b67"&gt;Find the USB Device Name&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org58e0c7a"&gt;Unlock the Drive&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org651322c"&gt;Mount the Drive&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org78b184f"&gt;Find the USB Device Name&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org2989bf9"&gt;Unlock the Drive&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org9fce70c"&gt;Mount the Drive&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orgd0593ea"&gt;End&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#orgc7192bf"&gt;End&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org657a10c"&gt;Sources&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/#org238e4c2"&gt;Sources&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org25195b1" class="outline-2"&gt;
-&lt;h2 id="org25195b1"&gt;Some Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org25195b1"&gt;
+&lt;div id="outline-container-org950b320" class="outline-2"&gt;
+&lt;h2 id="org950b320"&gt;Some Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org950b320"&gt;
 &lt;p&gt;
 I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:
 &lt;/p&gt;
@@ -103,13 +272,13 @@ So, here's the subset of steps that I did to mount the drive.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8696469" class="outline-2"&gt;
-&lt;h2 id="org8696469"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8696469"&gt;
+&lt;div id="outline-container-orgcc2db9a" class="outline-2"&gt;
+&lt;h2 id="orgcc2db9a"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgcc2db9a"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6bd6b67" class="outline-3"&gt;
-&lt;h3 id="org6bd6b67"&gt;Find the USB Device Name&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6bd6b67"&gt;
+&lt;div id="outline-container-org78b184f" class="outline-3"&gt;
+&lt;h3 id="org78b184f"&gt;Find the USB Device Name&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org78b184f"&gt;
 &lt;p&gt;
 The first think to do is to make sure that the USB device is recognized by the operating system.
 &lt;/p&gt;
@@ -172,9 +341,9 @@ Now you can see that the partion for our disk is &lt;code&gt;sdb1&lt;/code&gt; (
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org58e0c7a" class="outline-3"&gt;
-&lt;h3 id="org58e0c7a"&gt;Unlock the Drive&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org58e0c7a"&gt;
+&lt;div id="outline-container-org2989bf9" class="outline-3"&gt;
+&lt;h3 id="org2989bf9"&gt;Unlock the Drive&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org2989bf9"&gt;
 &lt;p&gt;
 &lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; This works, but there's an alternative way to do it with &lt;a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html"&gt;cryptsetup&lt;/a&gt; that I find a little easier (but not much). I documented that command as if it continued from this point in &lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/"&gt;this post&lt;/a&gt;.
 &lt;/p&gt;
@@ -200,9 +369,9 @@ This will bring up two prompts for you to fill out which are (confusingly) "Pass
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org651322c" class="outline-3"&gt;
-&lt;h3 id="org651322c"&gt;Mount the Drive&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org651322c"&gt;
+&lt;div id="outline-container-org9fce70c" class="outline-3"&gt;
+&lt;h3 id="org9fce70c"&gt;Mount the Drive&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9fce70c"&gt;
 &lt;p&gt;
 If the last command went okay you now need to mount it. There's going to be a file in &lt;code&gt;/dev/mapper&lt;/code&gt; that you need to know. When I did it there was only one new file (&lt;code&gt;luks-3eea956c-e684-4bcb-a640-97d0c8c5a700&lt;/code&gt;) so I didn't have to do anything special to get it.
 &lt;/p&gt;
@@ -225,9 +394,9 @@ So in this case the drive is accessible at &lt;code&gt;/media/hades/WDData&lt;/c
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd0593ea" class="outline-2"&gt;
-&lt;h2 id="orgd0593ea"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd0593ea"&gt;
+&lt;div id="outline-container-orgc7192bf" class="outline-2"&gt;
+&lt;h2 id="orgc7192bf"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc7192bf"&gt;
 &lt;p&gt;
 So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udisksctl.
 &lt;/p&gt;
@@ -237,9 +406,9 @@ udisksctl unlock -b /dev/sdb1
 udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org657a10c" class="outline-3"&gt;
-&lt;h3 id="org657a10c"&gt;Sources&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org657a10c"&gt;
+&lt;div id="outline-container-org238e4c2" class="outline-3"&gt;
+&lt;h3 id="org238e4c2"&gt;Sources&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org238e4c2"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/"&gt;sourcedigit.com&lt;/a&gt; - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line"&gt;Stack Overflow&lt;/a&gt; - "Mount encrypted volumes from command line?"&lt;/li&gt;

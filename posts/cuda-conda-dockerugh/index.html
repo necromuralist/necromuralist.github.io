@@ -1,330 +1,215 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#
-" lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article#">
 <head>
 <meta charset="utf-8">
-<meta name="description" content="Notes on getting pytorch, cuda, and conda working in docker">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta content="Notes on getting pytorch, cuda, and conda working in docker" name="description">
+<meta content="width=device-width, initial-scale=1" name="viewport">
 <title>Cuda, Conda, Docker...ugh | The Cloistered Monkey</title>
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
 <link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
-<meta name="theme-color" content="#5670d4">
-<meta name="generator" content="Nikola (getnikola.com)">
-<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
-<link rel="canonical" href="https://necromuralist.github.io/posts/cuda-conda-dockerugh/">
-<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
-<link rel="manifest" href="../../site.webmanifest">
-<meta name="author" content="Cloistered Monkey">
-<meta name="robots" content="noindex">
-<meta property="og:site_name" content="The Cloistered Monkey">
-<meta property="og:title" content="Cuda, Conda, Docker...ugh">
-<meta property="og:url" content="https://necromuralist.github.io/posts/cuda-conda-dockerugh/">
-<meta property="og:description" content="Notes on getting pytorch, cuda, and conda working in docker">
-<meta property="og:type" content="article">
-<meta property="article:published_time" content="2021-12-06T18:04:16-08:00">
-<meta property="article:tag" content="conda">
-<meta property="article:tag" content="cuda">
-<meta property="article:tag" content="docker">
-<meta property="article:tag" content="howto">
+<meta content="#5670d4" name="theme-color">
+<meta content="Nikola (getnikola.com)" name="generator">
+<link href="../../rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
+<link href="https://necromuralist.github.io/posts/cuda-conda-dockerugh/" rel="canonical"><!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]-->
+<link href="../../apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
+<link href="../../favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+<link href="../../favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+<link href="../../site.webmanifest" rel="manifest">
+<meta content="Cloistered Monkey" name="author">
+<link href="../pudb-remote/" rel="prev" title="PuDB Remote" type="text/html">
+<link href="../mozilla-madness-resist-fingerprinting/" rel="next" title="Mozilla Madness: Resist Fingerprinting!" type="text/html">
+<meta content="The Cloistered Monkey" property="og:site_name">
+<meta content="Cuda, Conda, Docker...ugh" property="og:title">
+<meta content="https://necromuralist.github.io/posts/cuda-conda-dockerugh/" property="og:url">
+<meta content="Notes on getting pytorch, cuda, and conda working in docker" property="og:description">
+<meta content="article" property="og:type">
+<meta content="2021-12-06T18:04:16-08:00" property="article:published_time">
+<meta content="conda" property="article:tag">
+<meta content="cuda" property="article:tag">
+<meta content="docker" property="article:tag">
+<meta content="howto" property="article:tag">
 </head>
 <body>
-<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
-
-<!-- Menubar -->
-
-<nav class="navbar navbar-expand-md static-top mb-4
-navbar-light
-bg-light
-"><div class="container">
-<!-- This keeps the margins nice -->
-        <a class="navbar-brand" href="../../">
-
-            <span id="blog-title">The Cloistered Monkey</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="bs-navbar">
-            <ul class="navbar-nav mr-auto">
-<li class="nav-item">
-<a href="../../pages/" class="nav-link">Pages</a>
-                </li>
-<li class="nav-item">
-<a href="../../archive.html" class="nav-link">Archive</a>
-                </li>
-<li class="nav-item">
-<a href="../../categories/" class="nav-link">Tags</a>
-                </li>
-<li class="nav-item">
-<a href="../../rss.xml" class="nav-link">RSS feed</a>
-            </li>
-<li class="nav-item dropdown">
-<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Projects</a>
-            <div class="dropdown-menu">
-                    <a href="https://necromuralist.github.io/Bowling-For-Data/" class="dropdown-item">Bowling For Data</a>
-                    <a href="https://necromuralist.github.io/Anechoic-Echolalia/" class="dropdown-item">Anechoic Echolalia</a>
-                    <a href="https://necromuralist.github.io/Ape-Iron/" class="dropdown-item">Ape Iron</a>
-                    <a href="https://necromuralist.github.io/Neurotic-Networking/" class="dropdown-item">Neurotic Networking</a>
-                    <a href="https://necromuralist.github.io/student_intervention/" class="dropdown-item">Student Intervention Project</a>
-                    <a href="https://necromuralist.github.io/boston_housing/" class="dropdown-item">Boston Housing Project</a>
-                    <a href="https://necromuralist.github.io/data_science/" class="dropdown-item">Data Science With Python</a>
-                    <a href="https://necromuralist.github.io/Visions-Voices-Data/" class="dropdown-item">Visions, Voices, Data</a>
-            </div>
-
-                
-            </li>
+<a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
+<nav class="navbar navbar-expand-md static-top mb-4 navbar-light bg-light">
+<div class="container"><!-- This keeps the margins nice -->
+ <a class="navbar-brand" href="../../"><span id="blog-title">The Cloistered Monkey</span></a> <button aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#bs-navbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="bs-navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="../../pages/">Pages</a></li>
+<li class="nav-item"><a class="nav-link" href="../../archive.html">Archive</a></li>
+<li class="nav-item"><a class="nav-link" href="../../categories/">Tags</a></li>
+<li class="nav-item"><a class="nav-link" href="../../rss.xml">RSS feed</a></li>
+<li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Ape-Iron/">Ape Iron</a> <a class="dropdown-item" href="https://necromuralist.github.io/Bowling-For-Data/">Bowling For Data</a> <a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
+</li>
 </ul>
-<!-- Google custom search --><form method="get" action="https://www.google.com/search" class="navbar-form navbar-right" role="search">
-<div class="form-group">
-<input type="text" name="q" class="form-control" placeholder="Search">
-</div>
+<!-- Google custom search -->
+<form action="https://www.google.com/search" class="navbar-form navbar-right" method="get" role="search">
+<div class="form-group"><input class="form-control" name="q" placeholder="Search" type="text"></div>
 <!-- 
 <button type="submit" class="btn btn-primary">
-	<span class="glyphicon glyphicon-search"></span>
+        <span class="glyphicon glyphicon-search"></span>
 </button>
 -->
-<input type="hidden" name="sitesearch" value="https://necromuralist.github.io/">
-</form>
+<input name="sitesearch" type="hidden" value="https://necromuralist.github.io/"></form>
 <!-- End of custom search -->
-
-
-            <ul class="navbar-nav navbar-right">
-<li class="nav-item">
-    <a href="index.org" id="sourcelink" class="nav-link">Source</a>
-    </li>
-
-
-                
-            </ul>
+<ul class="navbar-nav navbar-right">
+<li class="nav-item"><a class="nav-link" href="index.org" id="sourcelink">Source</a></li>
+</ul>
 </div>
-<!-- /.navbar-collapse -->
-    </div>
-<!-- /.container -->
-</nav><!-- End of Menubar --><div class="container" id="content" role="main">
-    <div class="body-content">
-        <!--Body content-->
-        
-        
-        
-<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Cuda, Conda, Docker...ugh</a></h1>
-
-        <div class="metadata">
-            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
-                    <a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a>
-            </span></p>
-            <p class="dateline">
-            <a href="." rel="bookmark">
-            <time class="published dt-published" datetime="2021-12-06T18:04:16-08:00" itemprop="datePublished" title="2021-12-06 18:04">2021-12-06 18:04</time></a>
-            </p>
-            
-        <p class="sourceline"><a href="index.org" class="sourcelink">Source</a></p>
-
-        </div>
-        
-
-    </header><div class="e-content entry-content" itemprop="articleBody text">
-    <div id="outline-container-org989eea0" class="outline-2">
-<h2 id="org989eea0">The Beginning</h2>
-<div class="outline-text-2" id="text-org989eea0">
-<p>
-I haven't been doing anything with pytorch recently so I decided to restart by setting up a docker container on my machine with a beefier nvidia card than the machine I had been using. I've learned a little bit more about docker since I built my earlier container so I decided to update the image and found it both easier and harder than I remember it being. It went easier because I knew more or less what I had to do so I knew what to look up. Harder because there's some workarounds that you have to work with that weren't there before, and I decided to stick with <code>conda</code>, which seems to add an extra layer of difficulty compared to pip and virtualenv when you use docker. But, anyway, enough with the whining, here's the stuff.
-</p>
-
-<p>
-<b><b>Note:</b></b> I'm doing this on Ubuntu 21.10.
-</p>
+<!-- /.navbar-collapse --></div>
+<!-- /.container --></nav>
+<!-- End of Menubar -->
+<div class="container" id="content" role="main">
+<div class="body-content"><!--Body content-->
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title" itemprop="headline name"><a class="u-url" href=".">Cuda, Conda, Docker...ugh</a></h1>
+<div class="metadata">
+<p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author"><a class="u-url" href="../../authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="." rel="bookmark"><time class="published dt-published" datetime="2021-12-06T18:04:16-08:00" itemprop="datePublished" title="2021-12-06 18:04">2021-12-06 18:04</time></a></p>
+<p class="sourceline"><a class="sourcelink" href="index.org">Source</a></p>
+</div>
+</header>
+<div class="e-content entry-content" itemprop="articleBody text">
+<div class="outline-2" id="outline-container-org9d35f4c">
+<h2 id="org9d35f4c">The Beginning</h2>
+<div class="outline-text-2" id="text-org9d35f4c">
+<p>I haven't been doing anything with pytorch recently so I decided to restart by setting up a docker container on my machine with a beefier nvidia card than the machine I had been using. I've learned a little bit more about docker since I built my earlier container so I decided to update the image and found it both easier and harder than I remember it being. It went easier because I knew more or less what I had to do so I knew what to look up. Harder because there's some workarounds that you have to work with that weren't there before, and I decided to stick with <code>conda</code>, which seems to add an extra layer of difficulty compared to pip and virtualenv when you use docker. But, anyway, enough with the whining, here's the stuff.</p>
+<p><b>Note:</b> I'm doing this on Ubuntu 21.10.</p>
 </div>
 </div>
+<div class="outline-2" id="outline-container-org5e1af0a">
+<h2 id="org5e1af0a">Nvidia-Container-Toolkit and Ubuntu</h2>
+<div class="outline-text-2" id="text-org5e1af0a">
+<p>The first thing you should do is install the <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker">nvidia-container-toolkit</a>. The instructions say to add the repository this way:</p>
+<div class="highlight">
+<pre><span></span>distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+   &amp;& curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+   &amp;& curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+</pre></div>
+<p>This introduces two problems for me. The first is that this assumes you use bash, but I'm using fish so the command doesn't work. This is no big deal since I just looking in the <code>/etc/os-release</code> file to get the <code>ID</code> and <code>VERSION_ID</code> and wrote it out.</p>
+<div class="highlight">
+<pre><span></span>curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu21.10/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+</pre></div>
+<p>But then this introduces the second problem - the second curl fails with the message:</p>
+<div class="highlight">
+<pre><span></span>Unsupported distribution!
+Check https://nvidia.github.io/nvidia-docker
+</pre></div>
+<p>It turns out there's an <a href="https://github.com/NVIDIA/nvidia-docker/issues/1574">open bug report</a> on GitHub, with a comment that only Long-Term-Support versions are supported. The commenter suggested using 18.04 for some reason, but I went with 20.04 and it seemed to work.</p>
+<div class="highlight">
+<pre><span></span>curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
 
-<div id="outline-container-org29e865e" class="outline-2">
-<h2 id="org29e865e">Nvidia-Container-Toolkit and Ubuntu</h2>
-<div class="outline-text-2" id="text-org29e865e">
-<p>
-The first thing you should do is install the <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker">nvidia-container-toolkit</a>. The instructions say to add the repository this way:
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-This introduces two problems for me. The first is that this assumes you use bash, but I'm using fish so the command doesn't work. This is no big deal since I just looking in the <code>/etc/os-release</code> file to get the <code>ID</code> and <code>VERSION_ID</code> and wrote it out.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-But then this introduces the second problem - the second curl fails with the message:
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-It turns out there's an <a href="https://github.com/NVIDIA/nvidia-docker/issues/1574">open bug report</a> on GitHub, with a comment that only Long-Term-Support versions are supported. The commenter suggested using 18.04 for some reason, but I went with 20.04 and it seemed to work.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-</module></module></module></module>
+sudo apt update
+sudo apt install nvidia-container-toolkit
+</pre></div>
 </div>
 </div>
-
-<div id="outline-container-orgb2416f8" class="outline-2">
-<h2 id="orgb2416f8">The Cuda Image</h2>
-<div class="outline-text-2" id="text-orgb2416f8">
-<p>
-Now that I was setup to run the container I ran a test.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-Which gave me an error, something like <code>Error response from daemon</code> (I don't remember exactly), which turns out to be the result of a pretty major flaw right now (as noted on the <a href="https://github.com/NVIDIA/libnvidia-container/issues/111">github issue for it</a>). One of the commenters <a href="https://github.com/NVIDIA/libnvidia-container/issues/111#issuecomment-932742403">posted a work-around for it</a> which seems to work.
-</p>
-</module>
+<div class="outline-2" id="outline-container-org6415ea6">
+<h2 id="org6415ea6">The Cuda Image</h2>
+<div class="outline-text-2" id="text-org6415ea6">
+<p>Now that I was setup to run the container I ran a test.</p>
+<div class="highlight">
+<pre><span></span>docker run --rm --gpus all nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
+</pre></div>
+<p>Which gave me an error, something like <code>Error response from daemon</code> (I don't remember exactly), which turns out to be the result of a pretty major flaw right now (as noted on the <a href="https://github.com/NVIDIA/libnvidia-container/issues/111">github issue for it</a>). One of the commenters <a href="https://github.com/NVIDIA/libnvidia-container/issues/111#issuecomment-932742403">posted a work-around for it</a> which seems to work.</p>
 </div>
-
-<div id="outline-container-orgdd2f0c7" class="outline-3">
-<h3 id="orgdd2f0c7">Edit /etc/nvidia-container-runtime/config.toml</h3>
-<div class="outline-text-3" id="text-orgdd2f0c7">
-<p>
-In the file there's a line:
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-Uncomment it and set it to true.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-Okay, easy-peasy. All fixed, then, right? Well, doing this fix means that you now have to pass in more flags when you run the container. First you need to check what you have.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-Then when you run the container you need to pass in most of those things as <code>--device</code> arguments.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-You might not need to actually look in <code>/dev</code> first. I had to because the post on github was referring to a <code>/dev/nvidia1</code> device, but I don't have one. This appears to work, although it's a bit unwieldy.
-</p>
-</module></module></module></module>
+<div class="outline-3" id="outline-container-org4c4afbc">
+<h3 id="org4c4afbc">Edit /etc/nvidia-container-runtime/config.toml</h3>
+<div class="outline-text-3" id="text-org4c4afbc">
+<p>In the file there's a line:</p>
+<div class="highlight">
+<pre><span></span>#no-cgroups = false
+</pre></div>
+<p>Uncomment it and set it to true.</p>
+<div class="highlight">
+<pre><span></span>no-cgroups = true
+</pre></div>
+<p>Okay, easy-peasy. All fixed, then, right? Well, doing this fix means that you now have to pass in more flags when you run the container. First you need to check what you have.</p>
+<div class="highlight">
+<pre><span></span>ls /dev | grep nvidia
+</pre></div>
+<p>Then when you run the container you need to pass in most of those things as <code>--device</code> arguments.</p>
+<div class="highlight">
+<pre><span></span>docker run --rm --gpus all --device /dev/nvidia0 --device /dev/nvidiactl --device /dev/nvidia-modeset --device /dev/nvidia-uvm nvidia/cuda:11.4.2-cudnn8-devel nvidia-smi
+</pre></div>
+<p>You might not need to actually look in <code>/dev</code> first. I had to because the post on github was referring to a <code>/dev/nvidia1</code> device, but I don't have one. This appears to work, although it's a bit unwieldy.</p>
 </div>
 </div>
 </div>
+<div class="outline-2" id="outline-container-org4ce0c40">
+<h2 id="org4ce0c40">Now for Conda</h2>
+<div class="outline-text-2" id="text-org4ce0c40">
+<p>This next bit probably shouldn't be registered as a problem, but the last time I tried to run pytorch in docker there was some kind of bug when I installed it with <code>pip</code> that went away when I installed it with <code>conda</code> so I decided to stick with cuda, but I also wanted to try and set it up the way I do with virtualenv - cached by docker and run non-root. This turns out to be much harder to do than with virtualenv for some reason. I looked through some posts on StackOverflow and elsewhere and didn't really see any good solutions, but <a href="https://towardsdatascience.com/conda-pip-and-docker-ftw-d64fe638dc45">this one on Toward Data Science</a> got close enough. The way that post suggests is to change the shell that docker uses to <code>bash</code> and moving the <code>miniconda</code> install path into the home directory of the user that you want to run it.</p>
+<p>I won't bother with all of the <code>Dockerfile</code>, but the basic changes are:</p>
+<p>Change the shell.</p>
+<div class="highlight">
+<pre><span></span>SHELL [ "/bin/bash", "--login", "-c" ]
+</pre></div>
+<p>Switch to the user (assuming you added the user and home directory earlier in the docker file) and add an environment file to store the directory in (I don't think you need to use <code>ENV</code> but the post used it. I'll try <code>ARG</code> later).</p>
+<div class="highlight">
+<pre><span></span>USER ${USER_NAME}
+WORKDIR ${USER_HOME}
 
-<div id="outline-container-org1cf19ce" class="outline-2">
-<h2 id="org1cf19ce">Now for Conda</h2>
-<div class="outline-text-2" id="text-org1cf19ce">
-<p>
-This next bit probably shouldn't be registered as a problem, but the last time I tried to run pytorch in docker there was some kind of bug when I installed it with <code>pip</code> that went away when I installed it with <code>conda</code> so I decided to stick with cuda, but I also wanted to try and set it up the way I do with virtualenv - cached by docker and run non-root. This turns out to be much harder to do than with virtualenv for some reason. I looked through some posts on StackOverflow and elsewhere and didn't really see any good solutions, but <a href="https://towardsdatascience.com/conda-pip-and-docker-ftw-d64fe638dc45">this one on Toward Data Science</a> got close enough.
-The way that post suggests is to change the shell that docker uses to <code>bash</code> and moving the <code>miniconda</code> install path into the home directory of the user that you want to run it.
-</p>
+ENV CONDA_DIR=${USER_HOME}/miniconda3
+</pre></div>
+<p>Then install miniconda.</p>
+<div class="highlight">
+<pre><span></span>ARG MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+ARG SHA256SUM="1ea2f885b4dbc3098662845560bc64271eb17085387a70c2ba3f29fff6f8d52f"
+ARG CONDA_VERSION=py39_4.10.3
+RUN --mount=type=cache,target=/root/.cache \
+    wget "${MINICONDA_URL}" --output-document miniconda.sh --quiet --force-directories --directory-prefix ${CONDA_DIR} &amp;& \
+    echo "${SHA256SUM} miniconda.sh" &gt; shasum &amp;& \
+    sha256sum --check --status shasum &amp;& \
+    /bin/bash miniconda.sh -b -p ${CONDA_DIR} &amp;& \
+    rm miniconda.sh shasum
 
-<p>
-I won't bother with all of the <code>Dockerfile</code>, but the basic changes are:
-</p>
-
-<p>
-Change the shell.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-Switch to the user (assuming you added the user and home directory earlier in the docker file) and add an environment file to store the directory in (I don't think you need to use <code>ENV</code> but the post used it. I'll try <code>ARG</code> later).
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-Then install miniconda.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-Update conda.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-
-<p>
-Install the packages. This is where I added the caching to try and reduce the re-downloading of files. I don't really know if this helps a lot, to be truthful, but it's nice to have new things.
-</p>
-
-Traceback (most recent call last):
-  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
-    from pygments.cmdline import main
-ModuleNotFoundError: No module named 'pygments'
-</module></module></module></module></module>
+ENV PATH=$CONDA_DIR/bin:$PATH
+</pre></div>
+<p>Update conda.</p>
+<div class="highlight">
+<pre><span></span>RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" &gt;&gt; ~/.profile &amp;& \
+    conda init bash &amp;& \
+    conda update -n base -c defaults conda
+</pre></div>
+<p>Install the packages. This is where I added the caching to try and reduce the re-downloading of files. I don't really know if this helps a lot, to be truthful, but it's nice to have new things.</p>
+<div class="highlight">
+<pre><span></span>RUN --mount=type=cache,target=/root/.cache \
+    conda install pytorch torchvision torchaudio cudatoolkit --channel pytorch --yes
+</pre></div>
 </div>
 </div>
-    </div>
-    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+</div>
+<aside class="postpromonav">
+<nav>
+<ul class="tags" itemprop="keywords">
 <li><a class="tag p-category" href="../../categories/conda/" rel="tag">conda</a></li>
-            <li><a class="tag p-category" href="../../categories/cuda/" rel="tag">cuda</a></li>
-            <li><a class="tag p-category" href="../../categories/docker/" rel="tag">docker</a></li>
-            <li><a class="tag p-category" href="../../categories/howto/" rel="tag">howto</a></li>
-        </ul></nav></aside></article><!--End of body content--><footer id="footer">
-            Contents © 2023         <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
-            
-            
-        </footer>
+<li><a class="tag p-category" href="../../categories/cuda/" rel="tag">cuda</a></li>
+<li><a class="tag p-category" href="../../categories/docker/" rel="tag">docker</a></li>
+<li><a class="tag p-category" href="../../categories/howto/" rel="tag">howto</a></li>
+</ul>
+<ul class="pager hidden-print">
+<li class="previous"><a href="../pudb-remote/" rel="prev" title="PuDB Remote">Previous post</a></li>
+<li class="next"><a href="../mozilla-madness-resist-fingerprinting/" rel="next" title="Mozilla Madness: Resist Fingerprinting!">Next post</a></li>
+</ul>
+</nav>
+</aside>
+</article>
+<!--End of body content-->
+<footer id="footer">Contents © 2023 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>
 </div>
 </div>
+<script src="../../assets/js/all-nocdn.js"></script>
+<script>
 
-
-        <script src="../../assets/js/all-nocdn.js"></script><script>
     baguetteBox.run('div#content', {
         ignoreClass: 'islink',
         captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
-    </script>
+</script>
 </body>
 </html>
