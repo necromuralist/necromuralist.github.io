@@ -142,16 +142,16 @@ NAVIGATION_LINKS = {
         ("/rss.xml", "RSS feed"),
         (
             (
+                ("https://necromuralist.github.io/Ape-Iron/", "Ape Iron"),
                 ("https://necromuralist.github.io/Bowling-For-Data/", "Bowling For Data"),
-                ("https://necromuralist.github.io/Anechoic-Echolalia/", "Anechoic Echolalia"),
-                ("https://necromuralist.github.io/Ape-Iron/", "Ape Iron"),                
+                #("https://necromuralist.github.io/Anechoic-Echolalia/", "Anechoic Echolalia"),
                 ("https://necromuralist.github.io/Neurotic-Networking/", "Neurotic Networking"),
-                ("https://necromuralist.github.io/student_intervention/",
-                 "Student Intervention Project"),
-                ("https://necromuralist.github.io/boston_housing/",
-                 "Boston Housing Project"),
-                ("https://necromuralist.github.io/data_science/",
-                 "Data Science With Python"),
+                #("https://necromuralist.github.io/student_intervention/",
+                # "Student Intervention Project"),
+                #("https://necromuralist.github.io/boston_housing/",
+                # "Boston Housing Project"),
+                #("https://necromuralist.github.io/data_science/",
+                # "Data Science With Python"),
                 ("https://necromuralist.github.io/Visions-Voices-Data/", "Visions, Voices, Data")
             ),
             "Projects"
