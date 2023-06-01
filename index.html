@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/kernel-panic-at-the-lunar-lobster/" rel="prefetch" type="text/html">
+<link href="posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -52,6 +52,136 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/">Ubuntu 22.04, Python 3.11 and the "emacs-jupyter Symbol's variable is void" Error</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/" rel="bookmark"><time class="published dt-published" datetime="2023-05-25T16:12:27-07:00" itemprop="datePublished" title="2023-05-25 16:12">2023-05-25 16:12</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div class="outline-2" id="outline-container-org3ca4a17">
+<h2 id="org3ca4a17">What This Is About</h2>
+<div class="outline-text-2" id="text-org3ca4a17">
+<p>Ubuntu 22.04 no longer let's you install python packages globally using pip by default (you can override it but they warn you not to). This has caused a cascade of broken parts on my system, since I use python so much. This particular case started with me trying to start the <a href="https://docs.jupyter.org/en/latest/projects/kernels.html"><code>jupyter kernel</code></a> so that I could run some python code in org-mode and getting (what looked like) an error and fixing it ended up uncovering the fact that working with the new policy for pip broke my emacs setup a little too, so this is a dump of how I got it back up and running again. I recorded it as I was fixing things so there might be a better way, but this is the first pass I took.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orge76df86">
+<h2 id="orge76df86">The Jupyter Kernel Warning</h2>
+<div class="outline-text-2" id="text-orge76df86">
+<p>This is what happened when I tried to start the jupyter kernel.</p>
+<div class="highlight">
+<pre><span></span><span class="o">(</span>Ape-Iron<span class="o">)</span><span class="w"> </span>hades@erebus<span class="w"> </span>~&gt;<span class="w"> </span>jupyter<span class="w"> </span>kernel
+<span class="o">[</span>KernelApp<span class="o">]</span><span class="w"> </span>Starting<span class="w"> </span>kernel<span class="w"> </span><span class="s1">'python3'</span>
+<span class="m">0</span>.00s<span class="w"> </span>-<span class="w"> </span>Debugger<span class="w"> </span>warning:<span class="w"> </span>It<span class="w"> </span>seems<span class="w"> </span>that<span class="w"> </span>frozen<span class="w"> </span>modules<span class="w"> </span>are<span class="w"> </span>being<span class="w"> </span>used,<span class="w"> </span>which<span class="w"> </span>may
+<span class="m">0</span>.00s<span class="w"> </span>-<span class="w"> </span>make<span class="w"> </span>the<span class="w"> </span>debugger<span class="w"> </span>miss<span class="w"> </span>breakpoints.<span class="w"> </span>Please<span class="w"> </span>pass<span class="w"> </span>-Xfrozen_modules<span class="o">=</span>off
+<span class="m">0</span>.00s<span class="w"> </span>-<span class="w"> </span>to<span class="w"> </span>python<span class="w"> </span>to<span class="w"> </span>disable<span class="w"> </span>frozen<span class="w"> </span>modules.
+<span class="m">0</span>.00s<span class="w"> </span>-<span class="w"> </span>Note:<span class="w"> </span>Debugging<span class="w"> </span>will<span class="w"> </span>proceed.<span class="w"> </span>Set<span class="w"> </span><span class="nv">PYDEVD_DISABLE_FILE_VALIDATION</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>to<span class="w"> </span>disable<span class="w"> </span>this<span class="w"> </span>val
+idation.
+<span class="o">[</span>KernelApp<span class="o">]</span><span class="w"> </span>Connection<span class="w"> </span>file:<span class="w"> </span>/home/hades/.local/share/jupyter/runtime/kernel-a57a8231-bfea-468
+<span class="m">0</span>-9f8b-6bf1b1e3a7ac.json
+<span class="o">[</span>KernelApp<span class="o">]</span><span class="w"> </span>To<span class="w"> </span>connect<span class="w"> </span>a<span class="w"> </span>client:<span class="w"> </span>--existing<span class="w"> </span>kernel-a57a8231-bfea-4680-9f8b-6bf1b1e3a7ac.json
+<span class="m">0</span>.00s<span class="w"> </span>-<span class="w"> </span>Debugger<span class="w"> </span>warning:<span class="w"> </span>It<span class="w"> </span>seems<span class="w"> </span>that<span class="w"> </span>frozen<span class="w"> </span>modules<span class="w"> </span>are<span class="w"> </span>being<span class="w"> </span>used,<span class="w"> </span>which<span class="w"> </span>may
+<span class="m">0</span>.00s<span class="w"> </span>-<span class="w"> </span>make<span class="w"> </span>the<span class="w"> </span>debugger<span class="w"> </span>miss<span class="w"> </span>breakpoints.<span class="w"> </span>Please<span class="w"> </span>pass<span class="w"> </span>-Xfrozen_modules<span class="o">=</span>off
+<span class="m">0</span>.00s<span class="w"> </span>-<span class="w"> </span>to<span class="w"> </span>python<span class="w"> </span>to<span class="w"> </span>disable<span class="w"> </span>frozen<span class="w"> </span>modules.
+<span class="m">0</span>.00s<span class="w"> </span>-<span class="w"> </span>Note:<span class="w"> </span>Debugging<span class="w"> </span>will<span class="w"> </span>proceed.<span class="w"> </span>Set<span class="w"> </span><span class="nv">PYDEVD_DISABLE_FILE_VALIDATION</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>to<span class="w"> </span>disable<span class="w"> </span>this<span class="w"> </span>validation.
+</pre></div>
+<p>According to <a href="https://stackoverflow.com/questions/75114841/debugger-warning-from-ipython-frozen-modules">this Stack Overflow post</a> the output, though scary-looking, is only a warning, and you should be able to ignore it. It's happening because python 3.11 uses a "frozen" version of python with code objects for some of the built-in python modules that get loaded when the interpreter starts up already pre-allocated in order to reduce their load time during python's start up (i.e. they set it up to start faster), and their doing this means that the debugger might not work correctly - but since I'm not using the debugger, it shouldn't matter.</p>
+<ul class="org-ul">
+<li><a href="https://docs.python.org/3/whatsnew/3.11.html#faster-startup">Python Note on their freezing the modules</a></li>
+<li><a href="https://wiki.python.org/moin/Freeze">Python documentation of "freezing"</a></li>
+</ul>
+<p>Ah, but there's always a problem lurking behind the advice to ignore "harmless warnings". Even with the kernel running, I couldn't get python/jupyter to work in my org-babel source blocks, so there was more to do.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org141db97">
+<h2 id="org141db97">Getting emacs-jupyter Working</h2>
+<div class="outline-text-2" id="text-org141db97"></div>
+<div class="outline-3" id="outline-container-org3e2ccb9">
+<h3 id="org3e2ccb9">The Problem</h3>
+<div class="outline-text-3" id="text-org3e2ccb9">
+<p>The first clue as to what might be happing was this line in emacs' startup messages.</p>
+<pre class="example" id="orgc0957f3">
+Symbol’s function definition is void: org-babel-execute:jupyter-python
+</pre>
+<p>It looked like <a href="https://github.com/emacs-jupyter/jupyter">emacs-jupyter</a> wasn't loading properly. There was also this message in the output:</p>
+<pre class="example" id="orgb7ae7a6">
+Error retrieving kernelspecs: (json-number-format 5)
+</pre>
+<p>Searching for that error-message brought up this bug-report on github:</p>
+<ul class="org-ul">
+<li><a href="https://github.com/emacs-jupyter/jupyter/issues/436">https://github.com/emacs-jupyter/jupyter/issues/436</a></li>
+</ul>
+<p>Wherein the author of the bug-report mentions that loading emacs-jupyter is failing because it's trying to parse the output of jupyter and the warnings I was seeing causes it to fail (the bug-report references a different jupyter command, but the problematic output is the same).</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org7e8aab9">
+<h3 id="org7e8aab9">Testing Turning Off the Warning</h3>
+<div class="outline-text-3" id="text-org7e8aab9">
+<p>The first thing I tried was to follow the directions in the output and supress the warnings by setting an environment variable.</p>
+<div class="highlight">
+<pre><span></span><span class="nb">set</span><span class="w"> </span>--universal<span class="w"> </span>--export<span class="w"> </span>PYDEVD_DISABLE_FILE_VALIDATION<span class="w"> </span><span class="m">1</span>
+</pre></div>
+<p><b>Note:</b> This is fish-shell syntax.</p>
+<p>I restarted the jupyter kernel and the warnings had gone away, so this much worked.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org8477523">
+<h3 id="org8477523">Really Turning Off the Warning</h3>
+<div class="outline-text-3" id="text-org8477523">
+<p>Setting the environment variable at the command-line changes the environment for my user, but I'm running <a href="https://www.emacswiki.org/emacs/EmacsAsDaemon">emacs as a daemon</a> so I needed to edit the <code>systemctl</code> file for my emacs service. I opened up the <code>~/.config/systemd/user/emacs.service</code> file in emacs and added the line to set the environment variable for the emacs daemon.</p>
+<div class="highlight">
+<pre><span></span>[Service]
+Environment="PYDEVD_DISABLE_FILE_VALIDATION=1"
+</pre></div>
+<p>Then I restarted the service.</p>
+<div class="highlight">
+<pre><span></span>systemctl<span class="w"> </span>restart<span class="w"> </span>--user<span class="w"> </span>emacs
+</pre></div>
+<p>Which gave me a warning that my changes to the configuration have to be re-loaded before restarting the service.</p>
+<pre class="example" id="org1ba3b97">
+Warning: The unit file, source configuration file or drop-ins of emacs.service changed on disk
+. Run 'systemctl --user daemon-reload' to reload units.
+</pre>
+<p>Oops.</p>
+<div class="highlight">
+<pre><span></span>systemctl<span class="w"> </span>--user<span class="w"> </span>daemon-reload
+systemctl<span class="w"> </span>restart<span class="w"> </span>--user<span class="w"> </span>emacs
+</pre></div>
+<p>This time the emacs startup messages didn't have the jupyter errors so it looked like things were fixed.</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orge86b025">
+<h2 id="orge86b025">Swapping a Virtual Environment For pipx</h2>
+<div class="outline-text-2" id="text-orge86b025">
+<p>Suppressing the warnings <i>pretty much</i> solved the problem, but while I was getting this fixed I was also trying to set up a USB Windows installer using <a href="https://github.com/WoeUSB/WoeUSB">WoeUSB</a> and found that pipx couldn't install it because of a dependency error. Pipx is good at installing some standalone python commands but it won't install things that are just libraries and it seems to sometimes also have problems installing dependencies for the commands that it <i>will</i> install. This has come up for me before, and the old solution was just for me to install the dependencies separately using <code>pip</code> before trying to install whatever it was that I was installing with pipx. Now, though, since ubuntu is trying to keep you from installing python modules globally, installing the dependencies means they either have to be available through <code>apt</code> or you have to set up a virtual environment and install them there (when I say <i>have to</i> I mean that since that's the way I know how to do it, that's the way I have to do it, not that there aren't other ways to do it that I just don't know about).</p>
+<p>Doing it this way is easy enough, since I use python virtual environments a lot anyway, but then I ran into another problem which was that once I got the virtual environment set up I found out I had to run woeUSB as root, which then bypasses the whole virtual environment setup. The solution to that was to pass the full path to the virtual environment's woeUSB launcher to <code>sudo</code>, but it took enough time experimenting with other ways to do it before I got to that step that I decided I should minimalize how much I use pipx as much as possible - and in particular I should avoid using it with my emacs setup, since emacs will sometimss just quietly fail if there's a python-based error and it's only when things don't work that I'll realize there's a problem. So I decided to go with a dedicated virtual environment instead of installing jupyter with pipx.</p>
+<p>This, once again was not a big deal in hindsight, but it took enough experimenting with other options before coming to the conclusion that this was the way to go that I thought I should make a note to my future self about it. To get jupyter working with jupyter-emacs:</p>
+<ul class="org-ul">
+<li>create a virtual environment (<code>python3 -m venv emacs-environment</code>) in the <code>.virtualenvs</code> folder</li>
+<li>activate it, then use pip to install <code>wheels</code> and <code>jupyter</code></li>
+</ul>
+<p>In the <code>/.emacs.d/init.el</code> file, activate the virtual environment <i>before</i> you load emacs-jupyter or anything else that needs python:</p>
+<div class="highlight">
+<pre><span></span><span class="p">(</span><span class="nf">require</span><span class="w"> </span><span class="ss">'pyvenv</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">pyvenv-activate</span><span class="w"> </span><span class="s">"~/.virtualenvs/emacs-environment"</span><span class="p">)</span>
+</pre></div>
+<p>Then restart emacs. So far this seems to have fixed it.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org821f370">
+<h2 id="org821f370">Other Links</h2>
+<div class="outline-text-2" id="text-org821f370">
+<ul class="org-ul">
+<li>EmacsWiki: Emacs As Daemon [Internet]. [cited 2023 May 28]. Available from: <a href="https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2">https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2</a></li>
+<li>Schäfer J. pyvenv.el, Python virtual environment support for Emacs [Internet]. 2023 [cited 2023 May 28]. Available from: <a href="https://github.com/jorgenschaefer/pyvenv">https://github.com/jorgenschaefer/pyvenv</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/kernel-panic-at-the-lunar-lobster/">Kernel Panic At the Lunar Lobster</a></h1>
@@ -1073,171 +1203,6 @@ I have been to paradise 3 times, but I have never been to me. Oh, the humanity!
 <span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
 <span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
 </pre></div>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/coding-train-starfield/">Coding Train Starfield</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/coding-train-starfield/" rel="bookmark"><time class="published dt-published" datetime="2022-02-10T15:19:02-08:00" itemprop="datePublished" title="2022-02-10 15:19">2022-02-10 15:19</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
-<ul>
-<li><a href="posts/coding-train-starfield/#org46211f6">The Starfield</a></li>
-<li><a href="posts/coding-train-starfield/#org2e5ce7d">The Main Sketch</a>
-<ul>
-<li><a href="posts/coding-train-starfield/#org7a09101">The Setup Function</a></li>
-<li><a href="posts/coding-train-starfield/#org8744ea5">Draw</a></li>
-</ul>
-</li>
-<li><a href="posts/coding-train-starfield/#orgb8e515a">The Star Class</a>
-<ul>
-<li><a href="posts/coding-train-starfield/#org4a394f5">The Update</a></li>
-<li><a href="posts/coding-train-starfield/#org1b13171">The Show Function</a></li>
-</ul>
-</li>
-<li><a href="posts/coding-train-starfield/#orgec606ae">Attaching the Sketch</a></li>
-<li><a href="posts/coding-train-starfield/#orge1b836d">Source</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org46211f6">
-<h2 id="org46211f6">The Starfield</h2>
-<div class="outline-text-2" id="text-org46211f6">
-<p>This is another <a href="https://p5js.org/">p5.js</a> hello-world, this time taken from Daniel Schiffman's <a href="https://thecodingtrain.com/CodingChallenges/001-starfield.html">Starfield in Processing</a> coding challenge. It's a rough version of traveling through the stars at warp speed. He managed to do it in about 15 minutes, if I remember correctly. It starts static but if you move your mouse back and forth horizontally it adjusts the speed.</p>
-<script language="javascript" src="posts/coding-train-starfield/starfield.js" type="text/javascript"></script>
-<div id="schiffman-starfield"></div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org2e5ce7d">
-<h2 id="org2e5ce7d">The Main Sketch</h2>
-<div class="outline-text-2" id="text-org2e5ce7d">
-<p>The most basic processing/p5 sketch uses two functions <code>setup</code> to initially set up your canvas and <code>draw</code> to update the frames over time. This function creates our canvas and star objects in the <code>setup</code> and then calculates a <code>speed</code> based on the mouse position of the user in order to update the stars. It gets passed a p5 element, called p, in order to get access to the p5.js code.</p>
-<div class="highlight">
-<pre><span></span><span class="cm">/** The main sketch</span>
-<span class="cm"> * this gets passed to p5 so it defines the setup and draw functions</span>
-<span class="cm"> * that p5 expects</span>
-<span class="cm">*/</span>
-<span class="kd">let</span><span class="w"> </span><span class="nx">starfield_sketch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">star_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">800</span><span class="p">;</span>
-<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">parent_div_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"schiffman-starfield"</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">BLACK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">255</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">ALPHA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100</span><span class="p">;</span>
-</pre></div>
-</div>
-<div class="outline-3" id="outline-container-org7a09101">
-<h3 id="org7a09101">The Setup Function</h3>
-<div class="outline-text-3" id="text-org7a09101">
-<p>Not too much voodoo here, other than the use of the <a href="https://api.jquery.com/outerWidth/">JQuery outerWidth</a> method which gets the width of the DIV that we're using to hold the sketch and uses it as the width for the canvas.</p>
-<div class="highlight">
-<pre><span></span><span class="nx">p</span><span class="p">.</span><span class="nx">setup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
-<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">canvas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">createCanvas</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">"#"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">parent_div_id</span><span class="p">).</span><span class="nx">outerWidth</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span><span class="w"> </span><span class="mf">800</span><span class="p">);</span>
-<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">star_count</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Star</span><span class="p">(</span><span class="nx">p</span><span class="p">);</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span><span class="w"> </span><span class="c1">// end setup</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org8744ea5">
-<h3 id="org8744ea5">Draw</h3>
-<div class="outline-text-3" id="text-org8744ea5">
-<p>Again, not too fancy. The draw function:</p>
-<ul class="org-ul">
-<li>Sets the background to black to wipe out our previous drawing</li>
-<li>gets the "speed" of the stars using the x-position of the mouse and mapping this location from 0 to the width of the canvas to a smaller range from 0 to 50</li>
-<li>Translate the (0, 0) of the coordinate system from the top left of the canvas to the middle so our stars emerge from the center instead of the top left</li>
-<li>update all the stars with the speed and re-draw them</li>
-</ul>
-<div class="highlight">
-<pre><span></span><span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">background</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">BLACK</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">ALPHA</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">mouseX</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">50</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">translate</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="o">/</span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="o">/</span><span class="mf">2</span><span class="p">);</span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
-<span class="w">      </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">update</span><span class="p">(</span><span class="nx">speed</span><span class="p">);</span>
-<span class="w">      </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">show</span><span class="p">();</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="c1">//end draw</span>
-<span class="p">};</span><span class="w"> </span><span class="c1">//end starfield_sketch</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgb8e515a">
-<h2 id="orgb8e515a">The Star Class</h2>
-<div class="outline-text-2" id="text-orgb8e515a">
-<p>The <code>Star</code> stores the position of a "star" and updates it based on the speed that it's given. Our initial constructor sets up the coordinates of the star using random values.</p>
-<div class="highlight">
-<pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">Star</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
-<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
-<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
-</pre></div>
-</div>
-<div class="outline-3" id="outline-container-org4a394f5">
-<h3 id="org4a394f5">The Update</h3>
-<div class="outline-text-3" id="text-org4a394f5">
-<p>Most of the time the update reduces the <code>z</code> value by the current speed, but since we don't want the stars to go off the canvas and disappear, if it gets too small we re-randomize the position of the star.</p>
-<div class="highlight">
-<pre><span></span><span class="k">this</span><span class="p">.</span><span class="nx">update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">(</span><span class="nx">speed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">speed</span>
-
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span><span class="w"> </span><span class="c1">//end update</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org1b13171">
-<h3 id="org1b13171">The Show Function</h3>
-<div class="outline-text-3" id="text-org1b13171">
-<p>The <code>show</code> function is where most of the work is done. It calculates the proprotions of x and y to z and then maps that to the width and height of the canvas and then draws an ellipse. To get the radius of the ellipse we map the current z-value using an inverted target of 16, 0. This means that as z gets smaller our radius gets bigger.</p>
-<div class="highlight">
-<pre><span></span><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">show</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span><span class="p">);</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">x_now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">x</span><span class="o">/</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">y_now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">y</span><span class="o">/</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
-
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="w"> </span><span class="mf">16</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">);</span>
-<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">ellipse</span><span class="p">(</span><span class="nx">x_now</span><span class="p">,</span><span class="w"> </span><span class="nx">y_now</span><span class="p">,</span><span class="w"> </span><span class="nx">radius</span><span class="p">,</span><span class="w"> </span><span class="nx">radius</span><span class="p">);</span>
-
-<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">stroke</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span><span class="p">);</span>
-<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="c1">// end show</span>
-<span class="p">};</span><span class="w"> </span><span class="c1">//end class Star</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgec606ae">
-<h2 id="orgec606ae">Attaching the Sketch</h2>
-<div class="outline-text-2" id="text-orgec606ae">
-<p>This next bit attaches our sketch to a specific DIV defined in the HTML. You don't have to do this, you could just use the parts as universal functions like the examples show, but if you have more than one sketch on a page sometimes things get funky so I prefer this pattern to keep everything in place.</p>
-<div class="highlight">
-<pre><span></span><span class="c1">// Attach the starfield_sketch function at the top to the div with ID</span>
-<span class="c1">// schiffman-starfield</span>
-<span class="nx">sketch_container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">p5</span><span class="p">(</span><span class="nx">starfield_sketch</span><span class="p">,</span><span class="w"> </span><span class="s1">'schiffman-starfield'</span><span class="p">);</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orge1b836d">
-<h2 id="orge1b836d">Source</h2>
-<div class="outline-text-2" id="text-orge1b836d">
-<ul class="org-ul">
-<li>Starfield in Processing [Internet]. The Coding Train. 2016 [cited 2022 Feb 10]. Available from: <a href="https://thecodingtrain.com/CodingChallenges/001-starfield.html">https://thecodingtrain.com/CodingChallenges/001-starfield.html</a></li>
-</ul>
 </div>
 </div>
 </div>

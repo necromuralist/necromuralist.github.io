@@ -1,5 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about ubuntu)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/ubuntu.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 18 May 2023 07:55:24 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Kernel Panic At the Lunar Lobster</title><link>https://necromuralist.github.io/posts/kernel-panic-at-the-lunar-lobster/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about ubuntu)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/ubuntu.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 01 Jun 2023 23:33:05 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Ubuntu 22.04, Python 3.11 and the "emacs-jupyter Symbol's variable is void" Error</title><link>https://necromuralist.github.io/posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org3ca4a17" class="outline-2"&gt;
+&lt;h2 id="org3ca4a17"&gt;What This Is About&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3ca4a17"&gt;
+&lt;p&gt;
+Ubuntu 22.04 no longer let's you install python packages globally using pip by default (you can override it but they warn you not to). This has caused a cascade of broken parts on my system, since I use python so much. This particular case started with me trying to start the &lt;a href="https://docs.jupyter.org/en/latest/projects/kernels.html"&gt;&lt;code&gt;jupyter kernel&lt;/code&gt;&lt;/a&gt; so that I could run some python code in org-mode and getting (what looked like) an error and fixing it ended up uncovering the fact that working with the new policy for pip broke my emacs setup a little too, so this is a dump of how I got it back up and running again. I recorded it as I was fixing things so there might be a better way, but this is the first pass I took.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orge76df86" class="outline-2"&gt;
+&lt;h2 id="orge76df86"&gt;The Jupyter Kernel Warning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge76df86"&gt;
+&lt;p&gt;
+This is what happened when I tried to start the jupyter kernel.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;Ape-Iron&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;hades@erebus&lt;span class="w"&gt; &lt;/span&gt;~&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;jupyter&lt;span class="w"&gt; &lt;/span&gt;kernel
+&lt;span class="o"&gt;[&lt;/span&gt;KernelApp&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Starting&lt;span class="w"&gt; &lt;/span&gt;kernel&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;'python3'&lt;/span&gt;
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;Debugger&lt;span class="w"&gt; &lt;/span&gt;warning:&lt;span class="w"&gt; &lt;/span&gt;It&lt;span class="w"&gt; &lt;/span&gt;seems&lt;span class="w"&gt; &lt;/span&gt;that&lt;span class="w"&gt; &lt;/span&gt;frozen&lt;span class="w"&gt; &lt;/span&gt;modules&lt;span class="w"&gt; &lt;/span&gt;are&lt;span class="w"&gt; &lt;/span&gt;being&lt;span class="w"&gt; &lt;/span&gt;used,&lt;span class="w"&gt; &lt;/span&gt;which&lt;span class="w"&gt; &lt;/span&gt;may
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;the&lt;span class="w"&gt; &lt;/span&gt;debugger&lt;span class="w"&gt; &lt;/span&gt;miss&lt;span class="w"&gt; &lt;/span&gt;breakpoints.&lt;span class="w"&gt; &lt;/span&gt;Please&lt;span class="w"&gt; &lt;/span&gt;pass&lt;span class="w"&gt; &lt;/span&gt;-Xfrozen_modules&lt;span class="o"&gt;=&lt;/span&gt;off
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;disable&lt;span class="w"&gt; &lt;/span&gt;frozen&lt;span class="w"&gt; &lt;/span&gt;modules.
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;Note:&lt;span class="w"&gt; &lt;/span&gt;Debugging&lt;span class="w"&gt; &lt;/span&gt;will&lt;span class="w"&gt; &lt;/span&gt;proceed.&lt;span class="w"&gt; &lt;/span&gt;Set&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;PYDEVD_DISABLE_FILE_VALIDATION&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;disable&lt;span class="w"&gt; &lt;/span&gt;this&lt;span class="w"&gt; &lt;/span&gt;val
+idation.
+&lt;span class="o"&gt;[&lt;/span&gt;KernelApp&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Connection&lt;span class="w"&gt; &lt;/span&gt;file:&lt;span class="w"&gt; &lt;/span&gt;/home/hades/.local/share/jupyter/runtime/kernel-a57a8231-bfea-468
+&lt;span class="m"&gt;0&lt;/span&gt;-9f8b-6bf1b1e3a7ac.json
+&lt;span class="o"&gt;[&lt;/span&gt;KernelApp&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;To&lt;span class="w"&gt; &lt;/span&gt;connect&lt;span class="w"&gt; &lt;/span&gt;a&lt;span class="w"&gt; &lt;/span&gt;client:&lt;span class="w"&gt; &lt;/span&gt;--existing&lt;span class="w"&gt; &lt;/span&gt;kernel-a57a8231-bfea-4680-9f8b-6bf1b1e3a7ac.json
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;Debugger&lt;span class="w"&gt; &lt;/span&gt;warning:&lt;span class="w"&gt; &lt;/span&gt;It&lt;span class="w"&gt; &lt;/span&gt;seems&lt;span class="w"&gt; &lt;/span&gt;that&lt;span class="w"&gt; &lt;/span&gt;frozen&lt;span class="w"&gt; &lt;/span&gt;modules&lt;span class="w"&gt; &lt;/span&gt;are&lt;span class="w"&gt; &lt;/span&gt;being&lt;span class="w"&gt; &lt;/span&gt;used,&lt;span class="w"&gt; &lt;/span&gt;which&lt;span class="w"&gt; &lt;/span&gt;may
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;the&lt;span class="w"&gt; &lt;/span&gt;debugger&lt;span class="w"&gt; &lt;/span&gt;miss&lt;span class="w"&gt; &lt;/span&gt;breakpoints.&lt;span class="w"&gt; &lt;/span&gt;Please&lt;span class="w"&gt; &lt;/span&gt;pass&lt;span class="w"&gt; &lt;/span&gt;-Xfrozen_modules&lt;span class="o"&gt;=&lt;/span&gt;off
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;disable&lt;span class="w"&gt; &lt;/span&gt;frozen&lt;span class="w"&gt; &lt;/span&gt;modules.
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;Note:&lt;span class="w"&gt; &lt;/span&gt;Debugging&lt;span class="w"&gt; &lt;/span&gt;will&lt;span class="w"&gt; &lt;/span&gt;proceed.&lt;span class="w"&gt; &lt;/span&gt;Set&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;PYDEVD_DISABLE_FILE_VALIDATION&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;disable&lt;span class="w"&gt; &lt;/span&gt;this&lt;span class="w"&gt; &lt;/span&gt;validation.
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+According to &lt;a href="https://stackoverflow.com/questions/75114841/debugger-warning-from-ipython-frozen-modules"&gt;this Stack Overflow post&lt;/a&gt; the output, though scary-looking, is only a warning, and you should be able to ignore it. It's happening because python 3.11 uses a "frozen" version of python with code objects for some of the built-in python modules that get loaded when the interpreter starts up already pre-allocated in order to reduce their load time during python's start up (i.e. they set it up to start faster), and their doing this means that the debugger might not work correctly - but since I'm not using the debugger, it shouldn't matter.
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://docs.python.org/3/whatsnew/3.11.html#faster-startup"&gt;Python Note on their freezing the modules&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://wiki.python.org/moin/Freeze"&gt;Python documentation of "freezing"&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+Ah, but there's always a problem lurking behind the advice to ignore "harmless warnings". Even with the kernel running, I couldn't get python/jupyter to work in my org-babel source blocks, so there was more to do.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org141db97" class="outline-2"&gt;
+&lt;h2 id="org141db97"&gt;Getting emacs-jupyter Working&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org141db97"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org3e2ccb9" class="outline-3"&gt;
+&lt;h3 id="org3e2ccb9"&gt;The Problem&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3e2ccb9"&gt;
+&lt;p&gt;
+The first clue as to what might be happing was this line in emacs' startup messages.
+&lt;/p&gt;
+
+&lt;pre class="example" id="orgc0957f3"&gt;
+Symbol’s function definition is void: org-babel-execute:jupyter-python
+&lt;/pre&gt;
+
+&lt;p&gt;
+It looked like &lt;a href="https://github.com/emacs-jupyter/jupyter"&gt;emacs-jupyter&lt;/a&gt; wasn't loading properly. There was also this message in the output:
+&lt;/p&gt;
+
+&lt;pre class="example" id="orgb7ae7a6"&gt;
+Error retrieving kernelspecs: (json-number-format 5)
+&lt;/pre&gt;
+
+&lt;p&gt;
+Searching for that error-message brought up this bug-report on github:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://github.com/emacs-jupyter/jupyter/issues/436"&gt;https://github.com/emacs-jupyter/jupyter/issues/436&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+Wherein the author of the bug-report mentions that loading emacs-jupyter is failing because it's trying to parse the output of jupyter and the warnings I was seeing causes it to fail (the bug-report references a different jupyter command, but the problematic output is the same).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org7e8aab9" class="outline-3"&gt;
+&lt;h3 id="org7e8aab9"&gt;Testing Turning Off the Warning&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7e8aab9"&gt;
+&lt;p&gt;
+The first thing I tried was to follow the directions in the output and supress the warnings by setting an environment variable.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;--universal&lt;span class="w"&gt; &lt;/span&gt;--export&lt;span class="w"&gt; &lt;/span&gt;PYDEVD_DISABLE_FILE_VALIDATION&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+&lt;b&gt;Note:&lt;/b&gt; This is fish-shell syntax.
+&lt;/p&gt;
+
+&lt;p&gt;
+I restarted the jupyter kernel and the warnings had gone away, so this much worked.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id="outline-container-org8477523" class="outline-3"&gt;
+&lt;h3 id="org8477523"&gt;Really Turning Off the Warning&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8477523"&gt;
+&lt;p&gt;
+Setting the environment variable at the command-line changes the environment for my user, but I'm running &lt;a href="https://www.emacswiki.org/emacs/EmacsAsDaemon"&gt;emacs as a daemon&lt;/a&gt; so I needed to edit the &lt;code&gt;systemctl&lt;/code&gt; file for my emacs service. I opened up the &lt;code&gt;~/.config/systemd/user/emacs.service&lt;/code&gt; file in emacs and added the line to set the environment variable for the emacs daemon.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[Service]
+Environment="PYDEVD_DISABLE_FILE_VALIDATION=1"
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then I restarted the service.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;systemctl&lt;span class="w"&gt; &lt;/span&gt;restart&lt;span class="w"&gt; &lt;/span&gt;--user&lt;span class="w"&gt; &lt;/span&gt;emacs
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which gave me a warning that my changes to the configuration have to be re-loaded before restarting the service.
+&lt;/p&gt;
+
+&lt;pre class="example" id="org1ba3b97"&gt;
+Warning: The unit file, source configuration file or drop-ins of emacs.service changed on disk
+. Run 'systemctl --user daemon-reload' to reload units.
+&lt;/pre&gt;
+
+&lt;p&gt;
+Oops.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;systemctl&lt;span class="w"&gt; &lt;/span&gt;--user&lt;span class="w"&gt; &lt;/span&gt;daemon-reload
+systemctl&lt;span class="w"&gt; &lt;/span&gt;restart&lt;span class="w"&gt; &lt;/span&gt;--user&lt;span class="w"&gt; &lt;/span&gt;emacs
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This time the emacs startup messages didn't have the jupyter errors so it looked like things were fixed.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orge86b025" class="outline-2"&gt;
+&lt;h2 id="orge86b025"&gt;Swapping a Virtual Environment For pipx&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge86b025"&gt;
+&lt;p&gt;
+Suppressing the warnings &lt;i&gt;pretty much&lt;/i&gt; solved the problem, but while I was getting this fixed I was also trying to set up a USB Windows installer using &lt;a href="https://github.com/WoeUSB/WoeUSB"&gt;WoeUSB&lt;/a&gt; and found that pipx couldn't install it because of a dependency error. Pipx is good at installing some standalone python commands but it won't install things that are just libraries and it seems to sometimes also have problems installing dependencies for the commands that it &lt;i&gt;will&lt;/i&gt; install. This has come up for me before, and the old solution was just for me to install the dependencies separately  using &lt;code&gt;pip&lt;/code&gt; before trying to install whatever it was that I was installing with pipx. Now, though, since ubuntu is trying to keep you from installing python modules globally, installing the dependencies means they either have to be available through &lt;code&gt;apt&lt;/code&gt; or you have to set up a virtual environment and install them there (when I say &lt;i&gt;have to&lt;/i&gt; I mean that since that's the way I know how to do it, that's the way I have to do it, not that there aren't other ways to do it that I just don't know about).
+&lt;/p&gt;
+
+&lt;p&gt;
+Doing it this way is easy enough, since I use python virtual environments a lot anyway, but then I ran into another problem which was that once I got the virtual environment set up I found out I had to run woeUSB as root, which then bypasses the whole virtual environment setup. The solution to that was to pass the full path to the virtual environment's woeUSB launcher to &lt;code&gt;sudo&lt;/code&gt;, but it took enough time experimenting with other ways to do it before I got to that step that I decided I should minimalize how much I use pipx as much as possible - and in particular I should avoid using it with my emacs setup, since emacs will sometimss just quietly fail if there's a python-based error and it's only when things don't work that I'll realize there's a problem. So I decided to go with a dedicated virtual environment instead of installing jupyter with pipx.
+&lt;/p&gt;
+
+&lt;p&gt;
+This, once again was not a big deal in hindsight, but it took enough experimenting with other options before coming to the conclusion that this was the way to go that I thought I should make a note to my future self about it. To get jupyter working with jupyter-emacs:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;create a virtual environment (&lt;code&gt;python3 -m venv emacs-environment&lt;/code&gt;) in the &lt;code&gt;.virtualenvs&lt;/code&gt; folder&lt;/li&gt;
+&lt;li&gt;activate it, then use pip to install &lt;code&gt;wheels&lt;/code&gt; and &lt;code&gt;jupyter&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+In the &lt;code&gt;/.emacs.d/init.el&lt;/code&gt; file, activate the virtual environment &lt;i&gt;before&lt;/i&gt; you load emacs-jupyter or anything else that needs python:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="ss"&gt;'pyvenv&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;pyvenv-activate&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;"~/.virtualenvs/emacs-environment"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then restart emacs. So far this seems to have fixed it.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org821f370" class="outline-2"&gt;
+&lt;h2 id="org821f370"&gt;Other Links&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org821f370"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;EmacsWiki: Emacs As Daemon [Internet]. [cited 2023 May 28]. Available from: &lt;a href="https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2"&gt;https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Schäfer J. pyvenv.el, Python virtual environment support for Emacs [Internet]. 2023 [cited 2023 May 28]. Available from: &lt;a href="https://github.com/jorgenschaefer/pyvenv"&gt;https://github.com/jorgenschaefer/pyvenv&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>emacs</category><category>jupyter</category><category>python</category><category>troubleshooting</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/</guid><pubDate>Thu, 25 May 2023 23:12:27 GMT</pubDate></item><item><title>Kernel Panic At the Lunar Lobster</title><link>https://necromuralist.github.io/posts/kernel-panic-at-the-lunar-lobster/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
@@ -1299,100 +1488,4 @@ Now re-open the network settings and click on the switch again. With any luck th
 &lt;li&gt;Add VPN Password: &lt;a href="https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10"&gt;https://askubuntu.com/questions/976719/unable-to-connect-point-to-point-tunneling-protocol-pptp-vpn-in-ubuntu-17-10&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>how-to</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/openvpn-on-ubuntu-1804/</guid><pubDate>Wed, 11 Jul 2018 01:11:39 GMT</pubDate></item><item><title>The Experience of Updating Ubuntu 17.04 To 17.10</title><link>https://necromuralist.github.io/posts/the-experience-of-updating-ubuntu-1704-to-1710/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
-I recently switched to Ubuntu 17.10 (from 17.04) and found it to be surprisingly difficult. This is meant to document what I noticed so that if I decide to upgrade another machine I'll have something to jog my memory about what it was like.
-&lt;/p&gt;
-
-&lt;div id="outline-container-orge049f19" class="outline-2"&gt;
-&lt;h2 id="orge049f19"&gt;Complete Re-Install Required&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge049f19"&gt;
-&lt;p&gt;
-I upgraded four machines (I don't have all their details at hand - maybe I'll update this later). In each case they were running Ubuntu 17.04 so I used &lt;code&gt;do-release-upgrade&lt;/code&gt; initially. I didn't upgrade them all on the same day, but did upgrade all of them within the past week.
-&lt;/p&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;HP Z600&lt;/li&gt;
-&lt;li&gt;eMachine&lt;/li&gt;
-&lt;li&gt;Zareason&lt;/li&gt;
-&lt;li&gt;Toshiba portege (laptop)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;
-The first sign that something bad was happening was that the lock-screen appeared to break after the update so I couldn't log back in. The field where you would normally enter the password was gone so there was no way to authenticate myself. In retrospect, maybe since I did this four times I should have tried a headless install with GNU screen to at least see what was going on, but hindsight's always fifty-fifty, isn't it? My tendency to repeat my mistakes is why I'm writing this down, after all. 
-&lt;/p&gt;
-
-&lt;p&gt;
-On trying to reboot I found that none of the machines would fully start. All of them got stuck on a black screen with a single white underscore in the top left corner. Unlike the other machines, the Toshiba let me enter the disk-decryption password, but then it ended up at the same black screen as the rest. Once it reached this state there was no way to get to the consoles either (e.g. using ctrl-alt-F1). So, in every case I had to boot from a thumb drive and do a fresh install.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgf06fc24" class="outline-2"&gt;
-&lt;h2 id="orgf06fc24"&gt;Backwards Steps&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf06fc24"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgc518f74" class="outline-3"&gt;
-&lt;h3 id="orgc518f74"&gt;Alternate Keyboard Layouts&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc518f74"&gt;
-&lt;p&gt;
-It used to be that the installer would ask you to set up a disk-encryption password before asking you for your keyboard layout, making it harder for people like me that use alternate layouts (&lt;a href="https://www.kaufmann.no/roland/dvorak/"&gt;Programmer Dvorak&lt;/a&gt; in my case). They eventually fixed that, but now it's back again, forcing you to enter the password to decrypt your drive using &lt;code&gt;qwerty&lt;/code&gt;. The initial login to decrypt the drive after you boot the computer also has no way to switch the keyboard layout, so once again you have to use &lt;code&gt;qwerty&lt;/code&gt;. On top of that, the visual keyboard is missing keys (well, it's missing the underscore, any way) which I used to use when I found myself struggling too much with &lt;code&gt;qwerty&lt;/code&gt;, so instead I have to use the physical keyboard, hunting and pecking and trying to forget where I think the keys should be. Then, once you get past that first screen, it switches back to dvorak (although the visual keyboard doesn't, for some reason) so you have to know that the user login is using a different keyboard layout from the disk decryption prompt - even though there's no way to actually check what the layout is without just trying the variations until you find the one that works.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgbc034b2" class="outline-3"&gt;
-&lt;h3 id="orgbc034b2"&gt;Video Drivers&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbc034b2"&gt;
-&lt;p&gt;
-On top of the keyboard problem, the default Nouveau video drivers seem to have re-introduced an old bug that causes the GUI to freeze up periodically (on my ZaReason and HP computers, at least. I haven't seen it on the other two, but I don't use them as much, anyway). Switching to the Nvidia driver fixes the freezing problem, but it then makes the initial disk-decryption login non-functional - it seems to freeze everything so you can't do anything but restart the computer and use the Grub menu to drop into recovery mode and enter the password at the command line before resuming the startup. As a 'fix' I followed the advice from &lt;a href="https://askubuntu.com/questions/16371/how-do-i-disable-x-at-boot-time-so-that-the-system-boots-in-text-mode"&gt;this Stack Overflow answer&lt;/a&gt; and disabled the initial splash screen altogether by editing the &lt;code&gt;/etc/default/grub&lt;/code&gt; file to have this line:
-&lt;/p&gt;
-
-&lt;pre class="example" id="orgc125c5d"&gt;
-GRUB_CMDLINE_LINUX_DEFAULT="text"
-&lt;/pre&gt;
-
-&lt;p&gt;
-Then update grub (it doesn't load this file on booting up, you have to explicitly update it).
-&lt;/p&gt;
-
-&lt;pre class="example" id="org7d3b288"&gt;
-sudo update-grub
-&lt;/pre&gt;
-
-&lt;p&gt;
-This makes the initial boot-screen text-only, like an old-school terminal. Not fancy, but at least I don't have to remember to drop into recovery-mode every time I start the computer.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgdf938ff" class="outline-2"&gt;
-&lt;h2 id="orgdf938ff"&gt;Apt-Fast Bug&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgdf938ff"&gt;
-&lt;p&gt;
-This is a &lt;a href="https://github.com/ilikenwf/apt-fast/issues/132"&gt;bug&lt;/a&gt; in apt-fast, not an ubuntu bug, but since apt-fast is one of the first things I usually install, I figure I should document the fix. Open up &lt;code&gt;/var/lib/dpkg/info/apt-fast.config&lt;/code&gt; (as root), jump to line 212 and change this line:
-&lt;/p&gt;
-
-&lt;pre class="example" id="org7f91f95"&gt;
-if ($downloadcmd =~ /\${_MAXNUM}/){
-&lt;/pre&gt;
-
-&lt;p&gt;
-to this:
-&lt;/p&gt;
-
-&lt;pre class="example" id="org3a5ec21"&gt;
-if ($downloadcmd =~ /\$\{_MAXNUM}/){
-&lt;/pre&gt;
-
-&lt;p&gt;
-In case you can't see it I added a backslash (&lt;code&gt;\&lt;/code&gt;) between the &lt;code&gt;$&lt;/code&gt; and &lt;code&gt;{_MAXNUM&lt;/code&gt;.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgf0f6513" class="outline-2"&gt;
-&lt;h2 id="orgf0f6513"&gt;A Little Less Whining&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf0f6513"&gt;
-&lt;p&gt;
-Although the disk-decryption login is a major negative, I must note that I kind of like the new aesthetic, I was just really, &lt;i&gt;really&lt;/i&gt;, surprised at how defective this process seemed to be, given how far along Ubuntu has come. There's still some unexpected behaviors (switching workspaces seems to drag applications with them, even though I didn't explicitly ask to, for instance, and byobu seems to ignore my alternate escape key sometimes), but I like it overall. Maybe tomorrow I'll feel different.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>ubuntu</category><category>whine</category><guid>https://necromuralist.github.io/posts/the-experience-of-updating-ubuntu-1704-to-1710/</guid><pubDate>Sat, 28 Oct 2017 20:35:05 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>how-to</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/openvpn-on-ubuntu-1804/</guid><pubDate>Wed, 11 Jul 2018 01:11:39 GMT</pubDate></item></channel></rss>

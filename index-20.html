@@ -54,6 +54,171 @@
 <div class="postindex">
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/coding-train-starfield/">Coding Train Starfield</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/coding-train-starfield/" rel="bookmark"><time class="published dt-published" datetime="2022-02-10T15:19:02-08:00" itemprop="datePublished" title="2022-02-10 15:19">2022-02-10 15:19</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="posts/coding-train-starfield/#org46211f6">The Starfield</a></li>
+<li><a href="posts/coding-train-starfield/#org2e5ce7d">The Main Sketch</a>
+<ul>
+<li><a href="posts/coding-train-starfield/#org7a09101">The Setup Function</a></li>
+<li><a href="posts/coding-train-starfield/#org8744ea5">Draw</a></li>
+</ul>
+</li>
+<li><a href="posts/coding-train-starfield/#orgb8e515a">The Star Class</a>
+<ul>
+<li><a href="posts/coding-train-starfield/#org4a394f5">The Update</a></li>
+<li><a href="posts/coding-train-starfield/#org1b13171">The Show Function</a></li>
+</ul>
+</li>
+<li><a href="posts/coding-train-starfield/#orgec606ae">Attaching the Sketch</a></li>
+<li><a href="posts/coding-train-starfield/#orge1b836d">Source</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org46211f6">
+<h2 id="org46211f6">The Starfield</h2>
+<div class="outline-text-2" id="text-org46211f6">
+<p>This is another <a href="https://p5js.org/">p5.js</a> hello-world, this time taken from Daniel Schiffman's <a href="https://thecodingtrain.com/CodingChallenges/001-starfield.html">Starfield in Processing</a> coding challenge. It's a rough version of traveling through the stars at warp speed. He managed to do it in about 15 minutes, if I remember correctly. It starts static but if you move your mouse back and forth horizontally it adjusts the speed.</p>
+<script language="javascript" src="posts/coding-train-starfield/starfield.js" type="text/javascript"></script>
+<div id="schiffman-starfield"></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org2e5ce7d">
+<h2 id="org2e5ce7d">The Main Sketch</h2>
+<div class="outline-text-2" id="text-org2e5ce7d">
+<p>The most basic processing/p5 sketch uses two functions <code>setup</code> to initially set up your canvas and <code>draw</code> to update the frames over time. This function creates our canvas and star objects in the <code>setup</code> and then calculates a <code>speed</code> based on the mouse position of the user in order to update the stars. It gets passed a p5 element, called p, in order to get access to the p5.js code.</p>
+<div class="highlight">
+<pre><span></span><span class="cm">/** The main sketch</span>
+<span class="cm"> * this gets passed to p5 so it defines the setup and draw functions</span>
+<span class="cm"> * that p5 expects</span>
+<span class="cm">*/</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">starfield_sketch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">star_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">800</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">parent_div_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"schiffman-starfield"</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">BLACK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">255</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">ALPHA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">100</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-org7a09101">
+<h3 id="org7a09101">The Setup Function</h3>
+<div class="outline-text-3" id="text-org7a09101">
+<p>Not too much voodoo here, other than the use of the <a href="https://api.jquery.com/outerWidth/">JQuery outerWidth</a> method which gets the width of the DIV that we're using to hold the sketch and uses it as the width for the canvas.</p>
+<div class="highlight">
+<pre><span></span><span class="nx">p</span><span class="p">.</span><span class="nx">setup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">canvas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">createCanvas</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">"#"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">parent_div_id</span><span class="p">).</span><span class="nx">outerWidth</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span><span class="w"> </span><span class="mf">800</span><span class="p">);</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">star_count</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Star</span><span class="p">(</span><span class="nx">p</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span><span class="w"> </span><span class="c1">// end setup</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org8744ea5">
+<h3 id="org8744ea5">Draw</h3>
+<div class="outline-text-3" id="text-org8744ea5">
+<p>Again, not too fancy. The draw function:</p>
+<ul class="org-ul">
+<li>Sets the background to black to wipe out our previous drawing</li>
+<li>gets the "speed" of the stars using the x-position of the mouse and mapping this location from 0 to the width of the canvas to a smaller range from 0 to 50</li>
+<li>Translate the (0, 0) of the coordinate system from the top left of the canvas to the middle so our stars emerge from the center instead of the top left</li>
+<li>update all the stars with the speed and re-draw them</li>
+</ul>
+<div class="highlight">
+<pre><span></span><span class="w">  </span><span class="nx">p</span><span class="p">.</span><span class="nx">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">background</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">BLACK</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">ALPHA</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">mouseX</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">50</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">translate</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="o">/</span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="o">/</span><span class="mf">2</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">){</span>
+<span class="w">      </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">update</span><span class="p">(</span><span class="nx">speed</span><span class="p">);</span>
+<span class="w">      </span><span class="nx">p</span><span class="p">.</span><span class="nx">stars</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="c1">//end draw</span>
+<span class="p">};</span><span class="w"> </span><span class="c1">//end starfield_sketch</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgb8e515a">
+<h2 id="orgb8e515a">The Star Class</h2>
+<div class="outline-text-2" id="text-orgb8e515a">
+<p>The <code>Star</code> stores the position of a "star" and updates it based on the speed that it's given. Our initial constructor sets up the coordinates of the star using random values.</p>
+<div class="highlight">
+<pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">Star</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-org4a394f5">
+<h3 id="org4a394f5">The Update</h3>
+<div class="outline-text-3" id="text-org4a394f5">
+<p>Most of the time the update reduces the <code>z</code> value by the current speed, but since we don't want the stars to go off the canvas and disappear, if it gets too small we re-randomize the position of the star.</p>
+<div class="highlight">
+<pre><span></span><span class="k">this</span><span class="p">.</span><span class="nx">update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">(</span><span class="nx">speed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">speed</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="o">-</span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">random</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span><span class="w"> </span><span class="c1">//end update</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org1b13171">
+<h3 id="org1b13171">The Show Function</h3>
+<div class="outline-text-3" id="text-org1b13171">
+<p>The <code>show</code> function is where most of the work is done. It calculates the proprotions of x and y to z and then maps that to the width and height of the canvas and then draws an ellipse. To get the radius of the ellipse we map the current z-value using an inverted target of 16, 0. This means that as z gets smaller our radius gets bigger.</p>
+<div class="highlight">
+<pre><span></span><span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">show</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">x_now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">x</span><span class="o">/</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">y_now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">y</span><span class="o">/</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">height</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">z</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">p</span><span class="p">.</span><span class="nx">width</span><span class="p">,</span><span class="w"> </span><span class="mf">16</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">ellipse</span><span class="p">(</span><span class="nx">x_now</span><span class="p">,</span><span class="w"> </span><span class="nx">y_now</span><span class="p">,</span><span class="w"> </span><span class="nx">radius</span><span class="p">,</span><span class="w"> </span><span class="nx">radius</span><span class="p">);</span>
+
+<span class="w">    </span><span class="nx">p</span><span class="p">.</span><span class="nx">stroke</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">WHITE</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="c1">// end show</span>
+<span class="p">};</span><span class="w"> </span><span class="c1">//end class Star</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgec606ae">
+<h2 id="orgec606ae">Attaching the Sketch</h2>
+<div class="outline-text-2" id="text-orgec606ae">
+<p>This next bit attaches our sketch to a specific DIV defined in the HTML. You don't have to do this, you could just use the parts as universal functions like the examples show, but if you have more than one sketch on a page sometimes things get funky so I prefer this pattern to keep everything in place.</p>
+<div class="highlight">
+<pre><span></span><span class="c1">// Attach the starfield_sketch function at the top to the div with ID</span>
+<span class="c1">// schiffman-starfield</span>
+<span class="nx">sketch_container</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">p5</span><span class="p">(</span><span class="nx">starfield_sketch</span><span class="p">,</span><span class="w"> </span><span class="s1">'schiffman-starfield'</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orge1b836d">
+<h2 id="orge1b836d">Source</h2>
+<div class="outline-text-2" id="text-orge1b836d">
+<ul class="org-ul">
+<li>Starfield in Processing [Internet]. The Coding Train. 2016 [cited 2022 Feb 10]. Available from: <a href="https://thecodingtrain.com/CodingChallenges/001-starfield.html">https://thecodingtrain.com/CodingChallenges/001-starfield.html</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-vowel-count/">CodeWars: Vowel Count</a></h1>
 <div class="metadata">
 <p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>

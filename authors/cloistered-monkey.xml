@@ -1,5 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 18 May 2023 07:55:23 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Kernel Panic At the Lunar Lobster</title><link>https://necromuralist.github.io/posts/kernel-panic-at-the-lunar-lobster/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts by Cloistered Monkey)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/authors/cloistered-monkey.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Thu, 01 Jun 2023 23:33:04 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Ubuntu 22.04, Python 3.11 and the "emacs-jupyter Symbol's variable is void" Error</title><link>https://necromuralist.github.io/posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org3ca4a17" class="outline-2"&gt;
+&lt;h2 id="org3ca4a17"&gt;What This Is About&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org3ca4a17"&gt;
+&lt;p&gt;
+Ubuntu 22.04 no longer let's you install python packages globally using pip by default (you can override it but they warn you not to). This has caused a cascade of broken parts on my system, since I use python so much. This particular case started with me trying to start the &lt;a href="https://docs.jupyter.org/en/latest/projects/kernels.html"&gt;&lt;code&gt;jupyter kernel&lt;/code&gt;&lt;/a&gt; so that I could run some python code in org-mode and getting (what looked like) an error and fixing it ended up uncovering the fact that working with the new policy for pip broke my emacs setup a little too, so this is a dump of how I got it back up and running again. I recorded it as I was fixing things so there might be a better way, but this is the first pass I took.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orge76df86" class="outline-2"&gt;
+&lt;h2 id="orge76df86"&gt;The Jupyter Kernel Warning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge76df86"&gt;
+&lt;p&gt;
+This is what happened when I tried to start the jupyter kernel.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;Ape-Iron&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;hades@erebus&lt;span class="w"&gt; &lt;/span&gt;~&amp;gt;&lt;span class="w"&gt; &lt;/span&gt;jupyter&lt;span class="w"&gt; &lt;/span&gt;kernel
+&lt;span class="o"&gt;[&lt;/span&gt;KernelApp&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Starting&lt;span class="w"&gt; &lt;/span&gt;kernel&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;'python3'&lt;/span&gt;
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;Debugger&lt;span class="w"&gt; &lt;/span&gt;warning:&lt;span class="w"&gt; &lt;/span&gt;It&lt;span class="w"&gt; &lt;/span&gt;seems&lt;span class="w"&gt; &lt;/span&gt;that&lt;span class="w"&gt; &lt;/span&gt;frozen&lt;span class="w"&gt; &lt;/span&gt;modules&lt;span class="w"&gt; &lt;/span&gt;are&lt;span class="w"&gt; &lt;/span&gt;being&lt;span class="w"&gt; &lt;/span&gt;used,&lt;span class="w"&gt; &lt;/span&gt;which&lt;span class="w"&gt; &lt;/span&gt;may
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;the&lt;span class="w"&gt; &lt;/span&gt;debugger&lt;span class="w"&gt; &lt;/span&gt;miss&lt;span class="w"&gt; &lt;/span&gt;breakpoints.&lt;span class="w"&gt; &lt;/span&gt;Please&lt;span class="w"&gt; &lt;/span&gt;pass&lt;span class="w"&gt; &lt;/span&gt;-Xfrozen_modules&lt;span class="o"&gt;=&lt;/span&gt;off
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;disable&lt;span class="w"&gt; &lt;/span&gt;frozen&lt;span class="w"&gt; &lt;/span&gt;modules.
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;Note:&lt;span class="w"&gt; &lt;/span&gt;Debugging&lt;span class="w"&gt; &lt;/span&gt;will&lt;span class="w"&gt; &lt;/span&gt;proceed.&lt;span class="w"&gt; &lt;/span&gt;Set&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;PYDEVD_DISABLE_FILE_VALIDATION&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;disable&lt;span class="w"&gt; &lt;/span&gt;this&lt;span class="w"&gt; &lt;/span&gt;val
+idation.
+&lt;span class="o"&gt;[&lt;/span&gt;KernelApp&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Connection&lt;span class="w"&gt; &lt;/span&gt;file:&lt;span class="w"&gt; &lt;/span&gt;/home/hades/.local/share/jupyter/runtime/kernel-a57a8231-bfea-468
+&lt;span class="m"&gt;0&lt;/span&gt;-9f8b-6bf1b1e3a7ac.json
+&lt;span class="o"&gt;[&lt;/span&gt;KernelApp&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;To&lt;span class="w"&gt; &lt;/span&gt;connect&lt;span class="w"&gt; &lt;/span&gt;a&lt;span class="w"&gt; &lt;/span&gt;client:&lt;span class="w"&gt; &lt;/span&gt;--existing&lt;span class="w"&gt; &lt;/span&gt;kernel-a57a8231-bfea-4680-9f8b-6bf1b1e3a7ac.json
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;Debugger&lt;span class="w"&gt; &lt;/span&gt;warning:&lt;span class="w"&gt; &lt;/span&gt;It&lt;span class="w"&gt; &lt;/span&gt;seems&lt;span class="w"&gt; &lt;/span&gt;that&lt;span class="w"&gt; &lt;/span&gt;frozen&lt;span class="w"&gt; &lt;/span&gt;modules&lt;span class="w"&gt; &lt;/span&gt;are&lt;span class="w"&gt; &lt;/span&gt;being&lt;span class="w"&gt; &lt;/span&gt;used,&lt;span class="w"&gt; &lt;/span&gt;which&lt;span class="w"&gt; &lt;/span&gt;may
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;make&lt;span class="w"&gt; &lt;/span&gt;the&lt;span class="w"&gt; &lt;/span&gt;debugger&lt;span class="w"&gt; &lt;/span&gt;miss&lt;span class="w"&gt; &lt;/span&gt;breakpoints.&lt;span class="w"&gt; &lt;/span&gt;Please&lt;span class="w"&gt; &lt;/span&gt;pass&lt;span class="w"&gt; &lt;/span&gt;-Xfrozen_modules&lt;span class="o"&gt;=&lt;/span&gt;off
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;python&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;disable&lt;span class="w"&gt; &lt;/span&gt;frozen&lt;span class="w"&gt; &lt;/span&gt;modules.
+&lt;span class="m"&gt;0&lt;/span&gt;.00s&lt;span class="w"&gt; &lt;/span&gt;-&lt;span class="w"&gt; &lt;/span&gt;Note:&lt;span class="w"&gt; &lt;/span&gt;Debugging&lt;span class="w"&gt; &lt;/span&gt;will&lt;span class="w"&gt; &lt;/span&gt;proceed.&lt;span class="w"&gt; &lt;/span&gt;Set&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;PYDEVD_DISABLE_FILE_VALIDATION&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;to&lt;span class="w"&gt; &lt;/span&gt;disable&lt;span class="w"&gt; &lt;/span&gt;this&lt;span class="w"&gt; &lt;/span&gt;validation.
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+According to &lt;a href="https://stackoverflow.com/questions/75114841/debugger-warning-from-ipython-frozen-modules"&gt;this Stack Overflow post&lt;/a&gt; the output, though scary-looking, is only a warning, and you should be able to ignore it. It's happening because python 3.11 uses a "frozen" version of python with code objects for some of the built-in python modules that get loaded when the interpreter starts up already pre-allocated in order to reduce their load time during python's start up (i.e. they set it up to start faster), and their doing this means that the debugger might not work correctly - but since I'm not using the debugger, it shouldn't matter.
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://docs.python.org/3/whatsnew/3.11.html#faster-startup"&gt;Python Note on their freezing the modules&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://wiki.python.org/moin/Freeze"&gt;Python documentation of "freezing"&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+Ah, but there's always a problem lurking behind the advice to ignore "harmless warnings". Even with the kernel running, I couldn't get python/jupyter to work in my org-babel source blocks, so there was more to do.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org141db97" class="outline-2"&gt;
+&lt;h2 id="org141db97"&gt;Getting emacs-jupyter Working&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org141db97"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org3e2ccb9" class="outline-3"&gt;
+&lt;h3 id="org3e2ccb9"&gt;The Problem&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3e2ccb9"&gt;
+&lt;p&gt;
+The first clue as to what might be happing was this line in emacs' startup messages.
+&lt;/p&gt;
+
+&lt;pre class="example" id="orgc0957f3"&gt;
+Symbol’s function definition is void: org-babel-execute:jupyter-python
+&lt;/pre&gt;
+
+&lt;p&gt;
+It looked like &lt;a href="https://github.com/emacs-jupyter/jupyter"&gt;emacs-jupyter&lt;/a&gt; wasn't loading properly. There was also this message in the output:
+&lt;/p&gt;
+
+&lt;pre class="example" id="orgb7ae7a6"&gt;
+Error retrieving kernelspecs: (json-number-format 5)
+&lt;/pre&gt;
+
+&lt;p&gt;
+Searching for that error-message brought up this bug-report on github:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://github.com/emacs-jupyter/jupyter/issues/436"&gt;https://github.com/emacs-jupyter/jupyter/issues/436&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+Wherein the author of the bug-report mentions that loading emacs-jupyter is failing because it's trying to parse the output of jupyter and the warnings I was seeing causes it to fail (the bug-report references a different jupyter command, but the problematic output is the same).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org7e8aab9" class="outline-3"&gt;
+&lt;h3 id="org7e8aab9"&gt;Testing Turning Off the Warning&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7e8aab9"&gt;
+&lt;p&gt;
+The first thing I tried was to follow the directions in the output and supress the warnings by setting an environment variable.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;set&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;--universal&lt;span class="w"&gt; &lt;/span&gt;--export&lt;span class="w"&gt; &lt;/span&gt;PYDEVD_DISABLE_FILE_VALIDATION&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+&lt;b&gt;Note:&lt;/b&gt; This is fish-shell syntax.
+&lt;/p&gt;
+
+&lt;p&gt;
+I restarted the jupyter kernel and the warnings had gone away, so this much worked.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;div id="outline-container-org8477523" class="outline-3"&gt;
+&lt;h3 id="org8477523"&gt;Really Turning Off the Warning&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8477523"&gt;
+&lt;p&gt;
+Setting the environment variable at the command-line changes the environment for my user, but I'm running &lt;a href="https://www.emacswiki.org/emacs/EmacsAsDaemon"&gt;emacs as a daemon&lt;/a&gt; so I needed to edit the &lt;code&gt;systemctl&lt;/code&gt; file for my emacs service. I opened up the &lt;code&gt;~/.config/systemd/user/emacs.service&lt;/code&gt; file in emacs and added the line to set the environment variable for the emacs daemon.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[Service]
+Environment="PYDEVD_DISABLE_FILE_VALIDATION=1"
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then I restarted the service.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;systemctl&lt;span class="w"&gt; &lt;/span&gt;restart&lt;span class="w"&gt; &lt;/span&gt;--user&lt;span class="w"&gt; &lt;/span&gt;emacs
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which gave me a warning that my changes to the configuration have to be re-loaded before restarting the service.
+&lt;/p&gt;
+
+&lt;pre class="example" id="org1ba3b97"&gt;
+Warning: The unit file, source configuration file or drop-ins of emacs.service changed on disk
+. Run 'systemctl --user daemon-reload' to reload units.
+&lt;/pre&gt;
+
+&lt;p&gt;
+Oops.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;systemctl&lt;span class="w"&gt; &lt;/span&gt;--user&lt;span class="w"&gt; &lt;/span&gt;daemon-reload
+systemctl&lt;span class="w"&gt; &lt;/span&gt;restart&lt;span class="w"&gt; &lt;/span&gt;--user&lt;span class="w"&gt; &lt;/span&gt;emacs
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This time the emacs startup messages didn't have the jupyter errors so it looked like things were fixed.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orge86b025" class="outline-2"&gt;
+&lt;h2 id="orge86b025"&gt;Swapping a Virtual Environment For pipx&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge86b025"&gt;
+&lt;p&gt;
+Suppressing the warnings &lt;i&gt;pretty much&lt;/i&gt; solved the problem, but while I was getting this fixed I was also trying to set up a USB Windows installer using &lt;a href="https://github.com/WoeUSB/WoeUSB"&gt;WoeUSB&lt;/a&gt; and found that pipx couldn't install it because of a dependency error. Pipx is good at installing some standalone python commands but it won't install things that are just libraries and it seems to sometimes also have problems installing dependencies for the commands that it &lt;i&gt;will&lt;/i&gt; install. This has come up for me before, and the old solution was just for me to install the dependencies separately  using &lt;code&gt;pip&lt;/code&gt; before trying to install whatever it was that I was installing with pipx. Now, though, since ubuntu is trying to keep you from installing python modules globally, installing the dependencies means they either have to be available through &lt;code&gt;apt&lt;/code&gt; or you have to set up a virtual environment and install them there (when I say &lt;i&gt;have to&lt;/i&gt; I mean that since that's the way I know how to do it, that's the way I have to do it, not that there aren't other ways to do it that I just don't know about).
+&lt;/p&gt;
+
+&lt;p&gt;
+Doing it this way is easy enough, since I use python virtual environments a lot anyway, but then I ran into another problem which was that once I got the virtual environment set up I found out I had to run woeUSB as root, which then bypasses the whole virtual environment setup. The solution to that was to pass the full path to the virtual environment's woeUSB launcher to &lt;code&gt;sudo&lt;/code&gt;, but it took enough time experimenting with other ways to do it before I got to that step that I decided I should minimalize how much I use pipx as much as possible - and in particular I should avoid using it with my emacs setup, since emacs will sometimss just quietly fail if there's a python-based error and it's only when things don't work that I'll realize there's a problem. So I decided to go with a dedicated virtual environment instead of installing jupyter with pipx.
+&lt;/p&gt;
+
+&lt;p&gt;
+This, once again was not a big deal in hindsight, but it took enough experimenting with other options before coming to the conclusion that this was the way to go that I thought I should make a note to my future self about it. To get jupyter working with jupyter-emacs:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;create a virtual environment (&lt;code&gt;python3 -m venv emacs-environment&lt;/code&gt;) in the &lt;code&gt;.virtualenvs&lt;/code&gt; folder&lt;/li&gt;
+&lt;li&gt;activate it, then use pip to install &lt;code&gt;wheels&lt;/code&gt; and &lt;code&gt;jupyter&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+In the &lt;code&gt;/.emacs.d/init.el&lt;/code&gt; file, activate the virtual environment &lt;i&gt;before&lt;/i&gt; you load emacs-jupyter or anything else that needs python:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;require&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="ss"&gt;'pyvenv&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;pyvenv-activate&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;"~/.virtualenvs/emacs-environment"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then restart emacs. So far this seems to have fixed it.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org821f370" class="outline-2"&gt;
+&lt;h2 id="org821f370"&gt;Other Links&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org821f370"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;EmacsWiki: Emacs As Daemon [Internet]. [cited 2023 May 28]. Available from: &lt;a href="https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2"&gt;https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Schäfer J. pyvenv.el, Python virtual environment support for Emacs [Internet]. 2023 [cited 2023 May 28]. Available from: &lt;a href="https://github.com/jorgenschaefer/pyvenv"&gt;https://github.com/jorgenschaefer/pyvenv&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>emacs</category><category>jupyter</category><category>python</category><category>troubleshooting</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/</guid><pubDate>Thu, 25 May 2023 23:12:27 GMT</pubDate></item><item><title>Kernel Panic At the Lunar Lobster</title><link>https://necromuralist.github.io/posts/kernel-panic-at-the-lunar-lobster/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
@@ -1119,184 +1308,4 @@ To add a little of what the other solution is doing…
 &lt;span class="n"&gt;expect&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;six&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;divided_by&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;two&lt;/span&gt;&lt;span class="p"&gt;())))&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;equal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>codewars</category><category>kata</category><category>python</category><guid>https://necromuralist.github.io/posts/codewars-calculating-with-functions/</guid><pubDate>Fri, 11 Feb 2022 01:52:52 GMT</pubDate></item><item><title>Coding Train Starfield</title><link>https://necromuralist.github.io/posts/coding-train-starfield/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents" role="doc-toc"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#org46211f6"&gt;The Starfield&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#org2e5ce7d"&gt;The Main Sketch&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#org7a09101"&gt;The Setup Function&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#org8744ea5"&gt;Draw&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#orgb8e515a"&gt;The Star Class&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#org4a394f5"&gt;The Update&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#org1b13171"&gt;The Show Function&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#orgec606ae"&gt;Attaching the Sketch&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/coding-train-starfield/#orge1b836d"&gt;Source&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org46211f6" class="outline-2"&gt;
-&lt;h2 id="org46211f6"&gt;The Starfield&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org46211f6"&gt;
-&lt;p&gt;
-This is another &lt;a href="https://p5js.org/"&gt;p5.js&lt;/a&gt; hello-world, this time taken from Daniel Schiffman's &lt;a href="https://thecodingtrain.com/CodingChallenges/001-starfield.html"&gt;Starfield in Processing&lt;/a&gt; coding challenge. It's a rough version of traveling through the stars at warp speed. He managed to do it in about 15 minutes, if I remember correctly. It starts static but if you move your mouse back and forth horizontally it adjusts the speed.
-&lt;/p&gt;
-
-&lt;script language="javascript" type="text/javascript" src="https://necromuralist.github.io/posts/coding-train-starfield/starfield.js"&gt;&lt;/script&gt;
-&lt;div id="schiffman-starfield"&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org2e5ce7d" class="outline-2"&gt;
-&lt;h2 id="org2e5ce7d"&gt;The Main Sketch&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2e5ce7d"&gt;
-&lt;p&gt;
-The most basic processing/p5 sketch uses two functions &lt;code&gt;setup&lt;/code&gt; to initially set up your canvas and &lt;code&gt;draw&lt;/code&gt; to update the frames over time. This function creates our canvas and star objects in the &lt;code&gt;setup&lt;/code&gt; and then calculates a &lt;code&gt;speed&lt;/code&gt; based on the mouse position of the user in order to update the stars. It gets passed a p5 element, called p, in order to get access to the p5.js code.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;/** The main sketch&lt;/span&gt;
-&lt;span class="cm"&gt; * this gets passed to p5 so it defines the setup and draw functions&lt;/span&gt;
-&lt;span class="cm"&gt; * that p5 expects&lt;/span&gt;
-&lt;span class="cm"&gt;*/&lt;/span&gt;
-&lt;span class="kd"&gt;let&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;starfield_sketch&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="kd"&gt;let&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;star_count&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;800&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="kd"&gt;let&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;parent_div_id&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"schiffman-starfield"&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;BLACK&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;WHITE&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;255&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;ALPHA&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;100&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org7a09101" class="outline-3"&gt;
-&lt;h3 id="org7a09101"&gt;The Setup Function&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org7a09101"&gt;
-&lt;p&gt;
-Not too much voodoo here, other than the use of the &lt;a href="https://api.jquery.com/outerWidth/"&gt;JQuery outerWidth&lt;/a&gt; method which gets the width of the DIV that we're using to hold the sketch and uses it as the width for the canvas.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;setup&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stars&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[];&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;canvas&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;createCanvas&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;$&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"#"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;parent_div_id&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nx"&gt;outerWidth&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;800&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;let&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;star_count&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stars&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="ow"&gt;new&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;Star&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;// end setup&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org8744ea5" class="outline-3"&gt;
-&lt;h3 id="org8744ea5"&gt;Draw&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8744ea5"&gt;
-&lt;p&gt;
-Again, not too fancy. The draw function:
-&lt;/p&gt;
-
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;Sets the background to black to wipe out our previous drawing&lt;/li&gt;
-&lt;li&gt;gets the "speed" of the stars using the x-position of the mouse and mapping this location from 0 to the width of the canvas to a smaller range from 0 to 50&lt;/li&gt;
-&lt;li&gt;Translate the (0, 0) of the coordinate system from the top left of the canvas to the middle so our stars emerge from the center instead of the top left&lt;/li&gt;
-&lt;li&gt;update all the stars with the speed and re-draw them&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;draw&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;background&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;BLACK&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;ALPHA&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nx"&gt;speed&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;mouseX&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;50&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;translate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;height&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mf"&gt;2&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;let&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stars&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;length&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt;
-&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stars&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="nx"&gt;update&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;speed&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;      &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stars&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;i&lt;/span&gt;&lt;span class="p"&gt;].&lt;/span&gt;&lt;span class="nx"&gt;show&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;//end draw&lt;/span&gt;
-&lt;span class="p"&gt;};&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;//end starfield_sketch&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgb8e515a" class="outline-2"&gt;
-&lt;h2 id="orgb8e515a"&gt;The Star Class&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb8e515a"&gt;
-&lt;p&gt;
-The &lt;code&gt;Star&lt;/code&gt; stores the position of a "star" and updates it based on the speed that it's given. Our initial constructor sets up the coordinates of the star using random values. 
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;Star&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;x&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;y&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;height&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org4a394f5" class="outline-3"&gt;
-&lt;h3 id="org4a394f5"&gt;The Update&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org4a394f5"&gt;
-&lt;p&gt;
-Most of the time the update reduces the &lt;code&gt;z&lt;/code&gt; value by the current speed, but since we don't want the stars to go off the canvas and disappear, if it gets too small we re-randomize the position of the star.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;update&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;speed&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;speed&lt;/span&gt;
-
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;x&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;y&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;height&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;random&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
-&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;//end update&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org1b13171" class="outline-3"&gt;
-&lt;h3 id="org1b13171"&gt;The Show Function&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1b13171"&gt;
-&lt;p&gt;
-The &lt;code&gt;show&lt;/code&gt; function is where most of the work is done. It calculates the proprotions of x and y to z and then maps that to the width and height of the canvas and then draws an ellipse. To get the radius of the ellipse we map the current z-value using an inverted target of 16, 0. This means that as z gets smaller our radius gets bigger.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;show&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;fill&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;WHITE&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;x_now&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;x&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;y_now&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;y&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;height&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;radius&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;z&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;16&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mf"&gt;0&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;ellipse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;x_now&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;y_now&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;radius&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;radius&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-
-&lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;stroke&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;p&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;WHITE&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;// end show&lt;/span&gt;
-&lt;span class="p"&gt;};&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c1"&gt;//end class Star&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orgec606ae" class="outline-2"&gt;
-&lt;h2 id="orgec606ae"&gt;Attaching the Sketch&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgec606ae"&gt;
-&lt;p&gt;
-This next bit attaches our sketch to a specific DIV defined in the HTML. You don't have to do this, you could just use the parts as universal functions like the examples show, but if you have more than one sketch on a page sometimes things get funky so I prefer this pattern to keep everything in place.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// Attach the starfield_sketch function at the top to the div with ID&lt;/span&gt;
-&lt;span class="c1"&gt;// schiffman-starfield&lt;/span&gt;
-&lt;span class="nx"&gt;sketch_container&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="ow"&gt;new&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;p5&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;starfield_sketch&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;'schiffman-starfield'&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-orge1b836d" class="outline-2"&gt;
-&lt;h2 id="orge1b836d"&gt;Source&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orge1b836d"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;Starfield in Processing [Internet]. The Coding Train. 2016 [cited 2022 Feb 10]. Available from: &lt;a href="https://thecodingtrain.com/CodingChallenges/001-starfield.html"&gt;https://thecodingtrain.com/CodingChallenges/001-starfield.html&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>p5.js</category><guid>https://necromuralist.github.io/posts/coding-train-starfield/</guid><pubDate>Thu, 10 Feb 2022 23:19:02 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>codewars</category><category>kata</category><category>python</category><guid>https://necromuralist.github.io/posts/codewars-calculating-with-functions/</guid><pubDate>Fri, 11 Feb 2022 01:52:52 GMT</pubDate></item></channel></rss>
