@@ -1,0 +1,135 @@
+#+BEGIN_COMMENT
+.. title: Ubuntu 22.04, Python 3.11 and the "emacs-jupyter Symbol's variable is void" Error
+.. slug: python-311-and-emacs-jupyter-symbols-variable-is-void-error
+.. date: 2023-05-25 16:12:27 UTC-07:00
+.. tags: troubleshooting,emacs,jupyter,ubuntu,python
+.. category: Emacs
+.. link: 
+.. description: Troubleshooting emacs-jupyter with python 3.11.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+
+* What This Is About
+
+Ubuntu 22.04 no longer let's you install python packages globally using pip by default (you can override it but they warn you not to). This has caused a cascade of broken parts on my system, since I use python so much. This particular case started with me trying to start the [[https://docs.jupyter.org/en/latest/projects/kernels.html][~jupyter kernel~]] so that I could run some python code in org-mode and getting (what looked like) an error and fixing it ended up uncovering the fact that working with the new policy for pip broke my emacs setup a little too, so this is a dump of how I got it back up and running again. I recorded it as I was fixing things so there might be a better way, but this is the first pass I took.
+
+* The Jupyter Kernel Warning
+
+This is what happened when I tried to start the jupyter kernel.
+
+#+begin_src sh
+(Ape-Iron) hades@erebus ~> jupyter kernel
+[KernelApp] Starting kernel 'python3'
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this val
+idation.
+[KernelApp] Connection file: /home/hades/.local/share/jupyter/runtime/kernel-a57a8231-bfea-468
+0-9f8b-6bf1b1e3a7ac.json
+[KernelApp] To connect a client: --existing kernel-a57a8231-bfea-4680-9f8b-6bf1b1e3a7ac.json
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+#+end_src
+
+According to [[https://stackoverflow.com/questions/75114841/debugger-warning-from-ipython-frozen-modules][this Stack Overflow post]] the output, though scary-looking, is only a warning, and you should be able to ignore it. It's happening because python 3.11 uses a "frozen" version of python with code objects for some of the built-in python modules that get loaded when the interpreter starts up already pre-allocated in order to reduce their load time during python's start up (i.e. they set it up to start faster), and their doing this means that the debugger might not work correctly - but since I'm not using the debugger, it shouldn't matter.
+
+ - [[https://docs.python.org/3/whatsnew/3.11.html#faster-startup][Python Note on their freezing the modules]]
+ - [[https://wiki.python.org/moin/Freeze][Python documentation of "freezing"]]
+
+ Ah, but there's always a problem lurking behind the advice to ignore "harmless warnings". Even with the kernel running, I couldn't get python/jupyter to work in my org-babel source blocks, so there was more to do.
+
+* Getting emacs-jupyter Working
+
+** The Problem
+
+The first clue as to what might be happing was this line in emacs' startup messages.
+ 
+#+begin_example
+Symbol’s function definition is void: org-babel-execute:jupyter-python
+#+end_example
+
+It looked like [[https://github.com/emacs-jupyter/jupyter][emacs-jupyter]] wasn't loading properly. There was also this message in the output:
+
+#+begin_example
+Error retrieving kernelspecs: (json-number-format 5)
+#+end_example
+
+Searching for that error-message brought up this bug-report on github:
+
+ - https://github.com/emacs-jupyter/jupyter/issues/436
+
+Wherein the author of the bug-report mentions that loading emacs-jupyter is failing because it's trying to parse the output of jupyter and the warnings I was seeing causes it to fail (the bug-report references a different jupyter command, but the problematic output is the same).
+
+** Testing Turning Off the Warning
+The first thing I tried was to follow the directions in the output and supress the warnings by setting an environment variable.
+
+#+begin_src sh
+set --universal --export PYDEVD_DISABLE_FILE_VALIDATION 1
+#+end_src
+
+*Note:* This is fish-shell syntax.
+
+I restarted the jupyter kernel and the warnings had gone away, so this much worked.
+
+
+** Really Turning Off the Warning
+
+Setting the environment variable at the command-line changes the environment for my user, but I'm running [[https://www.emacswiki.org/emacs/EmacsAsDaemon][emacs as a daemon]] so I needed to edit the ~systemctl~ file for my emacs service. I opened up the =~/.config/systemd/user/emacs.service= file in emacs and added the line to set the environment variable for the emacs daemon.
+
+#+begin_src ini
+[Service]
+Environment="PYDEVD_DISABLE_FILE_VALIDATION=1"
+#+end_src
+
+Then I restarted the service.
+
+#+begin_src sh
+systemctl restart --user emacs
+#+end_src
+
+Which gave me a warning that my changes to the configuration have to be re-loaded before restarting the service.
+
+#+begin_example
+Warning: The unit file, source configuration file or drop-ins of emacs.service changed on disk
+. Run 'systemctl --user daemon-reload' to reload units.
+#+end_example
+
+Oops.
+
+#+begin_src sh
+systemctl --user daemon-reload
+systemctl restart --user emacs
+#+end_src
+
+This time the emacs startup messages didn't have the jupyter errors so it looked like things were fixed.
+
+* Swapping a Virtual Environment For pipx
+
+Suppressing the warnings /pretty much/ solved the problem, but while I was getting this fixed I was also trying to set up a USB Windows installer using [[https://github.com/WoeUSB/WoeUSB][WoeUSB]] and found that pipx couldn't install it because of a dependency error. Pipx is good at installing some standalone python commands but it won't install things that are just libraries and it seems to sometimes also have problems installing dependencies for the commands that it /will/ install. This has come up for me before, and the old solution was just for me to install the dependencies separately  using ~pip~ before trying to install whatever it was that I was installing with pipx. Now, though, since ubuntu is trying to keep you from installing python modules globally, installing the dependencies means they either have to be available through ~apt~ or you have to set up a virtual environment and install them there (when I say /have to/ I mean that since that's the way I know how to do it, that's the way I have to do it, not that there aren't other ways to do it that I just don't know about).
+
+Doing it this way is easy enough, since I use python virtual environments a lot anyway, but then I ran into another problem which was that once I got the virtual environment set up I found out I had to run woeUSB as root, which then bypasses the whole virtual environment setup. The solution to that was to pass the full path to the virtual environment's woeUSB launcher to ~sudo~, but it took enough time experimenting with other ways to do it before I got to that step that I decided I should minimalize how much I use pipx as much as possible - and in particular I should avoid using it with my emacs setup, since emacs will sometimss just quietly fail if there's a python-based error and it's only when things don't work that I'll realize there's a problem. So I decided to go with a dedicated virtual environment instead of installing jupyter with pipx.
+
+This, once again was not a big deal in hindsight, but it took enough experimenting with other options before coming to the conclusion that this was the way to go that I thought I should make a note to my future self about it. To get jupyter working with jupyter-emacs:
+
+ - create a virtual environment (~python3 -m venv emacs-environment~) in the ~.virtualenvs~ folder
+ - activate it, then use pip to install ~wheels~ and ~jupyter~
+
+In the ~/.emacs.d/init.el~ file, activate the virtual environment /before/ you load emacs-jupyter or anything else that needs python:
+
+#+begin_src emacs-lisp
+(require 'pyvenv)
+(pyvenv-activate "~/.virtualenvs/emacs-environment")
+#+end_src
+
+Then restart emacs. So far this seems to have fixed it.
+
+* Other Links
+
+- EmacsWiki: Emacs As Daemon [Internet]. [cited 2023 May 28]. Available from: https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2
+- Schäfer J. pyvenv.el, Python virtual environment support for Emacs [Internet]. 2023 [cited 2023 May 28]. Available from: https://github.com/jorgenschaefer/pyvenv
