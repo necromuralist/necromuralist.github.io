@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/" rel="prefetch" type="text/html">
+<link href="posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -52,6 +52,146 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/">Fish, Mocha, Chai - A Local Global Installation In Ubuntu</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/" rel="bookmark"><time class="published dt-published" datetime="2023-06-08T16:29:32-07:00" itemprop="datePublished" title="2023-06-08 16:29">2023-06-08 16:29</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div class="outline-2" id="outline-container-org2816271">
+<h2 id="org2816271">What This Is About</h2>
+<div class="outline-text-2" id="text-org2816271">
+<p>I've been getting back into <a href="https://p5.js.org">p5.js</a> lately and thought that I should add some testing so I went to their site and found that they had a tutorial page called <a href="https://p5js.org/learn/tdd.html">"Unit Testing and Test Driven Development"</a> which I decided to follow along with to get re-acquainted with testing javascript but then I ran into a problem running <a href="https://mochajs.org/">mocha</a>, or more specifically, running mocha crashed because it couldn't find <a href="https://www.chaijs.com/">chai</a> even though I'd followed the instructions to install it. So here goes what I did to fix it.</p>
+<p>This is another case where you can basically find the answer online if you look at the right page - but there seems to be more pages with the unhelpful answers and I use the fish shell and ubuntu so it's a little different from the stuff I found that did work.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgd89403f">
+<h2 id="orgd89403f">The Tutorial's Installation</h2>
+<div class="outline-text-2" id="text-orgd89403f">
+<p>This is how they tell you to install mocha and chai.</p>
+<p>First, update npm (assuming you've already installed it somehow).</p>
+<div class="highlight">
+<pre><span></span>sudo npm install npm@latest -g
+</pre></div>
+<p>Then install mocha and chai using npm.</p>
+<div class="highlight">
+<pre><span></span>npm install mocha -g
+npm install chai -g
+</pre></div>
+<p>This right here is actually where the trouble starts. If you try to install things globally, you need to run it as root, thus the use of <code>sudo</code> when updating <code>npm</code>. But their instructions on installing <code>mocha</code> and <code>chai</code> don't say to use <code>sudo</code>, which will result in a permission error, so did they forget to run it as root, or did they not mean to install it globally? I decided to re-run their instructions as root.</p>
+<div class="highlight">
+<pre><span></span>sudo npm install mocha -g
+sudo npm install chai -g
+</pre></div>
+<p>This seemed to work, but when I ran <code>mocha</code> on the folder where I put the code given in the tutorial:</p>
+<div class="highlight">
+<pre><span></span>mocha color_unit_tests/
+</pre></div>
+<p>It gave me an error.</p>
+<div class="highlight">
+<pre><span></span>Error: Cannot find module 'chai'
+Require stack:
+- /home/hades/projects/ape-iron/p5tests/color_unit_tests/test.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1097:15)
+    at Module._load (node:internal/modules/cjs/loader:942:27)
+    at Module.require (node:internal/modules/cjs/loader:1163:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.&lt;anonymous&gt; (/home/hades/projects/ape-iron/p5tests/color_unit_tests/test.js:5:16
+)
+    at Module._compile (node:internal/modules/cjs/loader:1276:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1330:10)
+    at Module.load (node:internal/modules/cjs/loader:1139:32)
+    at Module._load (node:internal/modules/cjs/loader:980:12)
+    at ModuleWrap.&lt;anonymous&gt; (node:internal/modules/esm/translators:169:29)
+    at ModuleJob.run (node:internal/modules/esm/module_job:194:25)
+</pre></div>
+<p>So, maybe that wasn't the answer.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgf332ac2">
+<h2 id="orgf332ac2">This Might Be the Wrong Way</h2>
+<div class="outline-text-2" id="text-orgf332ac2">
+<p>I found a <a href="https://stackoverflow.com/questions/43156635/chai-mocha-global-local">Stack Overflow</a> question that described the exact problem I had, but one of the comments had this to say:</p>
+<blockquote>
+<p>Mocha can be installed either locally or globally, but Chai can only be installed locally. Has to do with the way it is applied (i.e., to the specific app instance). – Steve Carey May 30, 2020 at 21:11</p>
+</blockquote>
+<p>I don't know who "Steve Carey" is and whether what he is saying is true, but the <a href="https://www.chaijs.com/guide/installatio">chai installation instructions</a> do tell you to install it locally, rather than globally, but when you do this for every project you end up with <code>node_modules</code> and <code>package.json</code> files all over the place. I suppose there's a reason for this, maybe to couple the version of chai you're using with the project, but I decided to try another way.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org18164a9">
+<h2 id="org18164a9">The Local Global</h2>
+<div class="outline-text-2" id="text-org18164a9">
+<p><a href="https://stackoverflow.com/a/13021677">This answer</a> on Stack Overflow describes how to install npm-packages into your home directory as your global directory. It assumes you're using bash, though, so I had to change it up a little bit.</p>
+</div>
+<div class="outline-3" id="outline-container-org597238b">
+<h3 id="org597238b">Make a local package directory</h3>
+<div class="outline-text-3" id="text-org597238b">
+<p>First I made a local package directory.</p>
+<div class="highlight">
+<pre><span></span>mkdir ~/.npm-packages
+</pre></div>
+<p>Then I created a file called <code>~/.npmrc</code> that had one line in it.</p>
+<div class="highlight">
+<pre><span></span>prefix = /home/hades/.npm-packages
+</pre></div>
+<p>With <code>/home/hades/</code> being my home-directory.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgd940c0b">
+<h3 id="orgd940c0b">Edit the Fish Configuration</h3>
+<div class="outline-text-3" id="text-orgd940c0b">
+<p>At the bottom of the <code>~/.config/fish/config.fish</code> file I added these lines.</p>
+<div class="highlight">
+<pre><span></span>set -x NPM_PACKAGES $HOME/.npm-packages
+</pre></div>
+<p>This is where <code>npm</code> will install stuff if you tell it to install files globally once we're done. The folder can be named anything, I imagine, but it will need to match what's in the <code>.npmrc</code> file.</p>
+<p>When <code>npm</code> installs packages some of them will be executable commands (like <code>mocha</code>) and so I had to update the fish <code>PATH</code>.</p>
+<div class="highlight">
+<pre><span></span>fish_add_path $HOME/.npm-packages/bin
+</pre></div>
+<p>Although this will make <code>mocha</code> available, <code>chai</code> isn't an executable so you have to set the <code>NODE_PATH</code> variable so that node will no where to look for modules to import.</p>
+<div class="highlight">
+<pre><span></span>set --export NODE_PATH $NPM_PACKAGES/lib/node_modules
+</pre></div>
+<p>I was originally appending the current contents of <code>NODE_PATH</code> to the end, like you would with a regular path variable (<code>$NPM_PACKAGES/lib/node_modules:$NODE_PATH</code>) but for some reason this breaks something and the variable doesn't get set. Or at least it was always empty when I tried to run <code>mocha</code>. So the solution for me was to always clobber the entire path (the variable was empty before I started using it anyway).</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org81c56ec">
+<h2 id="org81c56ec">And Now</h2>
+<div class="outline-text-2" id="text-org81c56ec">
+<p>Running the tests again:</p>
+<div class="highlight">
+<pre><span></span>mocha ../../ape-iron/p5tests/color_unit_tests/
+</pre></div>
+<pre class="example">
+
+
+these are my first tests for p5js
+  ✔ should be a string
+  ✔ should be equal to awesome
+
+
+2 passing (5ms)
+
+</pre>
+<p>The path is different because I'm writing this post in a different repository, but, anyway, it looks like it works.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org09092be">
+<h2 id="org09092be">Sources</h2>
+<div class="outline-text-2" id="text-org09092be">
+<ul class="org-ul">
+<li>Drechsel E. Install NPM into home directory with distribution nodejs package (Ubuntu) [Internet]. Stack Overflow. 2019 [cited 2023 Jun 8]. Available from: <a href="https://stackoverflow.com/q/10081293">https://stackoverflow.com/q/10081293</a></li>
+<li>Unit Testing and Test Driven Development | p5.js [Internet]. [cited 2023 Jun 8]. Available from: <a href="https://p5js.org/learn/tdd.html">https://p5js.org/learn/tdd.html</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/python-311-and-emacs-jupyter-symbols-variable-is-void-error/">Ubuntu 22.04, Python 3.11 and the "emacs-jupyter Symbol's variable is void" Error</a></h1>
@@ -1003,206 +1143,6 @@ I have been to paradise 3 times, but I have never been to me. Oh, the humanity!
 </pre>
 <p>It kind of seems too much to use translate for this exercise, but it does feel cleaner than the dictionary, so I'll have to keep it in mind for the future.</p>
 </div>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-calculating-with-functions/">CodeWars: Calculating With Functions</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/codewars-calculating-with-functions/" rel="bookmark"><time class="published dt-published" datetime="2022-02-10T17:52:52-08:00" itemprop="datePublished" title="2022-02-10 17:52">2022-02-10 17:52</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
-<ul>
-<li><a href="posts/codewars-calculating-with-functions/#orge5ca94c">The Problem</a></li>
-<li><a href="posts/codewars-calculating-with-functions/#org15121c4">The Solution</a>
-<ul>
-<li><a href="posts/codewars-calculating-with-functions/#org9c7089a">The Tests</a></li>
-</ul>
-</li>
-<li><a href="posts/codewars-calculating-with-functions/#orgf4c8164">Alternatives</a></li>
-<li><a href="posts/codewars-calculating-with-functions/#org9f12b12">A Hybrid</a></li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orge5ca94c">
-<h2 id="orge5ca94c">The Problem</h2>
-<div class="outline-text-2" id="text-orge5ca94c">
-<p>Write functions that calculate integer arithmetic. For example.</p>
-<div class="highlight">
-<pre><span></span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">()))</span>
-</pre></div>
-<p>Should return thirty-five. Every number has a function and there are four operation-functions:</p>
-<ul class="org-ul">
-<li><code>plus</code></li>
-<li><code>minus</code></li>
-<li><code>times</code></li>
-<li><code>divided_by</code></li>
-</ul>
-<p>All operations should return integers, not floats.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org15121c4">
-<h2 id="org15121c4">The Solution</h2>
-<div class="outline-text-2" id="text-org15121c4">
-<div class="highlight">
-<pre><span></span><span class="c1"># python</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-
-<span class="k">def</span> <span class="nf">digit</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""A base function to define a digit</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     operation: a function that expects an integer argument when called</span>
-<span class="sd">     integer: an integer to return if no operation is passed in</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">operation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">operation</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">integer</span>
-
-<span class="c1"># the digits</span>
-<span class="n">zero</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">two</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">three</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">four</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="n">five</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">six</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-<span class="n">seven</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-<span class="n">eight</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-<span class="n">nine</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
-
-<span class="c1"># the operations</span>
-<span class="k">def</span> <span class="nf">plus</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
-
-<span class="k">def</span> <span class="nf">minus</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">-</span> <span class="n">right</span>
-
-<span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">*</span> <span class="n">right</span>
-
-<span class="k">def</span> <span class="nf">divided_by</span><span class="p">(</span><span class="n">right</span><span class="p">):</span>
-    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">//</span> <span class="n">right</span>
-</pre></div>
-</div>
-<div class="outline-3" id="outline-container-org9c7089a">
-<h3 id="org9c7089a">The Tests</h3>
-<div class="outline-text-3" id="text-org9c7089a">
-<div class="highlight">
-<pre><span></span><span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orgf4c8164">
-<h2 id="orgf4c8164">Alternatives</h2>
-<div class="outline-text-2" id="text-orgf4c8164">
-<p>There are several variations on the theme. One that I thought was similar in spirit to what I did but better was <a href="https://www.codewars.com/kata/reviews/5b0ce29de86c548f16000e76/groups/5c92714817647a0001bac149">this one</a>. Instead of separate operation and integer they use a default function that only returns what gets passed to it. So the definitions look like this.</p>
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">integer</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">integer</span>
-
-<span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">one</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">two</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">three</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">four</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">five</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">six</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">seven</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">eight</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">nine</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
-
-<span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org9f12b12">
-<h2 id="org9f12b12">A Hybrid</h2>
-<div class="outline-text-2" id="text-org9f12b12">
-<p>To add a little of what the other solution is doing…</p>
-<div class="highlight">
-<pre><span></span><span class="c1"># python</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-
-<span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">integer</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""A pass-through function</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     integer: a digit input</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">     the integer given</span>
-<span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">integer</span>
-
-<span class="k">def</span> <span class="nf">digit</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""A base function to define a digit</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     operation: a function that expects an integer argument when called</span>
-<span class="sd">     integer: an integer to return if no operation is passed in</span>
-<span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">operation</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span>
-
-<span class="c1"># the digits</span>
-<span class="n">zero</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">two</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">three</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">four</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="n">five</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">six</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-<span class="n">seven</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-<span class="n">eight</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-<span class="n">nine</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
-
-<span class="c1"># the operations</span>
-<span class="c1"># this is a style some people used. I'm not sure I like it.</span>
-<span class="n">plus</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">right</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
-<span class="n">minus</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">right</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">-</span> <span class="n">right</span>
-
-<span class="c1"># alternatively you could just do this</span>
-<span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">*</span> <span class="n">right</span>
-<span class="k">def</span> <span class="nf">divided_by</span><span class="p">(</span><span class="n">right</span><span class="p">):</span> <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">//</span> <span class="n">right</span>
-
-<span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
-<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-</pre></div>
 </div>
 </div>
 </div>

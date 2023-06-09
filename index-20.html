@@ -54,6 +54,206 @@
 <div class="postindex">
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-calculating-with-functions/">CodeWars: Calculating With Functions</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/codewars-calculating-with-functions/" rel="bookmark"><time class="published dt-published" datetime="2022-02-10T17:52:52-08:00" itemprop="datePublished" title="2022-02-10 17:52">2022-02-10 17:52</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="posts/codewars-calculating-with-functions/#orge5ca94c">The Problem</a></li>
+<li><a href="posts/codewars-calculating-with-functions/#org15121c4">The Solution</a>
+<ul>
+<li><a href="posts/codewars-calculating-with-functions/#org9c7089a">The Tests</a></li>
+</ul>
+</li>
+<li><a href="posts/codewars-calculating-with-functions/#orgf4c8164">Alternatives</a></li>
+<li><a href="posts/codewars-calculating-with-functions/#org9f12b12">A Hybrid</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orge5ca94c">
+<h2 id="orge5ca94c">The Problem</h2>
+<div class="outline-text-2" id="text-orge5ca94c">
+<p>Write functions that calculate integer arithmetic. For example.</p>
+<div class="highlight">
+<pre><span></span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">()))</span>
+</pre></div>
+<p>Should return thirty-five. Every number has a function and there are four operation-functions:</p>
+<ul class="org-ul">
+<li><code>plus</code></li>
+<li><code>minus</code></li>
+<li><code>times</code></li>
+<li><code>divided_by</code></li>
+</ul>
+<p>All operations should return integers, not floats.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org15121c4">
+<h2 id="org15121c4">The Solution</h2>
+<div class="outline-text-2" id="text-org15121c4">
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="k">def</span> <span class="nf">digit</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A base function to define a digit</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     operation: a function that expects an integer argument when called</span>
+<span class="sd">     integer: an integer to return if no operation is passed in</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">operation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">operation</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">integer</span>
+
+<span class="c1"># the digits</span>
+<span class="n">zero</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">three</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">four</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">five</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">six</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">seven</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">eight</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">nine</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="c1"># the operations</span>
+<span class="k">def</span> <span class="nf">plus</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
+
+<span class="k">def</span> <span class="nf">minus</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">-</span> <span class="n">right</span>
+
+<span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">*</span> <span class="n">right</span>
+
+<span class="k">def</span> <span class="nf">divided_by</span><span class="p">(</span><span class="n">right</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">//</span> <span class="n">right</span>
+</pre></div>
+</div>
+<div class="outline-3" id="outline-container-org9c7089a">
+<h3 id="org9c7089a">The Tests</h3>
+<div class="outline-text-3" id="text-org9c7089a">
+<div class="highlight">
+<pre><span></span><span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-orgf4c8164">
+<h2 id="orgf4c8164">Alternatives</h2>
+<div class="outline-text-2" id="text-orgf4c8164">
+<p>There are several variations on the theme. One that I thought was similar in spirit to what I did but better was <a href="https://www.codewars.com/kata/reviews/5b0ce29de86c548f16000e76/groups/5c92714817647a0001bac149">this one</a>. Instead of separate operation and integer they use a default function that only returns what gets passed to it. So the definitions look like this.</p>
+<div class="highlight">
+<pre><span></span><span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">integer</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">integer</span>
+
+<span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">one</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">two</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">three</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">four</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">five</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">six</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">seven</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">eight</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">nine</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">identity</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org9f12b12">
+<h2 id="org9f12b12">A Hybrid</h2>
+<div class="outline-text-2" id="text-org9f12b12">
+<p>To add a little of what the other solution is doing…</p>
+<div class="highlight">
+<pre><span></span><span class="c1"># python</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+<span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">integer</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A pass-through function</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     integer: a digit input</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">     the integer given</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">integer</span>
+
+<span class="k">def</span> <span class="nf">digit</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A base function to define a digit</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">     operation: a function that expects an integer argument when called</span>
+<span class="sd">     integer: an integer to return if no operation is passed in</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">operation</span><span class="p">(</span><span class="n">integer</span><span class="p">)</span>
+
+<span class="c1"># the digits</span>
+<span class="n">zero</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">three</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">four</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">five</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">six</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">seven</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">eight</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">nine</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">digit</span><span class="p">,</span> <span class="n">integer</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="c1"># the operations</span>
+<span class="c1"># this is a style some people used. I'm not sure I like it.</span>
+<span class="n">plus</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">right</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
+<span class="n">minus</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">right</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">-</span> <span class="n">right</span>
+
+<span class="c1"># alternatively you could just do this</span>
+<span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">*</span> <span class="n">right</span>
+<span class="k">def</span> <span class="nf">divided_by</span><span class="p">(</span><span class="n">right</span><span class="p">):</span> <span class="k">return</span> <span class="k">lambda</span> <span class="n">left</span><span class="p">:</span> <span class="n">left</span> <span class="o">//</span> <span class="n">right</span>
+
+<span class="n">expect</span><span class="p">(</span><span class="n">seven</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">five</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">35</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">four</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="n">nine</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">13</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">eight</span><span class="p">(</span><span class="n">minus</span><span class="p">(</span><span class="n">three</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">expect</span><span class="p">(</span><span class="n">six</span><span class="p">(</span><span class="n">divided_by</span><span class="p">(</span><span class="n">two</span><span class="p">())))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/coding-train-starfield/">Coding Train Starfield</a></h1>
 <div class="metadata">
 <p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>

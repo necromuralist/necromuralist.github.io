@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about node)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/node.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Fri, 09 Jun 2023 00:31:24 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Fish, Mocha, Chai - A Local Global Installation In Ubuntu</title><link>https://necromuralist.github.io/posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org2816271" class="outline-2"&gt;
+&lt;h2 id="org2816271"&gt;What This Is About&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2816271"&gt;
+&lt;p&gt;
+I've been getting back into &lt;a href="https://p5.js.org"&gt;p5.js&lt;/a&gt; lately and thought that I should add some testing so I went to their site and found that they had a tutorial page called &lt;a href="https://p5js.org/learn/tdd.html"&gt;"Unit Testing and Test Driven Development"&lt;/a&gt; which I decided to follow along with to get re-acquainted with testing javascript but then I ran into a problem running &lt;a href="https://mochajs.org/"&gt;mocha&lt;/a&gt;, or more specifically, running mocha crashed because it couldn't find &lt;a href="https://www.chaijs.com/"&gt;chai&lt;/a&gt; even though I'd followed the instructions to install it. So here goes what I did to fix it.
+&lt;/p&gt;
+
+&lt;p&gt;
+This is another case where you can basically find the answer online if you look at the right page - but there seems to be more pages with the unhelpful answers and I use the fish shell and ubuntu so it's a little different from the stuff I found that did work.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgd89403f" class="outline-2"&gt;
+&lt;h2 id="orgd89403f"&gt;The Tutorial's Installation&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd89403f"&gt;
+&lt;p&gt;
+This is how they tell you to install mocha and chai.
+&lt;/p&gt;
+
+&lt;p&gt;
+First, update npm (assuming you've already installed it somehow).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo npm install npm@latest -g
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then install mocha and chai using npm.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;npm install mocha -g
+npm install chai -g
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This right here is actually where the trouble starts. If you try to install things globally, you need to run it as root, thus the use of &lt;code&gt;sudo&lt;/code&gt; when updating &lt;code&gt;npm&lt;/code&gt;. But their instructions on installing &lt;code&gt;mocha&lt;/code&gt; and &lt;code&gt;chai&lt;/code&gt; don't say to use &lt;code&gt;sudo&lt;/code&gt;, which will result in a permission error, so did they forget to run it as root, or did they not mean to install it globally? I decided to  re-run their instructions as root.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo npm install mocha -g
+sudo npm install chai -g
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This seemed to work, but when I ran &lt;code&gt;mocha&lt;/code&gt; on the folder where I put the code given in the tutorial:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mocha color_unit_tests/
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+It gave me an error.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Error: Cannot find module 'chai'
+Require stack:
+- /home/hades/projects/ape-iron/p5tests/color_unit_tests/test.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1097:15)
+    at Module._load (node:internal/modules/cjs/loader:942:27)
+    at Module.require (node:internal/modules/cjs/loader:1163:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.&amp;lt;anonymous&amp;gt; (/home/hades/projects/ape-iron/p5tests/color_unit_tests/test.js:5:16
+)
+    at Module._compile (node:internal/modules/cjs/loader:1276:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1330:10)
+    at Module.load (node:internal/modules/cjs/loader:1139:32)
+    at Module._load (node:internal/modules/cjs/loader:980:12)
+    at ModuleWrap.&amp;lt;anonymous&amp;gt; (node:internal/modules/esm/translators:169:29)
+    at ModuleJob.run (node:internal/modules/esm/module_job:194:25)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+So, maybe that wasn't the answer.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgf332ac2" class="outline-2"&gt;
+&lt;h2 id="orgf332ac2"&gt;This Might Be the Wrong Way&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf332ac2"&gt;
+&lt;p&gt;
+I found a &lt;a href="https://stackoverflow.com/questions/43156635/chai-mocha-global-local"&gt;Stack Overflow&lt;/a&gt; question that described the exact problem I had, but one of the comments had this to say:
+&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;
+Mocha can be installed either locally or globally, but Chai can only be installed locally. Has to do with the way it is applied (i.e., to the specific app instance). – 
+Steve Carey
+May 30, 2020 at 21:11
+&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;
+I don't know who "Steve Carey" is and whether what he is saying is true, but the &lt;a href="https://www.chaijs.com/guide/installatio"&gt;chai installation instructions&lt;/a&gt; do tell you to install it locally, rather than globally, but when you do this for every project you end up with &lt;code&gt;node_modules&lt;/code&gt; and &lt;code&gt;package.json&lt;/code&gt; files all over the place. I suppose there's a reason for this, maybe to couple the version of chai you're using with the project, but I decided to try another way.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org18164a9" class="outline-2"&gt;
+&lt;h2 id="org18164a9"&gt;The Local Global&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org18164a9"&gt;
+&lt;p&gt;
+&lt;a href="https://stackoverflow.com/a/13021677"&gt;This answer&lt;/a&gt; on Stack Overflow describes how to install npm-packages into your home directory as your global directory. It assumes you're using bash, though, so I had to change it up a little bit.
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org597238b" class="outline-3"&gt;
+&lt;h3 id="org597238b"&gt;Make a local package directory&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org597238b"&gt;
+&lt;p&gt;
+First I made a local package directory.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mkdir ~/.npm-packages
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then I created a file called &lt;code&gt;~/.npmrc&lt;/code&gt; that had one line in it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;prefix = /home/hades/.npm-packages
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+With &lt;code&gt;/home/hades/&lt;/code&gt; being my home-directory.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgd940c0b" class="outline-3"&gt;
+&lt;h3 id="orgd940c0b"&gt;Edit the Fish Configuration&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgd940c0b"&gt;
+&lt;p&gt;
+At the bottom of the &lt;code&gt;~/.config/fish/config.fish&lt;/code&gt; file I added these lines.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;set -x NPM_PACKAGES $HOME/.npm-packages
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This is where &lt;code&gt;npm&lt;/code&gt; will install stuff if you tell it to install files globally once we're done. The folder can be named anything, I imagine, but it will need to match what's in the &lt;code&gt;.npmrc&lt;/code&gt; file.
+&lt;/p&gt;
+
+&lt;p&gt;
+When &lt;code&gt;npm&lt;/code&gt; installs packages some of them will be executable commands (like &lt;code&gt;mocha&lt;/code&gt;) and so I had to update the fish &lt;code&gt;PATH&lt;/code&gt;.
+&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;fish_add_path $HOME/.npm-packages/bin
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Although this will make &lt;code&gt;mocha&lt;/code&gt; available, &lt;code&gt;chai&lt;/code&gt; isn't an executable so you have to set the &lt;code&gt;NODE_PATH&lt;/code&gt; variable so that node will no where to look for modules to import.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;set --export NODE_PATH $NPM_PACKAGES/lib/node_modules
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+I was originally appending the current contents of &lt;code&gt;NODE_PATH&lt;/code&gt; to the end, like you would with a regular path variable (&lt;code&gt;$NPM_PACKAGES/lib/node_modules:$NODE_PATH&lt;/code&gt;) but for some reason this breaks something and the variable doesn't get set. Or at least it was always empty when I tried to run &lt;code&gt;mocha&lt;/code&gt;. So the solution for me was to always clobber the entire path (the variable was empty before I started using it anyway).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org81c56ec" class="outline-2"&gt;
+&lt;h2 id="org81c56ec"&gt;And Now&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org81c56ec"&gt;
+&lt;p&gt;
+Running the tests again:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mocha ../../ape-iron/p5tests/color_unit_tests/
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre class="example"&gt;
+
+
+these are my first tests for p5js
+  ✔ should be a string
+  ✔ should be equal to awesome
+
+
+2 passing (5ms)
+
+&lt;/pre&gt;
+
+
+&lt;p&gt;
+The path is different because I'm writing this post in a different repository, but, anyway, it looks like it works.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org09092be" class="outline-2"&gt;
+&lt;h2 id="org09092be"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org09092be"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;Drechsel E. Install NPM into home directory with distribution nodejs package (Ubuntu) [Internet]. Stack Overflow. 2019 [cited 2023 Jun 8]. Available from: &lt;a href="https://stackoverflow.com/q/10081293"&gt;https://stackoverflow.com/q/10081293&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;Unit Testing and Test Driven Development | p5.js [Internet]. [cited 2023 Jun 8]. Available from: &lt;a href="https://p5js.org/learn/tdd.html"&gt;https://p5js.org/learn/tdd.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>fish</category><category>howto</category><category>node</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/</guid><pubDate>Thu, 08 Jun 2023 23:29:32 GMT</pubDate></item></channel></rss>

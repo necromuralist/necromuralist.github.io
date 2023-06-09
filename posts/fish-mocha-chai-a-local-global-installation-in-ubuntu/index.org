@@ -1,0 +1,152 @@
+#+BEGIN_COMMENT
+.. title: Fish, Mocha, Chai - A Local Global Installation In Ubuntu
+.. slug: fish-mocha-chai-a-local-global-installation-in-ubuntu
+.. date: 2023-06-08 16:29:32 UTC-07:00
+.. tags: howto,ubuntu,node,fish
+.. category: How-To
+.. link: 
+.. description: Setting up a local global version of node in Ubuntu.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+
+* What This Is About
+
+I've been getting back into [[https://p5.js.org][p5.js]] lately and thought that I should add some testing so I went to their site and found that they had a tutorial page called [[https://p5js.org/learn/tdd.html]["Unit Testing and Test Driven Development"]] which I decided to follow along with to get re-acquainted with testing javascript but then I ran into a problem running [[https://mochajs.org/][mocha]], or more specifically, running mocha crashed because it couldn't find [[https://www.chaijs.com/][chai]] even though I'd followed the instructions to install it. So here goes what I did to fix it.
+
+This is another case where you can basically find the answer online if you look at the right page - but there seems to be more pages with the unhelpful answers and I use the fish shell and ubuntu so it's a little different from the stuff I found that did work.
+
+* The Tutorial's Installation
+
+This is how they tell you to install mocha and chai.
+
+First, update npm (assuming you've already installed it somehow).
+
+#+begin_src fish
+sudo npm install npm@latest -g
+#+end_src
+
+Then install mocha and chai using npm.
+
+#+begin_src fish
+npm install mocha -g
+npm install chai -g
+#+end_src
+
+This right here is actually where the trouble starts. If you try to install things globally, you need to run it as root, thus the use of ~sudo~ when updating ~npm~. But their instructions on installing ~mocha~ and ~chai~ don't say to use ~sudo~, which will result in a permission error, so did they forget to run it as root, or did they not mean to install it globally? I decided to  re-run their instructions as root.
+
+#+begin_src fish
+sudo npm install mocha -g
+sudo npm install chai -g
+#+end_src
+
+This seemed to work, but when I ran ~mocha~ on the folder where I put the code given in the tutorial:
+
+#+begin_src fish
+mocha color_unit_tests/
+#+end_src
+
+It gave me an error.
+
+#+begin_src fish
+Error: Cannot find module 'chai'
+Require stack:
+- /home/hades/projects/ape-iron/p5tests/color_unit_tests/test.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1097:15)
+    at Module._load (node:internal/modules/cjs/loader:942:27)
+    at Module.require (node:internal/modules/cjs/loader:1163:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/hades/projects/ape-iron/p5tests/color_unit_tests/test.js:5:16
+)
+    at Module._compile (node:internal/modules/cjs/loader:1276:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1330:10)
+    at Module.load (node:internal/modules/cjs/loader:1139:32)
+    at Module._load (node:internal/modules/cjs/loader:980:12)
+    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:169:29)
+    at ModuleJob.run (node:internal/modules/esm/module_job:194:25)
+#+end_src
+
+So, maybe that wasn't the answer.
+
+* This Might Be the Wrong Way
+
+I found a [[https://stackoverflow.com/questions/43156635/chai-mocha-global-local][Stack Overflow]] question that described the exact problem I had, but one of the comments had this to say:
+
+#+begin_quote
+Mocha can be installed either locally or globally, but Chai can only be installed locally. Has to do with the way it is applied (i.e., to the specific app instance). – 
+Steve Carey
+May 30, 2020 at 21:11
+#+end_quote
+
+I don't know who "Steve Carey" is and whether what he is saying is true, but the [[https://www.chaijs.com/guide/installatio][chai installation instructions]] do tell you to install it locally, rather than globally, but when you do this for every project you end up with ~node_modules~ and ~package.json~ files all over the place. I suppose there's a reason for this, maybe to couple the version of chai you're using with the project, but I decided to try another way.
+
+* The Local Global
+
+[[https://stackoverflow.com/a/13021677][This answer]] on Stack Overflow describes how to install npm-packages into your home directory as your global directory. It assumes you're using bash, though, so I had to change it up a little bit.
+
+** Make a local package directory
+
+First I made a local package directory.
+
+#+begin_src fish
+mkdir ~/.npm-packages
+#+end_src
+
+Then I created a file called =~/.npmrc= that had one line in it.
+
+#+begin_src fish
+prefix = /home/hades/.npm-packages
+#+end_src
+
+With ~/home/hades/~ being my home-directory.
+
+** Edit the Fish Configuration
+
+At the bottom of the =~/.config/fish/config.fish= file I added these lines.
+
+#+begin_src fish
+set -x NPM_PACKAGES $HOME/.npm-packages
+#+end_src
+
+This is where ~npm~ will install stuff if you tell it to install files globally once we're done. The folder can be named anything, I imagine, but it will need to match what's in the ~.npmrc~ file.
+
+When ~npm~ installs packages some of them will be executable commands (like ~mocha~) and so I had to update the fish ~PATH~.
+#+begin_src fish
+fish_add_path $HOME/.npm-packages/bin
+#+end_src
+
+Although this will make ~mocha~ available, ~chai~ isn't an executable so you have to set the ~NODE_PATH~ variable so that node will no where to look for modules to import.
+
+#+begin_src fish
+set --export NODE_PATH $NPM_PACKAGES/lib/node_modules
+#+end_src
+
+I was originally appending the current contents of ~NODE_PATH~ to the end, like you would with a regular path variable (~$NPM_PACKAGES/lib/node_modules:$NODE_PATH~) but for some reason this breaks something and the variable doesn't get set. Or at least it was always empty when I tried to run ~mocha~. So the solution for me was to always clobber the entire path (the variable was empty before I started using it anyway).
+
+* And Now
+
+Running the tests again:
+
+#+begin_src fish :results output :exports both
+mocha ../../ape-iron/p5tests/color_unit_tests/
+#+end_src
+
+#+RESULTS:
+: 
+: 
+:   these are my first tests for p5js
+:     ✔ should be a string
+:     ✔ should be equal to awesome
+: 
+: 
+:   2 passing (5ms)
+: 
+
+The path is different because I'm writing this post in a different repository, but, anyway, it looks like it works.
+
+* Sources
+-  Drechsel E. Install NPM into home directory with distribution nodejs package (Ubuntu) [Internet]. Stack Overflow. 2019 [cited 2023 Jun 8]. Available from: https://stackoverflow.com/q/10081293
+
+- Unit Testing and Test Driven Development | p5.js [Internet]. [cited 2023 Jun 8]. Available from: https://p5js.org/learn/tdd.html
