@@ -12,12 +12,12 @@
 <meta content="Nikola (getnikola.com)" name="generator">
 <link href="rss.xml" hreflang="en" rel="alternate" title="RSS" type="application/rss+xml">
 <link href="https://necromuralist.github.io/" rel="canonical">
-<link href="index-20.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
+<link href="index-21.html" rel="next" type="text/html"><!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]-->
 <link href="apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/" rel="prefetch" type="text/html">
+<link href="posts/apt-fast-in-sparky-linux/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -52,6 +52,227 @@
 <div class="container" id="content" role="main">
 <div class="body-content"><!--Body content-->
 <div class="postindex">
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/apt-fast-in-sparky-linux/">Apt-Fast In Sparky Linux</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/apt-fast-in-sparky-linux/" rel="bookmark"><time class="published dt-published" datetime="2023-06-16T13:15:45-07:00" itemprop="datePublished" title="2023-06-16 13:15">2023-06-16 13:15</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="posts/apt-fast-in-sparky-linux/#org5885bbe">Background</a></li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org734033c">The Intructions</a>
+<ul>
+<li><a href="posts/apt-fast-in-sparky-linux/#org14be73b">Create An Apt Entry</a></li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org5601624">Add the Keyring and Install</a></li>
+</ul>
+</li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org791e6a7">The apt-key Solution</a>
+<ul>
+<li><a href="posts/apt-fast-in-sparky-linux/#orgf041767">The Start of the Solution</a></li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org22ed7ae">Getting the GPG File</a></li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org16fe8a6">Now Back to Setting it Up</a></li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org56b1deb">Update and Install</a></li>
+</ul>
+</li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org0746c19">And Now, Another Problem</a></li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org6e2ff14">What Have We Learned Today Children?</a></li>
+<li><a href="posts/apt-fast-in-sparky-linux/#org13aee93">Links Collected</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org5885bbe">
+<h2 id="org5885bbe">Background</h2>
+<div class="outline-text-2" id="text-org5885bbe">
+<p>I have an old eeePC netbook that I thought I'd revive by loading <a href="https://sparkylinux.org/">Sparky Linux</a> onto it. One of the things I set up on it is <a href="https://github.com/ilikenwf/apt-fast">apt-fast</a>, which the README on the github repository describes like this:</p>
+<blockquote>
+<p>apt-fast is a shellscript wrapper for apt-get and aptitude that can drastically improve apt download times by downloading packages in parallel, with multiple connections per package.</p>
+</blockquote>
+<p>I've used it for a while on ubuntu but Sparky Linux didn't have it in the repositories. The apt-fast documentation has instructions for <a href="https://github.com/ilikenwf/apt-fast#debian-and-derivates">installing it on debian (and derivatives)</a> and since Sparky Linux is based on debian (the current version, SparkyLinux 6.7 (Po-Tolo) is based on debian bullseye) I decided to try that. Ultimately I got it working, but as is often the case, it wasn't quite so straightforward as I would like for it to have been.</p>
+<p>Unusual Ingredients List:</p>
+<ul class="org-ul">
+<li>SparkyLinux 6.7 (Po-Tolo)</li>
+<li>fish shell</li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org734033c">
+<h2 id="org734033c">The Intructions</h2>
+<div class="outline-text-2" id="text-org734033c">
+<p>Although the PPA system is built for Ubuntu, the recommendation from apt-fast is to use it with debian-based systems too (apt-fast is just a shell-script that runs <code>aria2</code> and <code>apt</code> (or <code>apt-get</code>, etc.) so it's not like there's a lot of dependencies that might conflict). This is what they say to do.</p>
+</div>
+<div class="outline-3" id="outline-container-org14be73b">
+<h3 id="org14be73b">Create An Apt Entry</h3>
+<div class="outline-text-3" id="text-org14be73b">
+<p>First I created a file for the sources at <code>/etc/apt/sources.list.d/apt-fast.list</code> and put these lines in it.</p>
+<div class="highlight">
+<pre><span></span>deb http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main 
+deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main
+</pre></div>
+<p>Bionic came out in 2018 so they maybe haven't updated the instructions in a while.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org5601624">
+<h3 id="org5601624">Add the Keyring and Install</h3>
+<div class="outline-text-3" id="text-org5601624">
+<p>Once the file was in place I ran the commands.</p>
+<div class="highlight">
+<pre><span></span>apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
+apt-get update
+apt-get install apt-fast
+</pre></div>
+<p>The first output I saw was a warning:</p>
+<div class="highlight">
+<pre><span></span>Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).
+</pre></div>
+<p>This is something I've seen on ubuntu as well so fixing it seemed like a useful thing to do, especially since at the end of the regular output I got an error.</p>
+<p>Between the warning and the error there was the usual output that I've seen:</p>
+<div class="highlight">
+<pre><span></span>Executing: /tmp/apt-key-gpghome.YL04bWmGAF/gpg.1.sh --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
+gpg: key 1EE2FF37CA8DA16B: public key "Launchpad PPA for apt-fast" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+</pre></div>
+<p>Then came this, which is not what I usually see:</p>
+<div class="highlight">
+<pre><span></span>gpg: no writable keyring found: Not found
+gpg: error reading '[stdin]': General error
+gpg: import from '[stdin]' failed: General error
+gpg: Total number processed: 0
+</pre></div>
+<p>I don't know if this is a debian problem or a sparky linux problem, but since you're not supposed to be using this method anyway, I went looking for a different solution.</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org791e6a7">
+<h2 id="org791e6a7">The apt-key Solution</h2>
+<div class="outline-text-2" id="text-org791e6a7"></div>
+<div class="outline-3" id="outline-container-orgf041767">
+<h3 id="orgf041767">The Start of the Solution</h3>
+<div class="outline-text-3" id="text-orgf041767">
+<p>The first part of the solution was pointed to by <a href="https://stackoverflow.com/a/71384057">this Stack Overflow Answer</a>. There was a problem with the answer, though, in that the person asking the question was using a URL that pointed to a gpg file, so the answers all assumed you could download it with curl, wget, etc. (all the answers that I could understand, anyway). So now that I had the answer I had a new problem - how do you get the file from the keyserver?</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org22ed7ae">
+<h3 id="org22ed7ae">Getting the GPG File</h3>
+<div class="outline-text-3" id="text-org22ed7ae">
+<p>Once again to the web, this time <a href="https://superuser.com/a/1643115">this answer from SuperUser</a> seemed to work.</p>
+<p>First, I made a temporary directory and pointed <code>GNUPGHOME</code> to it so that I wasn't adding anything to my actual gpg setup (this is fish-shell syntax).</p>
+<div class="highlight">
+<pre><span></span>set -x GNUPGHOME $(mktemp -d)
+</pre></div>
+<p><code>echo $GNUPGHOME</code> showed that this created a file at <code>/tmp/tmp.dUDUEgFQ0x</code> (but I didn't actually need to know that, I'm just mentioning it).</p>
+<p>Taking the <code>--recv-keys</code> argument from the instructions above (<code>apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B</code>) I added the key.</p>
+<div class="highlight">
+<pre><span></span>gpg --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
+</pre></div>
+<p>Next I made a place to put the gpg file.</p>
+<div class="highlight">
+<pre><span></span>sudo mkdir /etc/apt/keyrings
+</pre></div>
+<p>Then I output the file in my home directory (GNUPGHOME is only available to my user, so I put the file somewhere that I didn't need to be root).</p>
+<div class="highlight">
+<pre><span></span>gpg -o A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg --export A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
+</pre></div>
+<p>Then I moved the file into the directory I created for it.</p>
+<div class="highlight">
+<pre><span></span>sudo mv A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg /etc/apt/keyrings/
+</pre></div>
+<p>The SuperUser answer I linked to used <code>gpg -ao</code> but the <code>a</code> option makes it an "armored" file, and part of the Stack Overflow answer for setting up the key is about de-armoring it so I just left that option out.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org16fe8a6">
+<h3 id="org16fe8a6">Now Back to Setting it Up</h3>
+<div class="outline-text-3" id="text-org16fe8a6">
+<p>So now that we have the keyring we need to edit the <code>/etc/apt/sources.list.d/apt-fast.list</code> file that we created at the beginning of this.</p>
+<p>This is what I started with.</p>
+<div class="highlight">
+<pre><span></span>deb http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main 
+deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main
+</pre></div>
+<p>And I changed it to refer to the gpg file that I created.</p>
+<div class="highlight">
+<pre><span></span>deb [signed-by=/etc/apt/keyrings/A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg] http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main
+deb-src  [signed-by=/etc/apt/keyrings/A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg]  http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main
+</pre></div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org56b1deb">
+<h3 id="org56b1deb">Update and Install</h3>
+<div class="outline-text-3" id="text-org56b1deb">
+<p>So then I updated apt and installed it.</p>
+<div class="highlight">
+<pre><span></span>sudo apt update
+sudo apt install apt-fast
+</pre></div>
+<p>And it worked.</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org0746c19">
+<h2 id="org0746c19">And Now, Another Problem</h2>
+<div class="outline-text-2" id="text-org0746c19">
+<p>This got me to a working <code>apt-fast</code> installation but the fact that I was using <code>bionic</code> seemed off to me so I decided to update the <code>apt-fast.list</code>. Under the instructions for adding the PPA is this note.</p>
+<blockquote>
+<p>Note that the PPA version bionic might need to be updated with the recent Ubuntu LTS codename to stay up-to-date.</p>
+</blockquote>
+<p>So I went and looked up the <a href="https://ubuntu.com/about/release-cycle">Ubuntu Release Cycle</a> and saw that "jammy" is the most recent version so I updated the <code>apt-fast.list</code> file to match.</p>
+<div class="highlight">
+<pre><span></span>deb [signed-by=/etc/apt/keyrings/A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg] http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main
+deb-src  [signed-by=/etc/apt/keyrings/A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg]  http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main
+</pre></div>
+<p>And then I installed the newer version.</p>
+<div class="highlight">
+<pre><span></span>sudo apt update
+sudo apt install apt-fast
+</pre></div>
+<p>And I got a nice long stack-trace and error message at the bottom of which was this:</p>
+<div class="highlight">
+<pre><span></span>dpkg-deb: error: archive '/var/cache/apt/archives/apt-fast_1.9.12-1~ubuntu22.04.1_all.deb' uses unknown compression for member 'control.tar.zst', giving up
+dpkg: error processing archive /var/cache/apt/archives/apt-fast_1.9.12-1~ubuntu22.04.1_all.deb (--unpack):
+ dpkg-deb --control subprocess returned error exit status 2
+Errors were encountered while processing:
+ /var/cache/apt/archives/apt-fast_1.9.12-1~ubuntu22.04.1_all.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+</pre></div>
+<p>The part of it seemed to be the fragment: <code>uses unknown compression for member 'control.tar.zst', giving up</code>. What is a <code>zst</code> file? <a href="https://en.wikipedia.org/wiki/Zstd?useskin=vector">According to wikipedia</a> it's a "Zstandard" file and Debian and Ubuntu added support for using it to compress <code>deb</code> packages back in 2018. There is a package listed in <code>apt</code> called <code>zstd</code> that it says supports <code>zst</code> compression so I installed it but the error remained.</p>
+<p>Once again, someone ran into this and asked about it on <a href="https://unix.stackexchange.com/questions/669004/zst-compression-not-supported-by-apt-dpkg">Stack Exchange</a>. <a href="https://unix.stackexchange.com/a/669008">One of the answers</a> said:</p>
+<blockquote>
+<p>Debian’s dpkg package didn’t support zstd compression prior to version 1.21.18. Support was added just in time for Debian 12.</p>
+</blockquote>
+<p>Since the SparkyLinux install is based on Debian 11 that seemed like it might be the problem. I checked the dpkg-version and got back:</p>
+<div class="highlight">
+<pre><span></span>Debian<span class="w"> </span><span class="s1">'dpkg'</span><span class="w"> </span>package<span class="w"> </span>management<span class="w"> </span>program<span class="w"> </span>version<span class="w"> </span><span class="m">1</span>.20.12<span class="w"> </span><span class="o">(</span>i386<span class="o">)</span>.
+</pre></div>
+<p>So that seemed like the likely culprit. The ubuntu release dates page noted that there was a LTS version between "bionic" and "jammy" called "focal" so I edited the <code>apt-fast.list</code> file again, replacing "jammy" with "focal" and re-ran the installation and so far… it works.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org6e2ff14">
+<h2 id="org6e2ff14">What Have We Learned Today Children?</h2>
+<div class="outline-text-2" id="text-org6e2ff14">
+<p>Further down in the installation instructions it says that you can just download the files and install them along with the <code>aria2</code> package, so going through this whole thing was kind of unnecessary, but getting around the apt-key problem was something that I'd wondered about before, so it might be useful in the future, if PPA creators keep using it and they don't come up with an automatic fix for it.</p>
+<p>I guess the main thing I learned is that I should have read to the end of the instructions and picked the easy way out instead of trying to force the old familiar way to work.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org13aee93">
+<h2 id="org13aee93">Links Collected</h2>
+<div class="outline-text-2" id="text-org13aee93">
+<ul class="org-ul">
+<li>FWDekker. Answer to “Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead” [Internet]. Stack Overflow. 2022 [cited 2023 Jun 16]. Available from: <a href="https://stackoverflow.com/a/71384057">https://stackoverflow.com/a/71384057</a></li>
+<li>Kitt S. Answer to “zst compression not supported by apt/dpkg” [Internet]. Unix & Linux Stack Exchange. 2021 [cited 2023 Jun 16]. Available from: <a href="https://unix.stackexchange.com/a/669008">https://unix.stackexchange.com/a/669008</a></li>
+<li>fuzzydrawrings. Answer to “gpg: only download a key from a keyserver” [Internet]. Super User. 2021 [cited 2023 Jun 16]. Available from: <a href="https://superuser.com/a/1643115">https://superuser.com/a/1643115</a></li>
+<li>ilikenwf/apt-fast: apt-fast: A shellscript wrapper for apt that speeds up downloading of packages. [Internet]. [cited 2023 Jun 16]. Available from: <a href="https://github.com/ilikenwf/apt-fast">https://github.com/ilikenwf/apt-fast</a></li>
+<li>zstd. In: Wikipedia [Internet]. 2023 [cited 2023 Jun 16]. Available from: <a href="https://en.wikipedia.org/w/index.php?title=Zstd&amp;oldid=1157564498">https://en.wikipedia.org/w/index.php?title=Zstd&amp;oldid=1157564498</a></li>
+</ul>
+</div>
+</div>
+</div>
+</article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/">Fish, Mocha, Chai - A Local Global Installation In Ubuntu</a></h1>
@@ -970,186 +1191,9 @@ print("Two")
 </div>
 </div>
 </article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/codewars-rot13/">CodeWars: Rot13</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/codewars-rot13/" rel="bookmark"><time class="published dt-published" datetime="2022-02-12T13:03:26-08:00" itemprop="datePublished" title="2022-02-12 13:03">2022-02-12 13:03</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
-<ul>
-<li><a href="posts/codewars-rot13/#org1507b31">Description</a></li>
-<li><a href="posts/codewars-rot13/#org6c99ffb">The Code</a>
-<ul>
-<li><a href="posts/codewars-rot13/#org26cee1a">Imports</a></li>
-<li><a href="posts/codewars-rot13/#org8e2c5dd">The Submitted Function</a></li>
-<li><a href="posts/codewars-rot13/#orgba575a5">A Test</a></li>
-</ul>
-</li>
-<li><a href="posts/codewars-rot13/#org827823b">Alternatives</a>
-<ul>
-<li><a href="posts/codewars-rot13/#org06c1a86">Using the Slicing</a></li>
-<li><a href="posts/codewars-rot13/#orgc2518f5">Using translate and maketrans</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org1507b31">
-<h2 id="org1507b31">Description</h2>
-<div class="outline-text-2" id="text-org1507b31">
-<p>Given a string, replace each letter with the one that comes 13 letters after it in the alphabet. Ignore non-English aphabetical characters.</p>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org6c99ffb">
-<h2 id="org6c99ffb">The Code</h2>
-<div class="outline-text-2" id="text-org6c99ffb"></div>
-<div class="outline-3" id="outline-container-org26cee1a">
-<h3 id="org26cee1a">Imports</h3>
-<div class="outline-text-3" id="text-org26cee1a">
-<ul class="org-ul">
-<li><a href="https://docs.python.org/3/library/string.html">Python Strings</a>
-<ul class="org-ul">
-<li><a href="https://docs.python.org/3/library/string.html#string.ascii_lowercase">ascii_lowercase</a></li>
-<li><a href="https://docs.python.org/3/library/string.html#string.ascii_lowercase">ascii_uppercase</a></li>
-</ul>
-</li>
-</ul>
-<div class="highlight">
-<pre><span></span><span class="c1"># python</span>
-<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_lowercase</span> <span class="k">as</span> <span class="n">lowercase</span>
-<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_uppercase</span> <span class="k">as</span> <span class="n">uppercase</span>
-
-<span class="c1"># pypi</span>
-<span class="kn">from</span> <span class="nn">expects</span> <span class="kn">import</span> <span class="n">equal</span><span class="p">,</span> <span class="n">expect</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org8e2c5dd">
-<h3 id="org8e2c5dd">The Submitted Function</h3>
-<div class="outline-text-3" id="text-org8e2c5dd">
-<p>This is the version I submitted to CodeWars. It uses the dict <a href="https://docs.python.org/3/library/stdtypes.html#dict.update">update</a> method to build a dict (although the solutions below seem neater) and the <a href="https://docs.python.org/3/library/stdtypes.html#dict.get">get</a> method to handle the cases where the letter in the message isn't in the dictionary.</p>
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">rot13</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Implement a Caesar Cipher by shifting letters 13 places</span>
-
-<span class="sd">    Non-english letters are left as-is</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     message: string to encode</span>
-
-<span class="sd">    Return:</span>
-<span class="sd">     the encoded version of the input string</span>
-<span class="sd">    """</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="p">{</span><span class="n">letter</span><span class="p">:</span> <span class="n">lowercase</span><span class="p">[(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">13</span><span class="p">)</span> <span class="o">%</span> <span class="mi">26</span><span class="p">]</span> 
-             <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">letter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lowercase</span><span class="p">)}</span>
-    <span class="n">code</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">letter</span><span class="p">,</span> <span class="n">uppercase</span><span class="p">[(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">13</span><span class="p">)</span> <span class="o">%</span> <span class="mi">26</span><span class="p">])</span>
-                  <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">letter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uppercase</span><span class="p">))</span>
-    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">code</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">letter</span><span class="p">)</span> <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">message</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-orgba575a5">
-<h3 id="orgba575a5">A Test</h3>
-<div class="outline-text-3" id="text-orgba575a5">
-<div class="highlight">
-<pre><span></span><span class="k">def</span> <span class="nf">tester</span><span class="p">(</span><span class="n">encoder</span><span class="p">):</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"test"</span><span class="p">,</span> <span class="s2">"Test"</span><span class="p">,</span> <span class="s2">"Test5"</span><span class="p">)</span>
-    <span class="n">expecteds</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"grfg"</span><span class="p">,</span> <span class="s2">"Grfg"</span><span class="p">,</span> <span class="s2">"Grfg5"</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">message</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">expecteds</span><span class="p">):</span>
-        <span class="n">encoded</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-        <span class="n">expect</span><span class="p">(</span><span class="n">encoded</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="n">expected</span><span class="p">))</span>
-        <span class="n">expect</span><span class="p">(</span><span class="n">encoder</span><span class="p">(</span><span class="n">encoded</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">equal</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
-    <span class="k">return</span>
-
-<span class="n">tester</span><span class="p">(</span><span class="n">rot13</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-org827823b">
-<h2 id="org827823b">Alternatives</h2>
-<div class="outline-text-2" id="text-org827823b">
-<p>Quite a few of the other solutions (on the first page, anyway) used the built in <a href="https://docs.python.org/3/library/stdtypes.html#str.maketrans">str.maketrans</a> and <a href="https://docs.python.org/3/library/stdtypes.html#str.translate">str.translate</a> methods (they complement each other). I didn't see anything in the documentation about how defaults are handled so I'd have to look into it more. The <a href="https://www.codewars.com/kata/reviews/545683f329ccbfe984000087/groups/545747a40a80d2f02800014a">top answer</a> also used slicing instead of modulo (<code>lower[13:] + lower[:13])</code> which might be better. The comments mention that the top answer actually won't work anymore since the <code>maketrans</code> and <code>translate</code> functions got moved out of <code>string</code> (which is where it's importing it from).</p>
-<p>The top solutions seem to have a mix of current python and deprecated python (python 2?) so you'd have to be careful in using any of them.</p>
-</div>
-<div class="outline-3" id="outline-container-org06c1a86">
-<h3 id="org06c1a86">Using the Slicing</h3>
-<div class="outline-text-3" id="text-org06c1a86">
-<p>If you were use slicing instead of the modulo I think it might look like this (from here on out I'm going to declare the code-books outside the function the way I would normally do it, I kind of didn't really think about it when submitting the solution above so I'll leave it as is).</p>
-<div class="highlight">
-<pre><span></span><span class="n">CODE</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lowercase</span> <span class="o">+</span> <span class="n">uppercase</span><span class="p">,</span>
-                <span class="n">lowercase</span><span class="p">[</span><span class="mi">13</span><span class="p">:]</span> <span class="o">+</span> <span class="n">lowercase</span><span class="p">[:</span><span class="mi">13</span><span class="p">]</span> <span class="o">+</span>
-                <span class="n">uppercase</span><span class="p">[</span><span class="mi">13</span><span class="p">:]</span> <span class="o">+</span> <span class="n">uppercase</span><span class="p">[:</span><span class="mi">13</span><span class="p">]))</span>
-
-<span class="k">def</span> <span class="nf">rot13_2</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Implement a Caesar Cipher by shifting letters 13 places</span>
-
-<span class="sd">    Non-english letters are left as-is</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     message: string to encode</span>
-
-<span class="sd">    Return:</span>
-<span class="sd">     the encoded version of the input string</span>
-<span class="sd">    """</span>
-    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CODE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">letter</span><span class="p">)</span> <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">message</span><span class="p">)</span>
-</pre></div>
-<div class="highlight">
-<pre><span></span><span class="n">tester</span><span class="p">(</span><span class="n">rot13_2</span><span class="p">)</span>
-</pre></div>
-<p>This is more compact, although I'm not sure that the slicing is as immediately obvious as the use of the modulo is.</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-orgc2518f5">
-<h3 id="orgc2518f5">Using translate and maketrans</h3>
-<div class="outline-text-3" id="text-orgc2518f5">
-<p>Here's a version using the built-in <code>maketrans</code> and <code>translate</code> functions.</p>
-<div class="highlight">
-<pre><span></span><span class="n">CODE</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="n">lowercase</span> <span class="o">+</span> <span class="n">uppercase</span><span class="p">,</span>
-                     <span class="n">lowercase</span><span class="p">[</span><span class="mi">13</span><span class="p">:]</span> <span class="o">+</span> <span class="n">lowercase</span><span class="p">[:</span><span class="mi">13</span><span class="p">]</span> <span class="o">+</span>
-                     <span class="n">uppercase</span><span class="p">[</span><span class="mi">13</span><span class="p">:]</span> <span class="o">+</span> <span class="n">uppercase</span><span class="p">[:</span><span class="mi">13</span><span class="p">])</span>
-
-
-<span class="k">def</span> <span class="nf">rot13_3</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Implement a Caesar Cipher by shifting letters 13 places</span>
-
-<span class="sd">    Non-english letters are left as-is</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">     message: string to encode</span>
-
-<span class="sd">    Return:</span>
-<span class="sd">     the encoded version of the input string</span>
-<span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">CODE</span><span class="p">)</span>
-</pre></div>
-<div class="highlight">
-<pre><span></span><span class="n">tester</span><span class="p">(</span><span class="n">rot13_3</span><span class="p">)</span>
-<span class="n">coded</span> <span class="o">=</span> <span class="n">rot13_3</span><span class="p">(</span><span class="s2">"I have been to paradise 3 times, but I have never been to me. "</span>
-                <span class="s2">"Oh, the humanity!"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">coded</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">rot13_3</span><span class="p">(</span><span class="n">coded</span><span class="p">))</span>
-</pre></div>
-<pre class="example">
-V unir orra gb cnenqvfr 3 gvzrf, ohg V unir arire orra gb zr. Bu, gur uhznavgl!
-I have been to paradise 3 times, but I have never been to me. Oh, the humanity!
-</pre>
-<p>It kind of seems too much to use translate for this exercise, but it does feel cleaner than the dictionary, so I'll have to keep it in mind for the future.</p>
-</div>
-</div>
-</div>
-</div>
-</article>
 </div>
 <ul class="pager postindexpager clearfix">
-<li class="next"><a href="index-20.html" rel="next">Older posts</a></li>
+<li class="next"><a href="index-21.html" rel="next">Older posts</a></li>
 </ul>
 <!--End of body content-->
 <footer id="footer">Contents © 2023 <a href="mailto:cloisteredmonkey.jmark@slmail.me">Cloistered Monkey</a> - Powered by <a href="https://getnikola.com" rel="nofollow">Nikola</a></footer>

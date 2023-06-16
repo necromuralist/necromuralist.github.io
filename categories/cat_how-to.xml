@@ -1,5 +1,333 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about How-To)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_how-to.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Fri, 09 Jun 2023 00:31:24 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Fish, Mocha, Chai - A Local Global Installation In Ubuntu</title><link>https://necromuralist.github.io/posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org2816271" class="outline-2"&gt;
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about How-To)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/cat_how-to.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2023 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; </copyright><lastBuildDate>Fri, 16 Jun 2023 22:13:26 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Apt-Fast In Sparky Linux</title><link>https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents" role="doc-toc"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org5885bbe"&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org734033c"&gt;The Intructions&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org14be73b"&gt;Create An Apt Entry&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org5601624"&gt;Add the Keyring and Install&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org791e6a7"&gt;The apt-key Solution&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#orgf041767"&gt;The Start of the Solution&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org22ed7ae"&gt;Getting the GPG File&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org16fe8a6"&gt;Now Back to Setting it Up&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org56b1deb"&gt;Update and Install&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org0746c19"&gt;And Now, Another Problem&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org6e2ff14"&gt;What Have We Learned Today Children?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/#org13aee93"&gt;Links Collected&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org5885bbe" class="outline-2"&gt;
+&lt;h2 id="org5885bbe"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5885bbe"&gt;
+&lt;p&gt;
+I have an old eeePC netbook that I thought I'd revive by loading &lt;a href="https://sparkylinux.org/"&gt;Sparky Linux&lt;/a&gt; onto it. One of the things I set up on it is &lt;a href="https://github.com/ilikenwf/apt-fast"&gt;apt-fast&lt;/a&gt;, which the README on the github repository describes like this:
+&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;
+apt-fast is a shellscript wrapper for apt-get and aptitude that can drastically improve apt download times by downloading packages in parallel, with multiple connections per package.
+&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;
+I've used it for a while on ubuntu but Sparky Linux didn't have it in the repositories. The apt-fast documentation has instructions for &lt;a href="https://github.com/ilikenwf/apt-fast#debian-and-derivates"&gt;installing it on debian (and derivatives)&lt;/a&gt; and since Sparky Linux is based on debian (the current version, SparkyLinux 6.7 (Po-Tolo) is based on debian bullseye) I decided to try that. Ultimately I got it working, but as is often the case, it wasn't quite so straightforward as I would like for it to have been.
+&lt;/p&gt;
+
+&lt;p&gt;
+Unusual Ingredients List:
+&lt;/p&gt;
+
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;SparkyLinux 6.7 (Po-Tolo)&lt;/li&gt;
+&lt;li&gt;fish shell&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org734033c" class="outline-2"&gt;
+&lt;h2 id="org734033c"&gt;The Intructions&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org734033c"&gt;
+&lt;p&gt;
+Although the PPA system is built for Ubuntu, the recommendation from apt-fast is to use it with debian-based systems too (apt-fast is just a shell-script that runs &lt;code&gt;aria2&lt;/code&gt; and &lt;code&gt;apt&lt;/code&gt; (or &lt;code&gt;apt-get&lt;/code&gt;, etc.) so it's not like there's a lot of dependencies that might conflict). This is what they say to do.
+&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org14be73b" class="outline-3"&gt;
+&lt;h3 id="org14be73b"&gt;Create An Apt Entry&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org14be73b"&gt;
+&lt;p&gt;
+First I created a file for the sources at &lt;code&gt;/etc/apt/sources.list.d/apt-fast.list&lt;/code&gt; and put these lines in it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;deb http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main 
+deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Bionic came out in 2018 so they maybe haven't updated the instructions in a while.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org5601624" class="outline-3"&gt;
+&lt;h3 id="org5601624"&gt;Add the Keyring and Install&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5601624"&gt;
+&lt;p&gt;
+Once the file was in place I ran the commands.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
+apt-get update
+apt-get install apt-fast
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+The first output I saw was a warning:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This is something I've seen on ubuntu as well so fixing it seemed like a useful thing to do, especially since at the end of the regular output I got an error.
+&lt;/p&gt;
+
+&lt;p&gt;
+Between the warning and the error there was the usual output that I've seen:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Executing: /tmp/apt-key-gpghome.YL04bWmGAF/gpg.1.sh --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
+gpg: key 1EE2FF37CA8DA16B: public key "Launchpad PPA for apt-fast" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then came this, which is not what I usually see:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;gpg: no writable keyring found: Not found
+gpg: error reading '[stdin]': General error
+gpg: import from '[stdin]' failed: General error
+gpg: Total number processed: 0
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+I don't know if this is a debian problem or a sparky linux problem, but since you're not supposed to be using this method anyway, I went looking for a different solution.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org791e6a7" class="outline-2"&gt;
+&lt;h2 id="org791e6a7"&gt;The apt-key Solution&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org791e6a7"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-orgf041767" class="outline-3"&gt;
+&lt;h3 id="orgf041767"&gt;The Start of the Solution&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf041767"&gt;
+&lt;p&gt;
+The first part of the solution was pointed to by &lt;a href="https://stackoverflow.com/a/71384057"&gt;this Stack Overflow Answer&lt;/a&gt;. There was a problem with the answer, though, in that the person asking the question was using a URL that pointed to a gpg file, so the answers all assumed you could download it with curl, wget, etc. (all the answers that I could understand, anyway). So now that I had the answer I had a new problem - how do you get the file from the keyserver?
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org22ed7ae" class="outline-3"&gt;
+&lt;h3 id="org22ed7ae"&gt;Getting the GPG File&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org22ed7ae"&gt;
+&lt;p&gt;
+Once again to the web, this time &lt;a href="https://superuser.com/a/1643115"&gt;this answer from SuperUser&lt;/a&gt; seemed to work.
+&lt;/p&gt;
+
+&lt;p&gt;
+First, I made a temporary directory and pointed &lt;code&gt;GNUPGHOME&lt;/code&gt; to it so that I wasn't adding anything to my actual gpg setup (this is fish-shell syntax).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;set -x GNUPGHOME $(mktemp -d)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+&lt;code&gt;echo $GNUPGHOME&lt;/code&gt; showed that this created a file at &lt;code&gt;/tmp/tmp.dUDUEgFQ0x&lt;/code&gt; (but I didn't actually need to know that, I'm just mentioning it).
+&lt;/p&gt;
+
+&lt;p&gt;
+Taking the &lt;code&gt;--recv-keys&lt;/code&gt; argument from the instructions above (&lt;code&gt;apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B&lt;/code&gt;) I added the key.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;gpg --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Next I made a place to put the gpg file.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo mkdir /etc/apt/keyrings
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then I output the file in my home directory (GNUPGHOME is only available to my user, so I put the file somewhere that I didn't need to be root).
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;gpg -o A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg --export A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Then I moved the file into the directory I created for it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo mv A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg /etc/apt/keyrings/
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+The SuperUser answer I linked to used &lt;code&gt;gpg -ao&lt;/code&gt; but the &lt;code&gt;a&lt;/code&gt; option makes it an "armored" file, and part of the Stack Overflow answer for setting up the key is about de-armoring it so I just left that option out.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org16fe8a6" class="outline-3"&gt;
+&lt;h3 id="org16fe8a6"&gt;Now Back to Setting it Up&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org16fe8a6"&gt;
+&lt;p&gt;
+So now that we have the keyring we need to edit the &lt;code&gt;/etc/apt/sources.list.d/apt-fast.list&lt;/code&gt; file that we created at the beginning of this.
+&lt;/p&gt;
+
+&lt;p&gt;
+This is what I started with.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;deb http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main 
+deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+And I changed it to refer to the gpg file that I created.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;deb [signed-by=/etc/apt/keyrings/A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg] http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main
+deb-src  [signed-by=/etc/apt/keyrings/A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg]  http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org56b1deb" class="outline-3"&gt;
+&lt;h3 id="org56b1deb"&gt;Update and Install&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org56b1deb"&gt;
+&lt;p&gt;
+So then I updated apt and installed it.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt update
+sudo apt install apt-fast
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+And it worked.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org0746c19" class="outline-2"&gt;
+&lt;h2 id="org0746c19"&gt;And Now, Another Problem&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0746c19"&gt;
+&lt;p&gt;
+This got me to a working &lt;code&gt;apt-fast&lt;/code&gt; installation but the fact that I was using &lt;code&gt;bionic&lt;/code&gt; seemed off to me so I decided to update the &lt;code&gt;apt-fast.list&lt;/code&gt;. Under the instructions for adding the PPA is this note.
+&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;
+Note that the PPA version bionic might need to be updated with the recent Ubuntu LTS codename to stay up-to-date.
+&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;
+So I went and looked up the &lt;a href="https://ubuntu.com/about/release-cycle"&gt;Ubuntu Release Cycle&lt;/a&gt; and saw that "jammy" is the most recent version so I updated the &lt;code&gt;apt-fast.list&lt;/code&gt; file to match.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;deb [signed-by=/etc/apt/keyrings/A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg] http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main
+deb-src  [signed-by=/etc/apt/keyrings/A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg]  http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+And then I installed the newer version.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt update
+sudo apt install apt-fast
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+And I got a nice long stack-trace and error message at the bottom of which was this:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;dpkg-deb: error: archive '/var/cache/apt/archives/apt-fast_1.9.12-1~ubuntu22.04.1_all.deb' uses unknown compression for member 'control.tar.zst', giving up
+dpkg: error processing archive /var/cache/apt/archives/apt-fast_1.9.12-1~ubuntu22.04.1_all.deb (--unpack):
+ dpkg-deb --control subprocess returned error exit status 2
+Errors were encountered while processing:
+ /var/cache/apt/archives/apt-fast_1.9.12-1~ubuntu22.04.1_all.deb
+E: Sub-process /usr/bin/dpkg returned an error code (1)
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+The part of it seemed to be the fragment: &lt;code&gt;uses unknown compression for member 'control.tar.zst', giving up&lt;/code&gt;. What is a &lt;code&gt;zst&lt;/code&gt; file? &lt;a href="https://en.wikipedia.org/wiki/Zstd?useskin=vector"&gt;According to wikipedia&lt;/a&gt; it's a "Zstandard" file and Debian and Ubuntu added support for using it to compress &lt;code&gt;deb&lt;/code&gt; packages back in 2018. There is a package listed in &lt;code&gt;apt&lt;/code&gt; called &lt;code&gt;zstd&lt;/code&gt; that it says supports &lt;code&gt;zst&lt;/code&gt; compression so I installed it but the error remained.
+&lt;/p&gt;
+
+&lt;p&gt;
+Once again, someone ran into this and asked about it on &lt;a href="https://unix.stackexchange.com/questions/669004/zst-compression-not-supported-by-apt-dpkg"&gt;Stack Exchange&lt;/a&gt;. &lt;a href="https://unix.stackexchange.com/a/669008"&gt;One of the answers&lt;/a&gt; said:
+&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;
+Debian’s dpkg package didn’t support zstd compression prior to version 1.21.18. Support was added just in time for Debian 12.
+&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;
+Since the SparkyLinux install is based on Debian 11 that seemed like it might be the problem. I checked the dpkg-version and got back:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Debian&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s1"&gt;'dpkg'&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;package&lt;span class="w"&gt; &lt;/span&gt;management&lt;span class="w"&gt; &lt;/span&gt;program&lt;span class="w"&gt; &lt;/span&gt;version&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.20.12&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;i386&lt;span class="o"&gt;)&lt;/span&gt;.
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+So that seemed like the likely culprit. The ubuntu release dates page noted that there was a LTS version between "bionic" and "jammy" called "focal" so I edited the &lt;code&gt;apt-fast.list&lt;/code&gt; file again, replacing "jammy" with "focal" and re-ran the installation and so far… it works.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org6e2ff14" class="outline-2"&gt;
+&lt;h2 id="org6e2ff14"&gt;What Have We Learned Today Children?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6e2ff14"&gt;
+&lt;p&gt;
+Further down in the installation instructions it says that you can just download the files and install them along with the &lt;code&gt;aria2&lt;/code&gt; package, so going through this whole thing was kind of unnecessary, but getting around the apt-key problem was something that I'd wondered about before, so it might be useful in the future, if PPA creators keep using it and they don't come up with an automatic fix for it.
+&lt;/p&gt;
+
+&lt;p&gt;
+I guess the main thing I learned is that I should have read to the end of the instructions and picked the easy way out instead of trying to force the old familiar way to work.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org13aee93" class="outline-2"&gt;
+&lt;h2 id="org13aee93"&gt;Links Collected&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org13aee93"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;FWDekker. Answer to “Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead” [Internet]. Stack Overflow. 2022 [cited 2023 Jun 16]. Available from: &lt;a href="https://stackoverflow.com/a/71384057"&gt;https://stackoverflow.com/a/71384057&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Kitt S. Answer to “zst compression not supported by apt/dpkg” [Internet]. Unix &amp;amp; Linux Stack Exchange. 2021 [cited 2023 Jun 16]. Available from: &lt;a href="https://unix.stackexchange.com/a/669008"&gt;https://unix.stackexchange.com/a/669008&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;fuzzydrawrings. Answer to “gpg: only download a key from a keyserver” [Internet]. Super User. 2021 [cited 2023 Jun 16]. Available from: &lt;a href="https://superuser.com/a/1643115"&gt;https://superuser.com/a/1643115&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;ilikenwf/apt-fast: apt-fast: A shellscript wrapper for apt that speeds up downloading of packages. [Internet]. [cited 2023 Jun 16]. Available from: &lt;a href="https://github.com/ilikenwf/apt-fast"&gt;https://github.com/ilikenwf/apt-fast&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;zstd. In: Wikipedia [Internet]. 2023 [cited 2023 Jun 16]. Available from: &lt;a href="https://en.wikipedia.org/w/index.php?title=Zstd&amp;amp;oldid=1157564498"&gt;https://en.wikipedia.org/w/index.php?title=Zstd&amp;amp;oldid=1157564498&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>apt</category><category>debian</category><category>howto</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/apt-fast-in-sparky-linux/</guid><pubDate>Fri, 16 Jun 2023 20:15:45 GMT</pubDate></item><item><title>Fish, Mocha, Chai - A Local Global Installation In Ubuntu</title><link>https://necromuralist.github.io/posts/fish-mocha-chai-a-local-global-installation-in-ubuntu/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org2816271" class="outline-2"&gt;
 &lt;h2 id="org2816271"&gt;What This Is About&lt;/h2&gt;
 &lt;div class="outline-text-2" id="text-org2816271"&gt;
 &lt;p&gt;
