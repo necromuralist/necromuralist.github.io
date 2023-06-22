@@ -31,7 +31,7 @@
 <li class="nav-item"><a class="nav-link" href="categories/">Tags</a></li>
 <li class="nav-item"><a class="nav-link" href="rss.xml">RSS feed</a></li>
 <li class="nav-item dropdown"><a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Projects</a>
-<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Ape-Iron/">Ape Iron</a> <a class="dropdown-item" href="https://necromuralist.github.io/Bowling-For-Data/">Bowling For Data</a> <a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
+<div class="dropdown-menu"><a class="dropdown-item" href="https://necromuralist.github.io/Ape-Iron/">Ape Iron</a> <a class="dropdown-item" href="https://necromuralist.github.io/Beach-Pig-Thigh/">Beach Pig Thigh & Rump</a> <a class="dropdown-item" href="https://necromuralist.github.io/Bowling-For-Data/">Bowling For Data</a> <a class="dropdown-item" href="https://necromuralist.github.io/Neurotic-Networking/">Neurotic Networking</a> <a class="dropdown-item" href="https://necromuralist.github.io/Visions-Voices-Data/">Visions, Voices, Data</a></div>
 </li>
 </ul>
 <!-- Google custom search -->
@@ -117,64 +117,85 @@ ImportError:<span class="w"> </span>No<span class="w"> </span>module<span class=
 <h1 class="p-name entry-title"><a class="u-url" href="posts/converting-nikola-from-a-blog-to-a-site/">Converting Nikola from a Blog to a Site</a></h1>
 <div class="metadata">
 <p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/converting-nikola-from-a-blog-to-a-site/" rel="bookmark"><time class="published dt-published" datetime="2016-03-02T12:53:31-08:00" itemprop="datePublished" title="2016-03-02 12:53">2016-03-02 12:53</time></a></p>
+<p class="dateline"><a href="posts/converting-nikola-from-a-blog-to-a-site/" rel="bookmark"><time class="published dt-published" datetime="2016-03-02T12:53:31-08:00" itemprop="datePublished" title="2016-03-02 12:53">2016-03-02 12:53</time> <span class="updated">(updated <time class="dt-updated" datetime="2023-06-21T17:00:00-05:00" itemprop="dateUpdated" title="2023-06-21 17:00">2023-06-21 17:00</time>)</span></a></p>
 </div>
 </header>
 <div class="p-summary entry-summary">
-<p>These are my notes on converting this site to be a web-site first (with a blog on the side). There is an official page on <a class="reference external" href="https://getnikola.com/creating-a-site-not-a-blog-with-nikola.html">creating a site instead of a blog</a>, but I had a little bit of a hard time figuring out what was going on so these are the main points in case I need to do it again.</p>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="posts/converting-nikola-from-a-blog-to-a-site/#orgdf16680">Updating <code>conf.py</code></a>
+<ul>
+<li><a href="posts/converting-nikola-from-a-blog-to-a-site/#org34ce497">Making "pages" the Site</a></li>
+<li><a href="posts/converting-nikola-from-a-blog-to-a-site/#moving-the-blog-index">Moving the Blog-index</a></li>
+</ul>
+</li>
+<li><a href="posts/converting-nikola-from-a-blog-to-a-site/#creating-the-home-page">Creating the Home Page</a></li>
+</ul>
+</div>
+</div>
+<p>These are my notes on converting this site to be a web-site first (with a blog on the side). There is an official page on <a href="https://getnikola.com/creating-a-site-not-a-blog-with-nikola.html">creating a site instead of a blog</a>, but I had a little bit of a hard time figuring out what was going on so these are the main points in case I need to do it again.</p>
 <p>In a nutshell:</p>
-<blockquote>
-<ol class="arabic simple">
-<li>
-<p>Get rid of the sub-folder argument in the <code class="docutils literal">PAGES</code> variable in <code class="docutils literal">conf.py</code></p>
-</li>
-<li>
-<p>Set <code class="docutils literal">INDEX_PATH</code> to point to the <cite>posts</cite> sub-folder</p>
-</li>
-<li>
-<p>Create an index page for the site.</p>
-</li>
+<div class="notecard" id="org8174648">
+<ol class="org-ol">
+<li>Get rid of the sub-folder argument in the <code>PAGES</code> variable in <code>conf.py</code></li>
+<li>Set <code>INDEX_PATH</code> to point to the posts sub-folder</li>
+<li>Create an index page for the site.</li>
 </ol>
-</blockquote>
-<section id="conf-py">
-<h2>conf.py</h2>
-<p>The main things to do are to edit the <cite>conf.py</cite> file so that the pages you create get copied over as the root of the <cite>output</cite> folder (instead of in a sub-folder called <cite>stories</cite>) and moving the blog-index down into a sub-folder.</p>
-<section id="making-pages-the-site">
-<h3>Making 'pages' the Site</h3>
-<p>To make the pages you create the root of the site you need to change the <code class="docutils literal">PAGES</code> variable to not have a sub-folder as the target (this is the second-entry in the tuple). So if it originally was:</p>
-<div class="code">
-<pre class="code python"><a href="posts/converting-nikola-from-a-blog-to-a-site/#rest_code_bd3399f5d3fd448183af2c58fab39eed-1" id="rest_code_bd3399f5d3fd448183af2c58fab39eed-1" name="rest_code_bd3399f5d3fd448183af2c58fab39eed-1"></a><span class="n">PAGES</span> <span class="o">=</span> <span class="p">(</span>
-<a href="posts/converting-nikola-from-a-blog-to-a-site/#rest_code_bd3399f5d3fd448183af2c58fab39eed-2" id="rest_code_bd3399f5d3fd448183af2c58fab39eed-2" name="rest_code_bd3399f5d3fd448183af2c58fab39eed-2"></a>    <span class="p">(</span><span class="s2">"pages/*.rst"</span><span class="p">,</span> <span class="s2">"pages"</span><span class="p">,</span> <span class="s2">"story.tmpl"</span><span class="p">),</span>
-<a href="posts/converting-nikola-from-a-blog-to-a-site/#rest_code_bd3399f5d3fd448183af2c58fab39eed-3" id="rest_code_bd3399f5d3fd448183af2c58fab39eed-3" name="rest_code_bd3399f5d3fd448183af2c58fab39eed-3"></a><span class="p">)</span>
+</div>
+<div class="outline-2" id="outline-container-orgdf16680">
+<h2 id="orgdf16680">Updating <code>conf.py</code></h2>
+<div class="outline-text-2" id="text-orgdf16680">
+<p>The main things to do are to edit the conf.py file so that the pages you create get copied over as the root of the output folder (instead of in a sub-folder called pages) and moving the blog-index down into a sub-folder.</p>
+<div class="notecard" id="org75cd48b">
+<p><b>Note:</b> The "pages" and "posts" folder have to match the names of the actual folders you use. If you call the folder with your web-site files <code>source</code>, for instance, then instead of "pages/" you would put "source/" in the <code>conf.py</code> settings that we're updating.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-org34ce497">
+<h3 id="org34ce497">Making "pages" the Site</h3>
+<div class="outline-text-3" id="text-org34ce497">
+<p>To make the pages that you create the root of the site you need to change the <code>PAGES</code> variable to not have a sub-folder as the target (this is the second-entry in the tuple). So if it originally was:</p>
+<div class="highlight">
+<pre><span></span><span class="n">PAGES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">"pages/*.rst"</span><span class="p">,</span> <span class="s2">"pages"</span><span class="p">,</span> <span class="s2">"page.tmpl"</span><span class="p">),</span>
+<span class="p">)</span>
 </pre></div>
 <p>You would change the second value in the tuple to an empty string:</p>
-<div class="code">
-<pre class="code python"><a href="posts/converting-nikola-from-a-blog-to-a-site/#rest_code_271fa5db80144d2a8ddd5218bf057d1d-1" id="rest_code_271fa5db80144d2a8ddd5218bf057d1d-1" name="rest_code_271fa5db80144d2a8ddd5218bf057d1d-1"></a><span class="n">PAGES</span> <span class="o">=</span> <span class="p">(</span>
-<a href="posts/converting-nikola-from-a-blog-to-a-site/#rest_code_271fa5db80144d2a8ddd5218bf057d1d-2" id="rest_code_271fa5db80144d2a8ddd5218bf057d1d-2" name="rest_code_271fa5db80144d2a8ddd5218bf057d1d-2"></a>    <span class="p">(</span><span class="s2">"pages/*.rst"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"story.tmpl"</span><span class="p">),</span>
-<a href="posts/converting-nikola-from-a-blog-to-a-site/#rest_code_271fa5db80144d2a8ddd5218bf057d1d-3" id="rest_code_271fa5db80144d2a8ddd5218bf057d1d-3" name="rest_code_271fa5db80144d2a8ddd5218bf057d1d-3"></a><span class="p">)</span>
+<div class="highlight">
+<pre><span></span><span class="n">PAGES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">"pages/*.rst"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"page.tmpl"</span><span class="p">),</span>
+<span class="p">)</span>
 </pre></div>
-<p>Now when you build the site (<code class="docutils literal">nikola build</code>) the <code class="docutils literal">output</code> folder will have your 'stories' at the top-level. This means that when you refer to pages (e.g. in the navigation configuration) you don't add 'pages/' as a prefix anymore.</p>
-</section>
-<section id="moving-the-blog-index">
-<h3>Moving the Blog-index</h3>
-<p>Since Nikola assumes that the blog is your main-page you need to tell it to create the index in a sub-folder by setting the <code class="docutils literal">INDEX_PATH</code> to the name of the sub-folder. If, for example, the blog-posts are being put into <code class="docutils literal">posts</code>, the setting would be:</p>
-<div class="code">
-<pre class="code python"><a href="posts/converting-nikola-from-a-blog-to-a-site/#rest_code_688956e5d87b4dc483430755915a6577-1" id="rest_code_688956e5d87b4dc483430755915a6577-1" name="rest_code_688956e5d87b4dc483430755915a6577-1"></a><span class="n">INDEX_PATH</span> <span class="o">=</span> <span class="s2">"posts"</span>
+<p>Now when you build the site (<code>nikola build</code>) the <code>output</code> folder will have your 'pages at the top-level. This means that when you refer to pages (e.g. in the navigation configuration) you don't add 'pages/' as a prefix anymore.</p>
+<div class="notecard" id="org3e87856">
+<p><b>Note:</b> The <code>page.tmpl</code> used to be called <code>story.tmpl</code> but somewhere along the way it got changed.</p>
+</div>
+</div>
+</div>
+<div class="outline-3" id="outline-container-moving-the-blog-index">
+<h3 id="moving-the-blog-index">Moving the Blog-index</h3>
+<div class="outline-text-3" id="text-moving-the-blog-index">
+<p>Since Nikola assumes that the blog is your main-page you need to tell it to create the index in a sub-folder by setting the <code>INDEX_PATH</code> to the name of the sub-folder. If, for example, the blog-posts are being put into a folder named <code>posts</code> that's located next to the <code>conf.py</code> file, then the setting would be:</p>
+<div class="highlight">
+<pre><span></span><span class="n">INDEX_PATH</span> <span class="o">=</span> <span class="s2">"posts"</span>
 </pre></div>
-<aside class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This was commented out by default so uncomment it and make the change.</p>
-</aside>
-</section>
-</section>
-<section id="creating-the-home-page">
-<h2>Creating the Home Page</h2>
-<p>At this point if you build the site and navigate to it you'll find that your home-page is now a directory of your <code class="docutils literal">output</code> folder. You can navigate to a page by going through the folders, but this is probably not the intended way to get around. The easiest way (that I found) to create the home-page is to create a new-page (<code class="docutils literal">nikola new_page</code>) and when prompted for a title, call it <code class="docutils literal">index</code>. This will create <code class="docutils literal">pages/index.rst</code> which you can edit to become your home page (make sure to change the title if you don't want the page headline to be 'index').</p>
-<aside class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some other things might need to be re-done in the <code class="docutils literal">conf.py</code> as well, since the folder structure has changed. These are only the basic steps to switch. The <code class="docutils literal">NAVIGATION_LINKS</code> in particular may need updating.</p>
-</aside>
-</section>
+<div class="notecard" id="org01c1fc1">
+<p><b>Note:</b> This was commented out by default so uncomment it and make the change.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-creating-the-home-page">
+<h2 id="creating-the-home-page">Creating the Home Page</h2>
+<div class="outline-text-2" id="text-creating-the-home-page">
+<p>At this point if you build the site and navigate to it you'll find that your home-page is now a directory of your <code>output</code> folder. You can navigate to a page by going through the folders, but this is probably not the intended way to get around. The easiest way (that I found) to create the home-page is to create a new-page (<code>nikola new_page</code>) and when prompted for a title, call it <code>index</code>. This will create <code>pages/index.rst</code> (unless you pass in a different format (e.g. <code>-f orgmode</code>) which you can edit to become your home page (make sure to change the title if you don't want the page headline to be 'index').</p>
+<div class="notecard" id="orgd5ae846">
+<p><b>Note:</b></p>
+<p>Some other things might need to be re-done in the <code>conf.py</code> as well, since the folder structure has changed. These are only the basic steps to switch. The <code>NAVIGATION_LINKS</code> in particular may need updating.</p>
+</div>
+</div>
+</div>
 </div>
 </article>
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
