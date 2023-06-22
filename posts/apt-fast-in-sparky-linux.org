@@ -60,7 +60,7 @@ Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (s
 
 This is something I've seen on ubuntu as well so fixing it seemed like a useful thing to do, especially since at the end of the regular output I got an error.
 
-Between the warning and the error there was the usual output that I've seen:
+Between the warning and the final error there was the usual output that I've seen:
 
 #+begin_src fish
 Executing: /tmp/apt-key-gpghome.YL04bWmGAF/gpg.1.sh --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
@@ -69,7 +69,7 @@ gpg: Total number processed: 1
 gpg:               imported: 1
 #+end_src
 
-Then came this, which is not what I usually see:
+Then came this, the error I mentioned, which is not what I usually see:
 
 #+begin_src fish
 gpg: no writable keyring found: Not found
@@ -109,7 +109,7 @@ Next I made a place to put the gpg file.
 sudo mkdir /etc/apt/keyrings
 #+end_src
 
-Then I output the file in my home directory (GNUPGHOME is only available to my user, so I put the file somewhere that I didn't need to be root).
+Then I output the file in my home directory (the ~GNUPGHOME~  environment variable is only available to my user, so I put the file somewhere that I didn't need to be root, i.e. my home directory).
 
 #+begin_src fish
 gpg -o A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B.gpg --export A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B
@@ -185,7 +185,13 @@ Errors were encountered while processing:
 E: Sub-process /usr/bin/dpkg returned an error code (1)
 #+end_src
 
-The part of it seemed to be the fragment: ~uses unknown compression for member 'control.tar.zst', giving up~. What is a ~zst~ file? [[https://en.wikipedia.org/wiki/Zstd?useskin=vector][According to wikipedia]] it's a "Zstandard" file and Debian and Ubuntu added support for using it to compress ~deb~ packages back in 2018. There is a package listed in ~apt~ called ~zstd~ that it says supports ~zst~ compression so I installed it but the error remained.
+The part of it that seemed like it might matter the most was the fragment:
+
+#+begin_example
+uses unknown compression for member 'control.tar.zst', giving up~
+#+end_example
+
+What is a ~zst~ file? [[https://en.wikipedia.org/wiki/Zstd?useskin=vector][According to wikipedia]] it's a "Zstandard" file and Debian and Ubuntu added support for using it to compress ~deb~ packages back in 2018. There is a package listed in ~apt~ called ~zstd~ that it says supports ~zst~ compression so I installed it but the error remained.
 
 Once again, someone ran into this and asked about it on [[https://unix.stackexchange.com/questions/669004/zst-compression-not-supported-by-apt-dpkg][Stack Exchange]]. [[https://unix.stackexchange.com/a/669008][One of the answers]] said:
 
