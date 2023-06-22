@@ -143,8 +143,8 @@ NAVIGATION_LINKS = {
         (
             (
                 ("https://necromuralist.github.io/Ape-Iron/", "Ape Iron"),
+                ("https://necromuralist.github.io/Beach-Pig-Thigh/", "Beach Pig Thigh & Rump"),
                 ("https://necromuralist.github.io/Bowling-For-Data/", "Bowling For Data"),
-                #("https://necromuralist.github.io/Anechoic-Echolalia/", "Anechoic Echolalia"),
                 ("https://necromuralist.github.io/Neurotic-Networking/", "Neurotic Networking"),
                 #("https://necromuralist.github.io/student_intervention/",
                 # "Student Intervention Project"),
