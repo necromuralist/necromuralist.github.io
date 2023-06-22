@@ -77,29 +77,29 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgd2bf7f0">In the Beginning</a></li>
-<li><a href="#orgc2fab41">Short Version</a></li>
-<li><a href="#org0cc8513">Okay, So Now Why Would You Do This?</a></li>
-<li><a href="#org5dde958">Dead Ends</a>
+<li><a href="#org045ad11">In the Beginning</a></li>
+<li><a href="#org4d8cb6a">Short Version</a></li>
+<li><a href="#org0703d20">Okay, So Now Why Would You Do This?</a></li>
+<li><a href="#org4bf7248">Dead Ends</a>
 <ul>
-<li><a href="#org8c43698">Another Screen</a></li>
-<li><a href="#org3a19cd8"><code>term_size</code></a></li>
+<li><a href="#orgcdef4e4">Another Screen</a></li>
+<li><a href="#orgb8aa7f2"><code>term_size</code></a></li>
 </ul>
 </li>
-<li><a href="#org7f38e69">Telnet</a></li>
-<li><a href="#org85d0145">But It's Not Fixed?</a></li>
+<li><a href="#orgaa02e07">Telnet</a></li>
+<li><a href="#orgeaf4ba5">But It's Not Fixed?</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgd2bf7f0">
-<h2 id="orgd2bf7f0">In the Beginning</h2>
-<div class="outline-text-2" id="text-orgd2bf7f0">
+<div class="outline-2" id="outline-container-org045ad11">
+<h2 id="org045ad11">In the Beginning</h2>
+<div class="outline-text-2" id="text-org045ad11">
 <p>This is a post on using <a href="https://documen.tician.de/pudb/index.html">PuDB</a> via telnet.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgc2fab41">
-<h2 id="orgc2fab41">Short Version</h2>
-<div class="outline-text-2" id="text-orgc2fab41">
+<div class="outline-2" id="outline-container-org4d8cb6a">
+<h2 id="org4d8cb6a">Short Version</h2>
+<div class="outline-text-2" id="text-org4d8cb6a">
 <p>In case I forgot what to do and just want to read this to remember.</p>
 <ol class="org-ol">
 <li>In the screen where you are going to run telnet, run <code>tput cols</code> and <code>tput lines</code> to find out the number of columns and lines that the screen is using.</li>
@@ -115,9 +115,9 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0cc8513">
-<h2 id="org0cc8513">Okay, So Now Why Would You Do This?</h2>
-<div class="outline-text-2" id="text-org0cc8513">
+<div class="outline-2" id="outline-container-org0703d20">
+<h2 id="org0703d20">Okay, So Now Why Would You Do This?</h2>
+<div class="outline-text-2" id="text-org0703d20">
 <p>I was trying to build one of my sites that uses <a href="https://nikola.readthedocs.io/en/latest/">nikola</a> and this strange error came out saying that one of the shortcodes was getting the "site" argument multiple times. I had no idea what was going on and nikola doesn't pre-define the arguments to the shortcode-plugins (it parses the text and then passes the arguments along using the <code>*args</code> <code>**kwargs</code> convention) which makes it flexible, but figuring out a problem with the arguments is pretty tough, so I decided to turn to my old standby <code>PuDB</code>, which I've been using for so many years now, and is my favorite of the python debuggers I've tried.</p>
 <p>I did my usual thing and found the line in the <code>nikola</code> code that was raising the error and inserted a breakpoint further up in the code.</p>
 <div class="highlight">
@@ -133,20 +133,20 @@
 <p>Surprisingly, <a href="https://documen.tician.de/pudb/index.html">there actually is some</a> (there wasn't really much when I first started using it).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5dde958">
-<h2 id="org5dde958">Dead Ends</h2>
-<div class="outline-text-2" id="text-org5dde958">
+<div class="outline-2" id="outline-container-org4bf7248">
+<h2 id="org4bf7248">Dead Ends</h2>
+<div class="outline-text-2" id="text-org4bf7248">
 <p>The first couple of things I tried seemed promising, but they didn't work.</p>
 </div>
-<div class="outline-3" id="outline-container-org8c43698">
-<h3 id="org8c43698">Another Screen</h3>
-<div class="outline-text-3" id="text-org8c43698">
+<div class="outline-3" id="outline-container-orgcdef4e4">
+<h3 id="orgcdef4e4">Another Screen</h3>
+<div class="outline-text-3" id="text-orgcdef4e4">
 <p>There wasn't anything about re-sizing the window, but it did mention that you can have the output come out in a different terminal from the one where you run the code, so I gave it a go. I made a different screen and got its file-path using the <code>tty</code> command (<code>/dev/pts/6</code> in this case). Then I set an environment variable to hold the file-path in the screen where I was running the code (<code>set -x PUDB_TTY /dev/pts/6</code>). This caused <code>PuDB</code> to pipe the output to the next screen - and it <i>did</i> work to send the first PuDB output to the other screen, and it <i>did</i> use the whole window, but then it quit instead of letting me use the debugger. Not <i>quite</i> what I wanted, so I unset the environment variable and moved on.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org3a19cd8">
-<h3 id="org3a19cd8"><code>term_size</code></h3>
-<div class="outline-text-3" id="text-org3a19cd8">
+<div class="outline-3" id="outline-container-orgb8aa7f2">
+<h3 id="orgb8aa7f2"><code>term_size</code></h3>
+<div class="outline-text-3" id="text-orgb8aa7f2">
 <p>The documentation also showed how to use <code>PuDB</code> as a remote debugger, and in the example they passed in the argument <code>term_size</code> to <code>set_trace</code> so I thought, since the functions have the same name, that the <code>set_trace</code> I was using would take the same arguments. So I tried it.</p>
 <div class="highlight">
 <pre><span></span><span class="kn">import</span> <span class="nn">pudb</span>
@@ -156,9 +156,9 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org7f38e69">
-<h2 id="org7f38e69">Telnet</h2>
-<div class="outline-text-2" id="text-org7f38e69">
+<div class="outline-2" id="outline-container-orgaa02e07">
+<h2 id="orgaa02e07">Telnet</h2>
+<div class="outline-text-2" id="text-orgaa02e07">
 <p>So then I decided to try their remote version. It doesn't really make sense to me that it would work better than the regular version, but I didn't see any other choice. So instead of the usual code to insert a breakpoint I used:</p>
 <div class="highlight">
 <pre><span></span><span class="kn">from</span> <span class="nn">pudb.remote</span> <span class="kn">import</span> <span class="n">set_trace</span>
@@ -175,9 +175,9 @@
 <p>This turns out to not be a complete fix. Hitting <code>!</code> to get to the <code>ipython</code> terminal froze <code>PuDB</code>, but this was enough for me to inspect the variables and realize that I just needed to move one of the parameters in the definition of my shortcode method and it worked.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org85d0145">
-<h2 id="org85d0145">But It's Not Fixed?</h2>
-<div class="outline-text-2" id="text-org85d0145">
+<div class="outline-2" id="outline-container-orgeaf4ba5">
+<h2 id="orgeaf4ba5">But It's Not Fixed?</h2>
+<div class="outline-text-2" id="text-orgeaf4ba5">
 <p>Well, if this were a more intense debug I really would want the <code>ipython~/~ptipython</code> terminal, but since this is the first time I've tried to run <code>PuDB</code> under <code>KUbuntu's</code> <code>Konsole</code> instead of the <code>GNOME</code> terminal I'm hoping that just switching back to the other terminal will be enough - I'll have to test that once I'm more motivated.</p>
 </div>
 </div>
