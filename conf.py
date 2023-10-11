@@ -143,15 +143,11 @@ NAVIGATION_LINKS = {
         (
             (
                 ("https://necromuralist.github.io/Ape-Iron/", "Ape Iron"),
-                ("https://necromuralist.github.io/Beach-Pig-Thigh/", "Beach Pig Thigh & Rump"),
+                ("https://necromuralist.github.io/Beach-Pig-Thigh/", "Beach Pig Rump & Thigh"),
                 ("https://necromuralist.github.io/Bowling-For-Data/", "Bowling For Data"),
+                ("https://necromuralist.github.io/Give-The-Fish/", "Give the Fish"),
                 ("https://necromuralist.github.io/Neurotic-Networking/", "Neurotic Networking"),
-                #("https://necromuralist.github.io/student_intervention/",
-                # "Student Intervention Project"),
-                #("https://necromuralist.github.io/boston_housing/",
-                # "Boston Housing Project"),
-                #("https://necromuralist.github.io/data_science/",
-                # "Data Science With Python"),
+                ("https://necromuralist.github.io/Terribilis-Ludum/", "Terribilis Ludum"),
                 ("https://necromuralist.github.io/Visions-Voices-Data/", "Visions, Voices, Data")
             ),
             "Projects"
