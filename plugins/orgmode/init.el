@@ -1,5 +1,7 @@
 ;; Init file to use with the orgmode plugin.
 
+;; this is generated from the post with the slug: orgmode-plugin-initel
+
 ;; Load org-mode
 ;; Requires org-mode v8.x
 
@@ -58,6 +60,7 @@
   '(("asymptote" . "asymptote")
     ("awk" . "awk")
     ("c" . "c")
+    ("console" . "console")
     ("c++" . "cpp")
     ("cpp" . "cpp")
     ("clojure" . "clojure")
@@ -65,14 +68,20 @@
     ("d" . "d")
     ("emacs-lisp" . "scheme")
     ("F90" . "fortran")
+    ("fish" . "fish")
+    ("gherkin" . "gherkin")
     ("gnuplot" . "gnuplot")
     ("groovy" . "groovy")
     ("haskell" . "haskell")
+    ("html" . "html")
+    ("ini" . "ini")
     ("java" . "java")
+    ("jinja" . "html+jinja")
     ("js" . "js")
     ("julia" . "julia")
     ("latex" . "latex")
     ("lisp" . "lisp")
+    ("mako" . "html+mako")
     ("makefile" . "makefile")
     ("matlab" . "matlab")
     ("mscgen" . "mscgen")
@@ -87,6 +96,7 @@
     ("scala" . "scala")
     ("scheme" . "scheme")
     ("sh" . "sh")
+    ("shell-session" . "shell-session")
     ("sql" . "sql")
     ("sqlite" . "sqlite3")
     ("tcl" . "tcl"))
@@ -106,7 +116,9 @@ contextual information."
           (code (org-element-property :value src-block))
           (code-html (org-html-format-code src-block info)))
       (if nikola-use-pygments
-          (pygmentize (downcase lang) (org-html-decode-plain-text code))
+          (progn
+            (unless lang (setq lang ""))
+            (pygmentize (downcase lang) (org-html-decode-plain-text code)))
         code-html))))
 
 ;; Export images with custom link type
@@ -116,6 +128,29 @@ contextual information."
     (format "<img src=\"%s\" alt=\"%s\"/>" path desc))))
 (org-add-link-type "img-url" nil 'org-custom-link-img-url-export)
 
+;; Export images with built-in file scheme
+(defun org-file-link-img-url-export (path desc format)
+  (cond
+   ((eq format 'html)
+    (format "<img src=\"/%s\" alt=\"%s\"/>" path desc))))
+(org-add-link-type "file" nil 'org-file-link-img-url-export)
+
+;; Support for magic links (link:// scheme)
+(org-link-set-parameters
+  "link"
+  :export (lambda (path desc backend)
+             (cond
+               ((eq 'html backend)
+                (format "<a href=\"link:%s\">%s</a>"
+                        path (or desc path))))))
+
+;; Export images with lazy link type
+(defun org-custom-link-img-url-export (path desc format)
+  (cond
+   ((eq format 'html)
+    (format "<img src=\"%s\" alt=\"%s\" loading=\"lazy\" />" path desc))))
+(org-add-link-type "lazy-img-url" nil 'org-custom-link-img-url-export)
+
 ;; Export function used by Nikola.
 (defun nikola-html-export (infile outfile)
   "Export the body only of the input file and write it to
@@ -124,3 +159,7 @@ specified location."
     (org-macro-replace-all nikola-macro-templates)
     (org-html-export-as-html nil nil t t)
     (write-file outfile nil)))
+
+;; silence  notice that emacs is using a default of 4 spaces
+(setq python-indent-guess-indent-offset t)
+(setq python-indent-guess-indent-offset-verbose nil)
