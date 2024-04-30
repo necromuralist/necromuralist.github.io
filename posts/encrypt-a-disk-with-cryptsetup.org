@@ -2,8 +2,8 @@
 .. title: Encrypt a Disk With Cryptsetup
 .. slug: encrypt-a-disk-with-cryptsetup
 .. date: 2024-04-16 17:26:20 UTC-07:00
-.. tags: 
-.. category: 
+.. tags: luks,encryption,setup
+.. category: Encryption
 .. link: 
 .. description: 
 .. type: text
@@ -13,10 +13,65 @@
 #+END_COMMENT
 #+OPTIONS: ^:{}
 #+TOC: headlines 2
-* Encrypt
+* Find Your Disk
 
 #+begin_example
-cryptsetup luksFormat --type luks2 /dev/sda
+sudo fdisk -l
+#+end_example
+
+The end of the output shows our drive.
+
+#+begin_example
+Disk /dev/mapper/wddata: 931.51 GiB, 1000198897664 bytes, 1953513472 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/sdb: 931.51 GiB, 1000204883968 bytes, 1953525164 sectors
+Disk model: External USB 3.0
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00007d94
+
+Device     Boot Start        End    Sectors   Size Id Type
+/dev/sdb1  *     2048 1953519615 1953517568 931.5G e8 unknown
+#+end_example
+
+#+begin_example
+mount
+#+end_example
+
+The last entry in the output.
+
+#+begin_example
+/dev/mapper/wddata on /media/data type ext4 (ro,relatime)
+#+end_example
+** Unmount
+
+#+begin_example
+sudo umount /media/data
+#+end_example
+
+* Wipe the File System
+
+#+begin_example
+sudo wipefs --all /dev/sdb
+#+end_example
+
+#+begin_example
+/dev/sdb1: 6 bytes were erased at offset 0x00000000 (crypto_LUKS): 4c 55 4b 53 ba be
+/dev/sdb1: 6 bytes were erased at offset 0x00004000 (crypto_LUKS): 53 4b 55 4c ba be
+#+end_example
+
+* Encrypt
+
+Looking at the output from above we can see that we're using ~/dev/sdb1~.
+
+#+begin_example
+cryptsetup --verbose --verify-passphrase luksFormat --type luks2 /dev/sdb
 #+end_example
 
 ** Problem: Cryptsetup Not Found
@@ -25,13 +80,33 @@ For some reason [[https://forums.raspberrypi.com/viewtopic.php?t=8594#p102801][/
 
 I was going to figure out how to work around it, but it turns out that if you use ~sudo~ then it finds the commands. So, it's there, but if you don't know it's a ~sudo~ command you'll get a confusing error telling you that it doesn't exist, not that you need to run it with ~sudo~. Odd.
 
+#+begin_example
+sudo cryptsetup --verbose --verify-passphrase luksFormat --type luks2 /dev/sdb
+#+end_example
+
+In the prompt that comes up you need to type ~YES~ (not ~yes~).
+
+#+begin_example
+WARNING!
+========
+This will overwrite data on /dev/sdb1 irrevocably.
+
+Are you sure? (Type 'yes' in capital letters): YES
+Enter passphrase for /dev/sdb1: 
+Verify passphrase: 
+Key slot 0 created.
+Command successful.
+#+end_example
+
 ** Mapping It
 
 #+begin_example
-sudo cryptsetup luksOpen /dev/sda monkeymount
+sudo cryptsetup luksOpen /dev/sdb monkeymount
 #+end_example
 
-This will create ~/dev/mapper/monkeymount~ which you use to mount the drive (note that it's ~/dev/sda~ not ~/dev/sda1~ (which doesn't exist)).
+You'll have to enter the passphrase you entered in the previous command. This will create ~/dev/mapper/monkeymount~ which you use to mount the drive.
+
+Some posts say to zero-out the drive. I did this once, it took way too long and I don't know what the point is at this point since I'm using a new drive and don't actually put anything really sensitive on it. So, here's what I did run but in the future I'll save this for when I give the drive away (which is likely never).
 
 ** Wipe The Contents
 
@@ -72,18 +147,27 @@ Writing superblocks and filesystem accounting information: done
 
 ** Mount It
 
+Previously I had it mounted on ~/media/data~ but I'll pick a new folder.
+
 #+begin_example
-sudo mount /dev/mapper/monkeymount /media/data
+sudo mkdir /media/irvin
+#+end_example
+
+#+begin_example
+sudo mount /dev/mapper/monkeymount /media/irvin
 #+end_example
 
 ** Change the Owner to the User
 
+I'm probably doing something wrong here, but the setup as done so far makes the mounted directory owned by root with no permissions for other groups and users, so I had to change the owner to make it usable.
+
 #+begin_example
-sudo umount /media/data
-sudo chown zenodotus:users /media/data
-sudo mount /dev/mapper/monkeymount /media/data
+sudo chown cerberus:users /media/irvin
 #+end_example
+
+There's also a folder called ~lost+found~ that I was going to remove but according to [[https://unix.stackexchange.com/a/18157][Stack Exchange]] it's better not to so I'll leave it.
 
 * Links
 
  - [[https://www.cyberciti.biz/security/howto-linux-hard-disk-encryption-with-luks-cryptsetup-command/][nixCraft]]: ~cryptsetup~ instructions.
+ - [[https://geekyshacklebolt.wordpress.com/2019/03/06/how-to-encrypt-usb-drives-with-luks/][Geeky Shacklebolt]]: Pretty much the same but introduced me to ~wipefs~.
