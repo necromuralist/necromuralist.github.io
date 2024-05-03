@@ -72,27 +72,27 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org3d81659">
-<h2 id="org3d81659">Background</h2>
-<div class="outline-text-2" id="text-org3d81659">
+<div class="outline-2" id="outline-container-org177204a">
+<h2 id="org177204a">Background</h2>
+<div class="outline-text-2" id="text-org177204a">
 <p><a href="http://www.litech.org/radvd/">radvd</a> (the router advertisement daemon) sends IPv6 advertisements and responds to node IPv6 requests. Here's the description from the man page.</p>
 <blockquote>
 <p><b>radvd</b> is the router advertisement daemon for IPv6. It listens to router solicitations and sends router advertisements as described in "Neighbor Discovery for IP Version 6 (IPv6)" (RFC 4861). With these advertisements hosts can automatically configure their addresses and some other parameters. They also can choose a default router based on these advertisements.</p>
 </blockquote>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgbf8c37a">
-<h2 id="orgbf8c37a">Installation and Setup</h2>
-<div class="outline-text-2" id="text-orgbf8c37a">
+<div class="outline-2" id="outline-container-orgcb0859b">
+<h2 id="orgcb0859b">Installation and Setup</h2>
+<div class="outline-text-2" id="text-orgcb0859b">
 <p>Setting <b>radvd</b> is suspiciously easy compared to other linux services. First you install it.</p>
-<pre class="example" id="org8c2e7e4">
+<pre class="example">
 sudo apt install radvd
 </pre>
 <p>Installing it will also start the service so we can use <code>systemctl</code> to check how it's doing.</p>
-<pre class="example" id="orgbf752a3">
+<pre class="example">
 systemctl status radvd
 </pre>
-<pre class="example" id="orge8c350e">
+<pre class="example">
 systemctl status radvd
 ● radvd.service - LSB: Router Advertising Daemon
    Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
@@ -108,11 +108,11 @@ Jul 20 12:39:19 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
 </pre>
 <p>You can see in the output that there's a line with <code>/etc/radvd.conf does not exist or is empty.</code>. To fix this we're going to create the configuration file.</p>
 </div>
-<div class="outline-3" id="outline-container-orge78faaf">
-<h3 id="orge78faaf">The Configuration File</h3>
-<div class="outline-text-3" id="text-orge78faaf">
+<div class="outline-3" id="outline-container-org652f418">
+<h3 id="org652f418">The Configuration File</h3>
+<div class="outline-text-3" id="text-org652f418">
 <p>Now create a configuration file (named <code>radvd.conf</code>). Here's an example.</p>
-<pre class="example" id="org6fcec61">
+<pre class="example">
 interface eth0
 {
 MinRtrAdvInterval 3;
@@ -126,15 +126,15 @@ prefix 2001:db7::/64
 </pre>
 <p>Note that the interface name depends on your system. Most linux systems don't use the <code>eth0</code> convention anymore. On my desktop the ethernet inteface is called <code>enp1s0</code> and on my raspberry pi it's <code>enxb827eb6c9129</code> so make sure you check what your interface name is using <code>ifconfig</code>.</p>
 <p>Now move (or copy) the config file into <code>/etc/</code></p>
-<pre class="example" id="org1e331bf">
+<pre class="example">
 sudo mv radvd.conf /etc/
 </pre>
 <p>And then restart <code>radvd</code> and check its state.</p>
-<pre class="example" id="orgb09a3c6">
+<pre class="example">
 sudo service radvd restart
 systemctl status radvd
 </pre>
-<pre class="example" id="org68ed3e8">
+<pre class="example">
 ● radvd.service - LSB: Router Advertising Daemon
    Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
    Active: active (exited) since Fri 2018-07-20 12:41:36 PDT; 2s ago
@@ -152,19 +152,19 @@ Jul 20 12:41:36 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
 <p>So the warning about the configuration file went away, now we have to fix the <code>IPv6 forwarding seems to be disabled.</code> error.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org7d0b7ab">
-<h3 id="org7d0b7ab">Enable IPv6 Forwarding</h3>
-<div class="outline-text-3" id="text-org7d0b7ab">
+<div class="outline-3" id="outline-container-orga581c66">
+<h3 id="orga581c66">Enable IPv6 Forwarding</h3>
+<div class="outline-text-3" id="text-orga581c66">
 <p>For now you can enable it at the command line.</p>
-<pre class="example" id="orga2137fb">
+<pre class="example">
 sudo sysctl -w net.ipv6.conf.all.forwarding=1
 </pre>
 <p>And restart and check <code>radvd</code> again.</p>
-<pre class="example" id="org6b3b083">
+<pre class="example">
 sudo service radvd restart
 systemctl status radvd
 </pre>
-<pre class="example" id="org80e22b4">
+<pre class="example">
 ● radvd.service - LSB: Router Advertising Daemon
    Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
    Active: active (running) since Fri 2018-07-20 12:45:02 PDT; 20s ago
@@ -181,29 +181,29 @@ Jul 20 12:45:02 asgaard radvd[12264]: Starting radvd: radvd.
 Jul 20 12:45:02 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
 </pre>
 <p>So it looks like our daemon is working. If you restart the server, though, the IPv6 port forwarding won't be enabled so open up <code>/etc/sysctl.conf</code> and un-comment out the following line.</p>
-<pre class="example" id="org8ce04b3">
+<pre class="example">
 net.ipv6.conf.all.forwarding=1
 </pre>
 <p>Now the next time you power on the computer it should be enabled.</p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgd398d4a">
-<h2 id="orgd398d4a">Checking</h2>
-<div class="outline-text-2" id="text-orgd398d4a">
+<div class="outline-2" id="outline-container-orgbab30f7">
+<h2 id="orgbab30f7">Checking</h2>
+<div class="outline-text-2" id="text-orgbab30f7">
 <p>To check if it's working you can put another device on the LAN and check <code>ifconfig</code>. In our <code>radvd.conf</code> file we defined the prefix for the address:</p>
-<pre class="example" id="org7c2ded9">
+<pre class="example">
 prefix 2001:db7::/64
 </pre>
 <p>So in the <code>ifconfig</code> output we should see an entry for an IPv6 address that starts with <code>2001:db7::</code>. In fact I ended up with two.</p>
-<pre class="example" id="org97f151f">
+<pre class="example">
 inet6 2001:db7::b8b4:6adf:6267:5571  prefixlen 64  scopeid 0x0&lt;global&gt;
 inet6 2001:db7::a80c:1a05:eaac:c1e8  prefixlen 64  scopeid 0x0&lt;global&gt;
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-orgc8950f7">
-<h2 id="orgc8950f7">Sources</h2>
-<div class="outline-text-2" id="text-orgc8950f7">
+<div class="outline-2" id="outline-container-org6d0a8af">
+<h2 id="org6d0a8af">Sources</h2>
+<div class="outline-text-2" id="text-org6d0a8af">
 <ul class="org-ul">
 <li><a href="https://www.linux.com/learn/intro-to-linux/2017/12/ipv6-auto-configuration-linux">IPv6 auto-configuration</a> - how to setup <b>radvd</b> (from linux.com)</li>
 </ul>

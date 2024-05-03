@@ -73,80 +73,80 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="#orgbc90ffd">Beginning</a>
+<li><a href="#orgd76b940">Beginning</a>
 <ul>
-<li><a href="#org3128a08">Problems Before I Even Started</a>
+<li><a href="#org8db52fc">Problems Before I Even Started</a>
 <ul>
-<li><a href="#org9293e60">the <b>RAPIDS</b> instruction for starting the docker container is out of date</a></li>
-<li><a href="#org38d0bbe">The emacs-snapshot isn't compatible with emacs-jupyter</a></li>
+<li><a href="#org9ae9405">the <b>RAPIDS</b> instruction for starting the docker container is out of date</a></li>
+<li><a href="#orgca8ffc9">The emacs-snapshot isn't compatible with emacs-jupyter</a></li>
 </ul>
 </li>
-<li><a href="#org5dfc322">Imports</a>
+<li><a href="#org7042855">Imports</a>
 <ul>
-<li><a href="#orgece691a">PyPi</a></li>
+<li><a href="#orga356cf8">PyPi</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org5586061">Middle</a>
+<li><a href="#org94853b0">Middle</a>
 <ul>
-<li><a href="#org3937220">Connecting To the Docker Container</a></li>
-<li><a href="#orga116e9e">Create Series</a>
+<li><a href="#org474cae2">Connecting To the Docker Container</a></li>
+<li><a href="#orgb7966de">Create Series</a>
 <ul>
-<li><a href="#org7ae0c11">CUDF Series</a></li>
-<li><a href="#orgb760586">dask CUDF</a></li>
+<li><a href="#org3bfab57">CUDF Series</a></li>
+<li><a href="#orgb10f369">dask CUDF</a></li>
 </ul>
 </li>
-<li><a href="#org4644def">Data Frames</a>
+<li><a href="#orgcd52612">Data Frames</a>
 <ul>
-<li><a href="#orgbe1a828">From a Pandas DataFrame</a></li>
+<li><a href="#org556296e">From a Pandas DataFrame</a></li>
 </ul>
 </li>
-<li><a href="#org86bfce5">Selection</a></li>
-<li><a href="#org0d89a5e">Applyng functions</a></li>
-<li><a href="#org43992f0">String Methods</a></li>
+<li><a href="#org21453e5">Selection</a></li>
+<li><a href="#orgb91c16e">Applyng functions</a></li>
+<li><a href="#orgfb9ee75">String Methods</a></li>
 </ul>
 </li>
-<li><a href="#org2f1ace7">End</a></li>
+<li><a href="#orgff0022c">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgbc90ffd">
-<h2 id="orgbc90ffd">Beginning</h2>
-<div class="outline-text-2" id="text-orgbc90ffd">
+<div class="outline-2" id="outline-container-orgd76b940">
+<h2 id="orgd76b940">Beginning</h2>
+<div class="outline-text-2" id="text-orgd76b940">
 <p>This is a first attempt to use <a href="https://rapids.ai/">RAPIDS</a> using their docker container and <a href="https://github.com/dzop/emacs-jupyter#building-the-widget-support-experimental">emacs-jupyter</a>. So there's multiple places where things can go wrong and I don't know why.</p>
 </div>
-<div class="outline-3" id="outline-container-org3128a08">
-<h3 id="org3128a08">Problems Before I Even Started</h3>
-<div class="outline-text-3" id="text-org3128a08"></div>
-<div class="outline-4" id="outline-container-org9293e60">
-<h4 id="org9293e60">the <b>RAPIDS</b> instruction for starting the docker container is out of date</h4>
-<div class="outline-text-4" id="text-org9293e60">
+<div class="outline-3" id="outline-container-org8db52fc">
+<h3 id="org8db52fc">Problems Before I Even Started</h3>
+<div class="outline-text-3" id="text-org8db52fc"></div>
+<div class="outline-4" id="outline-container-org9ae9405">
+<h4 id="org9ae9405">the <b>RAPIDS</b> instruction for starting the docker container is out of date</h4>
+<div class="outline-text-4" id="text-org9ae9405">
 <p>The instructions on the <a href="https://rapids.ai/start.html">getting started page</a> say to start the docker container using this:</p>
-<pre class="example" id="org8ab14cd">
+<pre class="example">
 docker run --runtime=nvidia --rm -it -p 8888:8888 -p 8787:8787 -p 8786:8786 \
     rapidsai/rapidsai:0.8-cuda10.0-runtime-ubuntu18.04-gcc7-py3.7
 </pre>
 <p>But the <code>--runtime=nvidia</code> flag is for the now-deprecated <code>nvidia-docker2</code> package (which isn't compatible with Ubuntu Disco Dingo anyway) and it will cause it to fail with an <code>unknown runtime</code> error if you don't have that older package installed (which I don't). Removing the flag (and having the <a href="https://github.com/NVIDIA/nvidia-docker">NVIDIA Container Toolkit</a> installed) fixes the error.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-org38d0bbe">
-<h4 id="org38d0bbe">The emacs-snapshot isn't compatible with emacs-jupyter</h4>
-<div class="outline-text-4" id="text-org38d0bbe">
+<div class="outline-4" id="outline-container-orgca8ffc9">
+<h4 id="orgca8ffc9">The emacs-snapshot isn't compatible with emacs-jupyter</h4>
+<div class="outline-text-4" id="text-orgca8ffc9">
 <p><a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> has become such a center-piece for how I work I can't even remember how I did things before I discovered it, but now there's <a href="https://github.com/dzop/emacs-jupyter">Emacs Jupyter</a> which claims to have even more features, so I thought I'd try it out, but when I tried to install it emacs would crash (during the installation). According to <a href="https://github.com/dzop/emacs-zmq/issues/14">this bug report</a> the <a href="https://launchpad.net/~ubuntu-elisp/+archive/ubuntu/ppa">emacs snapshot</a> for Ubuntu is built with an out-of-date version of gcc. I don't know if that's true, but I re-built emacs with <a href="https://www.emacswiki.org/emacs/EmacsSnapshotAndDebian">the instructions on the emacs wiki</a> and it at least installed emacs-jupyter without crashing. Here's where I find out if it works. Of course, I now have two versions of emacs. One that gets updated automatically and one that works with emacs-jupyter. I'll have to figure out what to do about that, assuming emacs-jupyter turns out to be worth keeping.</p>
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org5dfc322">
-<h3 id="org5dfc322">Imports</h3>
-<div class="outline-text-3" id="text-org5dfc322"></div>
-<div class="outline-4" id="outline-container-orgece691a">
-<h4 id="orgece691a">PyPi</h4>
-<div class="outline-text-4" id="text-orgece691a">
+<div class="outline-3" id="outline-container-org7042855">
+<h3 id="org7042855">Imports</h3>
+<div class="outline-text-3" id="text-org7042855"></div>
+<div class="outline-4" id="outline-container-orga356cf8">
+<h4 id="orga356cf8">PyPi</h4>
+<div class="outline-text-4" id="text-orga356cf8">
 <div class="highlight">
 <pre><span></span>import cudf
 import dask_cudf
@@ -156,12 +156,12 @@ import pandas
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5586061">
-<h2 id="org5586061">Middle</h2>
-<div class="outline-text-2" id="text-org5586061"></div>
-<div class="outline-3" id="outline-container-org3937220">
-<h3 id="org3937220">Connecting To the Docker Container</h3>
-<div class="outline-text-3" id="text-org3937220">
+<div class="outline-2" id="outline-container-org94853b0">
+<h2 id="org94853b0">Middle</h2>
+<div class="outline-text-2" id="text-org94853b0"></div>
+<div class="outline-3" id="outline-container-org474cae2">
+<h3 id="org474cae2">Connecting To the Docker Container</h3>
+<div class="outline-text-3" id="text-org474cae2">
 <p>According to the emacs-snapshot documentation you can connect via SSH (but the Rapids docker container doesn't have it installed by default) or you can connect to a notebook server. I originally was going to try the SSH route, since I already do that with ob-ipython, but the notebook-server might be more suited to this case. Let's see.</p>
 <div class="highlight">
 <pre><span></span>print("test")
@@ -172,12 +172,12 @@ test
 <p>So, the notebook doesn't seem to work as-is, but the SSH connection does, which is nice, but it's not different from what ob-ipython gave me (well it kind of is in that I didn't copy the file over).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orga116e9e">
-<h3 id="orga116e9e">Create Series</h3>
-<div class="outline-text-3" id="text-orga116e9e"></div>
-<div class="outline-4" id="outline-container-org7ae0c11">
-<h4 id="org7ae0c11">CUDF Series</h4>
-<div class="outline-text-4" id="text-org7ae0c11">
+<div class="outline-3" id="outline-container-orgb7966de">
+<h3 id="orgb7966de">Create Series</h3>
+<div class="outline-text-3" id="text-orgb7966de"></div>
+<div class="outline-4" id="outline-container-org3bfab57">
+<h4 id="org3bfab57">CUDF Series</h4>
+<div class="outline-text-4" id="text-org3bfab57">
 <p>This runs on the GPU.</p>
 <div class="highlight">
 <pre><span></span>s = cudf.Series([1, 2, 3, None, 4])
@@ -192,9 +192,9 @@ print(s)
 dtype: int64
 </pre></div>
 </div>
-<div class="outline-4" id="outline-container-orgb760586">
-<h4 id="orgb760586">dask CUDF</h4>
-<div class="outline-text-4" id="text-orgb760586">
+<div class="outline-4" id="outline-container-orgb10f369">
+<h4 id="orgb10f369">dask CUDF</h4>
+<div class="outline-text-4" id="text-orgb10f369">
 <p>This also runs on the GPU, but if you have more than one GPU it will use more than one.</p>
 <div class="highlight">
 <pre><span></span>ds = dask_cudf.from_cudf(s, npartitions=2)
@@ -212,16 +212,16 @@ dtype: int64
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4644def">
-<h3 id="org4644def">Data Frames</h3>
-<div class="outline-text-3" id="text-org4644def">
+<div class="outline-3" id="outline-container-orgcd52612">
+<h3 id="orgcd52612">Data Frames</h3>
+<div class="outline-text-3" id="text-orgcd52612">
 <div class="highlight">
 <pre><span></span>frame = cudf.DataFrame([("a", list(range(10))),
                         ("b", list(range(10)))])
 frame["a"] = frame.a * 5
 print(frame)
 </pre></div>
-<pre class="example" id="org2a05686">
+<pre class="example">
     a  b
 0   0  0
 1   5  1
@@ -234,9 +234,9 @@ print(frame)
 8  40  8
 9  45  9
 </pre></div>
-<div class="outline-4" id="outline-container-orgbe1a828">
-<h4 id="orgbe1a828">From a Pandas DataFrame</h4>
-<div class="outline-text-4" id="text-orgbe1a828">
+<div class="outline-4" id="outline-container-org556296e">
+<h4 id="org556296e">From a Pandas DataFrame</h4>
+<div class="outline-text-4" id="text-org556296e">
 <div class="highlight">
 <pre><span></span>frame = pandas.DataFrame({"a": list(range(4)), "b": list(range(4, 8))})
 frame = cudf.DataFrame.from_pandas(frame)
@@ -251,9 +251,9 @@ print(frame)
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org86bfce5">
-<h3 id="org86bfce5">Selection</h3>
-<div class="outline-text-3" id="text-org86bfce5">
+<div class="outline-3" id="outline-container-org21453e5">
+<h3 id="org21453e5">Selection</h3>
+<div class="outline-text-3" id="text-org21453e5">
 <div class="highlight">
 <pre><span></span>print(frame[frame.a &gt; 1])
 </pre></div>
@@ -263,9 +263,9 @@ print(frame)
 3  3  7
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org0d89a5e">
-<h3 id="org0d89a5e">Applyng functions</h3>
-<div class="outline-text-3" id="text-org0d89a5e">
+<div class="outline-3" id="outline-container-orgb91c16e">
+<h3 id="orgb91c16e">Applyng functions</h3>
+<div class="outline-text-3" id="text-orgb91c16e">
 <div class="highlight">
 <pre><span></span>frame["a"] = frame.a.applymap(lambda row: row + 5)
 print(frame)
@@ -280,9 +280,9 @@ print(frame)
 <p>This is basically the pandas.DataFrame.apply method, but they renamed it for some reason.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org43992f0">
-<h3 id="org43992f0">String Methods</h3>
-<div class="outline-text-3" id="text-org43992f0">
+<div class="outline-3" id="outline-container-orgfb9ee75">
+<h3 id="orgfb9ee75">String Methods</h3>
+<div class="outline-text-3" id="text-orgfb9ee75">
 <div class="highlight">
 <pre><span></span>series = cudf.Series(["Alpha", "Beta", "GAMMA", "dELTA"])
 print(series.str.lower())
@@ -296,9 +296,9 @@ dtype: object
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2f1ace7">
-<h2 id="org2f1ace7">End</h2>
-<div class="outline-text-2" id="text-org2f1ace7">
+<div class="outline-2" id="outline-container-orgff0022c">
+<h2 id="orgff0022c">End</h2>
+<div class="outline-text-2" id="text-orgff0022c">
 <p>After a certain point, this was kind of a boring exercise, mostly because <code>cuDF</code> runs a subset of pandas but on the GPU, so if you know pandas, you know some of <code>cuDF</code>, but just getting it working (with emacs-jupyter) was a little bit of work, so maybe it's useful to have recorded that here.</p>
 </div>
 </div>

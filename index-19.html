@@ -61,56 +61,56 @@
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org304d3b7">What is this about?</a></li>
-<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org12ad9aa">So, how do you do it?</a></li>
-<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org7007309">So, That Fixed It?</a></li>
-<li><a href="posts/using-systemd-to-enable-wake-on-lan/#orga24893c">Where did you find out about this?</a></li>
+<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org58c1856">What is this about?</a></li>
+<li><a href="posts/using-systemd-to-enable-wake-on-lan/#orgb4d850c">So, how do you do it?</a></li>
+<li><a href="posts/using-systemd-to-enable-wake-on-lan/#org7c3c5b1">So, That Fixed It?</a></li>
+<li><a href="posts/using-systemd-to-enable-wake-on-lan/#orgfc918ec">Where did you find out about this?</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org304d3b7">
-<h2 id="org304d3b7">What is this about?</h2>
-<div class="outline-text-2" id="text-org304d3b7">
+<div class="outline-2" id="outline-container-org58c1856">
+<h2 id="org58c1856">What is this about?</h2>
+<div class="outline-text-2" id="text-org58c1856">
 <p>I made a previous post (<a href="posts/enabling-wake-on-lan/">Enabling Wake-On-LAN (In Ubuntu 20.10)</a>) about enabling Wake-On-LAN on my server, but it didn't seem to work after a re-boot. I looked in the logs using <a href="https://www.commandlinux.com/man-page/man1/journalctl.1.html">journalctl</a> and noticed that the <code>wol.service</code> that I set up didn't get enabled after the re-boot. I thought about it and I remembered that when I was working with bluetooth and set up a service for it I had to make it wait for the bluetooth service to start first or it wouldn't work and realized that there was nothing in the <code>wol.service</code> file to tell it to wait so I went poking around and found what I hope to be a fix.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org12ad9aa">
-<h2 id="org12ad9aa">So, how do you do it?</h2>
-<div class="outline-text-2" id="text-org12ad9aa">
+<div class="outline-2" id="outline-container-orgb4d850c">
+<h2 id="orgb4d850c">So, how do you do it?</h2>
+<div class="outline-text-2" id="text-orgb4d850c">
 <p>We need to update the <code>/etc/systemd/system/wol.service</code> that I created in that earlier post. Previously it looked like this:</p>
 <div class="highlight">
-<pre><span></span>[Unit]
-Description=Enable Wake On Lan
+<pre><span></span><span class="k">[Unit]</span>
+<span class="na">Description</span><span class="o">=</span><span class="s">Enable Wake On Lan</span>
 
-[Service]
-Type=oneshot
-ExecStart = /sbin/ethtool --change enp4s0 wol g
+<span class="k">[Service]</span>
+<span class="na">Type</span><span class="o">=</span><span class="s">oneshot</span>
+<span class="na">ExecStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/sbin/ethtool --change enp4s0 wol g</span>
 
-[Install]
-WantedBy=basic.target
+<span class="k">[Install]</span>
+<span class="na">WantedBy</span><span class="o">=</span><span class="s">basic.target</span>
 </pre></div>
 <p>We need to update the <code>[Unit]</code> section by adding</p>
 <div class="highlight">
-<pre><span></span>Requires=network.target
-After=network.target
+<pre><span></span><span class="na">Requires</span><span class="o">=</span><span class="s">network.target</span>
+<span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
 </pre></div>
 <p>To let systemd know that we don't want this to run until after the network service has run. I also changed the <code>WantedBy</code> to <code>multi-user.target</code>. So the updated file looks like this:</p>
 <div class="highlight">
-<pre><span></span>[Unit]
-Description=Enable Wake On Lan
-Requires=network.target
-After=network.target
+<pre><span></span><span class="k">[Unit]</span>
+<span class="na">Description</span><span class="o">=</span><span class="s">Enable Wake On Lan</span>
+<span class="na">Requires</span><span class="o">=</span><span class="s">network.target</span>
+<span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
 
-[Service]
-Type=oneshot
-ExecStart = /sbin/ethtool --change enp4s0 wol g
+<span class="k">[Service]</span>
+<span class="na">Type</span><span class="o">=</span><span class="s">oneshot</span>
+<span class="na">ExecStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/sbin/ethtool --change enp4s0 wol g</span>
 
-[Install]
-WantedBy=multi-user.target
+<span class="k">[Install]</span>
+<span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
 </pre></div>
 <p>Now reload the daemon and re-enable it.</p>
 <div class="highlight">
@@ -126,7 +126,7 @@ sudo systemctl enable wol.service
 <pre><span></span>sudo reboot now
 </pre></div>
 <p>This time in journalctl I saw this:</p>
-<pre class="example" id="orgcc314ca">
+<pre class="example">
 Dec 07 00:02:17 erebus systemd[1]: Finished Enable Wake On Lan.
 Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
 </pre>
@@ -136,15 +136,15 @@ Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org7007309">
-<h2 id="org7007309">So, That Fixed It?</h2>
-<div class="outline-text-2" id="text-org7007309">
+<div class="outline-2" id="outline-container-org7c3c5b1">
+<h2 id="org7c3c5b1">So, That Fixed It?</h2>
+<div class="outline-text-2" id="text-org7c3c5b1">
 <p>Well, insofar as it's working now, yes. But since I change more than one thing I don't really know exactly what did it (was it one of the three lines I changed or all of them?). Anyway, since it works I'll let it lie for now.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga24893c">
-<h2 id="orga24893c">Where did you find out about this?</h2>
-<div class="outline-text-2" id="text-orga24893c">
+<div class="outline-2" id="outline-container-orgfc918ec">
+<h2 id="orgfc918ec">Where did you find out about this?</h2>
+<div class="outline-text-2" id="text-orgfc918ec">
 <ul class="org-ul">
 <li>The Arch wiki has a page on <a href="https://wiki.archlinux.org/index.php/Wake-on-LAN">Wake-On-LAN</a> that tells you many different ways to set it up – I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).</li>
 </ul>
@@ -161,43 +161,43 @@ Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#org8dd56f5">What Is This About?</a></li>
-<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#orga9934ce">So, How Do You Do It?</a></li>
-<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#org0c7a23b">Source</a></li>
+<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#org0a892f1">What Is This About?</a></li>
+<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#org8c4827e">So, How Do You Do It?</a></li>
+<li><a href="posts/mount-an-encrypted-drive-using-cryptsetup/#org9952836">Source</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org8dd56f5">
-<h2 id="org8dd56f5">What Is This About?</h2>
-<div class="outline-text-2" id="text-org8dd56f5">
+<div class="outline-2" id="outline-container-org0a892f1">
+<h2 id="org0a892f1">What Is This About?</h2>
+<div class="outline-text-2" id="text-org0a892f1">
 <p>This is how to mount a LUKS encrypted drive with <a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html">cryptsetup</a> in Ubuntu 20.10 (Groovy Gorilla). My use-case is I have a headless server that has an external USB drive that's encrypted with <a href="https://en.wikipedia.org/wiki/Linux_Unified_Key_Setup">LUKS</a> that I need to mount from the command line. I like the flexibility it gives a little more than the what the Gnome GUI does so I'll probably use it on my desktop as well. I previously documented how to do it with <a href="http://storaged.org/doc/udisks2-api/latest/udisksctl.1.html">udiskctl</a> in <a href="posts/mounting-an-encrypted-usb-drive/">this post</a> but I like <code>cryptsetup</code> a little better. This assumes that you know the partition/device (in my case it's <code>/dev/sdb1</code>). That previous post shows how I found it so I'll just do the decrypting and mounting here.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga9934ce">
-<h2 id="orga9934ce">So, How Do You Do It?</h2>
-<div class="outline-text-2" id="text-orga9934ce">
+<div class="outline-2" id="outline-container-org8c4827e">
+<h2 id="org8c4827e">So, How Do You Do It?</h2>
+<div class="outline-text-2" id="text-org8c4827e">
 <p>The syntax to decrypt the device is:</p>
-<pre class="example" id="org0bdc7d0">
+<pre class="example">
 sudo cryptsetup open &lt;device&gt; &lt;name&gt;
 </pre>
 <p>As I mentioned above, in this case my <code>device</code> is <code>/dev/sdb1</code>. The name can be an arbitrary one (although there are limitiations on special characters so let's say it can be any alpha-numeric name) and I'll use <code>wddata</code> as the name. Then my command to decrypt the drive is:</p>
-<pre class="example" id="org21a495a">
+<pre class="example">
 sudo cryptsetup open /dev/sdb1 wddata
 </pre>
 <p>This will prompt you for your password and then the encryption passphrase. Once the command succeeds, it adds a link in <code>/dev/mapper</code> using the name you passed in so you can mount the device (assuming the directory you want to mount it in exists) like this:</p>
-<pre class="example" id="org2f27dea">
+<pre class="example">
 sudo mount /dev/mapper/wddata /media/data
 </pre>
 <p>Where <code>wddata</code> is the name I told <code>cryptsetup</code> to use and <code>/media/data</code> is a directory that I had previously created.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0c7a23b">
-<h2 id="org0c7a23b">Source</h2>
-<div class="outline-text-2" id="text-org0c7a23b">
+<div class="outline-2" id="outline-container-org9952836">
+<h2 id="org9952836">Source</h2>
+<div class="outline-text-2" id="text-org9952836">
 <p>Besides the man-page for <code>cryptsetup</code> on my server, I was pointed to use <code>cryptsetup</code> from this StackOverflow post:</p>
 <ul class="org-ul">
 <li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line</a></li>
@@ -216,47 +216,47 @@ sudo mount /dev/mapper/wddata /media/data
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="posts/enabling-wake-on-lan/#orgb28baab">Beginning</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org3f97e62">Middle</a>
+<li><a href="posts/enabling-wake-on-lan/#orgc0b927a">Beginning</a></li>
+<li><a href="posts/enabling-wake-on-lan/#orgda42fcc">Middle</a>
 <ul>
-<li><a href="posts/enabling-wake-on-lan/#orgb71156c">Ethtool</a></li>
-<li><a href="posts/enabling-wake-on-lan/#orgde30793">Checking the Interface</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org4b8f72b">Turn It On Temporarily</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org6dd4117">Test It Out</a></li>
-<li><a href="posts/enabling-wake-on-lan/#orgeef5e14">Take Two</a></li>
-<li><a href="posts/enabling-wake-on-lan/#org3eb0d4c">Making It Permanent</a></li>
+<li><a href="posts/enabling-wake-on-lan/#orgcfb921c">Ethtool</a></li>
+<li><a href="posts/enabling-wake-on-lan/#orgc9dcad6">Checking the Interface</a></li>
+<li><a href="posts/enabling-wake-on-lan/#orgb6ed061">Turn It On Temporarily</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org25c0adf">Test It Out</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org2b4e963">Take Two</a></li>
+<li><a href="posts/enabling-wake-on-lan/#org444a170">Making It Permanent</a></li>
 </ul>
 </li>
-<li><a href="posts/enabling-wake-on-lan/#org68624ac">End</a></li>
+<li><a href="posts/enabling-wake-on-lan/#orga3f2f15">End</a></li>
 </ul>
 </div>
 </div>
 <p><b>Note:</b> The systemd configuration here isn't quite right, but since this post is kind of long and convoluted I made a standalone update about the systemd configuration file in <a href="posts/using-systemd-to-enable-wake-on-lan/">this post</a>.</p>
-<div class="outline-2" id="outline-container-orgb28baab">
-<h2 id="orgb28baab">Beginning</h2>
-<div class="outline-text-2" id="text-orgb28baab">
+<div class="outline-2" id="outline-container-orgc0b927a">
+<h2 id="orgc0b927a">Beginning</h2>
+<div class="outline-text-2" id="text-orgc0b927a">
 <p>These are my notes on getting <a href="https://en.wikipedia.org/wiki/Wake-on-LAN">Wake-On-LAN</a> working in Ubuntu 20.10. I have a server that I use to run most of the computation on when I use emacs/jupyter but I have it in a corner upstairs and although it's only a little walk, I find that the fact that I have to stop what I'm doing and go upstairs to push that little button on the front makes me lazy and so it ends up running more than it has to so I thought I'd enable Wake-On-LAN so I can suspend it and wake it up whenever I need to. I'm only going to use suspend (<a href="https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface">APM</a> S3). When I tried to use hibernate (S4) it ended up shutting down my machine (S5). Interestingly, my BIOS menu has an option to enable waking up from shutdown, but since my disk is encrypted, and I didn't set up a separate SSH server, I have to go enter the passphrase to unlock the disk before the operating system can boot up, so it kind of defeats its own purpose.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org3f97e62">
-<h2 id="org3f97e62">Middle</h2>
-<div class="outline-text-2" id="text-org3f97e62"></div>
-<div class="outline-3" id="outline-container-orgb71156c">
-<h3 id="orgb71156c">Ethtool</h3>
-<div class="outline-text-3" id="text-orgb71156c">
+<div class="outline-2" id="outline-container-orgda42fcc">
+<h2 id="orgda42fcc">Middle</h2>
+<div class="outline-text-2" id="text-orgda42fcc"></div>
+<div class="outline-3" id="outline-container-orgcfb921c">
+<h3 id="orgcfb921c">Ethtool</h3>
+<div class="outline-text-3" id="text-orgcfb921c">
 <p>The command I used to set up Wake-On-LAN on the remote machine is called <a href="https://en.wikipedia.org/wiki/Ethtool">ethtool</a>. It's in the Ubuntu repositories but wasn't installed on my machine so I had to add it.</p>
 <div class="highlight">
 <pre><span></span>sudo apt install ethtool
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgde30793">
-<h3 id="orgde30793">Checking the Interface</h3>
-<div class="outline-text-3" id="text-orgde30793">
+<div class="outline-3" id="outline-container-orgc9dcad6">
+<h3 id="orgc9dcad6">Checking the Interface</h3>
+<div class="outline-text-3" id="text-orgc9dcad6">
 <p>From what I've read, not all ethernet interfaces support Wake-On-LAN (although I've never seen one that doesn't) so a quick check might be useful. First, find the name of your ethernet interface.</p>
 <div class="highlight">
 <pre><span></span>ip a
@@ -316,9 +316,9 @@ Wake-on: d
 <p>There's an additional option which is what the interface was set on – <code>d</code> – as you can see in the last line of the output. This means <i>Disable (wake on nothing). This option clears all previous options.</i> I don't have many devices on my network, so I don't know that there's a lot of broadcasts, multicasts, etc. that would be waking it up all the time, but since one feature of Wake-On-LAN is that it only wakes the machine when it gets the "Magic Packet", only the <code>g</code> and <code>d</code> options matter. Now that I knew it was supported, it was time to try it out.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org4b8f72b">
-<h3 id="org4b8f72b">Turn It On Temporarily</h3>
-<div class="outline-text-3" id="text-org4b8f72b">
+<div class="outline-3" id="outline-container-orgb6ed061">
+<h3 id="orgb6ed061">Turn It On Temporarily</h3>
+<div class="outline-text-3" id="text-orgb6ed061">
 <p>The <code>ethtool</code> will turn on Wake-On-LAN, but (supposedly) everytime you reboot the machine it will reset to disabled. I haven't really tested this out, but I'll document how to make it permanent later, anyway.</p>
 <div class="highlight">
 <pre><span></span>sudo ethtool --change enp4s0 wol g
@@ -337,9 +337,9 @@ Wake-on: d
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org6dd4117">
-<h3 id="org6dd4117">Test It Out</h3>
-<div class="outline-text-3" id="text-org6dd4117">
+<div class="outline-3" id="outline-container-org25c0adf">
+<h3 id="org25c0adf">Test It Out</h3>
+<div class="outline-text-3" id="text-org25c0adf">
 <p>Now, on my local machine I needed to install <a href="https://github.com/jpoliv/wakeonlan">wakeonlan</a>. There's a surprising number of programs to send the Magic Packet, but this just happened to be the one I used.</p>
 <div class="highlight">
 <pre><span></span>sudo apt install wakeonlan
@@ -351,9 +351,9 @@ Wake-on: d
 <p>And then I pinged the machine and I waited. And I waited. And I waited… Eventually I went upstairs and saw that it was still sleeping so I pushed the power button to wake it up and went back downstairs.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgeef5e14">
-<h3 id="orgeef5e14">Take Two</h3>
-<div class="outline-text-3" id="text-orgeef5e14">
+<div class="outline-3" id="outline-container-org2b4e963">
+<h3 id="org2b4e963">Take Two</h3>
+<div class="outline-text-3" id="text-org2b4e963">
 <p>Something wasn't right so I SSHd into the server and started up <a href="https://www.tcpdump.org/">tcpdump</a> to see if the packets were going through.</p>
 <div class="highlight">
 <pre><span></span>sudo tcpdump -i enp4s0 '(udp and port 7) or (udp and port 9)'
@@ -384,12 +384,12 @@ listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
 <p>So, something was different. I suspended the machine again and sent the Magic Packet and this time it worked. Go figure.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org3eb0d4c">
-<h3 id="org3eb0d4c">Making It Permanent</h3>
-<div class="outline-text-3" id="text-org3eb0d4c"></div>
-<div class="outline-4" id="outline-container-org29bce0d">
-<h4 id="org29bce0d">Set It Up</h4>
-<div class="outline-text-4" id="text-org29bce0d">
+<div class="outline-3" id="outline-container-org444a170">
+<h3 id="org444a170">Making It Permanent</h3>
+<div class="outline-text-3" id="text-org444a170"></div>
+<div class="outline-4" id="outline-container-org8969e7e">
+<h4 id="org8969e7e">Set It Up</h4>
+<div class="outline-text-4" id="text-org8969e7e">
 <p>The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is temporary is that:</p>
 <ol class="org-ol">
 <li>I haven't really re-booted that machine to test it out (I have rebooted, but I haven't disable the <a href="https://en.wikipedia.org/wiki/Systemd">systemd</a> service that I'm documenting here).</li>
@@ -401,22 +401,22 @@ listening on enp4s0, link-type EN10MB (Ethernet), capture size 262144 bytes
 </pre></div>
 <p>In my case the path was <code>/sbin/ethtool</code>, so once you know this you can create a file at <code>/etc/systemd/system/wol.service</code> (I think you can use another systemd sub-folder, and you can name the file anything you want, within reason, but this one seems to work well enough). In this file you put settings that look something like this:</p>
 <div class="highlight">
-<pre><span></span>[Unit]
-Description=Enable Wake On Lan
+<pre><span></span><span class="k">[Unit]</span>
+<span class="na">Description</span><span class="o">=</span><span class="s">Enable Wake On Lan</span>
 
-[Service]
-Type=oneshot
-ExecStart = /sbin/ethtool --change enp4s0 wol g
+<span class="k">[Service]</span>
+<span class="na">Type</span><span class="o">=</span><span class="s">oneshot</span>
+<span class="na">ExecStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/sbin/ethtool --change enp4s0 wol g</span>
 
-[Install]
-WantedBy=basic.target
+<span class="k">[Install]</span>
+<span class="na">WantedBy</span><span class="o">=</span><span class="s">basic.target</span>
 </pre></div>
 <p>The only thing specific to my machine is <code>enp4s0</code>, the name of the ethernet interface, although it's possible that the path to the <code>ethtool</code> executable might be different too… but it should be the same on Ubuntu 20.10, anyway.</p>
 </div>
 </div>
-<div class="outline-4" id="outline-container-orgac1ed49">
-<h4 id="orgac1ed49">Enable The Service</h4>
-<div class="outline-text-4" id="text-orgac1ed49">
+<div class="outline-4" id="outline-container-org207b13b">
+<h4 id="org207b13b">Enable The Service</h4>
+<div class="outline-text-4" id="text-org207b13b">
 <p>To enable it you can do this:</p>
 <div class="highlight">
 <pre><span></span>sudo systemctl daemon-reload
@@ -431,9 +431,9 @@ sudo systemctl enable wol.service
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org68624ac">
-<h2 id="org68624ac">End</h2>
-<div class="outline-text-2" id="text-org68624ac">
+<div class="outline-2" id="outline-container-orga3f2f15">
+<h2 id="orga3f2f15">End</h2>
+<div class="outline-text-2" id="text-orga3f2f15">
 <p>So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't have to look so hard the next time. Here's the pages that I stole this from.</p>
 <ul class="org-ul">
 <li><a href="https://www.techrepublic.com/article/how-to-enable-wake-on-lan-in-ubuntu-server-18-04/">TechRepublic</a> on using <code>ethtool</code> and setting up a <code>systemd</code> service for this (don't use the systemd file here, though).</li>
@@ -456,9 +456,9 @@ sudo systemctl enable wol.service
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-orge067e64">
-<h2 id="orge067e64">Citation</h2>
-<div class="outline-text-2" id="text-orge067e64">
+<div class="outline-2" id="outline-container-org49ffe67">
+<h2 id="org49ffe67">Citation</h2>
+<div class="outline-text-2" id="text-org49ffe67">
 <ol class="org-ol">
 <li>McCarthy C. The Kekulé Problem [Internet]. Nautilus. 2017 [cited 2020 Nov 24]. Available from: <a href="http://nautil.us/issue/47/consciousness/the-kekul-problem">http://nautil.us/issue/47/consciousness/the-kekul-problem</a></li>
 </ol>
@@ -475,20 +475,20 @@ sudo systemctl enable wol.service
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="posts/memoization-and-the-fibonacci-sequence/#org79860fb">What It Is</a></li>
-<li><a href="posts/memoization-and-the-fibonacci-sequence/#org298ab1a">Recurse</a></li>
-<li><a href="posts/memoization-and-the-fibonacci-sequence/#orgb1f682b">Memoize</a></li>
-<li><a href="posts/memoization-and-the-fibonacci-sequence/#org98b2344">Once Again With Python</a></li>
+<li><a href="posts/memoization-and-the-fibonacci-sequence/#orgdd79ecd">What It Is</a></li>
+<li><a href="posts/memoization-and-the-fibonacci-sequence/#orgc21f346">Recurse</a></li>
+<li><a href="posts/memoization-and-the-fibonacci-sequence/#orge2dc200">Memoize</a></li>
+<li><a href="posts/memoization-and-the-fibonacci-sequence/#orgae0b269">Once Again With Python</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org79860fb">
-<h2 id="org79860fb">What It Is</h2>
-<div class="outline-text-2" id="text-org79860fb">
+<div class="outline-2" id="outline-container-orgdd79ecd">
+<h2 id="orgdd79ecd">What It Is</h2>
+<div class="outline-text-2" id="text-orgdd79ecd">
 <p>This is a note on using memoization with recursion - specifically with the generation of a <a href="https://www.wikiwand.com/en/Fibonacci_number">Fibonacci Number</a>. The fibonacci numbers form a sequence where</p>
 <p>\[ F_0 = 0, F_1 = 1 \]</p>
 <p>and then for the rest of the numbers greater than 1</p>
@@ -496,9 +496,9 @@ sudo systemctl enable wol.service
 <p>So, starting from 0 you get <i>0, 1, 1, 2, 3, 5, 8,</i> etc.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org298ab1a">
-<h2 id="org298ab1a">Recurse</h2>
-<div class="outline-text-2" id="text-org298ab1a">
+<div class="outline-2" id="outline-container-orgc21f346">
+<h2 id="orgc21f346">Recurse</h2>
+<div class="outline-text-2" id="text-orgc21f346">
 <p>Calculating the sequence is often done with recursion because you can pretty much take the definition and convert it to a function with little translation.</p>
 <div class="highlight">
 <pre><span></span><span class="k">def</span> <span class="nf">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -548,9 +548,9 @@ sudo systemctl enable wol.service
 <p>Less than a minute might not seem like a big deal, but even pushing it up to 45 makes the wait too long (I gave up and killed the process so I don't know how long it ran). So what's the solution? Let's try <a href="https://www.wikiwand.com/en/Memoization">memoization</a>.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgb1f682b">
-<h2 id="orgb1f682b">Memoize</h2>
-<div class="outline-text-2" id="text-orgb1f682b">
+<div class="outline-2" id="outline-container-orge2dc200">
+<h2 id="orge2dc200">Memoize</h2>
+<div class="outline-text-2" id="text-orge2dc200">
 <p>So, what's memoization? Is it what Elmer Fudd does when he memorizes? No, memoization comes from the latin word <i>memorandum</i> which means "to be remembered". What we're going to do is create a cache dictionary that will match arguments to our function call to their outputs. Then if a function call comes in that uses arguments that were used before, we can just grab it from the cache instead of re-doing the calculations.</p>
 <p>We're going to use a python decorator from <a href="https://docs.python.org/3/library/functools.html">functools</a> named <code>wraps</code> that allows you to build a decorator that looks like the original function. It isn't necessary for the decorator to work, but it makes it look more like the original functior passed to the decorator so it's a good practice to use it.</p>
 <div class="highlight">
@@ -594,9 +594,9 @@ sudo systemctl enable wol.service
 <p>So memoization really helps, even more than you might expect. The reason why is that the first recursion term (<code>fibonacci(n - 1)</code>) gets evaluated first, so each recursive call goes backwards by one until it hits the base-case where <code>n &lt; 2</code> and then all the rest of the calls are evaluated, but after one run through the indexes you've already hit all the cases you need for these other calls so rather than making more recursive calls, everything gets pulled from the cache.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org98b2344">
-<h2 id="org98b2344">Once Again With Python</h2>
-<div class="outline-text-2" id="text-org98b2344">
+<div class="outline-2" id="outline-container-orgae0b269">
+<h2 id="orgae0b269">Once Again With Python</h2>
+<div class="outline-text-2" id="text-orgae0b269">
 <p>As is often the case, when you implement something useful in python you'll find that it's already been implemented, in this case as part of the python standard library.</p>
 <div class="highlight">
 <pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
@@ -642,29 +642,29 @@ sudo systemctl enable wol.service
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#orge873a64">The Problem</a></li>
-<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org5096b53">Brute Force</a>
+<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org75aa86e">The Problem</a></li>
+<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org5c28583">Brute Force</a>
 <ul>
-<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#orgb02eeba">Example One</a></li>
+<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#orgb1d43b0">Example One</a></li>
 </ul>
 </li>
-<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#org2378550">End</a></li>
+<li><a href="posts/brute-force-longest-non-decreasing-sub-sequence/#orgeb98265">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orge873a64">
-<h2 id="orge873a64">The Problem</h2>
-<div class="outline-text-2" id="text-orge873a64">
+<div class="outline-2" id="outline-container-org75aa86e">
+<h2 id="org75aa86e">The Problem</h2>
+<div class="outline-text-2" id="text-org75aa86e">
 <p>The problem at hand is that we're given a sequence and we want to find the longest combination we can find in it that is non-decreasing (each element after the first is greater than or equal to the previous element).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5096b53">
-<h2 id="org5096b53">Brute Force</h2>
-<div class="outline-text-2" id="text-org5096b53">
+<div class="outline-2" id="outline-container-org5c28583">
+<h2 id="org5c28583">Brute Force</h2>
+<div class="outline-text-2" id="text-org5c28583">
 <p>This will be a brute-force solution using nested for-loops. This will use the <a href="posts/python-itertools-combinations/">itertools.combinations</a> function to generate the candidate solutions.</p>
 <div class="highlight">
 <pre><span></span><span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
@@ -695,9 +695,9 @@ sudo systemctl enable wol.service
 <li>If the <code>sub_sequence</code> is in sorted (non-decreasing) order then it is as long or longer than any other non-decreasing sub-sequence so choose it as the longest sub-sequence.</li>
 </ol>
 </div>
-<div class="outline-3" id="outline-container-orgb02eeba">
-<h3 id="orgb02eeba">Example One</h3>
-<div class="outline-text-3" id="text-orgb02eeba">
+<div class="outline-3" id="outline-container-orgb1d43b0">
+<h3 id="orgb1d43b0">Example One</h3>
+<div class="outline-text-3" id="text-orgb1d43b0">
 <div class="highlight">
 <pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 <span class="n">expected</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
@@ -713,9 +713,9 @@ sudo systemctl enable wol.service
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2378550">
-<h2 id="org2378550">End</h2>
-<div class="outline-text-2" id="text-org2378550">
+<div class="outline-2" id="outline-container-orgeb98265">
+<h2 id="orgeb98265">End</h2>
+<div class="outline-text-2" id="text-orgeb98265">
 <ul class="org-ul">
 <li>From <a href="posts/python-algorithms/">Python Algorithms</a></li>
 </ul>
@@ -732,24 +732,24 @@ sudo systemctl enable wol.service
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="posts/python-itertools-combinations/#org87d1eab">What?</a></li>
-<li><a href="posts/python-itertools-combinations/#org5bed70d">Okay, but what?</a>
+<li><a href="posts/python-itertools-combinations/#orga15503e">What?</a></li>
+<li><a href="posts/python-itertools-combinations/#org1e1db37">Okay, but what?</a>
 <ul>
-<li><a href="posts/python-itertools-combinations/#orgdf441c0">A Count Function</a></li>
-<li><a href="posts/python-itertools-combinations/#orgb0c7e31">Example One</a></li>
-<li><a href="posts/python-itertools-combinations/#org3bff490">Example Two</a></li>
+<li><a href="posts/python-itertools-combinations/#org9e7d99a">A Count Function</a></li>
+<li><a href="posts/python-itertools-combinations/#orgfb29ece">Example One</a></li>
+<li><a href="posts/python-itertools-combinations/#org662ad9f">Example Two</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org87d1eab">
-<h2 id="org87d1eab">What?</h2>
-<div class="outline-text-2" id="text-org87d1eab">
+<div class="outline-2" id="outline-container-orga15503e">
+<h2 id="orga15503e">What?</h2>
+<div class="outline-text-2" id="text-orga15503e">
 <p>This is a brief note on the python <a href="https://docs.python.org/3/library/itertools.html#itertools.combinations">itertools.combinations</a> function.</p>
 <div class="highlight">
 <pre><span></span><span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
@@ -762,9 +762,9 @@ sudo systemctl enable wol.service
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5bed70d">
-<h2 id="org5bed70d">Okay, but what?</h2>
-<div class="outline-text-2" id="text-org5bed70d">
+<div class="outline-2" id="outline-container-org1e1db37">
+<h2 id="org1e1db37">Okay, but what?</h2>
+<div class="outline-text-2" id="text-org1e1db37">
 <p>The <code>combinations</code> function takes two arguments:</p>
 <ul class="org-ul">
 <li>iterable: the source that you want to make combinations from</li>
@@ -772,9 +772,9 @@ sudo systemctl enable wol.service
 </ul>
 <p>It returns all the r-length subsequences in the iterable (<a href="https://www.wikiwand.com/en/Combination">combinations</a>).</p>
 </div>
-<div class="outline-3" id="outline-container-orgdf441c0">
-<h3 id="orgdf441c0">A Count Function</h3>
-<div class="outline-text-3" id="text-orgdf441c0">
+<div class="outline-3" id="outline-container-org9e7d99a">
+<h3 id="org9e7d99a">A Count Function</h3>
+<div class="outline-text-3" id="text-org9e7d99a">
 <p>The number of combinations of length <i>k</i> for a sequence of length <i>n</i> is the <a href="https://www.wikiwand.com/en/Binomial_coefficient">Binomial Coefficient</a>.</p>
 \begin{align} \binom{n}{k} &amp;= \frac{n(n-1) \cdots (n - k + 1)}{k(k-1) \cdots 1}\\ &amp;= \frac{n!}{k!(n-k)!} \end{align}
 <p>I originally implemented a function for this but it turns out it got added to python as of 3.8 (<a href="https://docs.python.org/3/library/math.html#number-theoretic-and-representation-functions">number-theoretic functions</a>). Here's my translation for reference. The calculation is actually really fast so you don't gain a lot from these toy problems using the standard library, but since it's there, why not?</p>
@@ -793,9 +793,9 @@ sudo systemctl enable wol.service
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgb0c7e31">
-<h3 id="orgb0c7e31">Example One</h3>
-<div class="outline-text-3" id="text-orgb0c7e31">
+<div class="outline-3" id="outline-container-orgfb29ece">
+<h3 id="orgfb29ece">Example One</h3>
+<div class="outline-text-3" id="text-orgfb29ece">
 <p>This is given as an example in the documentation.</p>
 <div class="highlight">
 <pre><span></span><span class="n">EXPECTEDS</span> <span class="o">=</span> <span class="s2">"AB AC AD BC BD CD"</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -819,9 +819,9 @@ sudo systemctl enable wol.service
 <p>Note that it treated the string as a sequence and returns a tuple, not a sub-string. Also note that it doesn't swap orders, so "D" is never a first entry, for instance.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org3bff490">
-<h3 id="org3bff490">Example Two</h3>
-<div class="outline-text-3" id="text-org3bff490">
+<div class="outline-3" id="outline-container-org662ad9f">
+<h3 id="org662ad9f">Example Two</h3>
+<div class="outline-text-3" id="text-org662ad9f">
 <p>This one is also from the documentation.</p>
 <div class="highlight">
 <pre><span></span><span class="n">SOURCE</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
@@ -857,17 +857,17 @@ sudo systemctl enable wol.service
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div class="outline-2" id="outline-container-org387ce6f">
-<h2 id="org387ce6f">Citation</h2>
-<div class="outline-text-2" id="text-org387ce6f">
+<div class="outline-2" id="outline-container-org25a00c7">
+<h2 id="org25a00c7">Citation</h2>
+<div class="outline-text-2" id="text-org25a00c7">
 <ul class="org-ul">
 <li>Hetland ML. Python Algorithms: mastering basic algorithms in the python language. New York, N.Y: Apress; 2010. 316 p. (Expert’s voice in open source).</li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org06528cd">
-<h2 id="org06528cd">Notes</h2>
-<div class="outline-text-2" id="text-org06528cd">
+<div class="outline-2" id="outline-container-org368971d">
+<h2 id="org368971d">Notes</h2>
+<div class="outline-text-2" id="text-org368971d">
 <ul class="org-ul">
 <li><a href="https://github.com/apress/python-algorithms-14">GitHub Repository</a> for code in the book.</li>
 </ul>
@@ -884,32 +884,32 @@ sudo systemctl enable wol.service
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="posts/changing-the-firefox-reader-font/#orga2bb0a2">What is this about?</a></li>
-<li><a href="posts/changing-the-firefox-reader-font/#org6f7231e">So how do you do it?</a>
+<li><a href="posts/changing-the-firefox-reader-font/#orgb5b2f6e">What is this about?</a></li>
+<li><a href="posts/changing-the-firefox-reader-font/#org514f418">So how do you do it?</a>
 <ul>
-<li><a href="posts/changing-the-firefox-reader-font/#orge26cfe4">Creating the <code>chrome</code> Folder</a></li>
-<li><a href="posts/changing-the-firefox-reader-font/#org22e17df">userContent.css</a></li>
-<li><a href="posts/changing-the-firefox-reader-font/#orge589105">Enable It</a></li>
-<li><a href="posts/changing-the-firefox-reader-font/#org2386109">Oh, and just one more thing…</a></li>
+<li><a href="posts/changing-the-firefox-reader-font/#orgf17bd3a">Creating the <code>chrome</code> Folder</a></li>
+<li><a href="posts/changing-the-firefox-reader-font/#org0048d54">userContent.css</a></li>
+<li><a href="posts/changing-the-firefox-reader-font/#org427b7e0">Enable It</a></li>
+<li><a href="posts/changing-the-firefox-reader-font/#org3c7f763">Oh, and just one more thing…</a></li>
 </ul>
 </li>
-<li><a href="posts/changing-the-firefox-reader-font/#org0af9ac2">End</a></li>
+<li><a href="posts/changing-the-firefox-reader-font/#org2e59f66">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga2bb0a2">
-<h2 id="orga2bb0a2">What is this about?</h2>
-<div class="outline-text-2" id="text-orga2bb0a2">
+<div class="outline-2" id="outline-container-orgb5b2f6e">
+<h2 id="orgb5b2f6e">What is this about?</h2>
+<div class="outline-text-2" id="text-orgb5b2f6e">
 <p>I've been trying for a while now to figure out how to change the Firefox Reader font. The default (serifed-font) is Georgia, which is nice enough, but I like to change things up now and again. I would sometimes just edit the CSS in the Developer's Tools, but I finally stumbled upon how to do it so I'll save it here for my future self.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6f7231e">
-<h2 id="org6f7231e">So how do you do it?</h2>
-<div class="outline-text-2" id="text-org6f7231e">
+<div class="outline-2" id="outline-container-org514f418">
+<h2 id="org514f418">So how do you do it?</h2>
+<div class="outline-text-2" id="text-org514f418">
 <p>The procedure is pretty simple, this is it in outline:</p>
 <ol class="org-ol">
 <li>Create the <code>chrome</code> folder for it if it doesn't exist.</li>
@@ -919,9 +919,9 @@ sudo systemctl enable wol.service
 <li>Restart Firefox</li>
 </ol>
 </div>
-<div class="outline-3" id="outline-container-orge26cfe4">
-<h3 id="orge26cfe4">Creating the <code>chrome</code> Folder</h3>
-<div class="outline-text-3" id="text-orge26cfe4">
+<div class="outline-3" id="outline-container-orgf17bd3a">
+<h3 id="orgf17bd3a">Creating the <code>chrome</code> Folder</h3>
+<div class="outline-text-3" id="text-orgf17bd3a">
 <p>The configuration files you create go into a <a href="http://kb.mozillazine.org/Chrome_folder">folder named "chrome"</a>. Firefox used to create it for you with example files but doesn't anymore so if you haven't created one you'll have to do so now - but where? It goes into your "profile" folder, but since you can have multiple configurations the path isn't fixed. There's multiple ways listed to find it on the Firefox <a href="http://kb.mozillazine.org/Profile_folder_-_Firefox">Profile folder</a> page. The way I did it was to enter <code>about:support</code> in the address bar.</p>
 <img src="posts/changing-the-firefox-reader-font/about-support-address-bar.webp">
 <p>This brings up the Troupbleshooting Information page.</p>
@@ -931,9 +931,9 @@ sudo systemctl enable wol.service
 <p>The path displayed is your profile folder (<code>/home/athena/.mozilla/firefox/j3hyuwod.default-1603227893962</code>). You can click on the Open Directory button to open it with the GUI or use the path to navigate to it from your text editor. Within that folder create a folder named <code>chrome</code>. Why <i>chrome</i> when this is firefox? Chrome is apparently <a href="https://developer.mozilla.org/en-US/docs/Glossary/Chrome">not related to google's chrome</a>, but, <a href="http://www.catb.org/~esr/jargon/html/C/chrome.html">according to Eric S. Raymond</a> (and <a href="https://www.wikiwand.com/en/Graphical_user_interface">Wikipedia</a>, etc.) refers to the GUI, or at least some aspects of it. Anyway.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org22e17df">
-<h3 id="org22e17df">userContent.css</h3>
-<div class="outline-text-3" id="text-org22e17df">
+<div class="outline-3" id="outline-container-org0048d54">
+<h3 id="org0048d54">userContent.css</h3>
+<div class="outline-text-3" id="text-org0048d54">
 <p>In the <code>chrome</code> folder create a file named <code>userContent.css</code> (here's <a href="http://kb.mozillazine.org/index.php?title=UserContent.css&amp;printable=yes">a mozillaZine article</a> with some information about it) and add your CSS. Looking in the Firefox Inspector with the Reader View open it looks like it just uses the defaults.</p>
 <img src="posts/changing-the-firefox-reader-font/body-serif.webp">
 <p>But I don't want to change it for every web page so I added it to the <code>.moz-reader-content</code> selector.</p>
@@ -945,14 +945,14 @@ sudo systemctl enable wol.service
 <p>Which I also found using the Firefox Inspector.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orge589105">
-<h3 id="orge589105">Enable It</h3>
-<div class="outline-text-3" id="text-orge589105">
+<div class="outline-3" id="outline-container-org427b7e0">
+<h3 id="org427b7e0">Enable It</h3>
+<div class="outline-text-3" id="text-org427b7e0">
 <p>So, you might think that we're done, right? But it turns out that even though Firefox gives you the ability to add custom CSS it doesn't load it by default. I couldn't find anything on the mozillaZine site about how to enable it (although it might be there, I just didn't find it), but there's a www.userchrome.org site that has a <a href="https://www.userchrome.org/how-create-userchrome-css.html">page on setting up userChrome.css</a> (which also talks about creating the <code>chrome</code> folder). <code>userChrome.css</code> is how you can style the Firefox GUI itself (the chrome) so in this case anything specific to that file isn't relevant to what we're doing here, but the rest of the page is.</p>
 </div>
-<div class="outline-4" id="outline-container-orgacd7e37">
-<h4 id="orgacd7e37">The Steps</h4>
-<div class="outline-text-4" id="text-orgacd7e37">
+<div class="outline-4" id="outline-container-org767cc9e">
+<h4 id="org767cc9e">The Steps</h4>
+<div class="outline-text-4" id="text-org767cc9e">
 <p>First navigate to <code>about:config</code>.</p>
 <img src="posts/changing-the-firefox-reader-font/about-config.webp">
 <p>If you hadn't previously unchecked the <i>Warn me when I attempt to access these preferences</i> button you'll be greeted with a warning page.</p>
@@ -967,9 +967,9 @@ sudo systemctl enable wol.service
 <img src="posts/changing-the-firefox-reader-font/true.webp"></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org2386109">
-<h3 id="org2386109">Oh, and just one more thing…</h3>
-<div class="outline-text-3" id="text-org2386109">
+<div class="outline-3" id="outline-container-org3c7f763">
+<h3 id="org3c7f763">Oh, and just one more thing…</h3>
+<div class="outline-text-3" id="text-org3c7f763">
 <p>Changing the preferences to use the stylesheet doesn't load the actual stylesheet. To actually get it all working restart Firefox and try out the reader on a page.</p>
 <p>In my case it changed the <a href="https://en.wikipedia.org/wiki/Rhetorica_ad_Herennium?oldformat=true">Wikipedia page on Rhetorica ad Herennium</a> from this.</p>
 <img src="posts/changing-the-firefox-reader-font/default-text.webp">
@@ -979,9 +979,9 @@ sudo systemctl enable wol.service
 <img src="posts/changing-the-firefox-reader-font/moz-reader-content.webp"></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0af9ac2">
-<h2 id="org0af9ac2">End</h2>
-<div class="outline-text-2" id="text-org0af9ac2">
+<div class="outline-2" id="outline-container-org2e59f66">
+<h2 id="org2e59f66">End</h2>
+<div class="outline-text-2" id="text-org2e59f66">
 <p>So, that's one way to change the font for the Firefox Reader. Not exciting, but finding out how to do it was hard enough that I thought I should note it for later.</p>
 </div>
 </div>
@@ -996,38 +996,38 @@ sudo systemctl enable wol.service
 </div>
 </header>
 <div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
+<div id="table-of-contents">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
+<div id="text-table-of-contents">
 <ul>
-<li><a href="posts/javascript-in-org-babel/#org5fc44d7">Beginning</a></li>
-<li><a href="posts/javascript-in-org-babel/#org86c5112">Middle</a>
+<li><a href="posts/javascript-in-org-babel/#orgdb3616a">Beginning</a></li>
+<li><a href="posts/javascript-in-org-babel/#org687ba6e">Middle</a>
 <ul>
-<li><a href="posts/javascript-in-org-babel/#orgc739cd3">Prerequites</a></li>
-<li><a href="posts/javascript-in-org-babel/#org25f6187">init.el</a></li>
-<li><a href="posts/javascript-in-org-babel/#org7af4a73">Try It</a></li>
+<li><a href="posts/javascript-in-org-babel/#org7f4cc01">Prerequites</a></li>
+<li><a href="posts/javascript-in-org-babel/#orgacdb157">init.el</a></li>
+<li><a href="posts/javascript-in-org-babel/#orgd1f78b1">Try It</a></li>
 </ul>
 </li>
-<li><a href="posts/javascript-in-org-babel/#orgdbb2e25">End</a></li>
+<li><a href="posts/javascript-in-org-babel/#org24dbdb6">End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org5fc44d7">
-<h2 id="org5fc44d7">Beginning</h2>
-<div class="outline-text-2" id="text-org5fc44d7">
+<div class="outline-2" id="outline-container-orgdb3616a">
+<h2 id="orgdb3616a">Beginning</h2>
+<div class="outline-text-2" id="text-orgdb3616a">
 <p>This is a test of running javascript in org-babel blocks. For some reason I couldn't find any documentation about setting it up so this is also a place for me to collect what to do.</p>
 <p><b>Note:</b> I actually did use <a href="https://orgmode.org/worg/org-contrib/babel/languages/ob-doc-js.html">this org-babel page</a> for some of it, but it wasn't enough for me to really figure out what was going on.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org86c5112">
-<h2 id="org86c5112">Middle</h2>
-<div class="outline-text-2" id="text-org86c5112"></div>
-<div class="outline-3" id="outline-container-orgc739cd3">
-<h3 id="orgc739cd3">Prerequites</h3>
-<div class="outline-text-3" id="text-orgc739cd3"></div>
-<div class="outline-4" id="outline-container-org58eccda">
-<h4 id="org58eccda">Node</h4>
-<div class="outline-text-4" id="text-org58eccda">
+<div class="outline-2" id="outline-container-org687ba6e">
+<h2 id="org687ba6e">Middle</h2>
+<div class="outline-text-2" id="text-org687ba6e"></div>
+<div class="outline-3" id="outline-container-org7f4cc01">
+<h3 id="org7f4cc01">Prerequites</h3>
+<div class="outline-text-3" id="text-org7f4cc01"></div>
+<div class="outline-4" id="outline-container-org8b78cf8">
+<h4 id="org8b78cf8">Node</h4>
+<div class="outline-text-4" id="text-org8b78cf8">
 <p>Since javascript is an interpreted language you need an interpreter to run code blocks. Org-babel assumes you're using <a href="https://nodejs.org/en/">node.js</a> so you need to install it and make sure it's on the <code>PATH</code>. They do support debian-based systems (including Ubuntu, which I use) but they don't use the traditional PPA system. Instead they have different installs for the different versions - but they do have a Long-Term Support (LTS) version which I'm hoping updates so that's what I installed.</p>
 <div class="highlight">
 <pre><span></span>curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
@@ -1037,9 +1037,9 @@ sudo apt-get install -y nodejs
 </div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org25f6187">
-<h3 id="org25f6187">init.el</h3>
-<div class="outline-text-3" id="text-org25f6187">
+<div class="outline-3" id="outline-container-orgacdb157">
+<h3 id="orgacdb157">init.el</h3>
+<div class="outline-text-3" id="text-orgacdb157">
 <p>Besides installing node you have to make sure that you add <code>js</code> to your org-babel set up.</p>
 <div class="highlight">
 <pre><span></span>(org-babel-do-load-languages
@@ -1062,9 +1062,9 @@ sudo apt-get install -y nodejs
 </pre></div>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org7af4a73">
-<h3 id="org7af4a73">Try It</h3>
-<div class="outline-text-3" id="text-org7af4a73">
+<div class="outline-3" id="outline-container-orgd1f78b1">
+<h3 id="orgd1f78b1">Try It</h3>
+<div class="outline-text-3" id="text-orgd1f78b1">
 <p>Now that it's set up you can execute javascript in org-babel code blocks, designating them as <code>js</code> blocks (e.g. <code>#+begin_src js :results output :exports both</code>).</p>
 <p>Here's a simple output block.</p>
 <div class="highlight">
@@ -1094,9 +1094,9 @@ applebanana
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgdbb2e25">
-<h2 id="orgdbb2e25">End</h2>
-<div class="outline-text-2" id="text-orgdbb2e25">
+<div class="outline-2" id="outline-container-org24dbdb6">
+<h2 id="org24dbdb6">End</h2>
+<div class="outline-text-2" id="text-org24dbdb6">
 <p>Okay, so this was a very basic hello world for javascript in emacs. The lack of sessions is kind of disappointing, but I don't know how useful this is going to be, anyway, since javascript is so tied to the browser, but there it is.</p>
 </div>
 </div>

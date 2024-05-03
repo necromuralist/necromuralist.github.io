@@ -71,15 +71,15 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org9790386">
-<h2 id="org9790386">Introduction</h2>
-<div class="outline-text-2" id="text-org9790386">
+<div class="outline-2" id="outline-container-org411f24b">
+<h2 id="org411f24b">Introduction</h2>
+<div class="outline-text-2" id="text-org411f24b">
 <p>I was looking for a way to update python dependencies that I'd installed with <a href="https://pip.pypa.io/en/stable/">pip</a> when I stumbled upon <a href="https://github.com/jazzband/pip-tools/">pip-tools</a>. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga248bd1">
-<h2 id="orga248bd1">First pipdeptree</h2>
-<div class="outline-text-2" id="text-orga248bd1">
+<div class="outline-2" id="outline-container-org13a43f9">
+<h2 id="org13a43f9">First pipdeptree</h2>
+<div class="outline-text-2" id="text-org13a43f9">
 <p><code>pip-tools</code> installs a command named <code>pip-compile</code> which will use either the requirements you put in your <code>setup.py</code> file or a special file named <code>requirements.in</code> (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than <code>setup.py</code>, since it makes it clearer and more likely that I'll keep it up to date. The <code>requirements.in</code> file is a list of your dependencies but unlike the <code>requirements.txt</code> file, it doesn't have version numbers, the version numbers are added when you call the <code>pip-compile</code> command.</p>
 <p>So where does the <code>requirements.in</code> file come from? You have to make it. <i>But if you're editing things by hand, doesn't this kind of make it less likely you'll maintain it?</i> Yes, which is where <a href="https://github.com/naiquevin/pipdeptree"><code>pipdeptree</code></a> comes in. <code>pipdeptree</code> will list all the python dependencies you installed as well as everything those dependencies pulled in as their dependencies. It's usefull to take a look at how a dependency you didn't directly install got into your virtual environment. You can install it from pypi.</p>
 <div class="highlight">
@@ -89,7 +89,7 @@
 <div class="highlight">
 <pre><span></span>pipdeptree<span class="w"> </span>-h
 </pre></div>
-<pre class="example" id="org7c1b249">
+<pre class="example">
 usage: pipdeptree [-h] [-v] [-f] [-a] [-l] [-u] [-w [{silence,suppress,fail}]]
                   [-r] [-p PACKAGES] [-j] [--json-tree]
                   [--graph-output OUTPUT_FORMAT]
@@ -167,7 +167,7 @@ optional arguments:
 <div class="highlight">
 <pre><span></span>pipdeptree<span class="w"> </span>--freeze<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
 </pre></div>
-<pre class="example" id="orgb348536">
+<pre class="example">
 : 160
 </pre>
 <p>So there are 160 dependencies total. How many did I install?</p>
@@ -222,7 +222,7 @@ optional arguments:
 <li>there's <a href="https://bugs.launchpad.net/ubuntu/+source/python-pip/+bug/1635463">a bug in ubuntu</a> that causes pip to include <code>pkg-resources</code>, which isn't something you can install.</li>
 <li>it will add an extra entry for your python egg, something like this:</li>
 </ul>
-<pre class="example" id="orgd4767af">
+<pre class="example">
 -e git+git@github.com:russell-n/iperflexer.git@65f4d3ca72670591f584efa6fa9bfd64c18a925b#egg=iperflexer
 </pre>
 <p>So we should filter those out.</p>
@@ -246,7 +246,7 @@ optional arguments:
 <div class="highlight">
 <pre><span></span>pipdeptree<span class="w"> </span>--freeze<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>--only-matching<span class="w"> </span>--perl-regexp<span class="w"> </span><span class="s2">"^[\w\-]+"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>--invert-match<span class="w"> </span><span class="s2">"\-e\|pkg"</span>
 </pre></div>
-<pre class="example" id="org16db4ec">
+<pre class="example">
 ghp-import2
 graphviz
 Nikola
@@ -260,18 +260,18 @@ wheel
 ws4py
 </pre>
 <p>There are probaby other exceptions that have to be added for other installations, but this looks like enough for us. Now we can redirect this to a <code>requirements.in</code> file and we're ready for <code>pip-tools</code>.</p>
-<pre class="example" id="org41d4783">
+<pre class="example">
 pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" &gt; requirements.in
 </pre></div>
 </div>
-<div class="outline-2" id="outline-container-org1787c78">
-<h2 id="org1787c78">pip-compile</h2>
-<div class="outline-text-2" id="text-org1787c78">
+<div class="outline-2" id="outline-container-orgef22727">
+<h2 id="orgef22727">pip-compile</h2>
+<div class="outline-text-2" id="text-orgef22727">
 <p><code>pip-compile</code> will read in the <code>requirements.in</code> file and add the version numbers and can create a <code>requirements.txt</code> file. It will automatically look for the <code>requirements.in</code> file or you can explicitly pass in the filename.</p>
 <div class="highlight">
 <pre><span></span>pip-compile<span class="w"> </span><span class="p">|</span><span class="w"> </span>head
 </pre></div>
-<pre class="example" id="org5e0c5dd">
+<pre class="example">
 #
 # This file is autogenerated by pip-compile
 # To update, run:
@@ -286,9 +286,9 @@ blinker==1.4              # via nikola
 <p>You'll notice it adds in the dependencies of the dependencies and shows what requries them.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgc4dbfa1">
-<h2 id="orgc4dbfa1">Well, that was a lot of work just for that.</h2>
-<div class="outline-text-2" id="text-orgc4dbfa1">
+<div class="outline-2" id="outline-container-org5721a60">
+<h2 id="org5721a60">Well, that was a lot of work just for that.</h2>
+<div class="outline-text-2" id="text-org5721a60">
 <p>If we stopped at this point we'd have:</p>
 <ul class="org-ul">
 <li>a way to check who installed what using <code>pipdeptree</code> (as well as a way to plot the dependencies as a graph)</li>
@@ -297,14 +297,14 @@ blinker==1.4              # via nikola
 </ul>
 <p>I think that's kind of nice already, especially if you end up with a lot of dependencies. Try working with <a href="http://www.sphinx-doc.org/en/master/">sphinx</a> and <a href="http://scikit-learn.org/stable/">scikit-learn</a> and you'll see things start to explode. But of course, there's always more.</p>
 </div>
-<div class="outline-3" id="outline-container-orgaa4d9a6">
-<h3 id="orgaa4d9a6">Upgrade</h3>
-<div class="outline-text-3" id="text-orgaa4d9a6">
+<div class="outline-3" id="outline-container-org2e2db7b">
+<h3 id="org2e2db7b">Upgrade</h3>
+<div class="outline-text-3" id="text-org2e2db7b">
 <p>You can run <code>pip-compile</code> with the <code>--upgrade</code> option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).</p>
 <div class="highlight">
 <pre><span></span>pip-compile<span class="w"> </span>--upgrade<span class="w"> </span><span class="p">|</span><span class="w"> </span>head
 </pre></div>
-<pre class="example" id="orga0f8157">
+<pre class="example">
 #
 # This file is autogenerated by pip-compile
 # To update, run:
@@ -319,14 +319,14 @@ blinker==1.4              # via nikola
 <p>This will upgrade your installation but not update the <code>requirements.txt</code> file, so you can test it out and see if everything works before updating the <code>requirements.txt</code>. If things don't work out, you could reinstall from the <code>requirements.txt</code> file, but see the next section for another way.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org279ed1f">
-<h3 id="org279ed1f">Sync</h3>
-<div class="outline-text-3" id="text-org279ed1f">
+<div class="outline-3" id="outline-container-org8d96d80">
+<h3 id="org8d96d80">Sync</h3>
+<div class="outline-text-3" id="text-org8d96d80">
 <p><code>pip-tools</code> also installed a command called <code>pip-sync</code> which will keep you in sync with what is in the requirements file, so as long as <code>requirements.txt</code> is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the <code>--upgrade</code> option in that it will only install the exact version in the requirements file.</p>
 <div class="highlight">
 <pre><span></span>pip-sync
 </pre></div>
-<pre class="example" id="orgf1996b5">
+<pre class="example">
 Collecting backcall==0.1.0
 Collecting bleach==2.1.3
   Using cached https://files.pythonhosted.org/packages/30/b6/a8cffbb9ab4b62b557c22703163735210e9cd857d533740c64e1467d228e/bleach-2.1.3-py2.py3-none-any.whl
@@ -344,14 +344,14 @@ Successfully installed backcall-0.1.0 bleach-2.1.3 certifi-2018.4.16 cloudpickle
 <div class="highlight">
 <pre><span></span>pip-sync
 </pre></div>
-<pre class="example" id="org584365e">
+<pre class="example">
 : Everything up-to-date
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2a756f7">
-<h2 id="org2a756f7">Conclusion</h2>
-<div class="outline-text-2" id="text-org2a756f7">
+<div class="outline-2" id="outline-container-orgee33abe">
+<h2 id="orgee33abe">Conclusion</h2>
+<div class="outline-text-2" id="text-orgee33abe">
 <p>So there you have it, how to keep dependencies synced. The <a href="https://pypi.org/project/pip-tools/">README</a> for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.</p>
 </div>
 </div>
