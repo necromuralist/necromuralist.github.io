@@ -28,6 +28,129 @@ If I remove the ~https://~ (or use ~http://~) then, since I have https:// always
 
 [[lazy-img-url:https://filedn.com/lKA05W1iHns4eTWccSVfpum/necromuralist/self-signed-certificate/00b-firefox-secure-sight-not-available.cwebp][Secure Sight Not Available]]
 
+* First Option: Make An Exception
+
+
+* Setting Up Certificate
+
+#+begin_src fish
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+#+end_src
+
+#+begin_src fish
+zenodotus@alexandria /e/n/sites-available>
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+Generating a RSA private key
+............................................+++++
+...............................+++++
+writing new private key to '/etc/ssl/private/nginx-selfsigned.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:US
+State or Province Name (full name) [Some-State]:Oregon
+Locality Name (eg, city) []:Portland
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Cloistered Monkey Worldwide Domination
+Organizational Unit Name (eg, section) []:The Big Unit
+Common Name (e.g. server FQDN or YOUR name) []:monkey.lan
+Email Address []:
+#+end_src
+
+
+** Set Up Nginx
+
+This generates a file of randomness (I think, need to check what it's doing) and takes a long time to run (too long to pay attention to (maybe time it later)).
+
+#+begin_src fish
+sudo openssl dhparam -out /etc/nginx/dhparam.pem 4096
+#+end_src
+
+Create ~/etc/nginx/snippets/self-signed.conf~ and put references to the certificate and key we created.
+
+#+begin_src fish
+ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+#+end_src
+
+The names for the certificate and key were given to the openssl command when we created them.
+
+Create ~/etc/nginx/snippets/ssl-params.conf~.
+
+#+begin_src fish
+ssl_protocols TLSv1.3;
+ssl_prefer_server_ciphers on;
+ssl_dhparam /etc/nginx/dhparam.pem; 
+ssl_ciphers EECDH+AESGCM:EDH+AESGCM;
+ssl_ecdh_curve secp384r1;
+ssl_session_timeout  10m;
+ssl_session_cache shared:SSL:10m;
+ssl_session_tickets off;
+ssl_stapling on;
+ssl_stapling_verify on;
+resolver 8.8.8.8 8.8.4.4 valid=300s;
+resolver_timeout 5s;
+# Disable strict transport security for now. You can uncomment the following
+# line if you understand the implications.
+#add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+add_header X-Frame-Options DENY;
+add_header X-Content-Type-Options nosniff;
+add_header X-XSS-Protection "1; mode=block";
+#+end_src
+
+** Update the Nginx Site Configuration
+
+This will be ~/etc/nginx/sites-available/necromuralist.monkey.lan~.
+
+#+begin_src fish
+server {
+       listen 443 ssl;
+           listen [::]:443 ssl;
+               include snippets/self-signed.conf;
+               include snippets/ssl-params.conf;
+
+    server_name necromuralist.monkey.lan;
+
+    root /var/www/necromuralist/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    
+    server_name necromuralist.monkey.lan;
+    return 302 https://$server_name$request_uri;
+}
+#+end_src
+
+Link to sites-enabled if you need to.
+
+** Test and Restart Nginx
+
+#+begin_src fish
+sudo nginx -t
+#+end_src
+
+#+begin_src fish
+nginx: [warn] "ssl_stapling" ignored, issuer certificate not found for certificate "/etc/ssl/certs/nginx-selfsigned.crt"
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+#+end_src
+
+The warning is to be expected - we can't do *ssl stapling* with our self-signed setup.
+
+#+begin_src fish
+sudo systemctl restart nginx
+#+end_src
 
 * After The Certificate is Set Up
 
@@ -39,3 +162,29 @@ Continuing on by clicking "Advanced...".
 
 [[lazy-img-url:https://filedn.com/lKA05W1iHns4eTWccSVfpum/necromuralist/self-signed-certificate/02-firefox-warning-advanced-dialog.cwebp][Warning Advanced Dialog]]
 
+And the sight opens.
+
+[[lazy-img-url: https://filedn.com/lKA05W1iHns4eTWccSVfpum/necromuralist/self-signed-certificate/03-necromuralist-page-opened.cwebp][Necromuralist Page]]
+
+* Make Redirect Permanent
+
+This optional step will tell clients that the redirect is permanent, not temporary, so don't go looking for the http page I guess. Edit ~/etc/nginx/sites-available/necromuralist.monkey.lan~.
+
+Change this line:
+
+#+begin_src fish
+return 302 https://$server_name$request_uri;
+#+end_src
+
+To use code 301 instead.
+
+#+begin_src fish
+return 301 https://$server_name$request_uri;
+#+end_src
+
+Check the nginx configuration and restart.
+
+
+* Links
+
+ - https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1
