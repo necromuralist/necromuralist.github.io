@@ -74,21 +74,21 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org4c035bb">Short-take</a></li>
-<li><a href="#org777cc1a">Background</a></li>
-<li><a href="#org03e82e0">The Problem</a></li>
-<li><a href="#org1a32b5e">The Fix</a></li>
-<li><a href="#org711b9a2">Summary</a></li>
+<li><a href="#org774c5e8">Short-take</a></li>
+<li><a href="#orgb5807ad">Background</a></li>
+<li><a href="#org75d5bd8">The Problem</a></li>
+<li><a href="#org588e361">The Fix</a></li>
+<li><a href="#org1be40ad">Summary</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org4c035bb">
-<h2 id="org4c035bb">Short-take</h2>
-<div class="outline-text-2" id="text-org4c035bb">
+<div class="outline-2" id="outline-container-org774c5e8">
+<h2 id="org774c5e8">Short-take</h2>
+<div class="outline-text-2" id="text-org774c5e8">
 <p>If you use <a href="https://elpy.readthedocs.io/en/latest/">elpy</a> and <a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> together and use the <code>jupyter</code> option when configuring the <code>elpy</code> interpreter settings it will break the execution of <code>ob-ipython</code> code blocks, so use the <code>ipython</code> version instead. In other words use this in your <code>init.el</code> file:</p>
 <div class="highlight">
 <pre><span></span><span class="p">(</span><span class="k">setq</span><span class="w"> </span><span class="nv">python-shell-interpreter</span><span class="w"> </span><span class="s">"ipython"</span>
@@ -96,16 +96,16 @@
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org777cc1a">
-<h2 id="org777cc1a">Background</h2>
-<div class="outline-text-2" id="text-org777cc1a">
+<div class="outline-2" id="outline-container-orgb5807ad">
+<h2 id="orgb5807ad">Background</h2>
+<div class="outline-text-2" id="text-orgb5807ad">
 <p>I've become quite reliant on <a href="https://github.com/gregsexton/ob-ipython">ob-ipython</a> for emacs (it lets you use ipython with org-babel to create literate programming documents). I used to use <a href="http://mpastell.com/pweave/">pweave</a>, and if I weren't an emacs user I probably would still use it, and of course there's <a href="http://jupyter.org">jupyter notebooks</a>, and the attendant <a href="https://github.com/millejoh/emacs-ipython-notebook">emacs-ipython-notebook</a> that I've used as well (and sometimes still use - as when I need to hand in a Coursera assignment, for instance), but org-mode and ipython seems to hit the sweet spot for me (at least this week).</p>
 <p>So I was more than a little disturbed when I tried to execute a code block on my new laptop and found that nothing would run. This is a description of what happened and the fix, in case I forget the next time.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org03e82e0">
-<h2 id="org03e82e0">The Problem</h2>
-<div class="outline-text-2" id="text-org03e82e0">
+<div class="outline-2" id="outline-container-org75d5bd8">
+<h2 id="org75d5bd8">The Problem</h2>
+<div class="outline-text-2" id="text-org75d5bd8">
 <p>I tried executing some python code in an ipython code block but I kept getting an error. This is a toy example of what an ob-ipython block looks like:</p>
 <div class="highlight">
 <pre><span></span>#+BEGIN_SRC ipython :session test :results output
@@ -114,20 +114,20 @@ print("tester")
 </pre></div>
 <p>To execute it you'd put your cursor somewhere in the block and enter <code>Control-c Control-c</code>.</p>
 <p>This is the error I was getting:</p>
-<pre class="example">
+<pre class="example" id="org24a46ff">
 There was a fatal error trying to process the request. See *ob-ipython-debug*
 </pre>
 <p>And in the <code>*ob-ipython-debug*</code> buffer would be this:</p>
-<pre class="example">
+<pre class="example" id="org4769c81">
 Error executing Jupyter command '/home/dogen/.emacs.d/elpa/ob-ipython-20180113.929/client.py': [Errno 2] No such file or directory
 </pre>
 <p>I tried googling for the error, which brought up some Jupyter questions on Stack Overflow that didn't seem relevant. There were also some <i>issues</i> on the <code>ob-ipython</code> github site, but none of them looked exactly the same. They seemed to suggest that the wrong python interpreter was being used, but when I brought up the interpreter in emacs (<code>C-c C-v C-z</code>) it showed the correct interpreter version and I could import the <code>jupyter</code> module… but since that was what people said was the problem and I was using a virtualenv I decided to try setting up <a href="https://github.com/pyenv/pyenv">pyenv</a>, which apparently lets you switch between python versions fairly easily.</p>
 <p>So, I jumped on my desktop to test it out (I ran into the org-mode problem on my laptop, but I was home so I figured I'd switch), but first I brought up emacs and tried executing the same code-block that failed on my laptop, and of course it ran perfectly. So then I went into a long death-spiral of trying to download the ob-ipython git repository and going back in the git-history to see if I could find the place where it might work (my desktop version of ob-ipython was from October of 2017, my laptop's version is from January 2018), and of course none of them worked. Then I tried copying my <code>init.el</code> file from my desktop to my laptop, and suddenly things worked - so it was a configuration problem, but what was it?</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org1a32b5e">
-<h2 id="org1a32b5e">The Fix</h2>
-<div class="outline-text-2" id="text-org1a32b5e">
+<div class="outline-2" id="outline-container-org588e361">
+<h2 id="org588e361">The Fix</h2>
+<div class="outline-text-2" id="text-org588e361">
 <p>If you go to the <a href="https://github.com/jorgenschaefer/elpy">elpy</a> documentation (elpy is a mode for emacs that makes editing python much easier), there is a <a href="https://elpy.readthedocs.io/en/latest/ide.html#interactive-python">section on setting up which interpreter to use</a> - and if you're wondering why I'm suddenly talking about <code>elpy</code> instead of <code>ob-ipython</code>, well, it's because it was the problem (or at least using them together was the problem).</p>
 <p>The documentation gives you three options for setting the interpreter - python, ipython, or jupyter. This is what my laptop had:</p>
 <div class="highlight">
@@ -150,9 +150,9 @@ print("tester")
 </pre></div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org711b9a2">
-<h2 id="org711b9a2">Summary</h2>
-<div class="outline-text-2" id="text-org711b9a2">
+<div class="outline-2" id="outline-container-org1be40ad">
+<h2 id="org1be40ad">Summary</h2>
+<div class="outline-text-2" id="text-org1be40ad">
 <p>This documents a problem that I ran into wherein the <code>elpy</code> settings I used broke the execution of code blocks by <code>ob-ipython</code> . Just remember to use <code>ipython</code> instead of <code>jupyter</code> and it should be okay. Another day of my life lost to troubleshooting (well, not a <i>whole</i> day, but too much).</p>
 </div>
 </div>

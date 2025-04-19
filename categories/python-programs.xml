@@ -5,17 +5,17 @@
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"&gt;
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"&gt;&lt;/a&gt;
 &lt;/div&gt;
-</copyright><lastBuildDate>Wed, 01 May 2024 04:52:54 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org411f24b" class="outline-2"&gt;
-&lt;h2 id="org411f24b"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org411f24b"&gt;
+</copyright><lastBuildDate>Tue, 28 May 2024 00:09:09 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgff4b06f" class="outline-2"&gt;
+&lt;h2 id="orgff4b06f"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgff4b06f"&gt;
 &lt;p&gt;
 I was looking for a way to update python dependencies that I'd installed with &lt;a href="https://pip.pypa.io/en/stable/"&gt;pip&lt;/a&gt; when I stumbled upon &lt;a href="https://github.com/jazzband/pip-tools/"&gt;pip-tools&lt;/a&gt;. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org13a43f9" class="outline-2"&gt;
-&lt;h2 id="org13a43f9"&gt;First pipdeptree&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org13a43f9"&gt;
+&lt;div id="outline-container-org28fd455" class="outline-2"&gt;
+&lt;h2 id="org28fd455"&gt;First pipdeptree&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org28fd455"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-tools&lt;/code&gt; installs a command named &lt;code&gt;pip-compile&lt;/code&gt; which will use either the requirements you put in your &lt;code&gt;setup.py&lt;/code&gt; file or a special file named &lt;code&gt;requirements.in&lt;/code&gt; (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than &lt;code&gt;setup.py&lt;/code&gt;, since it makes it clearer and more likely that I'll keep it up to date. The &lt;code&gt;requirements.in&lt;/code&gt; file is a list of your dependencies but unlike the &lt;code&gt;requirements.txt&lt;/code&gt; file, it doesn't have version numbers, the version numbers are added when you call the &lt;code&gt;pip-compile&lt;/code&gt; command. 
 &lt;/p&gt;
@@ -34,7 +34,7 @@ Here's its help output.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree&lt;span class="w"&gt; &lt;/span&gt;-h
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org847d4d8"&gt;
 usage: pipdeptree [-h] [-v] [-f] [-a] [-l] [-u] [-w [{silence,suppress,fail}]]
                   [-r] [-p PACKAGES] [-j] [--json-tree]
                   [--graph-output OUTPUT_FORMAT]
@@ -135,7 +135,7 @@ First, let's see how many total dependencies there are.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree&lt;span class="w"&gt; &lt;/span&gt;--freeze&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;wc&lt;span class="w"&gt; &lt;/span&gt;-l
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org514a470"&gt;
 : 160
 &lt;/pre&gt;
 
@@ -218,7 +218,7 @@ This looks like what we want, but there's a couple of things that we should take
 &lt;li&gt;it will add an extra entry for your python egg, something like this:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orge6611b6"&gt;
 -e git+git@github.com:russell-n/iperflexer.git@65f4d3ca72670591f584efa6fa9bfd64c18a925b#egg=iperflexer
 &lt;/pre&gt;
 
@@ -252,7 +252,7 @@ So we should filter those out.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree&lt;span class="w"&gt; &lt;/span&gt;--freeze&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;grep&lt;span class="w"&gt; &lt;/span&gt;--only-matching&lt;span class="w"&gt; &lt;/span&gt;--perl-regexp&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"^[\w\-]+"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;grep&lt;span class="w"&gt; &lt;/span&gt;--invert-match&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"\-e\|pkg"&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgc776d3a"&gt;
 ghp-import2
 graphviz
 Nikola
@@ -270,14 +270,14 @@ ws4py
 There are probaby other exceptions that have to be added for other installations, but this looks like enough for us. Now we can redirect this to a &lt;code&gt;requirements.in&lt;/code&gt; file and we're ready for &lt;code&gt;pip-tools&lt;/code&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgae4dcf9"&gt;
 pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" &amp;gt; requirements.in
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgef22727" class="outline-2"&gt;
-&lt;h2 id="orgef22727"&gt;pip-compile&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgef22727"&gt;
+&lt;div id="outline-container-orgc04e745" class="outline-2"&gt;
+&lt;h2 id="orgc04e745"&gt;pip-compile&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc04e745"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-compile&lt;/code&gt; will read in the &lt;code&gt;requirements.in&lt;/code&gt; file and add the version numbers and can create a &lt;code&gt;requirements.txt&lt;/code&gt; file. It will automatically look for the &lt;code&gt;requirements.in&lt;/code&gt; file or you can explicitly pass in the filename.
 &lt;/p&gt;
@@ -285,7 +285,7 @@ pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --inv
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;head
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org5142ca8"&gt;
 #
 # This file is autogenerated by pip-compile
 # To update, run:
@@ -303,9 +303,9 @@ You'll notice it adds in the dependencies of the dependencies and shows what req
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5721a60" class="outline-2"&gt;
-&lt;h2 id="org5721a60"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5721a60"&gt;
+&lt;div id="outline-container-org335c9e4" class="outline-2"&gt;
+&lt;h2 id="org335c9e4"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org335c9e4"&gt;
 &lt;p&gt;
 If we stopped at this point we'd have:
 &lt;/p&gt;
@@ -320,9 +320,9 @@ I think that's kind of nice already, especially if you end up with a lot of depe
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org2e2db7b" class="outline-3"&gt;
-&lt;h3 id="org2e2db7b"&gt;Upgrade&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2e2db7b"&gt;
+&lt;div id="outline-container-org9a3a049" class="outline-3"&gt;
+&lt;h3 id="org9a3a049"&gt;Upgrade&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9a3a049"&gt;
 &lt;p&gt;
 You can run  &lt;code&gt;pip-compile&lt;/code&gt; with the &lt;code&gt;--upgrade&lt;/code&gt; option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
 &lt;/p&gt;
@@ -330,7 +330,7 @@ You can run  &lt;code&gt;pip-compile&lt;/code&gt; with the &lt;code&gt;--upgrade
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile&lt;span class="w"&gt; &lt;/span&gt;--upgrade&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;head
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgbe4981b"&gt;
 #
 # This file is autogenerated by pip-compile
 # To update, run:
@@ -349,9 +349,9 @@ This will upgrade your installation but not update the &lt;code&gt;requirements.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8d96d80" class="outline-3"&gt;
-&lt;h3 id="org8d96d80"&gt;Sync&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8d96d80"&gt;
+&lt;div id="outline-container-org8575ecd" class="outline-3"&gt;
+&lt;h3 id="org8575ecd"&gt;Sync&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8575ecd"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-tools&lt;/code&gt; also installed a command called &lt;code&gt;pip-sync&lt;/code&gt; which will keep you in sync with what is in the requirements file, so as long as &lt;code&gt;requirements.txt&lt;/code&gt; is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the &lt;code&gt;--upgrade&lt;/code&gt; option in that it will only install the exact version in the requirements file.
 &lt;/p&gt;
@@ -359,7 +359,7 @@ This will upgrade your installation but not update the &lt;code&gt;requirements.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-sync
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orge1ca012"&gt;
 Collecting backcall==0.1.0
 Collecting bleach==2.1.3
   Using cached https://files.pythonhosted.org/packages/30/b6/a8cffbb9ab4b62b557c22703163735210e9cd857d533740c64e1467d228e/bleach-2.1.3-py2.py3-none-any.whl
@@ -384,16 +384,16 @@ So now the file and my installation should be in sync.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-sync
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org1523f1b"&gt;
 : Everything up-to-date
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgee33abe" class="outline-2"&gt;
-&lt;h2 id="orgee33abe"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgee33abe"&gt;
+&lt;div id="outline-container-org12662dd" class="outline-2"&gt;
+&lt;h2 id="org12662dd"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org12662dd"&gt;
 &lt;p&gt;
 So there you have it, how to keep dependencies synced. The &lt;a href="https://pypi.org/project/pip-tools/"&gt;README&lt;/a&gt; for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
 &lt;/p&gt;

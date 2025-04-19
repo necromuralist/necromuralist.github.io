@@ -73,40 +73,40 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org3d9f628">
-<h2 id="org3d9f628">Introduction</h2>
-<div class="outline-text-2" id="text-org3d9f628">
+<div class="outline-2" id="outline-container-org41c86c1">
+<h2 id="org41c86c1">Introduction</h2>
+<div class="outline-text-2" id="text-org41c86c1">
 <p>I recently started revisiting some <a href="https://vuejs.org/">vue.js</a> code that I was working on at work and when I ran the unit-tests all of them failed with pretty much the same error.</p>
-<pre class="example">
+<pre class="example" id="org857e3c8">
 actual.should.equal is not a function. (In 'actual.should.equal(expected)', 'actual.should.equal' is an instance of ProxyObject)
 </pre>
 <p>I'm using the <a href="http://www.chaijs.com/guide/styles/#should">chai BDD 'should'</a> style of testing, so this <i>should</i> have worked (because it was working before). To debug it I ran it with FireFox and when I did, all the tests mysteriously started working. It turns out I was using <a href="http://phantomjs.org/">PhantomJS</a>, which <a href="https://github.com/ariya/phantomjs/issues/15344">has been abandoned</a>, and somewhere along the line something in chai stopped working with it, so I decided to set up Firefox headless as my browser instead. This is how I did it.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org68c85f0">
-<h2 id="org68c85f0">Set Up</h2>
-<div class="outline-text-2" id="text-org68c85f0"></div>
-<div class="outline-3" id="outline-container-org4ef67ee">
-<h3 id="org4ef67ee">Install the plugin</h3>
-<div class="outline-text-3" id="text-org4ef67ee">
+<div class="outline-2" id="outline-container-org24fcdcc">
+<h2 id="org24fcdcc">Set Up</h2>
+<div class="outline-text-2" id="text-org24fcdcc"></div>
+<div class="outline-3" id="outline-container-orgf00e889">
+<h3 id="orgf00e889">Install the plugin</h3>
+<div class="outline-text-3" id="text-orgf00e889">
 <p>I already had this installed for debugging, but I'll mention it anyway, for completeness.</p>
-<pre class="example">
+<pre class="example" id="orgf5efa76">
 npm install karma-firefox-launcher --save-dev
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org6bf61ae">
-<h3 id="org6bf61ae">Set it up in Karma</h3>
-<div class="outline-text-3" id="text-org6bf61ae">
+<div class="outline-3" id="outline-container-orge6ffdae">
+<h3 id="orge6ffdae">Set it up in Karma</h3>
+<div class="outline-text-3" id="text-orge6ffdae">
 <p>I'm running the tests using <a href="https://karma-runner.github.io/2.0/index.html">karma</a> and I had hoped that I would just have to change the name of the browser in the configuration, but it turns out to need a little setup in the <code>karma.conf.js</code> file. First get rid of the <code>PhantomJS</code> reference. Delete this:</p>
 <div class="highlight">
 <pre><span></span>browsers: ['PhantomJS'],
 </pre></div>
 <p>and replace it with this.</p>
-<pre class="example">
+<pre class="example" id="org1a34b6d">
 browsers: ['FirefoxHeadless'],
 </pre>
 <p>The <code>FirefoxHeadless</code> browser isn't actually defined, so you have to add it (I put it right after the <code>browsers</code> declaration).</p>
-<pre class="example">
+<pre class="example" id="org355bd4e">
 customLaunchers: {
       'FirefoxHeadless': {
         base: 'Firefox',
@@ -120,9 +120,9 @@ customLaunchers: {
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9b1f233">
-<h2 id="org9b1f233">Conclusion</h2>
-<div class="outline-text-2" id="text-org9b1f233">
+<div class="outline-2" id="outline-container-org12c1440">
+<h2 id="org12c1440">Conclusion</h2>
+<div class="outline-text-2" id="text-org12c1440">
 <p><code>PhantomJS</code> breaks the Chai's BDD style of testing, but since both Firefox and <a href="https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md">Chrome</a> have headless modes, using them instead makes it work without actually needing to have the GUI launch.</p>
 </div>
 </div>

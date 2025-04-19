@@ -82,26 +82,26 @@
 <h2>2 The Process</h2>
 <p>Assuming you've downloaded the BFG jar file, this is what you need to do.</p>
 <div class="code">
-<pre class="code sh"><a href="#rest_code_c0870ee75a1743568482c4e444a8d58b-1" id="rest_code_c0870ee75a1743568482c4e444a8d58b-1" name="rest_code_c0870ee75a1743568482c4e444a8d58b-1"></a>git<span class="w"> </span>clone<span class="w"> </span>--mirror<span class="w"> </span>&lt;remote<span class="w"> </span>git<span class="w"> </span>address&gt;
+<pre class="code sh"><a href="#rest_code_ba17b982e7bd49768626fb1b092c0ea0-1" id="rest_code_ba17b982e7bd49768626fb1b092c0ea0-1" name="rest_code_ba17b982e7bd49768626fb1b092c0ea0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>--mirror<span class="w"> </span>&lt;remote<span class="w"> </span>git<span class="w"> </span>address&gt;
 </pre></div>
 <p>The <code class="docutils literal"><span class="pre">--mirror</span></code> flag creates a bare repository so it will look a little odd (the top level has the contents of what are normally in the <code class="docutils literal">.git</code> folder). When I first tried this I thought I could clone my local copy but when I ran BFG on the clone it said that it couldn't find any large files. As noted in <a class="reference external" href="https://github.com/rtyley/bfg-repo-cleaner/issues/65">this bug-report</a> the large files would be in the packfile if you clone it from a remote repository, but not necessarily in the local repository, so I had to clone it from github.</p>
 <p>Next run the BFG.</p>
 <div class="code">
-<pre class="code sh"><a href="#rest_code_b942c228f41b4e658cc9569b1920179d-1" id="rest_code_b942c228f41b4e658cc9569b1920179d-1" name="rest_code_b942c228f41b4e658cc9569b1920179d-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>BFG-1.12.15.jar<span class="w"> </span>--strip-blobs-bigger-than<span class="w"> </span>50M<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>cloned<span class="w"> </span>mirror&gt;
+<pre class="code sh"><a href="#rest_code_36811ba7078944c4bc9acad8103a126a-1" id="rest_code_36811ba7078944c4bc9acad8103a126a-1" name="rest_code_36811ba7078944c4bc9acad8103a126a-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>BFG-1.12.15.jar<span class="w"> </span>--strip-blobs-bigger-than<span class="w"> </span>50M<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>cloned<span class="w"> </span>mirror&gt;
 </pre></div>
 <p>Now you have to change into the cloned repository and execute some commands to update it.</p>
 <div class="code">
-<pre class="code sh"><a href="#rest_code_7c9e1a026fe74b0c8e6f62fab626f316-1" id="rest_code_7c9e1a026fe74b0c8e6f62fab626f316-1" name="rest_code_7c9e1a026fe74b0c8e6f62fab626f316-1"></a>git<span class="w"> </span>reflog<span class="w"> </span>expire<span class="w"> </span>--expire-now<span class="w"> </span>--all
-<a href="#rest_code_7c9e1a026fe74b0c8e6f62fab626f316-2" id="rest_code_7c9e1a026fe74b0c8e6f62fab626f316-2" name="rest_code_7c9e1a026fe74b0c8e6f62fab626f316-2"></a>git<span class="w"> </span>gc<span class="w"> </span>--prune<span class="o">=</span>now<span class="w"> </span>--aggressive
+<pre class="code sh"><a href="#rest_code_5bea24f921734e7b857e70c78f4bef7f-1" id="rest_code_5bea24f921734e7b857e70c78f4bef7f-1" name="rest_code_5bea24f921734e7b857e70c78f4bef7f-1"></a>git<span class="w"> </span>reflog<span class="w"> </span>expire<span class="w"> </span>--expire-now<span class="w"> </span>--all
+<a href="#rest_code_5bea24f921734e7b857e70c78f4bef7f-2" id="rest_code_5bea24f921734e7b857e70c78f4bef7f-2" name="rest_code_5bea24f921734e7b857e70c78f4bef7f-2"></a>git<span class="w"> </span>gc<span class="w"> </span>--prune<span class="o">=</span>now<span class="w"> </span>--aggressive
 </pre></div>
 <p>Now push it back to github.</p>
 <div class="code">
-<pre class="code sh"><a href="#rest_code_e14d5da4420841a1a82dd38bf7b0e623-1" id="rest_code_e14d5da4420841a1a82dd38bf7b0e623-1" name="rest_code_e14d5da4420841a1a82dd38bf7b0e623-1"></a>git<span class="w"> </span>push
+<pre class="code sh"><a href="#rest_code_e528dd2256944614bd3bb7e968cca68f-1" id="rest_code_e528dd2256944614bd3bb7e968cca68f-1" name="rest_code_e528dd2256944614bd3bb7e968cca68f-1"></a>git<span class="w"> </span>push
 </pre></div>
 <p>At this point the original local copy of the repository will still have the large file(s) in the history so if you just do a git pull it will think you are ahead of the remote, so you have to remove your original local repository and re-clone the remote.</p>
 <div class="code">
-<pre class="code sh"><a href="#rest_code_f6c13103ba2749dc8ace8086eb88c509-1" id="rest_code_f6c13103ba2749dc8ace8086eb88c509-1" name="rest_code_f6c13103ba2749dc8ace8086eb88c509-1"></a>rm<span class="w"> </span>-r<span class="w"> </span>&lt;original<span class="w"> </span><span class="nb">local</span><span class="w"> </span>repository&gt;
-<a href="#rest_code_f6c13103ba2749dc8ace8086eb88c509-2" id="rest_code_f6c13103ba2749dc8ace8086eb88c509-2" name="rest_code_f6c13103ba2749dc8ace8086eb88c509-2"></a>git<span class="w"> </span>clone<span class="w"> </span>&lt;remote<span class="w"> </span>repository&gt;
+<pre class="code sh"><a href="#rest_code_03487148b0af4d709a0e0486c26c468a-1" id="rest_code_03487148b0af4d709a0e0486c26c468a-1" name="rest_code_03487148b0af4d709a0e0486c26c468a-1"></a>rm<span class="w"> </span>-r<span class="w"> </span>&lt;original<span class="w"> </span><span class="nb">local</span><span class="w"> </span>repository&gt;
+<a href="#rest_code_03487148b0af4d709a0e0486c26c468a-2" id="rest_code_03487148b0af4d709a0e0486c26c468a-2" name="rest_code_03487148b0af4d709a0e0486c26c468a-2"></a>git<span class="w"> </span>clone<span class="w"> </span>&lt;remote<span class="w"> </span>repository&gt;
 </pre></div>
 <p>One thing that tripped me up a little was that I had removed the <em>master</em> branch but the <em>BFG</em> re-added it, so it originally looked like I had lost some changes. Once I changed back into my working branch everything was as I had expected.</p>
 </section>

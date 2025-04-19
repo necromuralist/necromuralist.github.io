@@ -73,25 +73,25 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org6f88906">The Problem</a></li>
-<li><a href="#org6425aef">The Symptom</a></li>
-<li><a href="#orgc521576">The Disease and Its Cure</a></li>
+<li><a href="#orgb1f470a">The Problem</a></li>
+<li><a href="#org5897120">The Symptom</a></li>
+<li><a href="#org8a2ae02">The Disease and Its Cure</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6f88906">
-<h2 id="org6f88906">The Problem</h2>
-<div class="outline-text-2" id="text-org6f88906">
+<div class="outline-2" id="outline-container-orgb1f470a">
+<h2 id="orgb1f470a">The Problem</h2>
+<div class="outline-text-2" id="text-orgb1f470a">
 <p>I recently decided to get back into using neural networks again and tried to update my docker container to get <a href="https://www.fast.ai/">fastai</a> up and running, but couldn't get CUDA working. After a while spent trying different configurations of CUDA, pytorch, pip, conda, and on and on I eventually found out that there's some kind of problem with using CUDA after suspending and then resuming your system (at least with linux/Ubuntu). This is a documentation of that particular problem and it's fixes (fastest but not necessarily the best answer: always shutdown or reboot the machine, don't suspend and resume).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org6425aef">
-<h2 id="org6425aef">The Symptom</h2>
-<div class="outline-text-2" id="text-org6425aef">
+<div class="outline-2" id="outline-container-org5897120">
+<h2 id="org5897120">The Symptom</h2>
+<div class="outline-text-2" id="text-org5897120">
 <p>This is what happens if I try to use CUDA after waking the machine from a suspend.</p>
 <div class="highlight">
 <pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
@@ -105,9 +105,9 @@
 <p>As you can see, the error message doesn't really give any useful information about what's wrong - there <i>are</i> a couple of suggestions but neither seems relevant or at least doesn't lead you to the fix.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgc521576">
-<h2 id="orgc521576">The Disease and Its Cure</h2>
-<div class="outline-text-2" id="text-orgc521576">
+<div class="outline-2" id="outline-container-org8a2ae02">
+<h2 id="org8a2ae02">The Disease and Its Cure</h2>
+<div class="outline-text-2" id="text-org8a2ae02">
 <p>There's a post on the <a href="https://discuss.pytorch.org/t/userwarning-cuda-initialization-cuda-unknown-error-this-may-be-due-to-an-incorrectly-set-up-environment-e-g-changing-env-variable-cuda-visible-devices-after-program-start-setting-the-available-devices-to-be-zero/129335/2">pytorch discussion boards</a> about this error in which "ptrblck" says that he runs into this problem if his machine is put into the suspend state. While mentioning this he also says that restarting his machine fixes the problem, but restarting it every time seems to defeat the purpose of using suspend (and I'd have to walk to a different room to log in and decrypt the drive after restarting the machine - ugh, so much work).</p>
 <p>Luckily, in a <a href="https://discuss.pytorch.org/t/userwarning-cuda-initialization-cuda-unknown-error-this-may-be-due-to-an-incorrectly-set-up-environment-e-g-changing-env-variable-cuda-visible-devices-after-program-start-setting-the-available-devices-to-be-zero/129335/5">later post</a> in the thread the same user mentions that you can also fix it by reloading the <code>nvidia_uvm</code> kernel module by entering these commands in the terminal:</p>
 <div class="highlight">

@@ -75,15 +75,15 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org89ce998">
-<h2 id="org89ce998">What This Is About</h2>
-<div class="outline-text-2" id="text-org89ce998">
+<div class="outline-2" id="outline-container-orgf87be14">
+<h2 id="orgf87be14">What This Is About</h2>
+<div class="outline-text-2" id="text-orgf87be14">
 <p>Ubuntu 22.04 no longer let's you install python packages globally using pip by default (you can override it but they warn you not to). This has caused a cascade of broken parts on my system, since I use python so much. This particular case started with me trying to start the <a href="https://docs.jupyter.org/en/latest/projects/kernels.html"><code>jupyter kernel</code></a> so that I could run some python code in org-mode and getting (what looked like) an error and fixing it ended up uncovering the fact that working with the new policy for pip broke my emacs setup a little too, so this is a dump of how I got it back up and running again. I recorded it as I was fixing things so there might be a better way, but this is the first pass I took.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org2b6e9b9">
-<h2 id="org2b6e9b9">The Jupyter Kernel Warning</h2>
-<div class="outline-text-2" id="text-org2b6e9b9">
+<div class="outline-2" id="outline-container-org1c0defd">
+<h2 id="org1c0defd">The Jupyter Kernel Warning</h2>
+<div class="outline-text-2" id="text-org1c0defd">
 <p>This is what happened when I tried to start the jupyter kernel.</p>
 <div class="highlight">
 <pre><span></span><span class="o">(</span>Ape-Iron<span class="o">)</span><span class="w"> </span>hades@erebus<span class="w"> </span>~&gt;<span class="w"> </span>jupyter<span class="w"> </span>kernel
@@ -109,18 +109,18 @@ idation.
 <p>Ah, but there's always a problem lurking behind the advice to ignore "harmless warnings". Even with the kernel running, I couldn't get python/jupyter to work in my org-babel source blocks, so there was more to do.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org33639e4">
-<h2 id="org33639e4">Getting emacs-jupyter Working</h2>
-<div class="outline-text-2" id="text-org33639e4"></div>
-<div class="outline-3" id="outline-container-orgc1a3227">
-<h3 id="orgc1a3227">The Problem</h3>
-<div class="outline-text-3" id="text-orgc1a3227">
+<div class="outline-2" id="outline-container-org962b1db">
+<h2 id="org962b1db">Getting emacs-jupyter Working</h2>
+<div class="outline-text-2" id="text-org962b1db"></div>
+<div class="outline-3" id="outline-container-org4c60c2f">
+<h3 id="org4c60c2f">The Problem</h3>
+<div class="outline-text-3" id="text-org4c60c2f">
 <p>The first clue as to what might be happing was this line in emacs' startup messages.</p>
-<pre class="example">
+<pre class="example" id="org16b2cb1">
 Symbol’s function definition is void: org-babel-execute:jupyter-python
 </pre>
 <p>It looked like <a href="https://github.com/emacs-jupyter/jupyter">emacs-jupyter</a> wasn't loading properly. There was also this message in the output:</p>
-<pre class="example">
+<pre class="example" id="orga915c96">
 Error retrieving kernelspecs: (json-number-format 5)
 </pre>
 <p>Searching for that error-message brought up this bug-report on github:</p>
@@ -130,9 +130,9 @@ Error retrieving kernelspecs: (json-number-format 5)
 <p>Wherein the author of the bug-report mentions that loading emacs-jupyter is failing because it's trying to parse the output of jupyter and the warnings I was seeing causes it to fail (the bug-report references a different jupyter command, but the problematic output is the same).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org425312d">
-<h3 id="org425312d">Testing Turning Off the Warning</h3>
-<div class="outline-text-3" id="text-org425312d">
+<div class="outline-3" id="outline-container-org0113c1a">
+<h3 id="org0113c1a">Testing Turning Off the Warning</h3>
+<div class="outline-text-3" id="text-org0113c1a">
 <p>The first thing I tried was to follow the directions in the output and supress the warnings by setting an environment variable.</p>
 <div class="highlight">
 <pre><span></span><span class="nb">set</span><span class="w"> </span>--universal<span class="w"> </span>--export<span class="w"> </span>PYDEVD_DISABLE_FILE_VALIDATION<span class="w"> </span><span class="m">1</span>
@@ -141,9 +141,9 @@ Error retrieving kernelspecs: (json-number-format 5)
 <p>I restarted the jupyter kernel and the warnings had gone away, so this much worked.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org13d2174">
-<h3 id="org13d2174">Really Turning Off the Warning</h3>
-<div class="outline-text-3" id="text-org13d2174">
+<div class="outline-3" id="outline-container-orgc3bd71f">
+<h3 id="orgc3bd71f">Really Turning Off the Warning</h3>
+<div class="outline-text-3" id="text-orgc3bd71f">
 <p>Setting the environment variable at the command-line changes the environment for my user, but I'm running <a href="https://www.emacswiki.org/emacs/EmacsAsDaemon">emacs as a daemon</a> so I needed to edit the <code>systemctl</code> file for my emacs service. I opened up the <code>~/.config/systemd/user/emacs.service</code> file in emacs and added the line to set the environment variable for the emacs daemon.</p>
 <div class="highlight">
 <pre><span></span><span class="k">[Service]</span>
@@ -154,7 +154,7 @@ Error retrieving kernelspecs: (json-number-format 5)
 <pre><span></span>systemctl<span class="w"> </span>restart<span class="w"> </span>--user<span class="w"> </span>emacs
 </pre></div>
 <p>Which gave me a warning that my changes to the configuration have to be re-loaded before restarting the service.</p>
-<pre class="example">
+<pre class="example" id="org08299bb">
 Warning: The unit file, source configuration file or drop-ins of emacs.service changed on disk
 . Run 'systemctl --user daemon-reload' to reload units.
 </pre>
@@ -167,9 +167,9 @@ systemctl<span class="w"> </span>restart<span class="w"> </span>--user<span clas
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga56231b">
-<h2 id="orga56231b">Swapping a Virtual Environment For pipx</h2>
-<div class="outline-text-2" id="text-orga56231b">
+<div class="outline-2" id="outline-container-org5bf600e">
+<h2 id="org5bf600e">Swapping a Virtual Environment For pipx</h2>
+<div class="outline-text-2" id="text-org5bf600e">
 <p>Suppressing the warnings <i>pretty much</i> solved the problem, but while I was getting this fixed I was also trying to set up a USB Windows installer using <a href="https://github.com/WoeUSB/WoeUSB">WoeUSB</a> and found that pipx couldn't install it because of a dependency error. Pipx is good at installing some standalone python commands but it won't install things that are just libraries and it seems to sometimes also have problems installing dependencies for the commands that it <i>will</i> install. This has come up for me before, and the old solution was just for me to install the dependencies separately using <code>pip</code> before trying to install whatever it was that I was installing with pipx. Now, though, since ubuntu is trying to keep you from installing python modules globally, installing the dependencies means they either have to be available through <code>apt</code> or you have to set up a virtual environment and install them there (when I say <i>have to</i> I mean that since that's the way I know how to do it, that's the way I have to do it, not that there aren't other ways to do it that I just don't know about).</p>
 <p>Doing it this way is easy enough, since I use python virtual environments a lot anyway, but then I ran into another problem which was that once I got the virtual environment set up I found out I had to run woeUSB as root, which then bypasses the whole virtual environment setup. The solution to that was to pass the full path to the virtual environment's woeUSB launcher to <code>sudo</code>, but it took enough time experimenting with other ways to do it before I got to that step that I decided I should minimalize how much I use pipx as much as possible - and in particular I should avoid using it with my emacs setup, since emacs will sometimss just quietly fail if there's a python-based error and it's only when things don't work that I'll realize there's a problem. So I decided to go with a dedicated virtual environment instead of installing jupyter with pipx.</p>
 <p>This, once again was not a big deal in hindsight, but it took enough experimenting with other options before coming to the conclusion that this was the way to go that I thought I should make a note to my future self about it. To get jupyter working with jupyter-emacs:</p>
@@ -185,9 +185,9 @@ systemctl<span class="w"> </span>restart<span class="w"> </span>--user<span clas
 <p>Then restart emacs. So far this seems to have fixed it.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgd7f199b">
-<h2 id="orgd7f199b">Other Links</h2>
-<div class="outline-text-2" id="text-orgd7f199b">
+<div class="outline-2" id="outline-container-org27b8e2a">
+<h2 id="org27b8e2a">Other Links</h2>
+<div class="outline-text-2" id="text-org27b8e2a">
 <ul class="org-ul">
 <li>EmacsWiki: Emacs As Daemon [Internet]. [cited 2023 May 28]. Available from: <a href="https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2">https://www.emacswiki.org/emacs/EmacsAsDaemon#h5o-2</a></li>
 <li>Schäfer J. pyvenv.el, Python virtual environment support for Emacs [Internet]. 2023 [cited 2023 May 28]. Available from: <a href="https://github.com/jorgenschaefer/pyvenv">https://github.com/jorgenschaefer/pyvenv</a></li>

@@ -73,11 +73,11 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org5ad43a0">
-<h2 id="org5ad43a0">Introduction</h2>
-<div class="outline-text-2" id="text-org5ad43a0">
+<div class="outline-2" id="outline-container-org0f91892">
+<h2 id="org0f91892">Introduction</h2>
+<div class="outline-text-2" id="text-org0f91892">
 <p>I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.</p>
-<pre class="example">
+<pre class="example" id="org81f680d">
 iwconfig wlan0 mode monitor
 Error for wireless request "Set Mode" (8B06) :
     SET failed on device wlan0 ; Operation not supported.
@@ -85,25 +85,25 @@ Error for wireless request "Set Mode" (8B06) :
 <p>Looking around on the web I found <a href="https://www.reddit.com/r/raspberry_pi/comments/4ah4oi/psa_the_raspberry_pi_3s_embedded_wifi_card_does/">this reddit post</a> as well as some Stack Overflow posts that said that monitor mode isn't supported on the Raspberry Pi. There is a project called <a href="https://github.com/seemoo-lab/nexmon">nexmon</a> that apparently lets up add a firmware patch to enable it, which I'll probably try later, but before I tried that I remembered that I have a Realtek 8812AU USB WiFi adapter that I bought a while ago for an old desktop I had that I wasn't using so I decided to try it.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org736833b">
-<h2 id="org736833b">What I tried</h2>
-<div class="outline-text-2" id="text-org736833b"></div>
-<div class="outline-3" id="outline-container-org1cd13e8">
-<h3 id="org1cd13e8">Plug-and-Pray</h3>
-<div class="outline-text-3" id="text-org1cd13e8">
+<div class="outline-2" id="outline-container-orgae96812">
+<h2 id="orgae96812">What I tried</h2>
+<div class="outline-text-2" id="text-orgae96812"></div>
+<div class="outline-3" id="outline-container-orge7d799e">
+<h3 id="orge7d799e">Plug-and-Pray</h3>
+<div class="outline-text-3" id="text-orge7d799e">
 <p>The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although <code>lsusb</code> showed it, <code>iwconfig</code> didn't show it as an interface. Back to the internet.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org9803dd8">
-<h3 id="org9803dd8">Github</h3>
-<div class="outline-text-3" id="text-org9803dd8">
+<div class="outline-3" id="outline-container-org2a75084">
+<h3 id="org2a75084">Github</h3>
+<div class="outline-text-3" id="text-org2a75084">
 <p>Next I found <a href="https://github.com/diederikdehaas/rtl8812AU">a repository on github</a> that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:</p>
-<pre class="example">
+<pre class="example" id="org71c8f7b">
 CONFIG_PLATFORM_I386_PC = n
 CONFIG_PLATFORM_ARM_RPI = y
 </pre>
 <p>in the <code>Makefile</code> - but when I tried to build it I got this error.</p>
-<pre class="example">
+<pre class="example" id="org74c2074">
 sudo dkms install -m $DRV_NAME -v $DRV_VERSION
 
 'make' KVER=4.4.38-v7+....(bad exit status: 2)
@@ -115,19 +115,19 @@ Consult /var/lib/dkms/rtl8812AU/4.3.20/build/make.log for more information.
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org23bfce5">
-<h2 id="org23bfce5">What fixed it</h2>
-<div class="outline-text-2" id="text-org23bfce5">
+<div class="outline-2" id="outline-container-org8b578bf">
+<h2 id="org8b578bf">What fixed it</h2>
+<div class="outline-text-2" id="text-org8b578bf">
 <p>The solution was in <a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make">this StackOverflow post</a> - the <code>make</code> program is being pointed to a folder named <code>arm7l</code> (thats 'arm seven ell') but it should actually be pointed to one named <code>arm</code>. The simple solution is to create an alias with the correct name.</p>
-<pre class="example">
+<pre class="example" id="orgdd61e19">
 sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.4.38-v7+/arch/armv7l
 </pre>
 <p>This turns out to fix the build problem and after a reboot the network interface showed up.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf90ccc6">
-<h2 id="orgf90ccc6">Conclusion</h2>
-<div class="outline-text-2" id="text-orgf90ccc6">
+<div class="outline-2" id="outline-container-org940ae1a">
+<h2 id="org940ae1a">Conclusion</h2>
+<div class="outline-text-2" id="text-org940ae1a">
 <p>The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that <code>iwconfig</code> will put it in monitor mode but <code>airmon-ng</code> doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, <code>iw</code> always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.</p>
 </div>
 </div>

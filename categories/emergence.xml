@@ -5,13 +5,13 @@
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"&gt;
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"&gt;&lt;/a&gt;
 &lt;/div&gt;
-</copyright><lastBuildDate>Wed, 01 May 2024 04:52:55 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Seek With Cocos2D</title><link>https://necromuralist.github.io/posts/seek-with-cocos2d/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
+</copyright><lastBuildDate>Tue, 28 May 2024 00:09:09 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Seek With Cocos2D</title><link>https://necromuralist.github.io/posts/seek-with-cocos2d/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
 This is an implementation of Craig Reynold's flocking behavior based on the book &lt;a href="https://www.packtpub.com/game-development/python-game-programming-example"&gt;Python Game Programming By Example&lt;/a&gt;. Reynolds mentions many variations for flocking. This will implement a basic boid that flocks to the mouse pointer.
 &lt;/p&gt;
 
-&lt;div id="outline-container-orgcca741f" class="outline-2"&gt;
-&lt;h2 id="orgcca741f"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcca741f"&gt;
+&lt;div id="outline-container-org2560649" class="outline-2"&gt;
+&lt;h2 id="org2560649"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2560649"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# third party&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.cocosnode&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;CocosNode&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.euclid&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;
@@ -20,211 +20,211 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org34cc86e" class="outline-2"&gt;
-&lt;h2 id="org34cc86e"&gt;Constants&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org34cc86e"&gt;
+&lt;div id="outline-container-org9c20dbf" class="outline-2"&gt;
+&lt;h2 id="org9c20dbf"&gt;Constants&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9c20dbf"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;CHASE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;span class="n"&gt;RUN_AWAY&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;span class="n"&gt;CHANGE_BEHAVIOR&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfe5938c" class="outline-2"&gt;
-&lt;h2 id="orgfe5938c"&gt;The Boid&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgfe5938c"&gt;
+&lt;div id="outline-container-org9be9067" class="outline-2"&gt;
+&lt;h2 id="org9be9067"&gt;The Boid&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9be9067"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1e7943e" class="outline-3"&gt;
-&lt;h3 id="org1e7943e"&gt;Boid Settings&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1e7943e"&gt;
+&lt;div id="outline-container-org4df1f92" class="outline-3"&gt;
+&lt;h3 id="org4df1f92"&gt;Boid Settings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4df1f92"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BoidSettings&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
 &lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="sd"&gt;"""a settings object"""&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="nd"&gt;@property&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;attributes&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""list of required attributes"""&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-				&lt;span class="s2"&gt;"velocity"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-				&lt;span class="s2"&gt;"speed"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-				&lt;span class="s2"&gt;"slowing_radius"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-				&lt;span class="s2"&gt;"max_force"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""list of required attributes"""&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                &lt;span class="s2"&gt;"velocity"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                &lt;span class="s2"&gt;"speed"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                &lt;span class="s2"&gt;"slowing_radius"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                &lt;span class="s2"&gt;"max_force"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;x_y&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""sets the initial x, y coordinates&lt;/span&gt;
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""sets the initial x, y coordinates&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	position: tuple&lt;/span&gt;
-&lt;span class="sd"&gt;	  (x, y) coordinates&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
+&lt;span class="sd"&gt;        position: tuple&lt;/span&gt;
+&lt;span class="sd"&gt;          (x, y) coordinates&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;velocity_vector&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;velocity&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""initial velocity&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""initial velocity&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	velocity: Vector2&lt;/span&gt;
-&lt;span class="sd"&gt;	  2-d vector representing boid's velocity&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;velocity&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"velocity"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
+&lt;span class="sd"&gt;        velocity: Vector2&lt;/span&gt;
+&lt;span class="sd"&gt;          2-d vector representing boid's velocity&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;velocity&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"velocity"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;speed_scalar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;speed&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""scalar for the velocity vector&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""scalar for the velocity vector&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	speed: number&lt;/span&gt;
-&lt;span class="sd"&gt;	  pixels per frame to scale velocity&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;speed&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"speed"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
+&lt;span class="sd"&gt;        speed: number&lt;/span&gt;
+&lt;span class="sd"&gt;          pixels per frame to scale velocity&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;speed&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"speed"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;slow_down_distance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;slowing_radius&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""denominator to create ratio to slow down&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""denominator to create ratio to slow down&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Used to reduce steering-force (distance/radius)&lt;/span&gt;
+&lt;span class="sd"&gt;        Used to reduce steering-force (distance/radius)&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	slowing_radius: numeric&lt;/span&gt;
-&lt;span class="sd"&gt;	  steering-force reduction factor&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;slowing_radius&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"slowing radius"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
+&lt;span class="sd"&gt;        slowing_radius: numeric&lt;/span&gt;
+&lt;span class="sd"&gt;          steering-force reduction factor&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;slowing_radius&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"slowing radius"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;maximum_force&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;max_force&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""sets the max force magnitude&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""sets the max force magnitude&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
-&lt;span class="sd"&gt;	max_force: numeric&lt;/span&gt;
-&lt;span class="sd"&gt;	  upper-bound for the steering force&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;max_force&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"max force"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
+&lt;span class="sd"&gt;        max_force: numeric&lt;/span&gt;
+&lt;span class="sd"&gt;          upper-bound for the steering force&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;max_force&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"max force"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;maximum_velocity&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""sets the max-velocity&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""sets the max-velocity&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	max_velocity: numeric&lt;/span&gt;
-&lt;span class="sd"&gt;	  upper-bound for magnitude of velocity&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;max_velocity&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"max velocity"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
+&lt;span class="sd"&gt;        max_velocity: numeric&lt;/span&gt;
+&lt;span class="sd"&gt;          upper-bound for magnitude of velocity&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;max_velocity&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"max velocity"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""checks value is numeric&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""checks value is numeric&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	value: object&lt;/span&gt;
-&lt;span class="sd"&gt;	  item to check&lt;/span&gt;
+&lt;span class="sd"&gt;        value: object&lt;/span&gt;
+&lt;span class="sd"&gt;          item to check&lt;/span&gt;
 
-&lt;span class="sd"&gt;	identifier: string&lt;/span&gt;
-&lt;span class="sd"&gt;	  name for error message&lt;/span&gt;
+&lt;span class="sd"&gt;        identifier: string&lt;/span&gt;
+&lt;span class="sd"&gt;          name for error message&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Raises&lt;/span&gt;
-&lt;span class="sd"&gt;	------&lt;/span&gt;
+&lt;span class="sd"&gt;        Raises&lt;/span&gt;
+&lt;span class="sd"&gt;        ------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	TypeError if value is not int or float&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        TypeError if value is not int or float&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""checks type of value&lt;/span&gt;
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""checks type of value&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	value: object&lt;/span&gt;
-&lt;span class="sd"&gt;	  the thing to check&lt;/span&gt;
-&lt;span class="sd"&gt;	identifier: string&lt;/span&gt;
-&lt;span class="sd"&gt;	  id for error message&lt;/span&gt;
-&lt;span class="sd"&gt;	expected: collection&lt;/span&gt;
-&lt;span class="sd"&gt;	  types to check if value is one of them&lt;/span&gt;
+&lt;span class="sd"&gt;        value: object&lt;/span&gt;
+&lt;span class="sd"&gt;          the thing to check&lt;/span&gt;
+&lt;span class="sd"&gt;        identifier: string&lt;/span&gt;
+&lt;span class="sd"&gt;          id for error message&lt;/span&gt;
+&lt;span class="sd"&gt;        expected: collection&lt;/span&gt;
+&lt;span class="sd"&gt;          types to check if value is one of them&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Raises&lt;/span&gt;
-&lt;span class="sd"&gt;	------&lt;/span&gt;
+&lt;span class="sd"&gt;        Raises&lt;/span&gt;
+&lt;span class="sd"&gt;        ------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	TypeError if type of value not in expected&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be one of &lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s2"&gt;, not &lt;/span&gt;&lt;span class="si"&gt;{2}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-		&lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-		&lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-		&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        TypeError if type of value not in expected&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be one of &lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s2"&gt;, not &lt;/span&gt;&lt;span class="si"&gt;{2}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+                &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""checks type of the value&lt;/span&gt;
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""checks type of the value&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	value: object&lt;/span&gt;
-&lt;span class="sd"&gt;	  thing to check&lt;/span&gt;
-&lt;span class="sd"&gt;	identifier: string&lt;/span&gt;
-&lt;span class="sd"&gt;	  id for error messages&lt;/span&gt;
-&lt;span class="sd"&gt;	expected: type&lt;/span&gt;
-&lt;span class="sd"&gt;	  what the value should be&lt;/span&gt;
+&lt;span class="sd"&gt;        value: object&lt;/span&gt;
+&lt;span class="sd"&gt;          thing to check&lt;/span&gt;
+&lt;span class="sd"&gt;        identifier: string&lt;/span&gt;
+&lt;span class="sd"&gt;          id for error messages&lt;/span&gt;
+&lt;span class="sd"&gt;        expected: type&lt;/span&gt;
+&lt;span class="sd"&gt;          what the value should be&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Raises&lt;/span&gt;
-&lt;span class="sd"&gt;	------&lt;/span&gt;
-&lt;span class="sd"&gt;	TypeError if type of value is not expected&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="nb"&gt;isinstance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be &lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s2"&gt; not &lt;/span&gt;&lt;span class="si"&gt;{2}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-							     &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-							     &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        Raises&lt;/span&gt;
+&lt;span class="sd"&gt;        ------&lt;/span&gt;
+&lt;span class="sd"&gt;        TypeError if type of value is not expected&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="nb"&gt;isinstance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be &lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s2"&gt; not &lt;/span&gt;&lt;span class="si"&gt;{2}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                                             &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                                             &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__call__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""checks all the attributes are set&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""checks all the attributes are set&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Raises&lt;/span&gt;
-&lt;span class="sd"&gt;	------&lt;/span&gt;
+&lt;span class="sd"&gt;        Raises&lt;/span&gt;
+&lt;span class="sd"&gt;        ------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	TypeError if an attribute is None&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;attribute&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;attributes&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;getattr&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;attribute&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-		&lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be set, not None"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;attribute&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
+&lt;span class="sd"&gt;        TypeError if an attribute is None&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;attribute&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;attributes&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;getattr&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;attribute&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be set, not None"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;attribute&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgf6be5f7" class="outline-3"&gt;
-&lt;h3 id="orgf6be5f7"&gt;Boid Node&lt;/h3&gt;
+&lt;div id="outline-container-orgc8d24a6" class="outline-3"&gt;
+&lt;h3 id="orgc8d24a6"&gt;Boid Node&lt;/h3&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga29de51" class="outline-3"&gt;
-&lt;h3 id="orga29de51"&gt;the Constructor&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga29de51"&gt;
+&lt;div id="outline-container-org72b6850" class="outline-3"&gt;
+&lt;h3 id="org72b6850"&gt;the Constructor&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org72b6850"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CocosNode&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
 &lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="sd"&gt;"""represents a boid&lt;/span&gt;
 &lt;span class="sd"&gt;    Parameters&lt;/span&gt;
@@ -234,15 +234,15 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;span class="sd"&gt;      settings for this node&lt;/span&gt;
 &lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	&lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;settings&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;settings&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slowing_radius&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
@@ -260,9 +260,9 @@ The &lt;code&gt;add&lt;/code&gt; method sets the &lt;code&gt;Sun&lt;/code&gt; in
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgd731da1" class="outline-3"&gt;
-&lt;h3 id="orgd731da1"&gt;The Current Position&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgd731da1"&gt;
+&lt;div id="outline-container-org6f9862a" class="outline-3"&gt;
+&lt;h3 id="org6f9862a"&gt;The Current Position&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6f9862a"&gt;
 &lt;p&gt;
 This is just a convenience attribute. It probably takes a performance hit, but the original code was a little obscure so I thought I'd pull it out to document it.
 &lt;/p&gt;
@@ -285,9 +285,9 @@ I had to look it up, since there's no setting of &lt;code&gt;self.x&lt;/code&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org5365b76" class="outline-3"&gt;
-&lt;h3 id="org5365b76"&gt;The Update Method&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org5365b76"&gt;
+&lt;div id="outline-container-orgf915cea" class="outline-3"&gt;
+&lt;h3 id="orgf915cea"&gt;The Update Method&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf915cea"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;update&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;delta&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
 &lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="sd"&gt;"""updates the current position&lt;/span&gt;
 
@@ -298,7 +298,7 @@ I had to look it up, since there's no setting of &lt;code&gt;self.x&lt;/code&gt;
 &lt;span class="sd"&gt;      seconds since the last clock tick&lt;/span&gt;
 &lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
@@ -310,7 +310,7 @@ The target is going to be set when the mouse is move. Because of this it's initi
 &lt;span class="n"&gt;steering_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;distance&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;ramp_down&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt;
 &lt;span class="n"&gt;steering_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;steering_force&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;steering_force&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-			   &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                           &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;delta&lt;/span&gt;
 &lt;span class="k"&gt;return&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
@@ -343,19 +343,19 @@ This next method reduces a vector if its magnitude is above a given threshold.
 &lt;span class="sd"&gt;    vector whose magnitude is no greater than upper_bound&lt;/span&gt;
 &lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="n"&gt;magnitude&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="n"&gt;magnitude&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
     &lt;span class="k"&gt;except&lt;/span&gt; &lt;span class="ne"&gt;OverflowError&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;raise&lt;/span&gt;
+        &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;raise&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;magnitude&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="n"&gt;upper_bound&lt;/span&gt;
-	    &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;upper_bound&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+            &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;upper_bound&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb2651c8" class="outline-2"&gt;
-&lt;h2 id="orgb2651c8"&gt;Main Layer&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb2651c8"&gt;
+&lt;div id="outline-container-org990e1a9" class="outline-2"&gt;
+&lt;h2 id="org990e1a9"&gt;Main Layer&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org990e1a9"&gt;
 &lt;p&gt;
 This is the class to act as the event handler.
 &lt;/p&gt;
@@ -380,7 +380,7 @@ That value (&lt;code&gt;is_event_handler&lt;/code&gt;) has to be true or the &lt
     &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MainLayer&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
     &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;boids&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;boids&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;boid&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;boids&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;boid&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;boid&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;on_mouse_motion&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;dx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;dy&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -396,13 +396,13 @@ That value (&lt;code&gt;is_event_handler&lt;/code&gt;) has to be true or the &lt
 &lt;span class="sd"&gt;      change in position since the last report&lt;/span&gt;
 &lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;boid&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;boids&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="n"&gt;boid&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;boid&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt;
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;on_mouse_press&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;button&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;modifiers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
 &lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="sd"&gt;"""handles mouse-clicks"""&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;boid&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;boids&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="n"&gt;boid&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;*=&lt;/span&gt; &lt;span class="n"&gt;CHANGE_BEHAVIOR&lt;/span&gt;
+        &lt;span class="n"&gt;boid&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;*=&lt;/span&gt; &lt;span class="n"&gt;CHANGE_BEHAVIOR&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -412,12 +412,12 @@ The &lt;code&gt;on_mouse_motion&lt;/code&gt; method is a pass through to &lt;cod
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;"__main__"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;boid_settings&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;BoidSettings&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-		     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x_y&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="mi"&gt;300&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-		     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity_vector&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
-		     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed_scalar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-		     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slow_down_distance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-		     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;maximum_force&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-		     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;maximum_velocity&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2000&lt;/span&gt;&lt;span class="p"&gt;)())&lt;/span&gt;
+                     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x_y&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="mi"&gt;300&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+                     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity_vector&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+                     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed_scalar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;slow_down_distance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;maximum_force&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                     &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;maximum_velocity&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2000&lt;/span&gt;&lt;span class="p"&gt;)())&lt;/span&gt;
     &lt;span class="n"&gt;cocos&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;director&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;director&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;init&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;caption&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"Seeker"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;boid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;boid_settings&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;scene&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;cocos&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;scene&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Scene&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MainLayer&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;boid&lt;/span&gt;&lt;span class="p"&gt;]))&lt;/span&gt;
@@ -432,9 +432,9 @@ The first thing to note is that the &lt;code&gt;cocos.director.init&lt;/code&gt;
 This is an implementation of Craig Reynold's flocking behavior based on the book &lt;a href="https://www.packtpub.com/game-development/python-game-programming-example"&gt;Python Game Programming By Example&lt;/a&gt;.
 &lt;/p&gt;
 
-&lt;div id="outline-container-orgb3d86d0" class="outline-2"&gt;
-&lt;h2 id="orgb3d86d0"&gt;Imports&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb3d86d0"&gt;
+&lt;div id="outline-container-org2d4c2cb" class="outline-2"&gt;
+&lt;h2 id="org2d4c2cb"&gt;Imports&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2d4c2cb"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# third party&lt;/span&gt;
 &lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;cocos.cocosnode&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;CocosNode&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;cocos&lt;/span&gt;
@@ -443,172 +443,172 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7ba2b9d" class="outline-2"&gt;
-&lt;h2 id="org7ba2b9d"&gt;Constants&lt;/h2&gt;
+&lt;div id="outline-container-orgbf4f4bd" class="outline-2"&gt;
+&lt;h2 id="orgbf4f4bd"&gt;Constants&lt;/h2&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org997b819" class="outline-2"&gt;
-&lt;h2 id="org997b819"&gt;The Boid&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org997b819"&gt;
+&lt;div id="outline-container-orga251f25" class="outline-2"&gt;
+&lt;h2 id="orga251f25"&gt;The Boid&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga251f25"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgdae59c3" class="outline-3"&gt;
-&lt;h3 id="orgdae59c3"&gt;Boid Settings&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgdae59c3"&gt;
+&lt;div id="outline-container-org6537f0e" class="outline-3"&gt;
+&lt;h3 id="org6537f0e"&gt;Boid Settings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6537f0e"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BoidSettings&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
 &lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="sd"&gt;"""a settings object"""&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="nd"&gt;@property&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;attributes&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""list of required attributes"""&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-				&lt;span class="s2"&gt;"velocity"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-				&lt;span class="s2"&gt;"speed"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-				&lt;span class="s2"&gt;"max_force"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""list of required attributes"""&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                &lt;span class="s2"&gt;"velocity"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                &lt;span class="s2"&gt;"speed"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                &lt;span class="s2"&gt;"max_force"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;_attributes&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;x_y&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""sets the initial x, y coordinates&lt;/span&gt;
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""sets the initial x, y coordinates&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	position: tuple&lt;/span&gt;
-&lt;span class="sd"&gt;	  (x, y) coordinates&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        position: tuple&lt;/span&gt;
+&lt;span class="sd"&gt;          (x, y) coordinates&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;tuple&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;position&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"position"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;velocity_vector&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;velocity&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""initial velocity&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""initial velocity&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	velocity: Vector2&lt;/span&gt;
-&lt;span class="sd"&gt;	  2-d vector representing boid's velocity&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;velocity&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"velocity"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        velocity: Vector2&lt;/span&gt;
+&lt;span class="sd"&gt;          2-d vector representing boid's velocity&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;velocity&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"velocity"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;pixels_per_frame&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;speed&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""initial speed of the boid&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""initial speed of the boid&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	speed: number&lt;/span&gt;
-&lt;span class="sd"&gt;	  number of pixels to move per frame&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;speed&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"speed"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        speed: number&lt;/span&gt;
+&lt;span class="sd"&gt;          number of pixels to move per frame&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;speed&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"speed"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;maximum_force&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;max_force&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""sets the max force magnitude&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""sets the max force magnitude&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
-&lt;span class="sd"&gt;	max_force: numeric&lt;/span&gt;
-&lt;span class="sd"&gt;	  upper-bound for the steering force&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;max_force&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
+&lt;span class="sd"&gt;        max_force: numeric&lt;/span&gt;
+&lt;span class="sd"&gt;          upper-bound for the steering force&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;max_force&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;maximum_velocity&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""sets the max-velocity&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""sets the max-velocity&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	max_velocity: numeric&lt;/span&gt;
-&lt;span class="sd"&gt;	  upper-bound for magnitude of velocity&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;max_velocity&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        max_velocity: numeric&lt;/span&gt;
+&lt;span class="sd"&gt;          upper-bound for magnitude of velocity&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;max_velocity&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_numeric&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""checks value is numeric&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""checks value is numeric&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	value: object&lt;/span&gt;
-&lt;span class="sd"&gt;	  item to check&lt;/span&gt;
+&lt;span class="sd"&gt;        value: object&lt;/span&gt;
+&lt;span class="sd"&gt;          item to check&lt;/span&gt;
 
-&lt;span class="sd"&gt;	identifier: string&lt;/span&gt;
-&lt;span class="sd"&gt;	  name for error message&lt;/span&gt;
+&lt;span class="sd"&gt;        identifier: string&lt;/span&gt;
+&lt;span class="sd"&gt;          name for error message&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Raises&lt;/span&gt;
-&lt;span class="sd"&gt;	------&lt;/span&gt;
+&lt;span class="sd"&gt;        Raises&lt;/span&gt;
+&lt;span class="sd"&gt;        ------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	TypeError if value is not int or float&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        TypeError if value is not int or float&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;float&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_types&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""checks type of value&lt;/span&gt;
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""checks type of value&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	value: object&lt;/span&gt;
-&lt;span class="sd"&gt;	  the thing to check&lt;/span&gt;
-&lt;span class="sd"&gt;	identifier: string&lt;/span&gt;
-&lt;span class="sd"&gt;	  id for error message&lt;/span&gt;
-&lt;span class="sd"&gt;	expected: collection &lt;/span&gt;
-&lt;span class="sd"&gt;	  types to check if value is one of them&lt;/span&gt;
+&lt;span class="sd"&gt;        value: object&lt;/span&gt;
+&lt;span class="sd"&gt;          the thing to check&lt;/span&gt;
+&lt;span class="sd"&gt;        identifier: string&lt;/span&gt;
+&lt;span class="sd"&gt;          id for error message&lt;/span&gt;
+&lt;span class="sd"&gt;        expected: collection &lt;/span&gt;
+&lt;span class="sd"&gt;          types to check if value is one of them&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Raises&lt;/span&gt;
-&lt;span class="sd"&gt;	------&lt;/span&gt;
+&lt;span class="sd"&gt;        Raises&lt;/span&gt;
+&lt;span class="sd"&gt;        ------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	TypeError if type of value not in expected&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be one of &lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s2"&gt;, not &lt;/span&gt;&lt;span class="si"&gt;{2}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
-		&lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-		&lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-		&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        TypeError if type of value not in expected&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be one of &lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s2"&gt;, not &lt;/span&gt;&lt;span class="si"&gt;{2}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+                &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;check_type&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-&lt;span class="w"&gt;	&lt;/span&gt;&lt;span class="sd"&gt;"""checks type of the value&lt;/span&gt;
-&lt;span class="sd"&gt;	Parameters&lt;/span&gt;
-&lt;span class="sd"&gt;	----------&lt;/span&gt;
+&lt;span class="w"&gt;        &lt;/span&gt;&lt;span class="sd"&gt;"""checks type of the value&lt;/span&gt;
+&lt;span class="sd"&gt;        Parameters&lt;/span&gt;
+&lt;span class="sd"&gt;        ----------&lt;/span&gt;
 
-&lt;span class="sd"&gt;	value: object&lt;/span&gt;
-&lt;span class="sd"&gt;	  thing to check&lt;/span&gt;
-&lt;span class="sd"&gt;	identifier: string&lt;/span&gt;
-&lt;span class="sd"&gt;	  id for error messages&lt;/span&gt;
-&lt;span class="sd"&gt;	expected: type&lt;/span&gt;
-&lt;span class="sd"&gt;	  what the value should be&lt;/span&gt;
+&lt;span class="sd"&gt;        value: object&lt;/span&gt;
+&lt;span class="sd"&gt;          thing to check&lt;/span&gt;
+&lt;span class="sd"&gt;        identifier: string&lt;/span&gt;
+&lt;span class="sd"&gt;          id for error messages&lt;/span&gt;
+&lt;span class="sd"&gt;        expected: type&lt;/span&gt;
+&lt;span class="sd"&gt;          what the value should be&lt;/span&gt;
 
-&lt;span class="sd"&gt;	Raises&lt;/span&gt;
-&lt;span class="sd"&gt;	------&lt;/span&gt;
-&lt;span class="sd"&gt;	TypeError if type of value is not expected&lt;/span&gt;
-&lt;span class="sd"&gt;	"""&lt;/span&gt;
-	&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="nb"&gt;isinstance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be &lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s2"&gt; not &lt;/span&gt;&lt;span class="si"&gt;{2}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-							     &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-							     &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+&lt;span class="sd"&gt;        Raises&lt;/span&gt;
+&lt;span class="sd"&gt;        ------&lt;/span&gt;
+&lt;span class="sd"&gt;        TypeError if type of value is not expected&lt;/span&gt;
+&lt;span class="sd"&gt;        """&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="nb"&gt;isinstance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt; must be &lt;/span&gt;&lt;span class="si"&gt;{1}&lt;/span&gt;&lt;span class="s2"&gt; not &lt;/span&gt;&lt;span class="si"&gt;{2}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;identifier&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                                             &lt;span class="n"&gt;expected&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                                                             &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org05c78d5" class="outline-3"&gt;
-&lt;h3 id="org05c78d5"&gt;Boid Node&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org05c78d5"&gt;
+&lt;div id="outline-container-orgcaaa7e0" class="outline-3"&gt;
+&lt;h3 id="orgcaaa7e0"&gt;Boid Node&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgcaaa7e0"&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;CocosNode&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
 &lt;span class="w"&gt;    &lt;/span&gt;&lt;span class="sd"&gt;"""represents a boid&lt;/span&gt;
 &lt;span class="sd"&gt;    Parameters&lt;/span&gt;
@@ -618,14 +618,14 @@ This is an implementation of Craig Reynold's flocking behavior based on the book
 &lt;span class="sd"&gt;      settings for this node&lt;/span&gt;
 &lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	&lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;settings&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;euclid&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
+        &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Boid&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;settings&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;position&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;euclid&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;Vector2&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;speed&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_force&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;settings&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;max_velocity&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
@@ -651,7 +651,7 @@ The &lt;code&gt;add&lt;/code&gt; method sets the &lt;code&gt;Sun&lt;/code&gt; in
 &lt;span class="sd"&gt;      seconds since the last clock tick&lt;/span&gt;
 &lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;target&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="kc"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 &lt;p&gt;
@@ -667,6 +667,6 @@ The target
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1f5f841" class="outline-2"&gt;
-&lt;h2 id="org1f5f841"&gt;Main&lt;/h2&gt;
+&lt;div id="outline-container-org873ad08" class="outline-2"&gt;
+&lt;h2 id="org873ad08"&gt;Main&lt;/h2&gt;
 &lt;/div&gt;</description><category>cocos2d</category><category>emergence</category><category>flocking</category><category>games</category><guid>https://necromuralist.github.io/posts/flocking-with-cocos2d/</guid><pubDate>Mon, 20 Feb 2017 22:59:43 GMT</pubDate></item></channel></rss>

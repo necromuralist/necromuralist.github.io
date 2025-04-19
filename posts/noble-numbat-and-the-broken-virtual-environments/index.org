@@ -1,0 +1,284 @@
+#+BEGIN_COMMENT
+.. title: Noble Numbat and the Broken Virtual Environments
+.. slug: noble-numbat-and-the-broken-virtual-environments
+.. date: 2024-05-27 16:21:26 UTC-07:00
+.. tags: ubuntu,virtualfish,pipx,upgrading
+.. category: Ubuntu
+.. link: 
+.. description: Fixing the Python Virtual Environments broken by upgrading to Ubuntu 24.04 (Noble Numbat).
+.. type: text
+.. status: 
+.. updated: 
+.. version: 1
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 3
+
+* What is this about?
+These are notes I made when I was fixing some errors that occurred after updating Ubuntu to 24.04. It's been over a year so I don't really remember writing this, but, here it is.
+
+* What Happened
+- I updated Ubuntu
+- Something raised an obscure error when I changed into one of my git repositories
+- It turned out that the upgrade broke the python virtual environment
+- Re-setting-up using the newer version of python that came with the upgrade fixed things.
+
+* Short Version
+- Upgrading to Ubuntu 24.04 made python changes that broke all my virtual enviroments
+- Reinstalled =pipx= using apt
+- =vf ls --details= shows the python versions for all (virtualfish created) virtual environments (and which are broken)
+- =vf upgrade --rebuild= will upgrade the currently active virtual environment (may take more than one run to get past errors)
+- =pipx reinstall-all= fixed the missing =nikola= and =pygmentize= errors (and probably others)
+- =pip install setuptools --upgrade= in the environment re-setup =distutils= which was removed from pthyon 3.12 (which Ubuntu Installed)
+  
+* The First Hint (pipx)
+I don't remember exactly what cued me in to what was going wrong, but somewhere in trying to figure out what was wrong I found that running [[https://github.com/frostming/legit][legit]] after updating to Ubuntu 24.04 returned an error saying that ~legit~ wasn't found. It took a while to figure out where =legit= was supposed to be coming from, but it turned out I had installed it with [[https://pipx.pypa.io/latest/installation/][pipx]] and had to re-install it to get it working.
+
+I don't remember exactly what I did anymore, but based on the command history it looks like:
+
+ 1. Re-install =pipx= (I purged the original installation that had been installed using =pip= and instead used =apt=)
+ 2. Re-install =legit= using the updated =pipx=
+
+So, was =pipx= the problem? Well, partly.
+
+* The Broken Virtual Environments
+
+The next problem came when I tried to build the HTML for this site.
+
+#+begin_src fish
+nikola build
+#+end_src
+
+#+begin_src python
+Traceback (most recent call last):
+  File "/home/hades/.virtualenvs/necromuralist.github.io/bin/nikola", line 5, in <module>
+    from nikola.__main__ import main
+ModuleNotFoundError: No module named 'nikola'
+#+end_src
+
+For some reason the =nikola= executable was missing. Since I was in a virtual environment I tried to re-install nikola but using =pip= gave another error.
+
+#+begin_src fish
+pip --version
+#+end_src
+
+#+begin_src python
+Traceback (most recent call last):
+  File "/home/hades/.virtualenvs/necromuralist.github.io/bin/pip", line 5, in <module>
+    from pip._internal.cli.main import main
+ModuleNotFoundError: No module named 'pip'
+#+end_src
+
+So, not only was =nikola= missing but so was =pip=, which I thought was a part of the python installation... I looked at what was in the virtualenvironment -
+
+#+begin_src fish
+ls ~/.virtualenvs/necromuralist.github.io/lib
+#+end_src
+
+And saw that it had this python version:
+
+#+begin_src fish
+python3.11/
+#+end_src
+
+But when I checked the version of the python I was using it gave this.
+
+#+begin_src fish
+python --version
+#+end_src
+
+#+begin_src fish
+Python 3.12.3
+#+end_src
+
+So it looked like the ubuntu update created a bit of a mismatch. It turns out that [[https://virtualfish.readthedocs.io/en/latest/][virtualfish]] has a command to list what virtual environments you have set up (=vf ls=) and if you pass it the =--details== option it will show you the python version the environment is using.
+
+#+begin_src fish
+vf ls --details
+#+end_src
+
+It listed all my environments but in particular it showed this for the environment for this site's repository.
+
+#+begin_src fish
+necromuralist.github.io (broken)
+#+end_src
+
+=virtualfish= also has a command to upgrade the currently active environment so I tried running it.
+
+Running this with the /necromuralist/ environment active:
+
+#+begin_src fish
+vf upgrade --rebuild
+#+end_src
+
+Gave this error.
+
+#+begin_src fish
+Collecting PyYAML==6.0
+  Downloading PyYAML-6.0.tar.gz (124 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 125.0/125.0 kB 3.5 MB/s eta 0:00:00
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... error
+  error: subprocess-exited-with-error
+
+  × Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> [54 lines of output]
+      running egg_info
+      writing lib/PyYAML.egg-info/PKG-INFO
+      writing dependency_links to lib/PyYAML.egg-info/dependency_links.txt
+      writing top-level names to lib/PyYAML.egg-info/top_level.txt
+      Traceback (most recent call last):
+        File "/home/hades/.virtualenvs/necromuralist.github.io/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 353, in <module>
+          main()
+        File "/home/hades/.virtualenvs/necromuralist.github.io/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 335, in main
+          json_out['return_val'] = hook(**hook_input['kwargs'])
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/home/hades/.virtualenvs/necromuralist.github.io/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 118, in get_requires_for_build_wheel
+          return hook(config_settings)
+                 ^^^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/build_meta.py", line 325, in get_requires_for_build_wheel
+          return self._get_build_requires(config_settings, requirements=['wheel'])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/build_meta.py", line 295, in _get_build_requires
+          self.run_setup()
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/build_meta.py", line 311, in run_setup
+          exec(code, locals())
+        File "<string>", line 288, in <module>
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/__init__.py", line 103, in setup
+          return distutils.core.setup(**attrs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/_distutils/core.py", line 184, in setup
+          return run_commands(dist)
+                 ^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/_distutils/core.py", line 200, in run_commands
+          dist.run_commands()
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/_distutils/dist.py", line 969, in run_commands
+          self.run_command(cmd)
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/dist.py", line 968, in run_command
+          super().run_command(command)
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/_distutils/dist.py", line 988, in run_command
+          cmd_obj.run()
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/command/egg_info.py", line 321, in run
+          self.find_sources()
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/command/egg_info.py", line 329, in find_sources
+          mm.run()
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/command/egg_info.py", line 550, in run
+          self.add_defaults()
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/command/egg_info.py", line 588, in add_defaults
+          sdist.add_defaults(self)
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/command/sdist.py", line 102, in add_defaults
+          super().add_defaults()
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/_distutils/command/sdist.py", line 250, in add_defaults
+          self._add_defaults_ext()
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/_distutils/command/sdist.py", line 335, in _add_defaults_ext
+          self.filelist.extend(build_ext.get_source_files())
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "<string>", line 204, in get_source_files
+        File "/tmp/pip-build-env-1ai8jd66/overlay/lib/python3.12/site-packages/setuptools/_distutils/cmd.py", line 107, in __getattr__
+          raise AttributeError(attr)
+      AttributeError: cython_sources
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+#+end_src
+
+Which looked like I was in trouble, but it turned out that re-running the upgrade fixed it. One of those magic fixes that would be scary if this was a critical site, I suppose, but which is instead, just another bit of python mystery.
+
+* Then a Nikola Error
+
+So, with the virtual environment updated to the current python, I waded back into building the site.
+
+#+begin_src fish
+nikola build
+#+end_src
+
+First this produced a ~nikola~ not found error (updating the virtual environment apparently doesn't fix everything). But since the environment itself was fixed pip was now working so I installed it again, but then building the site produced a different error.
+
+#+begin_src fish
+DependencyError - taskid:render_posts:cache/posts/2ac-updating-a-nikola-shortcode-plugin.html  
+ERROR: Task 'render_posts:cache/posts/2ac-updating-a-nikola-shortcode-plugin.html' saving success: Dependent file '/home/hades/.virtualenvs/necromuralist.github.io/lib/python3.11/site-packa
+ges/nikola/data/shortcodes/mako/raw.tmpl' does not exist.
+#+end_src
+
+Re-reinstalling nikola and re-running the build made the error go away, but in the output I noticed some disturbing messages that looked like these.
+
+#+begin_src fish
+.  render_pages:output/posts/destroying-tags-with-beautiful-soup/index.html
+line 135 column 56 - Error: <module> is not recognized!
+line 144 column 56 - Error: <module> is not recognized!
+line 154 column 56 - Error: <module> is not recognized!
+This document has errors that must be fixed before
+using HTML Tidy to generate a tidied up version.
+#+end_src
+
+There were are a lot of these errors (which didn't cause nikola to quit so I wouldn't have seen them if I wasn't watching the build messages).
+
+This turned out to be because nikola was encountering errors, trapping them and not failing and then embedding the python error messages into the HTML (and the error messages were causing HTML tidy to fail and then raise a different error message).
+
+This is an example of an error message embedded in the HTML nikola created:
+
+#+begin_src python
+Traceback (most recent call last):
+  File "/home/hades/.local/bin/pygmentize", line 5, in <module>
+    from pygments.cmdline import main
+ModuleNotFoundError: No module named 'pygments'
+#+end_src
+
+The cause for this one was a little more mysterious, but it turned out that I had installed ~pygmentize~ using ~pipx~ so it needed to be updated separately. I decided to use ~pipx reinstall-all~ to get everything updated.
+
+Unfortunately, there were a lot of posts with the ~pygmentize~ errors, and since they aren't registered as errors by nikola, just building the site didn't fix them so I wiped it first and then re-built it.
+
+#+begin_src fish
+nikola clean
+nikola build
+#+end_src
+
+And since there weren't anymore errors I decided to cross my fingers and move on.
+
+* An Ape-Iron Problem (no distutils)
+
+The =vf ls --details= command I used to check on the virtual environment for this site also showed that all my other virtual environments were broken so I decided to try and fix the =Ape-Iron= repository while it was fresh on my mind. First I rebuilt the environment.
+
+#+begin_src fish
+vf upgrade --rebuild Ape-Iron
+#+end_src
+
+And of course, it gave me errors.
+
+#+begin_src fish
+Collecting numpy==1.24.3
+  Downloading numpy-1.24.3.tar.gz (10.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.9/10.9 MB 7.7 MB/s eta 0:00:00
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+ERROR: Exception:
+Traceback (most recent call last):
+  File "/home/hades/.virtualenvs/Ape-Iron/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 180, in exc_logging_wrapper
+#+end_src
+
+#+begin_src fish
+File "/tmp/pip-build-env-f7h7lvcc/overlay/lib/python3.12/site-packages/setuptools/__init__.py", line 10, in <module>
+    import distutils.core
+ModuleNotFoundError: No module named 'distutils'
+#+end_src
+
+According to [[https://stackoverflow.com/a/77233866][this answer]] to a question on /StackOverflow/ ~distutils~ was removed from python 3.12, which is the default with /noble-numbat/. The answer suggests installing [[https://github.com/pypa/setuptools][~setuptools~]].
+
+So, I tride that.
+
+#+begin_src fish
+pip install setuptools --upgrade
+#+end_src
+
+Amazingly, the upgrade of Ape-Iron seemed to work.
+
+#+begin_src fish
+vf upgrade --rebuild Ape-Iron
+#+end_src
+
+At this point I think I just called it a day.
+
+* Links
+- [[https://virtualfish.readthedocs.io/en/latest/usage.html#upgrading-virtual-environments][Upgrading Virtual Environments]]: Virtualfish Documentation
+- [[https://github.com/yaml/pyyaml/issues/601][AttributeError: cython_sources]]: A PyYAML bug report that looks related to the error.

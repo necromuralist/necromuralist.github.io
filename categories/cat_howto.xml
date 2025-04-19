@@ -5,17 +5,17 @@
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"&gt;
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"&gt;&lt;/a&gt;
 &lt;/div&gt;
-</copyright><lastBuildDate>Wed, 01 May 2024 04:52:39 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org411f24b" class="outline-2"&gt;
-&lt;h2 id="org411f24b"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org411f24b"&gt;
+</copyright><lastBuildDate>Tue, 28 May 2024 00:09:13 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>pip-tools and pipdeptree</title><link>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgff4b06f" class="outline-2"&gt;
+&lt;h2 id="orgff4b06f"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgff4b06f"&gt;
 &lt;p&gt;
 I was looking for a way to update python dependencies that I'd installed with &lt;a href="https://pip.pypa.io/en/stable/"&gt;pip&lt;/a&gt; when I stumbled upon &lt;a href="https://github.com/jazzband/pip-tools/"&gt;pip-tools&lt;/a&gt;. I'm not particularly good about keeping everything in sync and up-to-date so I'm hoping that this will make it easier to do and thus more likely that I'll do it. It's been a little while since I first used it and I had to look it up, so these are my notes to my future self.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org13a43f9" class="outline-2"&gt;
-&lt;h2 id="org13a43f9"&gt;First pipdeptree&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org13a43f9"&gt;
+&lt;div id="outline-container-org28fd455" class="outline-2"&gt;
+&lt;h2 id="org28fd455"&gt;First pipdeptree&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org28fd455"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-tools&lt;/code&gt; installs a command named &lt;code&gt;pip-compile&lt;/code&gt; which will use either the requirements you put in your &lt;code&gt;setup.py&lt;/code&gt; file or a special file named &lt;code&gt;requirements.in&lt;/code&gt; (if you call it this you don't have to pass in the filename, otherwise you have to tell it where to look). Unless there's only a few requirements I prefer to use a separate file, rather than &lt;code&gt;setup.py&lt;/code&gt;, since it makes it clearer and more likely that I'll keep it up to date. The &lt;code&gt;requirements.in&lt;/code&gt; file is a list of your dependencies but unlike the &lt;code&gt;requirements.txt&lt;/code&gt; file, it doesn't have version numbers, the version numbers are added when you call the &lt;code&gt;pip-compile&lt;/code&gt; command. 
 &lt;/p&gt;
@@ -34,7 +34,7 @@ Here's its help output.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree&lt;span class="w"&gt; &lt;/span&gt;-h
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org847d4d8"&gt;
 usage: pipdeptree [-h] [-v] [-f] [-a] [-l] [-u] [-w [{silence,suppress,fail}]]
                   [-r] [-p PACKAGES] [-j] [--json-tree]
                   [--graph-output OUTPUT_FORMAT]
@@ -135,7 +135,7 @@ First, let's see how many total dependencies there are.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree&lt;span class="w"&gt; &lt;/span&gt;--freeze&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;wc&lt;span class="w"&gt; &lt;/span&gt;-l
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org514a470"&gt;
 : 160
 &lt;/pre&gt;
 
@@ -218,7 +218,7 @@ This looks like what we want, but there's a couple of things that we should take
 &lt;li&gt;it will add an extra entry for your python egg, something like this:&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orge6611b6"&gt;
 -e git+git@github.com:russell-n/iperflexer.git@65f4d3ca72670591f584efa6fa9bfd64c18a925b#egg=iperflexer
 &lt;/pre&gt;
 
@@ -252,7 +252,7 @@ So we should filter those out.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pipdeptree&lt;span class="w"&gt; &lt;/span&gt;--freeze&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;grep&lt;span class="w"&gt; &lt;/span&gt;--only-matching&lt;span class="w"&gt; &lt;/span&gt;--perl-regexp&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"^[\w\-]+"&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;grep&lt;span class="w"&gt; &lt;/span&gt;--invert-match&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"\-e\|pkg"&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgc776d3a"&gt;
 ghp-import2
 graphviz
 Nikola
@@ -270,14 +270,14 @@ ws4py
 There are probaby other exceptions that have to be added for other installations, but this looks like enough for us. Now we can redirect this to a &lt;code&gt;requirements.in&lt;/code&gt; file and we're ready for &lt;code&gt;pip-tools&lt;/code&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgae4dcf9"&gt;
 pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --invert-match "\-e\|pkg" &amp;gt; requirements.in
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgef22727" class="outline-2"&gt;
-&lt;h2 id="orgef22727"&gt;pip-compile&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgef22727"&gt;
+&lt;div id="outline-container-orgc04e745" class="outline-2"&gt;
+&lt;h2 id="orgc04e745"&gt;pip-compile&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc04e745"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-compile&lt;/code&gt; will read in the &lt;code&gt;requirements.in&lt;/code&gt; file and add the version numbers and can create a &lt;code&gt;requirements.txt&lt;/code&gt; file. It will automatically look for the &lt;code&gt;requirements.in&lt;/code&gt; file or you can explicitly pass in the filename.
 &lt;/p&gt;
@@ -285,7 +285,7 @@ pipdeptree --freeze | grep --only-matching --perl-regexp "^[\w\-]+" | grep --inv
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;head
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org5142ca8"&gt;
 #
 # This file is autogenerated by pip-compile
 # To update, run:
@@ -303,9 +303,9 @@ You'll notice it adds in the dependencies of the dependencies and shows what req
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5721a60" class="outline-2"&gt;
-&lt;h2 id="org5721a60"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5721a60"&gt;
+&lt;div id="outline-container-org335c9e4" class="outline-2"&gt;
+&lt;h2 id="org335c9e4"&gt;Well, that was a lot of work just for that.&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org335c9e4"&gt;
 &lt;p&gt;
 If we stopped at this point we'd have:
 &lt;/p&gt;
@@ -320,9 +320,9 @@ I think that's kind of nice already, especially if you end up with a lot of depe
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org2e2db7b" class="outline-3"&gt;
-&lt;h3 id="org2e2db7b"&gt;Upgrade&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2e2db7b"&gt;
+&lt;div id="outline-container-org9a3a049" class="outline-3"&gt;
+&lt;h3 id="org9a3a049"&gt;Upgrade&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org9a3a049"&gt;
 &lt;p&gt;
 You can run  &lt;code&gt;pip-compile&lt;/code&gt; with the &lt;code&gt;--upgrade&lt;/code&gt; option to try and update dependencies whenever you want to make sure you have the latest of everything (you can do it per-package too, but nah).
 &lt;/p&gt;
@@ -330,7 +330,7 @@ You can run  &lt;code&gt;pip-compile&lt;/code&gt; with the &lt;code&gt;--upgrade
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-compile&lt;span class="w"&gt; &lt;/span&gt;--upgrade&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;head
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgbe4981b"&gt;
 #
 # This file is autogenerated by pip-compile
 # To update, run:
@@ -349,9 +349,9 @@ This will upgrade your installation but not update the &lt;code&gt;requirements.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8d96d80" class="outline-3"&gt;
-&lt;h3 id="org8d96d80"&gt;Sync&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8d96d80"&gt;
+&lt;div id="outline-container-org8575ecd" class="outline-3"&gt;
+&lt;h3 id="org8575ecd"&gt;Sync&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org8575ecd"&gt;
 &lt;p&gt;
 &lt;code&gt;pip-tools&lt;/code&gt; also installed a command called &lt;code&gt;pip-sync&lt;/code&gt; which will keep you in sync with what is in the requirements file, so as long as &lt;code&gt;requirements.txt&lt;/code&gt; is always a working version, you can sync up with it to avoid problems with changes in any of the dependencies. This is different from the &lt;code&gt;--upgrade&lt;/code&gt; option in that it will only install the exact version in the requirements file.
 &lt;/p&gt;
@@ -359,7 +359,7 @@ This will upgrade your installation but not update the &lt;code&gt;requirements.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-sync
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orge1ca012"&gt;
 Collecting backcall==0.1.0
 Collecting bleach==2.1.3
   Using cached https://files.pythonhosted.org/packages/30/b6/a8cffbb9ab4b62b557c22703163735210e9cd857d533740c64e1467d228e/bleach-2.1.3-py2.py3-none-any.whl
@@ -384,28 +384,28 @@ So now the file and my installation should be in sync.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip-sync
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org1523f1b"&gt;
 : Everything up-to-date
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgee33abe" class="outline-2"&gt;
-&lt;h2 id="orgee33abe"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgee33abe"&gt;
+&lt;div id="outline-container-org12662dd" class="outline-2"&gt;
+&lt;h2 id="org12662dd"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org12662dd"&gt;
 &lt;p&gt;
 So there you have it, how to keep dependencies synced. The &lt;a href="https://pypi.org/project/pip-tools/"&gt;README&lt;/a&gt; for pip-tools is much briefer, but I thought I'd add a little more detail to the part of it that I plan to use the most.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>python programs</category><guid>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</guid><pubDate>Sat, 09 Jun 2018 19:52:57 GMT</pubDate></item><item><title>Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</title><link>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org5ad43a0" class="outline-2"&gt;
-&lt;h2 id="org5ad43a0"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5ad43a0"&gt;
+&lt;/div&gt;</description><category>python programs</category><guid>https://necromuralist.github.io/posts/pip-tools-and-pipdeptree/</guid><pubDate>Sat, 09 Jun 2018 19:52:57 GMT</pubDate></item><item><title>Setting Up the RTL 8812AU Realtek USB Adapter on a Raspberry Pi 3</title><link>https://necromuralist.github.io/posts/setting-up-the-rtl-8812au-realtek-usb-adapter-on-a-raspberry-pi-3/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org0f91892" class="outline-2"&gt;
+&lt;h2 id="org0f91892"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0f91892"&gt;
 &lt;p&gt;
 I'm trying to set-up a wireless packet monitor (it's something I've long thought might be an interesting source of data, and now I need it for work too). My thought was that I'd set up a raspberry pi to experiment with - I don't think it is powerful enough to work, but it should work just to mess with code, and a distributed system might get some interesting results, but anyway - but when I tried to put my raspberry pi's wireless interface into monitor mode I got an error.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org81f680d"&gt;
 iwconfig wlan0 mode monitor
 Error for wireless request "Set Mode" (8B06) :
     SET failed on device wlan0 ; Operation not supported.
@@ -416,26 +416,26 @@ Looking around on the web I found &lt;a href="https://www.reddit.com/r/raspberry
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org736833b" class="outline-2"&gt;
-&lt;h2 id="org736833b"&gt;What I tried&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org736833b"&gt;
+&lt;div id="outline-container-orgae96812" class="outline-2"&gt;
+&lt;h2 id="orgae96812"&gt;What I tried&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgae96812"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org1cd13e8" class="outline-3"&gt;
-&lt;h3 id="org1cd13e8"&gt;Plug-and-Pray&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1cd13e8"&gt;
+&lt;div id="outline-container-orge7d799e" class="outline-3"&gt;
+&lt;h3 id="orge7d799e"&gt;Plug-and-Pray&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge7d799e"&gt;
 &lt;p&gt;
 The first thing I did was to see if it would just work. I plugged the Realtek into the USB port and although &lt;code&gt;lsusb&lt;/code&gt; showed it, &lt;code&gt;iwconfig&lt;/code&gt; didn't show it as an interface. Back to the internet. 
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9803dd8" class="outline-3"&gt;
-&lt;h3 id="org9803dd8"&gt;Github&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9803dd8"&gt;
+&lt;div id="outline-container-org2a75084" class="outline-3"&gt;
+&lt;h3 id="org2a75084"&gt;Github&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org2a75084"&gt;
 &lt;p&gt;
 Next I found &lt;a href="https://github.com/diederikdehaas/rtl8812AU"&gt;a repository on github&lt;/a&gt; that has the driver for the Realtek set up for linux machines. I downloaded it and followed the instructions to build it - the main thing is to set:
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org71c8f7b"&gt;
 CONFIG_PLATFORM_I386_PC = n
 CONFIG_PLATFORM_ARM_RPI = y
 &lt;/pre&gt;
@@ -444,7 +444,7 @@ CONFIG_PLATFORM_ARM_RPI = y
 in the &lt;code&gt;Makefile&lt;/code&gt; - but when I tried to build it I got this error.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org74c2074"&gt;
 sudo dkms install -m $DRV_NAME -v $DRV_VERSION
 
 'make' KVER=4.4.38-v7+....(bad exit status: 2)
@@ -459,14 +459,14 @@ There was also a message in the &lt;code&gt;make.log&lt;/code&gt; file but I did
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org23bfce5" class="outline-2"&gt;
-&lt;h2 id="org23bfce5"&gt;What fixed it&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org23bfce5"&gt;
+&lt;div id="outline-container-org8b578bf" class="outline-2"&gt;
+&lt;h2 id="org8b578bf"&gt;What fixed it&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org8b578bf"&gt;
 &lt;p&gt;
 The solution was in &lt;a href="https://stackoverflow.com/questions/39775844/how-to-make-dkms-pass-the-right-arch-to-make"&gt;this StackOverflow post&lt;/a&gt; - the &lt;code&gt;make&lt;/code&gt; program is being pointed to a folder named &lt;code&gt;arm7l&lt;/code&gt; (thats 'arm seven ell') but it should actually be pointed to one named &lt;code&gt;arm&lt;/code&gt;. The simple solution is to create an alias with the correct name.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgdd61e19"&gt;
 sudo ln -s /usr/src/linux-headers-4.4.38-v7+/arch/arm/ /usr/src/linux-headers-4.4.38-v7+/arch/armv7l
 &lt;/pre&gt;
 
@@ -476,9 +476,9 @@ This turns out to fix the build problem and after a reboot the network interface
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgf90ccc6" class="outline-2"&gt;
-&lt;h2 id="orgf90ccc6"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf90ccc6"&gt;
+&lt;div id="outline-container-org940ae1a" class="outline-2"&gt;
+&lt;h2 id="org940ae1a"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org940ae1a"&gt;
 &lt;p&gt;
 The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out of the box, and while there is a firmware patch to enable it, I chose to use a Realtek RTL 8812AU USB WiFi adapter instead. You need a little bit of extra work to get it going, but it does seem to work. One thing I noticed is that &lt;code&gt;iwconfig&lt;/code&gt; will put it in monitor mode but &lt;code&gt;airmon-ng&lt;/code&gt; doesn't (I haven't figured out why yet). It doesn't report an error, it just doesn't seem to work. Also, &lt;code&gt;iw&lt;/code&gt; always reports the interface as managed, even when it isn't… maybe I'll try the firmware patch after all.
 &lt;/p&gt;
@@ -500,56 +500,56 @@ The Raspberry Pi 3 doesn't support monitor mode for its wireless interface out o
 &lt;p&gt;This fixed it for me. Of course now the internal targets are gone as well, but they wouldn't have worked anyway.&lt;/p&gt;
 &lt;p&gt;See the &lt;a class="reference external" href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references"&gt;Restructured Text Hyperlink Documentatation&lt;/a&gt; for more details.&lt;/p&gt;
 &lt;/section&gt;</description><category>restructuredtext</category><guid>https://necromuralist.github.io/posts/restructured-text-anonymous-links/</guid><pubDate>Tue, 09 Jan 2018 02:06:52 GMT</pubDate></item><item><title>Shell Output With Org-Babel Ipython</title><link>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;One of the nice things about ipython is the ability to run shell commands with &lt;code class="docutils literal"&gt;!&lt;/code&gt;. When you use it in an &lt;a class="reference external" href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt; block, though, it will dump the output into a popup rather than in the same emacs org-file. One alternative is to use a shell block instead. I wrote earlier that this requires you to put an echo command in the block to prevent the text going to a pop-up.&lt;/p&gt;
-&lt;div class="code"&gt;&lt;pre class="code bash"&gt;&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-1" name="rest_code_1940ead9199549fd8e08666d0c380dec-1" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-2" name="rest_code_1940ead9199549fd8e08666d0c380dec-2" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-2"&gt;&lt;/a&gt;head&lt;span class="w"&gt; &lt;/span&gt;Future_Connections.csv
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-3" name="rest_code_1940ead9199549fd8e08666d0c380dec-3" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-4" name="rest_code_1940ead9199549fd8e08666d0c380dec-4" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-5" name="rest_code_1940ead9199549fd8e08666d0c380dec-5" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-5"&gt;&lt;/a&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-6" name="rest_code_1940ead9199549fd8e08666d0c380dec-6" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-7" name="rest_code_1940ead9199549fd8e08666d0c380dec-7" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Future&lt;span class="w"&gt; &lt;/span&gt;Connection&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-8" name="rest_code_1940ead9199549fd8e08666d0c380dec-8" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;840&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-9" name="rest_code_1940ead9199549fd8e08666d0c380dec-9" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-9"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;197&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-10" name="rest_code_1940ead9199549fd8e08666d0c380dec-10" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-10"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;620&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;979&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-11" name="rest_code_1940ead9199549fd8e08666d0c380dec-11" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-11"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;519&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;872&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-12" name="rest_code_1940ead9199549fd8e08666d0c380dec-12" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-12"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;382&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;423&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-13" name="rest_code_1940ead9199549fd8e08666d0c380dec-13" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-13"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;97&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;226&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-14" name="rest_code_1940ead9199549fd8e08666d0c380dec-14" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-14"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;349&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;905&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-15" name="rest_code_1940ead9199549fd8e08666d0c380dec-15" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-15"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;429&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;860&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
-&lt;a id="rest_code_1940ead9199549fd8e08666d0c380dec-16" name="rest_code_1940ead9199549fd8e08666d0c380dec-16" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_1940ead9199549fd8e08666d0c380dec-16"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;309&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;989&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;div class="code"&gt;&lt;pre class="code bash"&gt;&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-1" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-1" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC sh&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-2" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-2" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-2"&gt;&lt;/a&gt;head&lt;span class="w"&gt; &lt;/span&gt;Future_Connections.csv
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-3" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-3" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;echo&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-4" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-4" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-5" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-5" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-5"&gt;&lt;/a&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-6" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-6" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-7" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-7" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-7"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;            &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;Future&lt;span class="w"&gt; &lt;/span&gt;Connection&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-8" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-8" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;840&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-9" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-9" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-9"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;197&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt;   &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-10" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-10" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-10"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;620&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;979&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-11" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-11" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-11"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;519&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;872&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-12" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-12" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-12"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;382&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;423&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-13" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-13" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-13"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;97&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;226&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-14" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-14" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-14"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;349&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;905&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-15" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-15" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-15"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;429&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;860&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;a id="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-16" name="rest_code_9ed456fb16e94ccf884e1c36fbe531f8-16" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_9ed456fb16e94ccf884e1c36fbe531f8-16"&gt;&lt;/a&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;309&lt;/span&gt;,&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;989&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt;               &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.0&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;It turns out that there's a similar solution to the ob-ipython popup, only since it's in python you have to use a print this time.&lt;/p&gt;
-&lt;div class="code"&gt;&lt;pre class="code python"&gt;&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-1" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-1" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC ipython :session futures :results output&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-2" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-2" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-2"&gt;&lt;/a&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="n"&gt;Future_Connections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-3" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-3" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-4" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-4" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-5" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-5" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-5"&gt;&lt;/a&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-6" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-6" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-7" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-7" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-7"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+begin_example&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-8" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-8" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Future&lt;/span&gt; &lt;span class="n"&gt;Connection&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-9" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-9" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-9"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(6, 840)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-10" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-10" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-10"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(4, 197)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-11" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-11" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-11"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(620, 979)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-12" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-12" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-12"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(519, 872)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-13" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-13" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-13"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(382, 423)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-14" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-14" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-14"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(97, 226)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-15" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-15" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-15"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(349, 905)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-16" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-16" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-16"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(429, 860)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-17" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-17" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-18" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-18" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-18"&gt;&lt;/a&gt;
-&lt;a id="rest_code_aa6e777a8045455a94183c2507e7f7b8-19" name="rest_code_aa6e777a8045455a94183c2507e7f7b8-19" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_aa6e777a8045455a94183c2507e7f7b8-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
+&lt;div class="code"&gt;&lt;pre class="code python"&gt;&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-1" name="rest_code_ed9703b233504b74ae813864cb0def66-1" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-1"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+BEGIN_SRC ipython :session futures :results output&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-2" name="rest_code_ed9703b233504b74ae813864cb0def66-2" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-2"&gt;&lt;/a&gt;&lt;span class="err"&gt;!&lt;/span&gt;&lt;span class="n"&gt;head&lt;/span&gt; &lt;span class="n"&gt;Future_Connections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;csv&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-3" name="rest_code_ed9703b233504b74ae813864cb0def66-3" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-3"&gt;&lt;/a&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-4" name="rest_code_ed9703b233504b74ae813864cb0def66-4" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-4"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+END_SRC&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-5" name="rest_code_ed9703b233504b74ae813864cb0def66-5" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-5"&gt;&lt;/a&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-6" name="rest_code_ed9703b233504b74ae813864cb0def66-6" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-6"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+RESULTS:&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-7" name="rest_code_ed9703b233504b74ae813864cb0def66-7" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-7"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+begin_example&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-8" name="rest_code_ed9703b233504b74ae813864cb0def66-8" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-8"&gt;&lt;/a&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Future&lt;/span&gt; &lt;span class="n"&gt;Connection&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-9" name="rest_code_ed9703b233504b74ae813864cb0def66-9" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-9"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(6, 840)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-10" name="rest_code_ed9703b233504b74ae813864cb0def66-10" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-10"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(4, 197)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-11" name="rest_code_ed9703b233504b74ae813864cb0def66-11" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-11"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(620, 979)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-12" name="rest_code_ed9703b233504b74ae813864cb0def66-12" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-12"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(519, 872)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-13" name="rest_code_ed9703b233504b74ae813864cb0def66-13" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-13"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(382, 423)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-14" name="rest_code_ed9703b233504b74ae813864cb0def66-14" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-14"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(97, 226)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;1.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-15" name="rest_code_ed9703b233504b74ae813864cb0def66-15" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-15"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(349, 905)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-16" name="rest_code_ed9703b233504b74ae813864cb0def66-16" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-16"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(429, 860)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-17" name="rest_code_ed9703b233504b74ae813864cb0def66-17" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-17"&gt;&lt;/a&gt;&lt;span class="s2"&gt;"(309, 989)"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mf"&gt;0.0&lt;/span&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-18" name="rest_code_ed9703b233504b74ae813864cb0def66-18" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-18"&gt;&lt;/a&gt;
+&lt;a id="rest_code_ed9703b233504b74ae813864cb0def66-19" name="rest_code_ed9703b233504b74ae813864cb0def66-19" href="https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/#rest_code_ed9703b233504b74ae813864cb0def66-19"&gt;&lt;/a&gt;&lt;span class="c1"&gt;#+end_example&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I actually prefer the shell version, and since this is org-babel it makes more sense to use it, but I forgot about it just now and it took me a little while to figure out how to get the ob-ipython block to work so &lt;strong&gt;*note to future self:&lt;/strong&gt; &lt;em&gt;This is how to make it work, but use a shell block instead.&lt;/em&gt;&lt;/p&gt;</description><category>emacs</category><category>org-mode</category><category>python</category><guid>https://necromuralist.github.io/posts/shell-output-with-org-babel-ipython/</guid><pubDate>Wed, 11 Oct 2017 19:49:19 GMT</pubDate></item><item><title>Org To Jupyter Notebook</title><link>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;p&gt;
 I've grown to really like &lt;a href="http://orgmode.org"&gt;org-mode&lt;/a&gt;, particularly with &lt;a href="https://github.com/gregsexton/ob-ipython"&gt;ob-ipython&lt;/a&gt;, but there are times when a real Jupyter notebook is better - if you want to render it on github or use the &lt;code&gt;%matplotlib notebook&lt;/code&gt; feature, for instance. I found a blog post the &lt;a href="http://kitchingroup.cheme.cmu.edu/blog/2017/01/21/Exporting-org-mode-to-Jupyter-notebooks/"&gt;Kitchin Research Group site&lt;/a&gt; announcing the creation of an exporter and this is some documentation about how to set it up.
 &lt;/p&gt;
 
-&lt;div id="outline-container-org7ff1ea2" class="outline-2"&gt;
-&lt;h2 id="org7ff1ea2"&gt;Download&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7ff1ea2"&gt;
+&lt;div id="outline-container-org4a3d100" class="outline-2"&gt;
+&lt;h2 id="org4a3d100"&gt;Download&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org4a3d100"&gt;
 &lt;p&gt;
 When I originally set this up it was only available from a link on the blog-post, but it has since been added to a much larger github repository called &lt;a href="https://github.com/jkitchin/scimax"&gt;scimax&lt;/a&gt;. I'm assuming this is where the latest version will be kept. Unfortunately there's no license so I don't think you can fork the repository, even more importantly, I can't get it to work, so skip it for now and grab the old one.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org379bbf3"&gt;
 cd ~/.emacs.d
 mkdir lisp
 wget http://kitchingroup.cheme.cmu.edu/media/ox-ipynb.el
@@ -557,9 +557,9 @@ wget http://kitchingroup.cheme.cmu.edu/media/ox-ipynb.el
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgcfc8f9a" class="outline-2"&gt;
-&lt;h2 id="orgcfc8f9a"&gt;Install&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcfc8f9a"&gt;
+&lt;div id="outline-container-orga9f77a8" class="outline-2"&gt;
+&lt;h2 id="orga9f77a8"&gt;Install&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga9f77a8"&gt;
 &lt;p&gt;
 Make sure that the lisp folder is in the emacs path by putting this line in &lt;code&gt;init.el&lt;/code&gt;.
 &lt;/p&gt;
@@ -576,9 +576,9 @@ Also make sure that it's loaded by putting this in &lt;code&gt;init.el&lt;/code&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgffdcab1" class="outline-2"&gt;
-&lt;h2 id="orgffdcab1"&gt;Use&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgffdcab1"&gt;
+&lt;div id="outline-container-orgff21690" class="outline-2"&gt;
+&lt;h2 id="orgff21690"&gt;Use&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgff21690"&gt;
 &lt;p&gt;
 In your org-mode file use the &lt;code&gt;export-ipython&lt;/code&gt; function to export it to an &lt;code&gt;ipynb&lt;/code&gt; file.
 &lt;/p&gt;
@@ -595,18 +595,18 @@ print("a")
 #+END_SRC
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>emacs</category><category>jupyter</category><category>org-mode</category><guid>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</guid><pubDate>Fri, 14 Apr 2017 03:00:28 GMT</pubDate></item><item><title>Ubuntu 16.04 and the Brother HL-2140 Printer</title><link>https://necromuralist.github.io/posts/ubuntu-1604-and-the-brother-hl-2140-printer/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgbd11240" class="outline-2"&gt;
-&lt;h2 id="orgbd11240"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbd11240"&gt;
+&lt;/div&gt;</description><category>emacs</category><category>jupyter</category><category>org-mode</category><guid>https://necromuralist.github.io/posts/org-to-jupyter-notebook/</guid><pubDate>Fri, 14 Apr 2017 03:00:28 GMT</pubDate></item><item><title>Ubuntu 16.04 and the Brother HL-2140 Printer</title><link>https://necromuralist.github.io/posts/ubuntu-1604-and-the-brother-hl-2140-printer/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgaabf309" class="outline-2"&gt;
+&lt;h2 id="orgaabf309"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgaabf309"&gt;
 &lt;p&gt;
 I (relatively) recently bought a &lt;a href="https://zareason.com/Limbo-560.html"&gt;ZaReason Limbo Desktop PC&lt;/a&gt; which comes with Ubuntu 16.04. I'm debating whether to update it to 16.10, given that updating broke the USB WiFi adapter I had on my older computer (the USB is recognized but not the WiFi adapter), but, in any case, I wanted to print something using my new computer today and ran into the same problem that I had when I updated my old computer to Ubuntu 14.10 - the default printer driver printed out a bunch of blank pages rather than the page I wanted to print. The last time I solved it by choosing a different model (the &lt;i&gt;HL-2142&lt;/i&gt;) but this time out I found a &lt;a href="http://ubuntuforums.org/showthread.php?t=2231405"&gt;stack overflow post&lt;/a&gt; that suggested using the &lt;b&gt;Brother HL-2140 Foomatic/hl1250 [en]&lt;/b&gt; driver instead. I tried it and it worked for me, so here goes.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org36205ae" class="outline-2"&gt;
-&lt;h2 id="org36205ae"&gt;How To Choose the Correct Printer Driver&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org36205ae"&gt;
+&lt;div id="outline-container-org9c5f6e6" class="outline-2"&gt;
+&lt;h2 id="org9c5f6e6"&gt;How To Choose the Correct Printer Driver&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9c5f6e6"&gt;
 &lt;p&gt;
 First, open &lt;i&gt;Dash&lt;/i&gt; (the windows-key launches it on my keyboard), type in &lt;i&gt;Printers&lt;/i&gt; and click on the icon.
 &lt;/p&gt;
@@ -677,16 +677,16 @@ If your experience is the same as mine, you will be able to print your documents
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org95b480a" class="outline-2"&gt;
-&lt;h2 id="org95b480a"&gt;Conclusion&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org95b480a"&gt;
+&lt;div id="outline-container-org5c40892" class="outline-2"&gt;
+&lt;h2 id="org5c40892"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5c40892"&gt;
 &lt;p&gt;
 The basic method to get the &lt;i&gt;Brother HL-2140&lt;/i&gt; to print in Ubuntu 16.04 is to select the &lt;i&gt;hl1250&lt;/i&gt; driver instead of the default. Since I only do this when I need to set up a new computer, I alway have to do some googling to remember what to do, so hopefully this will help me save some searching if I ever have to do this again.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>printer</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/ubuntu-1604-and-the-brother-hl-2140-printer/</guid><pubDate>Sat, 25 Feb 2017 23:55:37 GMT</pubDate></item><item><title>Python with Org-Babel</title><link>https://necromuralist.github.io/posts/python-with-org-babel/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgff81620" class="outline-2"&gt;
-&lt;h2 id="orgff81620"&gt;What is this about?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgff81620"&gt;
+&lt;/div&gt;</description><category>printer</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/ubuntu-1604-and-the-brother-hl-2140-printer/</guid><pubDate>Sat, 25 Feb 2017 23:55:37 GMT</pubDate></item><item><title>Python with Org-Babel</title><link>https://necromuralist.github.io/posts/python-with-org-babel/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org54ba98c" class="outline-2"&gt;
+&lt;h2 id="org54ba98c"&gt;What is this about?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org54ba98c"&gt;
 &lt;p&gt;
 This is an initial look at how to use org-babel to create a literate-programming document. In the past I have used jupyter notebooks and pweave to do similar things, with each having a separate role - jupyter notebooks are good for interactive exploration but somewhat less amenable to working with sphinx (which I did with pweave). The hope here is that the org-babel system will provide something more amenable to both. Since you still have to convert the org-files to restructured text files (with pandoc or ox-nikola) it's still not everything I wanted, but hopefully this will make things a little easier
 &lt;/p&gt;
@@ -700,9 +700,9 @@ Also, the inclusion of the org-babel code turned out to be both tedious and aest
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org23404d7" class="outline-2"&gt;
-&lt;h2 id="org23404d7"&gt;High-Level Module Structure&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org23404d7"&gt;
+&lt;div id="outline-container-org6f2c0f4" class="outline-2"&gt;
+&lt;h2 id="org6f2c0f4"&gt;High-Level Module Structure&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6f2c0f4"&gt;
 &lt;p&gt;
 One nice thing about the org-babel/noweb system is that it has a system that makes it easy to create a template (in this case based on the the module structure from &lt;a href="http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#module-structure"&gt;Code Like A Pythonista&lt;/a&gt;) with parts that we're updating inserted using the noweb syntax. To actually see this I had to include the python code as an org-mode snippet so the syntax highlighting isn't there. 
 &lt;/p&gt;
@@ -731,8 +731,8 @@ One nice thing about the org-babel/noweb system is that it has a system that mak
 
 
     if __name__ == "__main__":
-	status = main()
-	sys.exit(status)
+        status = main()
+        sys.exit(status)
   #+end_src
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -764,18 +764,18 @@ This is what the final file looks like once the no-web substitutions happen.
 &lt;span class="sd"&gt;      String who: name of user&lt;/span&gt;
 &lt;span class="sd"&gt;      """&lt;/span&gt;
       &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;who&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	  &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;who&lt;/span&gt;
-	  &lt;span class="k"&gt;return&lt;/span&gt;
+          &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;who&lt;/span&gt;
+          &lt;span class="k"&gt;return&lt;/span&gt;
 
       &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__call__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	  &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Who: &lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+          &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Who: &lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 
   &lt;span class="c1"&gt;# internal functions &amp;amp; classes&lt;/span&gt;
 
   &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
       &lt;span class="n"&gt;parser&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ArgumentParser&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"literate caller"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
       &lt;span class="n"&gt;parser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add_argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"-w"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"--who"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-			  &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"me"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"who are you?"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                          &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"me"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"who are you?"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
       &lt;span class="n"&gt;args&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;parser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse_args&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
       &lt;span class="n"&gt;who&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt;
       &lt;span class="n"&gt;thing&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;LiterateClass&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -794,9 +794,9 @@ To create the `literate.py` file (and all the other code-files) you see above ex
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org6c93150" class="outline-2"&gt;
-&lt;h2 id="org6c93150"&gt;LiterateClass&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6c93150"&gt;
+&lt;div id="outline-container-org361dc66" class="outline-2"&gt;
+&lt;h2 id="org361dc66"&gt;LiterateClass&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org361dc66"&gt;
 &lt;p&gt;
 This is the class definition that get substituted above. The code block for the definition is named &lt;code&gt;LiterateClass-definition&lt;/code&gt; so the main template will substitute its contents for &lt;code&gt;&amp;lt;&amp;lt;LiterateClass-definition&amp;gt;&amp;gt;&lt;/code&gt; when it gets tangled.
 &lt;/p&gt;
@@ -815,18 +815,18 @@ This is the class definition that get substituted above. The code block for the 
 &lt;span class="sd"&gt;    String who: name of user&lt;/span&gt;
 &lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;who&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;who&lt;/span&gt;
-	&lt;span class="k"&gt;return&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;who&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt;
 
     &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="fm"&gt;__call__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-	&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Who: &lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"Who: &lt;/span&gt;&lt;span class="si"&gt;{0}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org9933d83" class="outline-2"&gt;
-&lt;h2 id="org9933d83"&gt;Main functions&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9933d83"&gt;
+&lt;div id="outline-container-org6a0fcc2" class="outline-2"&gt;
+&lt;h2 id="org6a0fcc2"&gt;Main functions&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6a0fcc2"&gt;
 &lt;p&gt;
 The &lt;b&gt;Code Like a Pythonista&lt;/b&gt; template expects that you are creating a command-line executable with a &lt;b&gt;main&lt;/b&gt; entry-point. This section implements that case as an example.
 &lt;/p&gt;
@@ -845,7 +845,7 @@ Now the &lt;code&gt;&amp;lt;&amp;lt;literate-main&amp;gt;&amp;gt;&lt;/code&gt;.
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
     &lt;span class="n"&gt;parser&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ArgumentParser&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"literate caller"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;parser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;add_argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"-w"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"--who"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-			&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"me"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"who are you?"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+                        &lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"me"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"who are you?"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
     &lt;span class="n"&gt;args&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;parser&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;parse_args&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
     &lt;span class="n"&gt;who&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt;
     &lt;span class="n"&gt;thing&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;LiterateClass&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;who&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -865,23 +865,23 @@ Who: Not Me
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgb99cd34" class="outline-2"&gt;
-&lt;h2 id="orgb99cd34"&gt;Testing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb99cd34"&gt;
+&lt;div id="outline-container-org1092f76" class="outline-2"&gt;
+&lt;h2 id="org1092f76"&gt;Testing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1092f76"&gt;
 &lt;p&gt;
 One nice thing about the org-babel infrastructure is that the tests and source can be put in the same org-file, then exported to separate files to be run.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orge443ad3" class="outline-3"&gt;
-&lt;h3 id="orge443ad3"&gt;Doctest&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orge443ad3"&gt;
+&lt;div id="outline-container-org18ceadf" class="outline-3"&gt;
+&lt;h3 id="org18ceadf"&gt;Doctest&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org18ceadf"&gt;
 &lt;p&gt;
 For the stdout output, doctesting can be a convenient way to check that things are behaving as expected while also providing an explicit example of how to run the command-line interface.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org72420cd" class="outline-4"&gt;
-&lt;h4 id="org72420cd"&gt;Setting up the cases&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org72420cd"&gt;
+&lt;div id="outline-container-org037d4e6" class="outline-4"&gt;
+&lt;h4 id="org037d4e6"&gt;Setting up the cases&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org037d4e6"&gt;
 &lt;p&gt;
 The output of a successful doctest is nothing, which is good for automated tests but less interesting here so I'll make a doctest that passes and one that should fail.
 &lt;/p&gt;
@@ -936,9 +936,9 @@ Which gets tangled into this. Note that the doctests aren't valid python so you 
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org06716fd" class="outline-4"&gt;
-&lt;h4 id="org06716fd"&gt;Running the doctests&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org06716fd"&gt;
+&lt;div id="outline-container-org30e2591" class="outline-4"&gt;
+&lt;h4 id="org30e2591"&gt;Running the doctests&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org30e2591"&gt;
 &lt;p&gt;
 Now we can actually run them with python to see what happens.
 &lt;/p&gt;
@@ -946,7 +946,7 @@ Now we can actually run them with python to see what happens.
 &lt;span class="nb"&gt;true&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org8e41f87"&gt;
 **********************************************************************
 File "literate_python/test_literate_output.doctest", line 9, in test_literate_output.doctest
 Failed example:
@@ -968,17 +968,17 @@ Note that since this returned a non-zero exit code (I think) you need to put &lt
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org1552a02" class="outline-3"&gt;
-&lt;h3 id="org1552a02"&gt;PyTest BDD&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1552a02"&gt;
+&lt;div id="outline-container-org971f2ba" class="outline-3"&gt;
+&lt;h3 id="org971f2ba"&gt;PyTest BDD&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org971f2ba"&gt;
 &lt;p&gt;
 While doctests are neat I prefer unit-testing, in particular using Behavior Driven Development (BDD) facilitated in this case by &lt;code&gt;py.test&lt;/code&gt; and &lt;code&gt;pytest_bdd&lt;/code&gt;.
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org0d18289" class="outline-4"&gt;
-&lt;h4 id="org0d18289"&gt;The feature file&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org0d18289"&gt;
+&lt;div id="outline-container-org11b4757" class="outline-4"&gt;
+&lt;h4 id="org11b4757"&gt;The feature file&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org11b4757"&gt;
 &lt;p&gt;
 Identifying the code-block with &lt;code&gt;#+begin_src feature&lt;/code&gt; adds some syntax highlighting (if you have feature-mode installed and set-up). This works both when you are in the external editor and in the main org-babel document as well.
 &lt;/p&gt;
@@ -1003,9 +1003,9 @@ Scenario: Creating a literate object
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgdd65def" class="outline-4"&gt;
-&lt;h4 id="orgdd65def"&gt;The test file&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgdd65def"&gt;
+&lt;div id="outline-container-org8c5d1d4" class="outline-4"&gt;
+&lt;h4 id="org8c5d1d4"&gt;The test file&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org8c5d1d4"&gt;
 &lt;p&gt;
 This is another file that gets tangled out. In this case it is so that we can run &lt;code&gt;py.test&lt;/code&gt; on it.
 &lt;/p&gt;
@@ -1055,16 +1055,16 @@ This is another file that gets tangled out. In this case it is so that we can ru
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org7f8d948" class="outline-4"&gt;
-&lt;h4 id="org7f8d948"&gt;Running the test&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org7f8d948"&gt;
+&lt;div id="outline-container-orgcbe98fa" class="outline-4"&gt;
+&lt;h4 id="orgcbe98fa"&gt;Running the test&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgcbe98fa"&gt;
 &lt;p&gt;
 One important thing to note is that this will put an error message in a separate buffer if something goes wrong (like you don't have py.test installed), which in at least some cases makes it look like it failed silently. Unlike with the doctests, no output means something in the setup needs to be fixed, so you should tangle the file and then run it at the command-line to debug what happened.
 &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;py.test&lt;span class="w"&gt; &lt;/span&gt;-v&lt;span class="w"&gt; &lt;/span&gt;literate_python/testliterate.py
 &lt;/pre&gt;&lt;/div&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org4466bb7"&gt;
 ============================= test session starts ==============================
 platform linux -- Python 3.5.1+, pytest-3.0.5, py-1.4.32, pluggy-0.4.0 -- /home/cronos/.virtualenvs/nikola/bin/python3
 cachedir: .cache
@@ -1080,9 +1080,9 @@ literate_python/testliterate.py::test_constructor PASSED
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgf7a37ae" class="outline-2"&gt;
-&lt;h2 id="orgf7a37ae"&gt;Getting This Into Nikola&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf7a37ae"&gt;
+&lt;div id="outline-container-org6440d08" class="outline-2"&gt;
+&lt;h2 id="org6440d08"&gt;Getting This Into Nikola&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6440d08"&gt;
 &lt;p&gt;
 I tried three ways to get this document into nikola:
 &lt;/p&gt;

@@ -72,28 +72,28 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orge8b35c5">What Is This About?</a></li>
-<li><a href="#orgcef423b">First Get It Working</a></li>
-<li><a href="#orgf09f77e">Not a Solution But A Finger Pointing</a></li>
-<li><a href="#org85e4037">Blame It On the Drivers</a></li>
-<li><a href="#orgeb35428">From Nouveau To Nvidia</a></li>
-<li><a href="#org9aa8229">And the End</a></li>
+<li><a href="#orgcada2e4">What Is This About?</a></li>
+<li><a href="#org837a1de">First Get It Working</a></li>
+<li><a href="#org07f2575">Not a Solution But A Finger Pointing</a></li>
+<li><a href="#org3fe35bb">Blame It On the Drivers</a></li>
+<li><a href="#org42d9bab">From Nouveau To Nvidia</a></li>
+<li><a href="#orgb63145e">And the End</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orge8b35c5">
-<h2 id="orge8b35c5">What Is This About?</h2>
-<div class="outline-text-2" id="text-orge8b35c5">
+<div class="outline-2" id="outline-container-orgcada2e4">
+<h2 id="orgcada2e4">What Is This About?</h2>
+<div class="outline-text-2" id="text-orgcada2e4">
 <p>I got a notification yesterday (May 3, 2023) that there's a new version of Ubuntu out (<i>Lunar Lobster - 23.04</i>) so I ran <code>do-release-upgrade</code> while watching a video (<a href="https://en.wikipedia.org/wiki/An_Honest_Liar?useskin=vector">An Honest Liar</a>) about James Randi. At the end of the upgrade there was some kind of error message about not being able to configure the Linux headers, which in retrospect should have worried me, but I was distracted so I just dismissed it. Then today when I booted up the computer I got an error message saying <code>Kernel Panic - Not syncing: VFS: Unable to mount root fs on unknown-block (0,0)</code>. I managed to get it working (eventually) but now that Ubuntu's been around long enough and search engines seem to be choked with outdated answers I thought I'd document what I did in case it happens on another update.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgcef423b">
-<h2 id="orgcef423b">First Get It Working</h2>
-<div class="outline-text-2" id="text-orgcef423b">
+<div class="outline-2" id="outline-container-org837a1de">
+<h2 id="org837a1de">First Get It Working</h2>
+<div class="outline-text-2" id="text-org837a1de">
 <p>The first thing I tried was to follow the answers on <a href="https://askubuntu.com/questions/41930/kernel-panic-not-syncing-vfs-unable-to-mount-root-fs-on-unknown-block0-0">this Stackoverflow page</a>. The only thing this did was get my computer up and running again - which is, I suppose a big thing, not to be minimized, but there's a lot of stuff on that page and the only relevant parts were:</p>
 <ol class="org-ol">
 <li>Reboot</li>
@@ -102,9 +102,9 @@
 </ol>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf09f77e">
-<h2 id="orgf09f77e">Not a Solution But A Finger Pointing</h2>
-<div class="outline-text-2" id="text-orgf09f77e">
+<div class="outline-2" id="outline-container-org07f2575">
+<h2 id="org07f2575">Not a Solution But A Finger Pointing</h2>
+<div class="outline-text-2" id="text-org07f2575">
 <p>The first thing I tried from that page was from <a href="https://askubuntu.com/a/939883">this answer</a>:</p>
 <div class="highlight">
 <pre><span></span>sudo dpkg --configure -a
@@ -122,9 +122,9 @@
 <p>This time in the error message it said to check out <code>/var/lib/dkms/nvidia/510.108.03/build/make.log</code> which turned out not to have any useful information (to me, anyway) but it did tell me that there was something going on with my nvidia drivers that was causing the configuration of the new Linux kernel to fail.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org85e4037">
-<h2 id="org85e4037">Blame It On the Drivers</h2>
-<div class="outline-text-2" id="text-org85e4037">
+<div class="outline-2" id="outline-container-org3fe35bb">
+<h2 id="org3fe35bb">Blame It On the Drivers</h2>
+<div class="outline-text-2" id="text-org3fe35bb">
 <p><i>"Something going on with my nvidia drivers"</i> being a little too vague for me to troubleshoot, I decided to go the brute force way and uninstall the nvidia-drivers. This actually proved a little harder than I thought it would be (which seems to always be the case, maybe I'm too optimistic about this kind of stuff). Every time I tried to run</p>
 <div class="highlight">
 <pre><span></span>sudo apt remove nvidia-driver-510
@@ -137,9 +137,9 @@ sudo apt autoremove
 <p><code>dpkg</code> managed to uninstall the driver and running <code>apt autoremove</code> not only cleaned out the unused packages but also triggered the kernel configuration and this time… no errors.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgeb35428">
-<h2 id="orgeb35428">From Nouveau To Nvidia</h2>
-<div class="outline-text-2" id="text-orgeb35428">
+<div class="outline-2" id="outline-container-org42d9bab">
+<h2 id="org42d9bab">From Nouveau To Nvidia</h2>
+<div class="outline-text-2" id="text-org42d9bab">
 <p>After a reboot it started up okay and this time <code>uname -r</code> showed that I was using the newer kernel (<code>6.2.0-20-generic</code>). Yay. But now when I tried to re-install the nvidia drivers neither <code>ubuntu-drivers</code> nor <code>apt</code> seemed to know that they existed. It turns out that updating the ubuntu installation removes the proprietary drivers from the apt sources. So I launched the "Software & Updates" GUI.</p>
 <p><img alt="Software &amp; Updates" loading="lazy" src="software-updates.webp"></p>
 <p>And checked the "Proprietary drivers for devices (restricted)" button.</p>
@@ -151,9 +151,9 @@ sudo apt autoremove
 <p>And then, after another reboot, now it works (I checked with <code>nvidia-smi</code>).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9aa8229">
-<h2 id="org9aa8229">And the End</h2>
-<div class="outline-text-2" id="text-org9aa8229">
+<div class="outline-2" id="outline-container-orgb63145e">
+<h2 id="orgb63145e">And the End</h2>
+<div class="outline-text-2" id="text-orgb63145e">
 <p>I haven't run any tests other than using the system but this seems to have fixed the problem. Well, the problem with the kernel, updating also broke all my python virtual environments, but, oh, well, better than a kernel panic, I suppose.</p>
 </div>
 </div>

@@ -71,15 +71,15 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div class="outline-2" id="outline-container-org3218c3b">
-<h2 id="org3218c3b">Beginning</h2>
-<div class="outline-text-2" id="text-org3218c3b">
+<div class="outline-2" id="outline-container-org2c9c49c">
+<h2 id="org2c9c49c">Beginning</h2>
+<div class="outline-text-2" id="text-org2c9c49c">
 <p>I like to have my calendars set up with Monday as the first day of the week, but being that I live in the United States most calendars default to starting the week on Sunday - including the Gnome calendar applet - and while searching pulls up quite a number of pages about how to do it, no one of them quite worked for me so I'm documenting what did work.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfe17c30">
-<h2 id="orgfe17c30">Making the Changes</h2>
-<div class="outline-text-2" id="text-orgfe17c30">
+<div class="outline-2" id="outline-container-org74bb130">
+<h2 id="org74bb130">Making the Changes</h2>
+<div class="outline-text-2" id="text-org74bb130">
 <p>First, over at <a href="http://www.beginninglinux.com/home/gnome/change-first-day-of-week-to-monday-on-ubuntu-gnome-calendar">Beginning Linux</a> they mentioned that you can find out which file to edit using the <a href="https://man7.org/linux/man-pages/man1/locale.1.html">locale</a> command.</p>
 <div class="highlight">
 <pre><span></span><span class="c1"># run this in the shell</span>
@@ -94,14 +94,14 @@ LANG=en_US.UTF-8
 <pre><span></span>sudo<span class="w"> </span>locale-gen
 </pre></div>
 <p>Which gave me errors like this:</p>
-<pre class="example">
+<pre class="example" id="orgee925e0">
 Generating locales (this might take a while)...
   en_AG.UTF-8...failed to set locale!
 en_US:180: syntax error: not inside a locale definition section
  done
 </pre>
 <p>It turns out that the file is actually broken into sections and you can't just stick the line any old place, you have to stick it in the right block. If you look in one of the other files that has the line (pick one by grepping <code>first_weekday</code>) you'll see that the block we want starts with <code>LC_TIME</code> and ends with <code>END LC_TIME</code> so I put the line in at the end of the block like so:</p>
-<pre class="example">
+<pre class="example" id="orge623e75">
 % Define the first day of the week to be displayed in a calendar.
 % This weekday is relative to the date defined in the &lt;week&gt; keyword.
 
@@ -109,21 +109,21 @@ first_weekday 2
 END LC_TIME
 </pre>
 <p>I copied the comments from one of the Ukranian settings files. I picked Ukranian because I thought UK stood for United Kingdom, but it turns out they use GB to indicate Great Britain instead - anyway, it works. The comment suggests that you might also be able to change the <code>week</code> definition instead of adding this line, but here's what that line looks like.</p>
-<pre class="example">
+<pre class="example" id="org74a0b49">
 week 7;19971130;1
 </pre>
 <p>It seems safer to stick with the <code>first_weekday</code>.</p>
 <p>Next I re-ran the locale-gen command.</p>
-<pre class="example">
+<pre class="example" id="org1070348">
 sudo locale-gen
 </pre>
 <p>And this time it ran without errors.</p>
 <p>So, all fixed, then, right? Well, not quite, because this doesn't update the GUI. There are, once again, many pages telling you how to reload the GUI without logging out, but some, like the Beginning Linux page use names of processes or commands that don't seem to exist any more, or, in one case caused the GUI to raise an error message so I decided it wasn't really worth it to mess with the GUI like that when all you have to do is log out and back in - or not care about it until the next time you log in.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org8f70254">
-<h2 id="org8f70254">The End</h2>
-<div class="outline-text-2" id="text-org8f70254">
+<div class="outline-2" id="outline-container-orgc04e7db">
+<h2 id="orgc04e7db">The End</h2>
+<div class="outline-text-2" id="text-orgc04e7db">
 <p>Part of the motivation for writing this is that it took me more time searching for what worked than it did to make the actual change so maybe next time I'll remember that I wrote this down if I ever have to do this again, which I'm sure I will.</p>
 <p>As a final note I should mention that the accepted answer to this post <a href="https://askubuntu.com/questions/197613/monday-as-first-day-in-gnome-shell-instead-of-sunday">on Stack Overflow</a> pretty much tells you what to do, it's only missing telling you how to double-check which file to edit, but I didn't find it until after I'd made the changes. Also this page on <a href="https://linuxconfig.org/how-to-restart-gui-on-ubuntu-20-04-focal-fossa">Linux Config</a> has things to try to restart the GUI without logging out, but trying Method 3 (restarting the gnome-shell) is what gave me the error, but if for some reason you really can't log out and you need the week to start on Monday right now, maybe it's something to try.</p>
 </div>

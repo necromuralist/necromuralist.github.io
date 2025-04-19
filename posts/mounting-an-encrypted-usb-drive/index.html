@@ -73,29 +73,29 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgbb18243">Some Background</a></li>
-<li><a href="#org73c4c6b">Middle</a>
+<li><a href="#org8565a36">Some Background</a></li>
+<li><a href="#org3094b0a">Middle</a>
 <ul>
-<li><a href="#org8ee79f6">Find the USB Device Name</a></li>
-<li><a href="#org9866d6a">Unlock the Drive</a></li>
-<li><a href="#orgc06bba6">Mount the Drive</a></li>
+<li><a href="#orga9fbed4">Find the USB Device Name</a></li>
+<li><a href="#org1edcc50">Unlock the Drive</a></li>
+<li><a href="#orgb9f1a8d">Mount the Drive</a></li>
 </ul>
 </li>
-<li><a href="#org52cece6">End</a>
+<li><a href="#org27ebd7e">End</a>
 <ul>
-<li><a href="#org878e717">Sources</a></li>
+<li><a href="#org0c314fe">Sources</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgbb18243">
-<h2 id="orgbb18243">Some Background</h2>
-<div class="outline-text-2" id="text-orgbb18243">
+<div class="outline-2" id="outline-container-org8565a36">
+<h2 id="org8565a36">Some Background</h2>
+<div class="outline-text-2" id="text-org8565a36">
 <p>I have a headless server that I use as sort of a remote heavy-lifter for my code and attached to it is a USB drive that I use for data files. Since USB drives are portable I decided to encrypt it with LUKS, which is easy enough to use on the desktop in ubuntu (the "files" GUI prompts you for the password and handles everything for you after that) but since I use the server headless I have to be able to mount it from the command line. If you search for it there's a Stack Overflow thread that tells you mostly how to do it but:</p>
 <ul class="org-ul">
 <li>I didn't know the <code>/dev</code> file to use</li>
@@ -105,12 +105,12 @@
 <p>So, here's the subset of steps that I did to mount the drive.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org73c4c6b">
-<h2 id="org73c4c6b">Middle</h2>
-<div class="outline-text-2" id="text-org73c4c6b"></div>
-<div class="outline-3" id="outline-container-org8ee79f6">
-<h3 id="org8ee79f6">Find the USB Device Name</h3>
-<div class="outline-text-3" id="text-org8ee79f6">
+<div class="outline-2" id="outline-container-org3094b0a">
+<h2 id="org3094b0a">Middle</h2>
+<div class="outline-text-2" id="text-org3094b0a"></div>
+<div class="outline-3" id="outline-container-orga9fbed4">
+<h3 id="orga9fbed4">Find the USB Device Name</h3>
+<div class="outline-text-3" id="text-orga9fbed4">
 <p>The first think to do is to make sure that the USB device is recognized by the operating system.</p>
 <div class="highlight">
 <pre><span></span>lsusb
@@ -149,9 +149,9 @@ sdb                           8:16   0 931.5G  0 disk
 <p>Now you can see that the partion for our disk is <code>sdb1</code> (the last row where it's shown to be a child of <code>sdb</code> and that its TYPE is a partition).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org9866d6a">
-<h3 id="org9866d6a">Unlock the Drive</h3>
-<div class="outline-text-3" id="text-org9866d6a">
+<div class="outline-3" id="outline-container-org1edcc50">
+<h3 id="org1edcc50">Unlock the Drive</h3>
+<div class="outline-text-3" id="text-org1edcc50">
 <p><b>Note:</b> This works, but there's an alternative way to do it with <a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html">cryptsetup</a> that I find a little easier (but not much). I documented that command as if it continued from this point in <a href="../mount-an-encrypted-drive-using-cryptsetup/">this post</a>.</p>
 <p>Next unlock the drive. When you do this it will create a file in <code>/dev/mapper/</code> that you'll need so it would be a good idea to see what's there before you run it.</p>
 <div class="highlight">
@@ -164,9 +164,9 @@ sdb                           8:16   0 931.5G  0 disk
 <p>This will bring up two prompts for you to fill out which are (confusingly) "Passphrase:" and "Password:". The first prompt ("Passphrase") is what you entered when the disk was encrypted so you need to enter whatever you normally enter to decrypt the disk. The second prompt ("Password:") is your admin password so that the program can run as root (assuming you have the right privileges).</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgc06bba6">
-<h3 id="orgc06bba6">Mount the Drive</h3>
-<div class="outline-text-3" id="text-orgc06bba6">
+<div class="outline-3" id="outline-container-orgb9f1a8d">
+<h3 id="orgb9f1a8d">Mount the Drive</h3>
+<div class="outline-text-3" id="text-orgb9f1a8d">
 <p>If the last command went okay you now need to mount it. There's going to be a file in <code>/dev/mapper</code> that you need to know. When I did it there was only one new file (<code>luks-3eea956c-e684-4bcb-a640-97d0c8c5a700</code>) so I didn't have to do anything special to get it.</p>
 <div class="highlight">
 <pre><span></span>udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
@@ -181,9 +181,9 @@ sdb                           8:16   0 931.5G  0 disk
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org52cece6">
-<h2 id="org52cece6">End</h2>
-<div class="outline-text-2" id="text-org52cece6">
+<div class="outline-2" id="outline-container-org27ebd7e">
+<h2 id="org27ebd7e">End</h2>
+<div class="outline-text-2" id="text-org27ebd7e">
 <p>So, for my future self, if you need to mount an encrypted USB drive without a GUI, there you go. The two main steps are find the file for the USB drive and then run udisksctl.</p>
 <div class="highlight">
 <pre><span></span>sudo fdisk -l
@@ -191,9 +191,9 @@ udisksctl unlock -b /dev/sdb1
 udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 </pre></div>
 </div>
-<div class="outline-3" id="outline-container-org878e717">
-<h3 id="org878e717">Sources</h3>
-<div class="outline-text-3" id="text-org878e717">
+<div class="outline-3" id="outline-container-org0c314fe">
+<h3 id="org0c314fe">Sources</h3>
+<div class="outline-text-3" id="text-org0c314fe">
 <ul class="org-ul">
 <li><a href="https://sourcedigit.com/21292-list-usb-devices-ubuntu-find-usb-device-name-linux-ubuntu/">sourcedigit.com</a> - "How To List USB Devices On Ubuntu – Find USB Device Name On Linux Ubuntu"</li>
 <li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">Stack Overflow</a> - "Mount encrypted volumes from command line?"</li>

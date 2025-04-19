@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about networking)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/networking.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2024 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; 
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>The Cloistered Monkey (Posts about networking)</title><link>https://necromuralist.github.io/</link><description></description><atom:link href="https://necromuralist.github.io/categories/networking.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2025 &lt;a href="mailto:cloisteredmonkey.jmark@slmail.me"&gt;Cloistered Monkey&lt;/a&gt; 
 &lt;div id="license"xmlns:cc="http://creativecommons.org/ns#" &gt;This work is licensed under
 &lt;a href="http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;"&gt;CC BY 4.0
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"&gt;
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"&gt;&lt;/a&gt;
 &lt;/div&gt;
-</copyright><lastBuildDate>Wed, 01 May 2024 04:52:52 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Using Systemd To Enable Wake-On-Lan</title><link>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+</copyright><lastBuildDate>Sat, 19 Apr 2025 22:55:46 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Using Systemd To Enable Wake-On-Lan</title><link>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
+&lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org58c1856"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#orgb4d850c"&gt;So, how do you do it?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org7c3c5b1"&gt;So, That Fixed It?&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#orgfc918ec"&gt;Where did you find out about this?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#orgd42d165"&gt;What is this about?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#orgc8a5bf1"&gt;So, how do you do it?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org25850e5"&gt;So, That Fixed It?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/#org263d19a"&gt;Where did you find out about this?&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org58c1856" class="outline-2"&gt;
-&lt;h2 id="org58c1856"&gt;What is this about?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org58c1856"&gt;
+&lt;div id="outline-container-orgd42d165" class="outline-2"&gt;
+&lt;h2 id="orgd42d165"&gt;What is this about?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgd42d165"&gt;
 &lt;p&gt;
 I made a previous post (&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/"&gt;Enabling Wake-On-LAN (In Ubuntu 20.10)&lt;/a&gt;) about enabling Wake-On-LAN on my server, but it didn't seem to work after a re-boot. I looked in the logs using &lt;a href="https://www.commandlinux.com/man-page/man1/journalctl.1.html"&gt;journalctl&lt;/a&gt; and noticed that the &lt;code&gt;wol.service&lt;/code&gt; that I set up didn't get enabled after the re-boot. I thought about it and I remembered that when I was working with bluetooth and set up a service for it I had to make it wait for the bluetooth service to start first or it wouldn't work and realized that there was nothing in the &lt;code&gt;wol.service&lt;/code&gt; file to tell it to wait so I went poking around and found what I hope to be a fix.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgb4d850c" class="outline-2"&gt;
-&lt;h2 id="orgb4d850c"&gt;So, how do you do it?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgb4d850c"&gt;
+&lt;div id="outline-container-orgc8a5bf1" class="outline-2"&gt;
+&lt;h2 id="orgc8a5bf1"&gt;So, how do you do it?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc8a5bf1"&gt;
 &lt;p&gt;
 We need to update the &lt;code&gt;/etc/systemd/system/wol.service&lt;/code&gt; that I created in that earlier post. Previously it looked like this:
 &lt;/p&gt;
@@ -93,7 +93,7 @@ Then I rebooted it.
 This time in journalctl I saw this:
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org42bca8e"&gt;
 Dec 07 00:02:17 erebus systemd[1]: Finished Enable Wake On Lan.
 Dec 07 00:02:17 erebus systemd[1]: wol.service: Succeeded.
 &lt;/pre&gt;
@@ -106,37 +106,37 @@ And running &lt;code&gt;ethtool&lt;/code&gt; showed that it was enabled.
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7c3c5b1" class="outline-2"&gt;
-&lt;h2 id="org7c3c5b1"&gt;So, That Fixed It?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org7c3c5b1"&gt;
+&lt;div id="outline-container-org25850e5" class="outline-2"&gt;
+&lt;h2 id="org25850e5"&gt;So, That Fixed It?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org25850e5"&gt;
 &lt;p&gt;
 Well, insofar as it's working now, yes. But since I change more than one thing I don't really know exactly what did it (was it one of the three lines I changed or all of them?). Anyway, since it works I'll let it lie for now.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfc918ec" class="outline-2"&gt;
-&lt;h2 id="orgfc918ec"&gt;Where did you find out about this?&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgfc918ec"&gt;
+&lt;div id="outline-container-org263d19a" class="outline-2"&gt;
+&lt;h2 id="org263d19a"&gt;Where did you find out about this?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org263d19a"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;The Arch wiki has a page on &lt;a href="https://wiki.archlinux.org/index.php/Wake-on-LAN"&gt;Wake-On-LAN&lt;/a&gt; that tells you many different ways to set it up – I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>how-to</category><category>networking</category><category>systemd</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</guid><pubDate>Sun, 06 Dec 2020 23:10:53 GMT</pubDate></item><item><title>Enabling Wake-On-LAN (In Ubuntu 20.10)</title><link>https://necromuralist.github.io/posts/enabling-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;/div&gt;</description><category>how-to</category><category>networking</category><category>systemd</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</guid><pubDate>Sun, 06 Dec 2020 23:10:53 GMT</pubDate></item><item><title>Enabling Wake-On-LAN (In Ubuntu 20.10)</title><link>https://necromuralist.github.io/posts/enabling-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
+&lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgc0b927a"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgda42fcc"&gt;Middle&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgfc17bdf"&gt;Beginning&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org1a76fce"&gt;Middle&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgcfb921c"&gt;Ethtool&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgc9dcad6"&gt;Checking the Interface&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgb6ed061"&gt;Turn It On Temporarily&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org25c0adf"&gt;Test It Out&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org2b4e963"&gt;Take Two&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org444a170"&gt;Making It Permanent&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org5a312a4"&gt;Ethtool&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgeace4b9"&gt;Checking the Interface&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgeccb60d"&gt;Turn It On Temporarily&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org0d0ab69"&gt;Test It Out&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orge9ce366"&gt;Take Two&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orgdcfa6d6"&gt;Making It Permanent&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#orga3f2f15"&gt;End&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/enabling-wake-on-lan/#org2d468bd"&gt;End&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -145,21 +145,21 @@ Well, insofar as it's working now, yes. But since I change more than one thing I
 &lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; The systemd configuration here isn't quite right, but since this post is kind of long and convoluted I made a standalone update about the systemd configuration file in &lt;a href="https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/"&gt;this post&lt;/a&gt;.
 &lt;/p&gt;
 
-&lt;div id="outline-container-orgc0b927a" class="outline-2"&gt;
-&lt;h2 id="orgc0b927a"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc0b927a"&gt;
+&lt;div id="outline-container-orgfc17bdf" class="outline-2"&gt;
+&lt;h2 id="orgfc17bdf"&gt;Beginning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgfc17bdf"&gt;
 &lt;p&gt;
 These are my notes on getting &lt;a href="https://en.wikipedia.org/wiki/Wake-on-LAN"&gt;Wake-On-LAN&lt;/a&gt; working in Ubuntu 20.10. I have a server that I use to run most of the computation on when I use emacs/jupyter but I have it in a corner upstairs and although it's only a little walk, I find that the fact that I have to stop what I'm doing and go upstairs to push that little button on the front makes me lazy and so it ends up running more than it has to so I thought I'd enable Wake-On-LAN so I can suspend it and wake it up whenever I need to. I'm only going to use suspend (&lt;a href="https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface"&gt;APM&lt;/a&gt; S3). When I tried to use hibernate (S4) it ended up shutting down my machine (S5). Interestingly, my BIOS menu has an option to enable waking up from shutdown, but since my disk is encrypted, and I didn't set up a separate SSH server, I have to go enter the passphrase to unlock the disk before the operating system can boot up, so it kind of defeats its own purpose.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgda42fcc" class="outline-2"&gt;
-&lt;h2 id="orgda42fcc"&gt;Middle&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgda42fcc"&gt;
+&lt;div id="outline-container-org1a76fce" class="outline-2"&gt;
+&lt;h2 id="org1a76fce"&gt;Middle&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1a76fce"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgcfb921c" class="outline-3"&gt;
-&lt;h3 id="orgcfb921c"&gt;Ethtool&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgcfb921c"&gt;
+&lt;div id="outline-container-org5a312a4" class="outline-3"&gt;
+&lt;h3 id="org5a312a4"&gt;Ethtool&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org5a312a4"&gt;
 &lt;p&gt;
 The command I used to set up Wake-On-LAN on the remote machine is called &lt;a href="https://en.wikipedia.org/wiki/Ethtool"&gt;ethtool&lt;/a&gt;. It's in the Ubuntu repositories but wasn't installed on my machine so I had to add it.
 &lt;/p&gt;
@@ -168,9 +168,9 @@ The command I used to set up Wake-On-LAN on the remote machine is called &lt;a h
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc9dcad6" class="outline-3"&gt;
-&lt;h3 id="orgc9dcad6"&gt;Checking the Interface&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc9dcad6"&gt;
+&lt;div id="outline-container-orgeace4b9" class="outline-3"&gt;
+&lt;h3 id="orgeace4b9"&gt;Checking the Interface&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgeace4b9"&gt;
 &lt;p&gt;
 From what I've read, not all ethernet interfaces support Wake-On-LAN (although I've never seen one that doesn't) so a quick check might be useful. First, find the name of your ethernet interface.
 &lt;/p&gt;
@@ -257,9 +257,9 @@ There's an additional option which is what the interface was set on – &lt;code
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgb6ed061" class="outline-3"&gt;
-&lt;h3 id="orgb6ed061"&gt;Turn It On Temporarily&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb6ed061"&gt;
+&lt;div id="outline-container-orgeccb60d" class="outline-3"&gt;
+&lt;h3 id="orgeccb60d"&gt;Turn It On Temporarily&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgeccb60d"&gt;
 &lt;p&gt;
 The &lt;code&gt;ethtool&lt;/code&gt; will turn on Wake-On-LAN, but (supposedly) everytime you reboot the machine it will reset to disabled. I haven't really tested this out, but I'll document how to make it permanent later, anyway.
 &lt;/p&gt;
@@ -289,9 +289,9 @@ Now to suspend the machine so we can test it out.
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org25c0adf" class="outline-3"&gt;
-&lt;h3 id="org25c0adf"&gt;Test It Out&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org25c0adf"&gt;
+&lt;div id="outline-container-org0d0ab69" class="outline-3"&gt;
+&lt;h3 id="org0d0ab69"&gt;Test It Out&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org0d0ab69"&gt;
 &lt;p&gt;
 Now, on my local machine I needed to install &lt;a href="https://github.com/jpoliv/wakeonlan"&gt;wakeonlan&lt;/a&gt;. There's a surprising number of programs to send the Magic Packet, but this just happened to be the one I used.
 &lt;/p&gt;
@@ -311,9 +311,9 @@ And then I pinged the machine and I waited. And I waited. And I waited… Eventu
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2b4e963" class="outline-3"&gt;
-&lt;h3 id="org2b4e963"&gt;Take Two&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2b4e963"&gt;
+&lt;div id="outline-container-orge9ce366" class="outline-3"&gt;
+&lt;h3 id="orge9ce366"&gt;Take Two&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge9ce366"&gt;
 &lt;p&gt;
 Something wasn't right so I SSHd into the server and started up &lt;a href="https://www.tcpdump.org/"&gt;tcpdump&lt;/a&gt; to see if the packets were going through.
 &lt;/p&gt;
@@ -365,13 +365,13 @@ So, something was different. I suspended the machine again and sent the Magic Pa
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org444a170" class="outline-3"&gt;
-&lt;h3 id="org444a170"&gt;Making It Permanent&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org444a170"&gt;
+&lt;div id="outline-container-orgdcfa6d6" class="outline-3"&gt;
+&lt;h3 id="orgdcfa6d6"&gt;Making It Permanent&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgdcfa6d6"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org8969e7e" class="outline-4"&gt;
-&lt;h4 id="org8969e7e"&gt;Set It Up&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org8969e7e"&gt;
+&lt;div id="outline-container-orgefa6863" class="outline-4"&gt;
+&lt;h4 id="orgefa6863"&gt;Set It Up&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgefa6863"&gt;
 &lt;p&gt;
 The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is temporary is that:
 &lt;/p&gt;
@@ -381,7 +381,7 @@ The reasons that I said earlier that the Wake-On-LAN setting "supposedly" is tem
 &lt;/ol&gt;
 
 &lt;p&gt;
-But, really, I don't remember even enabling Wake-On-LAN on this machine so maybe it just was the default and I didn't realise it… another thing I should look into one of these days. Anyway, to make a service that always enables Wake-On-LAN the first step is to find the path to &lt;code&gt;ethertool&lt;/code&gt;.
+But, really, I don't remember even enabling Wake-On-LAN on this machine so maybe it just was the default and I didn't realise it… another thing I should look into one of these days. Anyway, to make a service that always enables Wake-On-LAN the first step is to find the path to &lt;code&gt;ethtool&lt;/code&gt;.
 &lt;/p&gt;
 
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;which ethtool
@@ -408,9 +408,9 @@ The only thing specific to my machine is &lt;code&gt;enp4s0&lt;/code&gt;, the na
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org207b13b" class="outline-4"&gt;
-&lt;h4 id="org207b13b"&gt;Enable The Service&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org207b13b"&gt;
+&lt;div id="outline-container-org034b6e1" class="outline-4"&gt;
+&lt;h4 id="org034b6e1"&gt;Enable The Service&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org034b6e1"&gt;
 &lt;p&gt;
 To enable it you can do this:
 &lt;/p&gt;
@@ -433,9 +433,9 @@ And that's that.
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga3f2f15" class="outline-2"&gt;
-&lt;h2 id="orga3f2f15"&gt;End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orga3f2f15"&gt;
+&lt;div id="outline-container-org2d468bd" class="outline-2"&gt;
+&lt;h2 id="org2d468bd"&gt;End&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2d468bd"&gt;
 &lt;p&gt;
 So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't have to look so hard the next time. Here's the pages that I stole this from.
 &lt;/p&gt;
@@ -449,9 +449,9 @@ So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't hav
 &lt;li&gt;&lt;a href="https://stackoverflow.com/questions/95631/open-a-file-with-su-sudo-inside-emacs"&gt;Stack Overflow&lt;/a&gt; on editing a local file as root with emacs (not used here, but I can never remember the syntax)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>networking</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/enabling-wake-on-lan/</guid><pubDate>Sun, 29 Nov 2020 01:57:35 GMT</pubDate></item><item><title>The Linux IPv6 Router Advertisement Daemon (radvd)</title><link>https://necromuralist.github.io/posts/the-linux-ipv6-router-advertisement-daemon-radvd/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org177204a" class="outline-2"&gt;
-&lt;h2 id="org177204a"&gt;Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org177204a"&gt;
+&lt;/div&gt;</description><category>networking</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/enabling-wake-on-lan/</guid><pubDate>Sun, 29 Nov 2020 01:57:35 GMT</pubDate></item><item><title>The Linux IPv6 Router Advertisement Daemon (radvd)</title><link>https://necromuralist.github.io/posts/the-linux-ipv6-router-advertisement-daemon-radvd/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org04f4378" class="outline-2"&gt;
+&lt;h2 id="org04f4378"&gt;Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org04f4378"&gt;
 &lt;p&gt;
 &lt;a href="http://www.litech.org/radvd/"&gt;radvd&lt;/a&gt; (the router advertisement daemon) sends IPv6 advertisements and responds to node IPv6 requests. Here's the description from the man page.
 &lt;/p&gt;
@@ -464,14 +464,14 @@ So, that's how I got one machine working with Wake-On-LAN. Hopefully I won't hav
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgcb0859b" class="outline-2"&gt;
-&lt;h2 id="orgcb0859b"&gt;Installation and Setup&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgcb0859b"&gt;
+&lt;div id="outline-container-orgb6885a6" class="outline-2"&gt;
+&lt;h2 id="orgb6885a6"&gt;Installation and Setup&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgb6885a6"&gt;
 &lt;p&gt;
 Setting &lt;b&gt;radvd&lt;/b&gt; is suspiciously easy compared to other linux services. First you install it.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org61ac888"&gt;
 sudo apt install radvd
 &lt;/pre&gt;
 
@@ -479,11 +479,11 @@ sudo apt install radvd
 Installing it will also start the service so we can use &lt;code&gt;systemctl&lt;/code&gt; to check how it's doing.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgb47a587"&gt;
 systemctl status radvd
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgd30e82d"&gt;
 systemctl status radvd
 ● radvd.service - LSB: Router Advertising Daemon
    Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
@@ -503,14 +503,14 @@ You can see in the output that there's a line with &lt;code&gt;/etc/radvd.conf d
 &lt;/p&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org652f418" class="outline-3"&gt;
-&lt;h3 id="org652f418"&gt;The Configuration File&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org652f418"&gt;
+&lt;div id="outline-container-org3aa5264" class="outline-3"&gt;
+&lt;h3 id="org3aa5264"&gt;The Configuration File&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3aa5264"&gt;
 &lt;p&gt;
 Now create a configuration file (named &lt;code&gt;radvd.conf&lt;/code&gt;). Here's an example.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgfabb421"&gt;
 interface eth0
 {
 MinRtrAdvInterval 3;
@@ -531,7 +531,7 @@ Note that the interface name depends on your system. Most linux systems don't us
 Now move (or copy) the config file into &lt;code&gt;/etc/&lt;/code&gt;
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orga4370e9"&gt;
 sudo mv radvd.conf /etc/
 &lt;/pre&gt;
 
@@ -539,12 +539,12 @@ sudo mv radvd.conf /etc/
 And then restart &lt;code&gt;radvd&lt;/code&gt; and check its state.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org2ed9e70"&gt;
 sudo service radvd restart
 systemctl status radvd
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgbd18a97"&gt;
 ● radvd.service - LSB: Router Advertising Daemon
    Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
    Active: active (exited) since Fri 2018-07-20 12:41:36 PDT; 2s ago
@@ -566,14 +566,14 @@ So the warning about the configuration file went away, now we have to fix the &l
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orga581c66" class="outline-3"&gt;
-&lt;h3 id="orga581c66"&gt;Enable IPv6 Forwarding&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga581c66"&gt;
+&lt;div id="outline-container-org024a3ac" class="outline-3"&gt;
+&lt;h3 id="org024a3ac"&gt;Enable IPv6 Forwarding&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org024a3ac"&gt;
 &lt;p&gt;
 For now you can enable it at the command line.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org731c208"&gt;
 sudo sysctl -w net.ipv6.conf.all.forwarding=1
 &lt;/pre&gt;
 
@@ -581,12 +581,12 @@ sudo sysctl -w net.ipv6.conf.all.forwarding=1
 And restart and check &lt;code&gt;radvd&lt;/code&gt; again.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgb71502d"&gt;
 sudo service radvd restart
 systemctl status radvd
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org81fa1ad"&gt;
 ● radvd.service - LSB: Router Advertising Daemon
    Loaded: loaded (/etc/init.d/radvd; bad; vendor preset: enabled)
    Active: active (running) since Fri 2018-07-20 12:45:02 PDT; 20s ago
@@ -607,7 +607,7 @@ Jul 20 12:45:02 asgaard systemd[1]: Started LSB: Router Advertising Daemon.
 So it looks like our daemon is working. If you restart the server, though, the IPv6 port forwarding won't be enabled so open up &lt;code&gt;/etc/sysctl.conf&lt;/code&gt; and un-comment out the following line.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgf02267c"&gt;
 net.ipv6.conf.all.forwarding=1
 &lt;/pre&gt;
 
@@ -618,14 +618,14 @@ Now the next time you power on the computer it should be enabled.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgbab30f7" class="outline-2"&gt;
-&lt;h2 id="orgbab30f7"&gt;Checking&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgbab30f7"&gt;
+&lt;div id="outline-container-orge42578a" class="outline-2"&gt;
+&lt;h2 id="orge42578a"&gt;Checking&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge42578a"&gt;
 &lt;p&gt;
 To check if it's working you can put another device on the LAN and check &lt;code&gt;ifconfig&lt;/code&gt;. In our &lt;code&gt;radvd.conf&lt;/code&gt; file we defined the prefix for the address:
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org70ce2ff"&gt;
 prefix 2001:db7::/64
 &lt;/pre&gt;
 
@@ -633,26 +633,26 @@ prefix 2001:db7::/64
 So in the &lt;code&gt;ifconfig&lt;/code&gt; output  we should see an entry for an IPv6 address that starts with &lt;code&gt;2001:db7::&lt;/code&gt;. In fact I ended up with two.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org0486069"&gt;
 inet6 2001:db7::b8b4:6adf:6267:5571  prefixlen 64  scopeid 0x0&amp;lt;global&amp;gt;
 inet6 2001:db7::a80c:1a05:eaac:c1e8  prefixlen 64  scopeid 0x0&amp;lt;global&amp;gt;
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6d0a8af" class="outline-2"&gt;
-&lt;h2 id="org6d0a8af"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org6d0a8af"&gt;
+&lt;div id="outline-container-orgccfc73c" class="outline-2"&gt;
+&lt;h2 id="orgccfc73c"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgccfc73c"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;&lt;a href="https://www.linux.com/learn/intro-to-linux/2017/12/ipv6-auto-configuration-linux"&gt;IPv6 auto-configuration&lt;/a&gt; - how to setup &lt;b&gt;radvd&lt;/b&gt; (from linux.com)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>how-to</category><category>networking</category><guid>https://necromuralist.github.io/posts/the-linux-ipv6-router-advertisement-daemon-radvd/</guid><pubDate>Fri, 20 Jul 2018 18:12:11 GMT</pubDate></item><item><title>Networking Tools</title><link>https://necromuralist.github.io/posts/networking-tools/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org0954af0" class="outline-2"&gt;
-&lt;h2 id="org0954af0"&gt;Packet Capturing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0954af0"&gt;
+&lt;/div&gt;</description><category>how-to</category><category>networking</category><guid>https://necromuralist.github.io/posts/the-linux-ipv6-router-advertisement-daemon-radvd/</guid><pubDate>Fri, 20 Jul 2018 18:12:11 GMT</pubDate></item><item><title>Networking Tools</title><link>https://necromuralist.github.io/posts/networking-tools/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgccdad7d" class="outline-2"&gt;
+&lt;h2 id="orgccdad7d"&gt;Packet Capturing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgccdad7d"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga6b69d6" class="outline-3"&gt;
-&lt;h3 id="orga6b69d6"&gt;&lt;a href="http://staff.washington.edu/corey/gulp/"&gt;Gulp&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga6b69d6"&gt;
+&lt;div id="outline-container-orgfe5de04" class="outline-3"&gt;
+&lt;h3 id="orgfe5de04"&gt;&lt;a href="http://staff.washington.edu/corey/gulp/"&gt;Gulp&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfe5de04"&gt;
 &lt;p&gt;
 Gulp purports to be better at capturing packets than tcpdump (although they can work together).
 &lt;/p&gt;
@@ -671,93 +671,93 @@ There is more than one version out there:
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org5d084a9" class="outline-3"&gt;
-&lt;h3 id="org5d084a9"&gt;&lt;a href="https://www.tcpdump.org"&gt;tcpdump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org5d084a9"&gt;
+&lt;div id="outline-container-orgee04757" class="outline-3"&gt;
+&lt;h3 id="orgee04757"&gt;&lt;a href="https://www.tcpdump.org"&gt;tcpdump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgee04757"&gt;
 &lt;p&gt;
 More easily obtainable and better documentation available (although still not enough).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgbf066b6" class="outline-3"&gt;
-&lt;h3 id="orgbf066b6"&gt;&lt;a href="http://ssldump.sourceforge.net"&gt;ssldump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgbf066b6"&gt;
+&lt;div id="outline-container-orgb085266" class="outline-3"&gt;
+&lt;h3 id="orgb085266"&gt;&lt;a href="http://ssldump.sourceforge.net"&gt;ssldump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb085266"&gt;
 &lt;p&gt;
 Captures packets and decodes SSL/TLS packets.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgdb5f848" class="outline-2"&gt;
-&lt;h2 id="orgdb5f848"&gt;Packet Examining&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgdb5f848"&gt;
+&lt;div id="outline-container-org82e322f" class="outline-2"&gt;
+&lt;h2 id="org82e322f"&gt;Packet Examining&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org82e322f"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org78095b9" class="outline-3"&gt;
-&lt;h3 id="org78095b9"&gt;&lt;a href="https://github.com/mschiffm/cppip"&gt;Compressed PCAP Packet Indexing Prograpm (cppip)&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org78095b9"&gt;
+&lt;div id="outline-container-org7f35f8c" class="outline-3"&gt;
+&lt;h3 id="org7f35f8c"&gt;&lt;a href="https://github.com/mschiffm/cppip"&gt;Compressed PCAP Packet Indexing Prograpm (cppip)&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7f35f8c"&gt;
 &lt;p&gt;
 This adds indexing to &lt;a href="http://www.htslib.org/doc/bgzip.html"&gt;bgzip&lt;/a&gt; compressed LibPCAP files which then lets you extract them while the original files are still compressed.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org7560ea1" class="outline-3"&gt;
-&lt;h3 id="org7560ea1"&gt;&lt;a href="https://linux.die.net/man/8/tcpslice"&gt;tcpslice&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org7560ea1"&gt;
+&lt;div id="outline-container-org296ad6b" class="outline-3"&gt;
+&lt;h3 id="org296ad6b"&gt;&lt;a href="https://linux.die.net/man/8/tcpslice"&gt;tcpslice&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org296ad6b"&gt;
 &lt;p&gt;
 This lets you extract part of or combine files created by tcpdump when using file rotation.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org3b01ee1" class="outline-3"&gt;
-&lt;h3 id="org3b01ee1"&gt;&lt;a href="https://github.com/jpr5/ngrep"&gt;ngrep&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3b01ee1"&gt;
+&lt;div id="outline-container-org27f38a8" class="outline-3"&gt;
+&lt;h3 id="org27f38a8"&gt;&lt;a href="https://github.com/jpr5/ngrep"&gt;ngrep&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org27f38a8"&gt;
 &lt;p&gt;
 Describes itself as like GNU grep but for packets.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc9a404d" class="outline-3"&gt;
-&lt;h3 id="orgc9a404d"&gt;&lt;a href="https://github.com/signed0/pylibpcap"&gt;pylibpcap&lt;/a&gt;, &lt;a href="https://github.com/pynetwork/pypcap"&gt;pypcap&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgc9a404d"&gt;
+&lt;div id="outline-container-orge803fbe" class="outline-3"&gt;
+&lt;h3 id="orge803fbe"&gt;&lt;a href="https://github.com/signed0/pylibpcap"&gt;pylibpcap&lt;/a&gt;, &lt;a href="https://github.com/pynetwork/pypcap"&gt;pypcap&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orge803fbe"&gt;
 &lt;p&gt;
 Python code to work with libpcap.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfc6d4a4" class="outline-3"&gt;
-&lt;h3 id="orgfc6d4a4"&gt;WireShark&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgfc6d4a4"&gt;
+&lt;div id="outline-container-org781e551" class="outline-3"&gt;
+&lt;h3 id="org781e551"&gt;WireShark&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org781e551"&gt;
 &lt;p&gt;
 These are installed when you install wireshark.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org27be6da" class="outline-4"&gt;
-&lt;h4 id="org27be6da"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/tshark.html"&gt;tshark&lt;/a&gt;/&lt;a href="https://www.wireshark.org"&gt;wireshark&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org27be6da"&gt;
+&lt;div id="outline-container-orge284495" class="outline-4"&gt;
+&lt;h4 id="orge284495"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/tshark.html"&gt;tshark&lt;/a&gt;/&lt;a href="https://www.wireshark.org"&gt;wireshark&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orge284495"&gt;
 &lt;p&gt;
 Packet capturing and examining (better documented than most of the other programs)
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org55c939e" class="outline-4"&gt;
-&lt;h4 id="org55c939e"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/reordercap.html"&gt;reordercap&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org55c939e"&gt;
+&lt;div id="outline-container-org2594316" class="outline-4"&gt;
+&lt;h4 id="org2594316"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/reordercap.html"&gt;reordercap&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org2594316"&gt;
 &lt;p&gt;
 Reorders the packets by timestamp.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6420fcf" class="outline-4"&gt;
-&lt;h4 id="org6420fcf"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org6420fcf"&gt;
+&lt;div id="outline-container-orgb521da0" class="outline-4"&gt;
+&lt;h4 id="orgb521da0"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgb521da0"&gt;
 &lt;p&gt;
 This prints summary information about packe files (works with gzipped files).
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgdac8686" class="outline-4"&gt;
-&lt;h4 id="orgdac8686"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/mergecap.html"&gt;mergecap&lt;/a&gt;&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgdac8686"&gt;
+&lt;div id="outline-container-org7a7903d" class="outline-4"&gt;
+&lt;h4 id="org7a7903d"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/mergecap.html"&gt;mergecap&lt;/a&gt;&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org7a7903d"&gt;
 &lt;p&gt;
 Merges multiple packet files together. Mergecap will try to keep timestamps in order when merging, but it assumes each individual file to merge is already in order.
 &lt;/p&gt;
@@ -765,104 +765,104 @@ Merges multiple packet files together. Mergecap will try to keep timestamps in o
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org4971c02" class="outline-2"&gt;
-&lt;h2 id="org4971c02"&gt;Packet Flows&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4971c02"&gt;
+&lt;div id="outline-container-org94d04bd" class="outline-2"&gt;
+&lt;h2 id="org94d04bd"&gt;Packet Flows&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org94d04bd"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd00f07b" class="outline-3"&gt;
-&lt;h3 id="orgd00f07b"&gt;&lt;a href="http://tcpick.sourceforge.net"&gt;tcpick&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgd00f07b"&gt;
+&lt;div id="outline-container-orgdda8ce8" class="outline-3"&gt;
+&lt;h3 id="orgdda8ce8"&gt;&lt;a href="http://tcpick.sourceforge.net"&gt;tcpick&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgdda8ce8"&gt;
 &lt;p&gt;
 Track, reassemble, reorder TCP streams.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org17af82f" class="outline-3"&gt;
-&lt;h3 id="org17af82f"&gt;&lt;a href="http://www.tcptrace.org"&gt;tcptrace&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org17af82f"&gt;
+&lt;div id="outline-container-orgf920ee7" class="outline-3"&gt;
+&lt;h3 id="orgf920ee7"&gt;&lt;a href="http://www.tcptrace.org"&gt;tcptrace&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgf920ee7"&gt;
 &lt;p&gt;
 Gives connection information taken from a capture file.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org2b4967a" class="outline-3"&gt;
-&lt;h3 id="org2b4967a"&gt;&lt;a href="https://github.com/simsong/tcpflow"&gt;tcpflow&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2b4967a"&gt;
+&lt;div id="outline-container-orga626c78" class="outline-3"&gt;
+&lt;h3 id="orga626c78"&gt;&lt;a href="https://github.com/simsong/tcpflow"&gt;tcpflow&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga626c78"&gt;
 &lt;p&gt;
 Separates out TCP flows into separate files.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org43c1cba" class="outline-2"&gt;
-&lt;h2 id="org43c1cba"&gt;Capture Summarizing&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org43c1cba"&gt;
+&lt;div id="outline-container-orgc2ff331" class="outline-2"&gt;
+&lt;h2 id="orgc2ff331"&gt;Capture Summarizing&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc2ff331"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga6c3acb" class="outline-3"&gt;
-&lt;h3 id="orga6c3acb"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h3&gt;
+&lt;div id="outline-container-org9dfc873" class="outline-3"&gt;
+&lt;h3 id="org9dfc873"&gt;&lt;a href="https://www.wireshark.org/docs/man-pages/capinfos.html"&gt;capinfos&lt;/a&gt;&lt;/h3&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org6b001cb" class="outline-3"&gt;
-&lt;h3 id="org6b001cb"&gt;&lt;a href="https://github.com/kohler/ipsumdump"&gt;ipsumdump&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6b001cb"&gt;
+&lt;div id="outline-container-orgb1d3d08" class="outline-3"&gt;
+&lt;h3 id="orgb1d3d08"&gt;&lt;a href="https://github.com/kohler/ipsumdump"&gt;ipsumdump&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb1d3d08"&gt;
 &lt;p&gt;
 Summarizes packet information in ASCII format
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2676e01" class="outline-3"&gt;
-&lt;h3 id="org2676e01"&gt;&lt;a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html"&gt;tcpdstat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2676e01"&gt;
+&lt;div id="outline-container-orgb9e8b21" class="outline-3"&gt;
+&lt;h3 id="orgb9e8b21"&gt;&lt;a href="http://www.draconyx.net/articles/tcpdstat-fixing-a-compilation-bug-and-using-statistics.html"&gt;tcpdstat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb9e8b21"&gt;
 &lt;p&gt;
 Gives summary statistics for a pcap file
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org5ae8435" class="outline-2"&gt;
-&lt;h2 id="org5ae8435"&gt;Network Monitoring&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org5ae8435"&gt;
+&lt;div id="outline-container-org363d175" class="outline-2"&gt;
+&lt;h2 id="org363d175"&gt;Network Monitoring&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org363d175"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org953a4db" class="outline-3"&gt;
-&lt;h3 id="org953a4db"&gt;&lt;a href="https://www.ntop.org"&gt;ntop&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org953a4db"&gt;
+&lt;div id="outline-container-org4601b1f" class="outline-3"&gt;
+&lt;h3 id="org4601b1f"&gt;&lt;a href="https://www.ntop.org"&gt;ntop&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org4601b1f"&gt;
 &lt;p&gt;
 Like top but for the network.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga93b839" class="outline-3"&gt;
-&lt;h3 id="orga93b839"&gt;&lt;a href="http://man7.org/linux/man-pages/man8/ss.8.html"&gt;ss (socket statistics)&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga93b839"&gt;
+&lt;div id="outline-container-org6368ebc" class="outline-3"&gt;
+&lt;h3 id="org6368ebc"&gt;&lt;a href="http://man7.org/linux/man-pages/man8/ss.8.html"&gt;ss (socket statistics)&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org6368ebc"&gt;
 &lt;p&gt;
 Part of &lt;a href="https://en.wikipedia.org/wiki/Iproute2"&gt;iproute2&lt;/a&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org0b799a9" class="outline-2"&gt;
-&lt;h2 id="org0b799a9"&gt;Miscellaneous&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0b799a9"&gt;
+&lt;div id="outline-container-org2e3a5a1" class="outline-2"&gt;
+&lt;h2 id="org2e3a5a1"&gt;Miscellaneous&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org2e3a5a1"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org370b415" class="outline-3"&gt;
-&lt;h3 id="org370b415"&gt;&lt;a href="http://tcpreplay.appneta.com/"&gt;tcpreplay&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org370b415"&gt;
+&lt;div id="outline-container-org01db2f9" class="outline-3"&gt;
+&lt;h3 id="org01db2f9"&gt;&lt;a href="http://tcpreplay.appneta.com/"&gt;tcpreplay&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org01db2f9"&gt;
 &lt;p&gt;
 A suite of programs to edit and replay pcap files.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org92293ed" class="outline-3"&gt;
-&lt;h3 id="org92293ed"&gt;&lt;a href="https://en.wikipedia.org/wiki/Netcat"&gt;netcat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org92293ed"&gt;
+&lt;div id="outline-container-org33255f3" class="outline-3"&gt;
+&lt;h3 id="org33255f3"&gt;&lt;a href="https://en.wikipedia.org/wiki/Netcat"&gt;netcat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org33255f3"&gt;
 &lt;p&gt;
 Read from and write to TCP/UDP network connections.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org2bf62d4" class="outline-3"&gt;
-&lt;h3 id="org2bf62d4"&gt;&lt;a href="https://linux.die.net/man/1/socat"&gt;socat&lt;/a&gt;&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org2bf62d4"&gt;
+&lt;div id="outline-container-org28d38cc" class="outline-3"&gt;
+&lt;h3 id="org28d38cc"&gt;&lt;a href="https://linux.die.net/man/1/socat"&gt;socat&lt;/a&gt;&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org28d38cc"&gt;
 &lt;p&gt;
 Route data between byte streams.
 &lt;/p&gt;
@@ -872,124 +872,124 @@ Route data between byte streams.
 These are notes I made while surfing the web looking into &lt;a href="http://www.tcpdump.org/"&gt;TCP Dump&lt;/a&gt;. You will most likely need to use &lt;code&gt;sudo&lt;/code&gt; to run most of the commands, but I'm leaving it off to make it shorter.
 &lt;/p&gt;
 
-&lt;div id="outline-container-orgfbf1b9b" class="outline-2"&gt;
-&lt;h2 id="orgfbf1b9b"&gt;About TCP Dump&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgfbf1b9b"&gt;
+&lt;div id="outline-container-org9670a1b" class="outline-2"&gt;
+&lt;h2 id="org9670a1b"&gt;About TCP Dump&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9670a1b"&gt;
 &lt;ul class="org-ul"&gt;
-&lt;li&gt;It has more filtering capabilities and can filter while capturing packets, but it doesn't have the analytical tools that something like wireshark has&lt;sup&gt;&lt;a id="fnr.1" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.1"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
+&lt;li&gt;It has more filtering capabilities and can filter while capturing packets, but it doesn't have the analytical tools that something like wireshark has&lt;sup&gt;&lt;a id="fnr.1" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.1" role="doc-backlink"&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org0e73688" class="outline-2"&gt;
-&lt;h2 id="org0e73688"&gt;Some Examples&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0e73688"&gt;
+&lt;div id="outline-container-orgc42a0b3" class="outline-2"&gt;
+&lt;h2 id="orgc42a0b3"&gt;Some Examples&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc42a0b3"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org91be593" class="outline-3"&gt;
-&lt;h3 id="org91be593"&gt;Listing interfaces&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org91be593"&gt;
+&lt;div id="outline-container-orgd58116a" class="outline-3"&gt;
+&lt;h3 id="orgd58116a"&gt;Listing interfaces&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgd58116a"&gt;
 &lt;p&gt;
-You can ask &lt;code&gt;tcpdump&lt;/code&gt; which interfaces it is able to listen to&lt;sup&gt;&lt;a id="fnr.2" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt;.
+You can ask &lt;code&gt;tcpdump&lt;/code&gt; which interfaces it is able to listen to&lt;sup&gt;&lt;a id="fnr.2" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2" role="doc-backlink"&gt;2&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgec31e3f"&gt;
 tcpdump -D
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org3c4052b" class="outline-3"&gt;
-&lt;h3 id="org3c4052b"&gt;Capture packets on an interface&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org3c4052b"&gt;
+&lt;div id="outline-container-org2e64969" class="outline-3"&gt;
+&lt;h3 id="org2e64969"&gt;Capture packets on an interface&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org2e64969"&gt;
 &lt;p&gt;
-To capture packets on an interface you pass its name to the &lt;code&gt;-i&lt;/code&gt; flag&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt; (here the interface I'll use is &lt;code&gt;eno1&lt;/code&gt;).
+To capture packets on an interface you pass its name to the &lt;code&gt;-i&lt;/code&gt; flag&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2" role="doc-backlink"&gt;2&lt;/a&gt;&lt;/sup&gt; (here the interface I'll use is &lt;code&gt;eno1&lt;/code&gt;).
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgee9f129"&gt;
 tcpdump -i eno1
 &lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org05142cb" class="outline-4"&gt;
-&lt;h4 id="org05142cb"&gt;Save the packet capture to a file&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org05142cb"&gt;
+&lt;div id="outline-container-org0a09ba6" class="outline-4"&gt;
+&lt;h4 id="org0a09ba6"&gt;Save the packet capture to a file&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org0a09ba6"&gt;
 &lt;p&gt;
-The default behavior is for &lt;code&gt;tcpdump&lt;/code&gt; to send the output to standard output, to have it save the packets to a files use the &lt;code&gt;-w&lt;/code&gt; flag&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt; (you can call it anything, I'll call it &lt;code&gt;dump.pcap&lt;/code&gt;).
+The default behavior is for &lt;code&gt;tcpdump&lt;/code&gt; to send the output to standard output, to have it save the packets to a files use the &lt;code&gt;-w&lt;/code&gt; flag&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2" role="doc-backlink"&gt;2&lt;/a&gt;&lt;/sup&gt; (you can call it anything, I'll call it &lt;code&gt;dump.pcap&lt;/code&gt;).
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org9821f6e"&gt;
 tcpdump -i eno1 -w dump.pcap
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org9801a01" class="outline-4"&gt;
-&lt;h4 id="org9801a01"&gt;Increase the verbosity of the capture&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org9801a01"&gt;
+&lt;div id="outline-container-org2020d08" class="outline-4"&gt;
+&lt;h4 id="org2020d08"&gt;Increase the verbosity of the capture&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org2020d08"&gt;
 &lt;p&gt;
-To increase the amount if information that's captured, pass multiple &lt;code&gt;v&lt;/code&gt; arguments&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt; (in this case I'll use &lt;code&gt;-vvv&lt;/code&gt;).
+To increase the amount if information that's captured, pass multiple &lt;code&gt;v&lt;/code&gt; arguments&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2" role="doc-backlink"&gt;2&lt;/a&gt;&lt;/sup&gt; (in this case I'll use &lt;code&gt;-vvv&lt;/code&gt;).
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org445af1f"&gt;
 tcpdump -i eno1 -vvv -w dump.pcap
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org1a0e6e1" class="outline-3"&gt;
-&lt;h3 id="org1a0e6e1"&gt;Filtering&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org1a0e6e1"&gt;
+&lt;div id="outline-container-org77ccc60" class="outline-3"&gt;
+&lt;h3 id="org77ccc60"&gt;Filtering&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org77ccc60"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgc5f0830" class="outline-4"&gt;
-&lt;h4 id="orgc5f0830"&gt;By IP address&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgc5f0830"&gt;
+&lt;div id="outline-container-org4af81d6" class="outline-4"&gt;
+&lt;h4 id="org4af81d6"&gt;By IP address&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org4af81d6"&gt;
 &lt;p&gt;
-You can get all the packets being sent or received by a host using the &lt;code&gt;host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.3" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;.
+You can get all the packets being sent or received by a host using the &lt;code&gt;host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.3" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3" role="doc-backlink"&gt;3&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgaf431d2"&gt;
 tcpdump host 192.168.1.12
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgde6c258" class="outline-4"&gt;
-&lt;h4 id="orgde6c258"&gt;By Sender IP Address&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgde6c258"&gt;
+&lt;div id="outline-container-orgdd36e69" class="outline-4"&gt;
+&lt;h4 id="orgdd36e69"&gt;By Sender IP Address&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgdd36e69"&gt;
 &lt;p&gt;
-You can filter out all the packets except those that are being sent by a host using the &lt;code&gt;src host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt;.
+You can filter out all the packets except those that are being sent by a host using the &lt;code&gt;src host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2" role="doc-backlink"&gt;2&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org513b362"&gt;
 tcpdump -i eno1 src host 192.168.1.12
 &lt;/pre&gt;
 
 &lt;p&gt;
-You can leave off the &lt;code&gt;host&lt;/code&gt; argument and just use &lt;code&gt;src&lt;/code&gt;&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;
+You can leave off the &lt;code&gt;host&lt;/code&gt; argument and just use &lt;code&gt;src&lt;/code&gt;&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3" role="doc-backlink"&gt;3&lt;/a&gt;&lt;/sup&gt;
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgc7c88c1" class="outline-4"&gt;
-&lt;h4 id="orgc7c88c1"&gt;By Target IP Address&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgc7c88c1"&gt;
+&lt;div id="outline-container-org7ec6409" class="outline-4"&gt;
+&lt;h4 id="org7ec6409"&gt;By Target IP Address&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org7ec6409"&gt;
 &lt;p&gt;
-To filter out all the packets except those that are going to a specific target use the &lt;code&gt;dst host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2"&gt;2&lt;/a&gt;&lt;/sup&gt;.
+To filter out all the packets except those that are going to a specific target use the &lt;code&gt;dst host&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.2.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.2" role="doc-backlink"&gt;2&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org3fa6f05"&gt;
 tcpdump -i eno1 dst host 192.168.1.1
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org4d0b5b3" class="outline-4"&gt;
-&lt;h4 id="org4d0b5b3"&gt;Sender and Target IP Addresses&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org4d0b5b3"&gt;
+&lt;div id="outline-container-org2f62cc2" class="outline-4"&gt;
+&lt;h4 id="org2f62cc2"&gt;Sender and Target IP Addresses&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org2f62cc2"&gt;
 &lt;p&gt;
-You can combine parameters using the logical operators &lt;code&gt;and&lt;/code&gt;, &lt;code&gt;or&lt;/code&gt;, and &lt;code&gt;not&lt;/code&gt;&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;.
+You can combine parameters using the logical operators &lt;code&gt;and&lt;/code&gt;, &lt;code&gt;or&lt;/code&gt;, and &lt;code&gt;not&lt;/code&gt;&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3" role="doc-backlink"&gt;3&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org3e2c560"&gt;
 tcpdump 'src 192.168.1.1 and dst 192.168.1.12'
 &lt;/pre&gt;
 
@@ -999,115 +999,115 @@ The single quotes are optional and are just used to group the arguments together
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org16af3e9" class="outline-4"&gt;
-&lt;h4 id="org16af3e9"&gt;By Subnet&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org16af3e9"&gt;
+&lt;div id="outline-container-orgd805640" class="outline-4"&gt;
+&lt;h4 id="orgd805640"&gt;By Subnet&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgd805640"&gt;
 &lt;p&gt;
-You can grab all the packets on a network or subnet using the &lt;code&gt;net&lt;/code&gt; argument and &lt;a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation"&gt;CIDR&lt;/a&gt; notation&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;. This example grabs all the packets on the &lt;code&gt;192.168.1.*&lt;/code&gt; subnet.
+You can grab all the packets on a network or subnet using the &lt;code&gt;net&lt;/code&gt; argument and &lt;a href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#CIDR_notation"&gt;CIDR&lt;/a&gt; notation&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3" role="doc-backlink"&gt;3&lt;/a&gt;&lt;/sup&gt;. This example grabs all the packets on the &lt;code&gt;192.168.1.*&lt;/code&gt; subnet.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org6fd73f1"&gt;
 tcpdump net 192.168.1.0/24
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd4ad5a7" class="outline-4"&gt;
-&lt;h4 id="orgd4ad5a7"&gt;By port and/or protocol&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-orgd4ad5a7"&gt;
+&lt;div id="outline-container-org7616fb6" class="outline-4"&gt;
+&lt;h4 id="org7616fb6"&gt;By port and/or protocol&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-org7616fb6"&gt;
 &lt;p&gt;
-If you want to only catch activity on a certain &lt;a href="https://en.wikipedia.org/wiki/Port_(computer_networking)"&gt;port&lt;/a&gt; and by a certain protocol then you use the &lt;code&gt;port&lt;/code&gt; argument and the name of the protocol (e.g. &lt;code&gt;udp&lt;/code&gt;)&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;. This would catch all the &lt;code&gt;tcp&lt;/code&gt; traffic over SSH.
+If you want to only catch activity on a certain &lt;a href="https://en.wikipedia.org/wiki/Port_(computer_networking)"&gt;port&lt;/a&gt; and by a certain protocol then you use the &lt;code&gt;port&lt;/code&gt; argument and the name of the protocol (e.g. &lt;code&gt;udp&lt;/code&gt;)&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3" role="doc-backlink"&gt;3&lt;/a&gt;&lt;/sup&gt;. This would catch all the &lt;code&gt;tcp&lt;/code&gt; traffic over SSH.
 &lt;/p&gt;
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgb601db2"&gt;
 tcpdump tcp port 22
 &lt;/pre&gt;
 
 &lt;p&gt;
-You can use &lt;code&gt;tcp&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, or &lt;code&gt;icmp&lt;/code&gt; for the protocols and add multiple ports using a comma&lt;sup&gt;&lt;a id="fnr.4" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.4"&gt;4&lt;/a&gt;&lt;/sup&gt;.
+You can use &lt;code&gt;tcp&lt;/code&gt;, &lt;code&gt;udp&lt;/code&gt;, or &lt;code&gt;icmp&lt;/code&gt; for the protocols and add multiple ports using a comma&lt;sup&gt;&lt;a id="fnr.4" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.4" role="doc-backlink"&gt;4&lt;/a&gt;&lt;/sup&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org85d53c6"&gt;
 tcpdump tcp port 22,80
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org83deb7d" class="outline-4"&gt;
-&lt;h4 id="org83deb7d"&gt;Turn off hostname and port translation&lt;/h4&gt;
-&lt;div class="outline-text-4" id="text-org83deb7d"&gt;
+&lt;div id="outline-container-orgb8c2c6c" class="outline-4"&gt;
+&lt;h4 id="orgb8c2c6c"&gt;Turn off hostname and port translation&lt;/h4&gt;
+&lt;div class="outline-text-4" id="text-orgb8c2c6c"&gt;
 &lt;p&gt;
-The default behavior for &lt;code&gt;tcpdump&lt;/code&gt; is to translate the hostnames and ports to something human-readable if possible. To turn this off you pass in the &lt;code&gt;-n&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3"&gt;3&lt;/a&gt;&lt;/sup&gt;. Since this stops having to look things up it will reduce the amount of overhead needed by &lt;code&gt;tcpdump&lt;/code&gt;.
+The default behavior for &lt;code&gt;tcpdump&lt;/code&gt; is to translate the hostnames and ports to something human-readable if possible. To turn this off you pass in the &lt;code&gt;-n&lt;/code&gt; argument&lt;sup&gt;&lt;a id="fnr.3.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.3" role="doc-backlink"&gt;3&lt;/a&gt;&lt;/sup&gt;. Since this stops having to look things up it will reduce the amount of overhead needed by &lt;code&gt;tcpdump&lt;/code&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org2ac5407"&gt;
 tcpdump -n -i eno1 port 22
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org718c91d" class="outline-2"&gt;
-&lt;h2 id="org718c91d"&gt;Links&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org718c91d"&gt;
+&lt;div id="outline-container-orga15215a" class="outline-2"&gt;
+&lt;h2 id="orga15215a"&gt;Links&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orga15215a"&gt;
 &lt;ul class="org-ul"&gt;
-&lt;li&gt;(Wireshark Revealed&lt;sup&gt;&lt;a id="fnr.5" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.5"&gt;5&lt;/a&gt;&lt;/sup&gt;) &lt;a href="http://www.tcpdump.org/"&gt;The tcpdump website&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;(Wireshark Revealed&lt;sup&gt;&lt;a id="fnr.5.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.5"&gt;5&lt;/a&gt;&lt;/sup&gt;) &lt;a href="http://danielmiessler.com/study/tcpdump/"&gt;A friendly tutorial&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;(Wireshark Revealed&lt;sup&gt;&lt;a id="fnr.5.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.5"&gt;5&lt;/a&gt;&lt;/sup&gt;) &lt;a href="http://www.tcpdump.org/tcpdump_man.html"&gt;The official man page&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;(Wireshark Revealed&lt;sup&gt;&lt;a id="fnr.5" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.5" role="doc-backlink"&gt;5&lt;/a&gt;&lt;/sup&gt;) &lt;a href="http://www.tcpdump.org/"&gt;The tcpdump website&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;(Wireshark Revealed&lt;sup&gt;&lt;a id="fnr.5.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.5" role="doc-backlink"&gt;5&lt;/a&gt;&lt;/sup&gt;) &lt;a href="http://danielmiessler.com/study/tcpdump/"&gt;A friendly tutorial&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;(Wireshark Revealed&lt;sup&gt;&lt;a id="fnr.5.100" class="footref" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fn.5" role="doc-backlink"&gt;5&lt;/a&gt;&lt;/sup&gt;) &lt;a href="http://www.tcpdump.org/tcpdump_man.html"&gt;The official man page&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org72a1550" class="outline-2"&gt;
-&lt;h2 id="org72a1550"&gt;Sources&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org72a1550"&gt;
+&lt;div id="outline-container-orgda49333" class="outline-2"&gt;
+&lt;h2 id="orgda49333"&gt;Sources&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgda49333"&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div id="footnotes"&gt;
 &lt;h2 class="footnotes"&gt;Footnotes: &lt;/h2&gt;
 &lt;div id="text-footnotes"&gt;
 
-&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.1" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.1"&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara"&gt;&lt;p class="footpara"&gt;
+&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.1" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.1" role="doc-backlink"&gt;1&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara" role="doc-footnote"&gt;&lt;p class="footpara"&gt;
 Diogenes, Y. &amp;amp; Ozkaya, E. (2018). Cybersecurity, Attack and Defense Strategies : infrastructure security with Red Team and Blue Team tactics. Birmingham, UK: Packt Publishing.]
 &lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.2" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.2"&gt;2&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara"&gt;&lt;p class="footpara"&gt;
+&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.2" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.2" role="doc-backlink"&gt;2&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara" role="doc-footnote"&gt;&lt;p class="footpara"&gt;
 Johansen, G. (2017). Digital forensics and incident response : an intelligent way to respond to attacks. Birmingham, UK: Packt Publishing.
 &lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.3" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.3"&gt;3&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara"&gt;&lt;p class="footpara"&gt;
+&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.3" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.3" role="doc-backlink"&gt;3&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara" role="doc-footnote"&gt;&lt;p class="footpara"&gt;
 Beltrame, J. (2017). Penetration testing bootcamp : quickly get up and running with pentesting techniques. Birmingham, UK: Packt Publishing.
 &lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.4" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.4"&gt;4&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara"&gt;&lt;p class="footpara"&gt;
+&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.4" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.4" role="doc-backlink"&gt;4&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara" role="doc-footnote"&gt;&lt;p class="footpara"&gt;
 McPhee. &amp;amp; Beltrame, J. (2016). Penetration testing with Raspberry Pi : learn the art of building a low-cost, portable hacking arsenal using Raspberry Pi 3 and Kali Linux 2. Birmingham, UK: Packt Publishing.
 &lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.5" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.5"&gt;5&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara"&gt;&lt;p class="footpara"&gt;
+&lt;div class="footdef"&gt;&lt;sup&gt;&lt;a id="fn.5" class="footnum" href="https://necromuralist.github.io/posts/tcp-dump-notes/#fnr.5" role="doc-backlink"&gt;5&lt;/a&gt;&lt;/sup&gt; &lt;div class="footpara" role="doc-footnote"&gt;&lt;p class="footpara"&gt;
 Baxter, J., Orzach, Y. &amp;amp; Mishra, C. (2017). Wireshark revealed : essential skills for IT professionals : get up and running with Wireshark to analyze your network effectively. Birmingham, UK: Packt Publishing.
 &lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
 
 
 &lt;/div&gt;
-&lt;/div&gt;</description><category>networking</category><category>notes</category><guid>https://necromuralist.github.io/posts/tcp-dump-notes/</guid><pubDate>Wed, 09 May 2018 21:54:56 GMT</pubDate></item><item><title>Tuning a TCP Connection</title><link>https://necromuralist.github.io/posts/201209tuning-tcp-connection/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents"&gt;
+&lt;/div&gt;</description><category>networking</category><category>notes</category><guid>https://necromuralist.github.io/posts/tcp-dump-notes/</guid><pubDate>Wed, 09 May 2018 21:54:56 GMT</pubDate></item><item><title>Tuning a TCP Connection</title><link>https://necromuralist.github.io/posts/201209tuning-tcp-connection/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents"&gt;
+&lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org9382a6c"&gt;TCP Background&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgaa2d54a"&gt;TCP Background&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgfec1ee3"&gt;The TCP Congestion Window&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org8bece67"&gt;Optimal Buffer Size&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org474801b"&gt;The TCP Congestion Window&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgb98a7d3"&gt;Optimal Buffer Size&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgd5f3c5c"&gt;Changing the Buffer Size&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgaf41497"&gt;Picking a Buffer Size&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org1092a54"&gt;Changing the Buffer Size&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgc97aa44"&gt;Picking a Buffer Size&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgd985239"&gt;The Maximum Throughput&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgb9c675f"&gt;Bandwidth Delay Product&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org94e3bf9"&gt;The Maximum Throughput&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orga0fc7e9"&gt;Bandwidth Delay Product&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgd0ded6c"&gt;Iperf Tuning&lt;/a&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orge6c52bc"&gt;Iperf Tuning&lt;/a&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org9e67529"&gt;Iperf Warnings&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org354dc0c"&gt;Parallel Streams&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orga4d95bf"&gt;Maximum Transmission Unit (MTU)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#org3f20c4f"&gt;Iperf Warnings&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgdb936d4"&gt;Parallel Streams&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/201209tuning-tcp-connection/#orgfc5efdf"&gt;Maximum Transmission Unit (MTU)&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
@@ -1117,13 +1117,13 @@ Baxter, J., Orzach, Y. &amp;amp; Mishra, C. (2017). Wireshark revealed : essenti
 I wrote this a long time ago so I don't remember the source or really the intent. I think it was about trying to maximize the throughput when running iperf over TCP.
 &lt;/p&gt;
 
-&lt;div id="outline-container-org9382a6c" class="outline-2"&gt;
-&lt;h2 id="org9382a6c"&gt;TCP Background&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org9382a6c"&gt;
+&lt;div id="outline-container-orgaa2d54a" class="outline-2"&gt;
+&lt;h2 id="orgaa2d54a"&gt;TCP Background&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgaa2d54a"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgfec1ee3" class="outline-3"&gt;
-&lt;h3 id="orgfec1ee3"&gt;The TCP Congestion Window&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgfec1ee3"&gt;
+&lt;div id="outline-container-org474801b" class="outline-3"&gt;
+&lt;h3 id="org474801b"&gt;The TCP Congestion Window&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org474801b"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Larger window implies higher throughput&lt;/li&gt;
 &lt;li&gt;The max allowed is based on the buffer space the kernel allocates for
@@ -1134,9 +1134,9 @@ each socket&lt;/li&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8bece67" class="outline-3"&gt;
-&lt;h3 id="org8bece67"&gt;Optimal Buffer Size&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org8bece67"&gt;
+&lt;div id="outline-container-orgb98a7d3" class="outline-3"&gt;
+&lt;h3 id="orgb98a7d3"&gt;Optimal Buffer Size&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgb98a7d3"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Too small - Sender will be throttled
 &lt;ul class="org-ul"&gt;
@@ -1151,22 +1151,22 @@ each socket&lt;/li&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgd5f3c5c" class="outline-2"&gt;
-&lt;h2 id="orgd5f3c5c"&gt;Changing the Buffer Size&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd5f3c5c"&gt;
+&lt;div id="outline-container-org1092a54" class="outline-2"&gt;
+&lt;h2 id="org1092a54"&gt;Changing the Buffer Size&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org1092a54"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;TCP chooses the smaller of both sides of the transaction.&lt;/li&gt;
 &lt;li&gt;Set the receiver high and let the sender negotiate&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgaf41497" class="outline-2"&gt;
-&lt;h2 id="orgaf41497"&gt;Picking a Buffer Size&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgaf41497"&gt;
+&lt;div id="outline-container-orgc97aa44" class="outline-2"&gt;
+&lt;h2 id="orgc97aa44"&gt;Picking a Buffer Size&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgc97aa44"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgd985239" class="outline-3"&gt;
-&lt;h3 id="orgd985239"&gt;The Maximum Throughput&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgd985239"&gt;
+&lt;div id="outline-container-org94e3bf9" class="outline-3"&gt;
+&lt;h3 id="org94e3bf9"&gt;The Maximum Throughput&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org94e3bf9"&gt;
 &lt;p&gt;
 If the network isn't congested the throughput is characterized by TCP buffer size and network latency.
 &lt;/p&gt;
@@ -1176,9 +1176,9 @@ If the network isn't congested the throughput is characterized by TCP buffer siz
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgb9c675f" class="outline-3"&gt;
-&lt;h3 id="orgb9c675f"&gt;Bandwidth Delay Product&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orgb9c675f"&gt;
+&lt;div id="outline-container-orga0fc7e9" class="outline-3"&gt;
+&lt;h3 id="orga0fc7e9"&gt;Bandwidth Delay Product&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orga0fc7e9"&gt;
 &lt;p&gt;
 This is a rule of thumb to calculate the optimal buffer size.
 &lt;/p&gt;
@@ -1194,13 +1194,13 @@ This is a rule of thumb to calculate the optimal buffer size.
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-orgd0ded6c" class="outline-2"&gt;
-&lt;h2 id="orgd0ded6c"&gt;Iperf Tuning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgd0ded6c"&gt;
+&lt;div id="outline-container-orge6c52bc" class="outline-2"&gt;
+&lt;h2 id="orge6c52bc"&gt;Iperf Tuning&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orge6c52bc"&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org9e67529" class="outline-3"&gt;
-&lt;h3 id="org9e67529"&gt;Iperf Warnings&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org9e67529"&gt;
+&lt;div id="outline-container-org3f20c4f" class="outline-3"&gt;
+&lt;h3 id="org3f20c4f"&gt;Iperf Warnings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org3f20c4f"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Iperf can set the buffer size up to a point – but the OS sets the
 upper limit on window sizes.&lt;/li&gt;
@@ -1208,9 +1208,9 @@ upper limit on window sizes.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-org354dc0c" class="outline-3"&gt;
-&lt;h3 id="org354dc0c"&gt;Parallel Streams&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org354dc0c"&gt;
+&lt;div id="outline-container-orgdb936d4" class="outline-3"&gt;
+&lt;h3 id="orgdb936d4"&gt;Parallel Streams&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgdb936d4"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;Iperf lets you run multiple parallel sessions using the -P flag.&lt;/li&gt;
 
@@ -1223,9 +1223,9 @@ upper limit on window sizes.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orga4d95bf" class="outline-3"&gt;
-&lt;h3 id="orga4d95bf"&gt;Maximum Transmission Unit (MTU)&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-orga4d95bf"&gt;
+&lt;div id="outline-container-orgfc5efdf" class="outline-3"&gt;
+&lt;h3 id="orgfc5efdf"&gt;Maximum Transmission Unit (MTU)&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfc5efdf"&gt;
 &lt;ul class="org-ul"&gt;
 &lt;li&gt;the most effective way to set it is if both hosts support Path MTU Discovery and set it themselves.&lt;/li&gt;
 &lt;li&gt;iperf's -m flag displays what mss is being used&lt;/li&gt;

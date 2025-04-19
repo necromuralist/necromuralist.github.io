@@ -73,9 +73,9 @@
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
 <p>I recently switched to Ubuntu 17.10 (from 17.04) and found it to be surprisingly difficult. This is meant to document what I noticed so that if I decide to upgrade another machine I'll have something to jog my memory about what it was like.</p>
-<div class="outline-2" id="outline-container-org094b2d8">
-<h2 id="org094b2d8">Complete Re-Install Required</h2>
-<div class="outline-text-2" id="text-org094b2d8">
+<div class="outline-2" id="outline-container-orgb947205">
+<h2 id="orgb947205">Complete Re-Install Required</h2>
+<div class="outline-text-2" id="text-orgb947205">
 <p>I upgraded four machines (I don't have all their details at hand - maybe I'll update this later). In each case they were running Ubuntu 17.04 so I used <code>do-release-upgrade</code> initially. I didn't upgrade them all on the same day, but did upgrade all of them within the past week.</p>
 <ul class="org-ul">
 <li>HP Z600</li>
@@ -87,47 +87,47 @@
 <p>On trying to reboot I found that none of the machines would fully start. All of them got stuck on a black screen with a single white underscore in the top left corner. Unlike the other machines, the Toshiba let me enter the disk-decryption password, but then it ended up at the same black screen as the rest. Once it reached this state there was no way to get to the consoles either (e.g. using ctrl-alt-F1). So, in every case I had to boot from a thumb drive and do a fresh install.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org82773c8">
-<h2 id="org82773c8">Backwards Steps</h2>
-<div class="outline-text-2" id="text-org82773c8"></div>
-<div class="outline-3" id="outline-container-orgf45d34c">
-<h3 id="orgf45d34c">Alternate Keyboard Layouts</h3>
-<div class="outline-text-3" id="text-orgf45d34c">
+<div class="outline-2" id="outline-container-orgc743992">
+<h2 id="orgc743992">Backwards Steps</h2>
+<div class="outline-text-2" id="text-orgc743992"></div>
+<div class="outline-3" id="outline-container-org132858e">
+<h3 id="org132858e">Alternate Keyboard Layouts</h3>
+<div class="outline-text-3" id="text-org132858e">
 <p>It used to be that the installer would ask you to set up a disk-encryption password before asking you for your keyboard layout, making it harder for people like me that use alternate layouts (<a href="https://www.kaufmann.no/roland/dvorak/">Programmer Dvorak</a> in my case). They eventually fixed that, but now it's back again, forcing you to enter the password to decrypt your drive using <code>qwerty</code>. The initial login to decrypt the drive after you boot the computer also has no way to switch the keyboard layout, so once again you have to use <code>qwerty</code>. On top of that, the visual keyboard is missing keys (well, it's missing the underscore, any way) which I used to use when I found myself struggling too much with <code>qwerty</code>, so instead I have to use the physical keyboard, hunting and pecking and trying to forget where I think the keys should be. Then, once you get past that first screen, it switches back to dvorak (although the visual keyboard doesn't, for some reason) so you have to know that the user login is using a different keyboard layout from the disk decryption prompt - even though there's no way to actually check what the layout is without just trying the variations until you find the one that works.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org01090a0">
-<h3 id="org01090a0">Video Drivers</h3>
-<div class="outline-text-3" id="text-org01090a0">
+<div class="outline-3" id="outline-container-orgcfdd215">
+<h3 id="orgcfdd215">Video Drivers</h3>
+<div class="outline-text-3" id="text-orgcfdd215">
 <p>On top of the keyboard problem, the default Nouveau video drivers seem to have re-introduced an old bug that causes the GUI to freeze up periodically (on my ZaReason and HP computers, at least. I haven't seen it on the other two, but I don't use them as much, anyway). Switching to the Nvidia driver fixes the freezing problem, but it then makes the initial disk-decryption login non-functional - it seems to freeze everything so you can't do anything but restart the computer and use the Grub menu to drop into recovery mode and enter the password at the command line before resuming the startup. As a 'fix' I followed the advice from <a href="https://askubuntu.com/questions/16371/how-do-i-disable-x-at-boot-time-so-that-the-system-boots-in-text-mode">this Stack Overflow answer</a> and disabled the initial splash screen altogether by editing the <code>/etc/default/grub</code> file to have this line:</p>
-<pre class="example">
+<pre class="example" id="orgb7fb7f5">
 GRUB_CMDLINE_LINUX_DEFAULT="text"
 </pre>
 <p>Then update grub (it doesn't load this file on booting up, you have to explicitly update it).</p>
-<pre class="example">
+<pre class="example" id="orgac6d792">
 sudo update-grub
 </pre>
 <p>This makes the initial boot-screen text-only, like an old-school terminal. Not fancy, but at least I don't have to remember to drop into recovery-mode every time I start the computer.</p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgdfca509">
-<h2 id="orgdfca509">Apt-Fast Bug</h2>
-<div class="outline-text-2" id="text-orgdfca509">
+<div class="outline-2" id="outline-container-org69df6ca">
+<h2 id="org69df6ca">Apt-Fast Bug</h2>
+<div class="outline-text-2" id="text-org69df6ca">
 <p>This is a <a href="https://github.com/ilikenwf/apt-fast/issues/132">bug</a> in apt-fast, not an ubuntu bug, but since apt-fast is one of the first things I usually install, I figure I should document the fix. Open up <code>/var/lib/dpkg/info/apt-fast.config</code> (as root), jump to line 212 and change this line:</p>
-<pre class="example">
+<pre class="example" id="orgb497d05">
 if ($downloadcmd =~ /\${_MAXNUM}/){
 </pre>
 <p>to this:</p>
-<pre class="example">
+<pre class="example" id="orgebc5c8f">
 if ($downloadcmd =~ /\$\{_MAXNUM}/){
 </pre>
 <p>In case you can't see it I added a backslash (<code>\</code>) between the <code>$</code> and <code>{_MAXNUM</code>.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgf2860d3">
-<h2 id="orgf2860d3">A Little Less Whining</h2>
-<div class="outline-text-2" id="text-orgf2860d3">
+<div class="outline-2" id="outline-container-org242e3da">
+<h2 id="org242e3da">A Little Less Whining</h2>
+<div class="outline-text-2" id="text-org242e3da">
 <p>Although the disk-decryption login is a major negative, I must note that I kind of like the new aesthetic, I was just really, <i>really</i>, surprised at how defective this process seemed to be, given how far along Ubuntu has come. There's still some unexpected behaviors (switching workspaces seems to drag applications with them, even though I didn't explicitly ask to, for instance, and byobu seems to ignore my alternate escape key sometimes), but I like it overall. Maybe tomorrow I'll feel different.</p>
 </div>
 </div>

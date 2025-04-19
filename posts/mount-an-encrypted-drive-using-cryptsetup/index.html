@@ -73,43 +73,43 @@
 </div>
 </header>
 <div class="e-content entry-content" itemprop="articleBody text">
-<div id="table-of-contents">
+<div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
-<div id="text-table-of-contents">
+<div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org0a892f1">What Is This About?</a></li>
-<li><a href="#org8c4827e">So, How Do You Do It?</a></li>
-<li><a href="#org9952836">Source</a></li>
+<li><a href="#org388f565">What Is This About?</a></li>
+<li><a href="#orgacb3855">So, How Do You Do It?</a></li>
+<li><a href="#orgc17e0c0">Source</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0a892f1">
-<h2 id="org0a892f1">What Is This About?</h2>
-<div class="outline-text-2" id="text-org0a892f1">
+<div class="outline-2" id="outline-container-org388f565">
+<h2 id="org388f565">What Is This About?</h2>
+<div class="outline-text-2" id="text-org388f565">
 <p>This is how to mount a LUKS encrypted drive with <a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html">cryptsetup</a> in Ubuntu 20.10 (Groovy Gorilla). My use-case is I have a headless server that has an external USB drive that's encrypted with <a href="https://en.wikipedia.org/wiki/Linux_Unified_Key_Setup">LUKS</a> that I need to mount from the command line. I like the flexibility it gives a little more than the what the Gnome GUI does so I'll probably use it on my desktop as well. I previously documented how to do it with <a href="http://storaged.org/doc/udisks2-api/latest/udisksctl.1.html">udiskctl</a> in <a href="../mounting-an-encrypted-usb-drive/">this post</a> but I like <code>cryptsetup</code> a little better. This assumes that you know the partition/device (in my case it's <code>/dev/sdb1</code>). That previous post shows how I found it so I'll just do the decrypting and mounting here.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org8c4827e">
-<h2 id="org8c4827e">So, How Do You Do It?</h2>
-<div class="outline-text-2" id="text-org8c4827e">
+<div class="outline-2" id="outline-container-orgacb3855">
+<h2 id="orgacb3855">So, How Do You Do It?</h2>
+<div class="outline-text-2" id="text-orgacb3855">
 <p>The syntax to decrypt the device is:</p>
-<pre class="example">
+<pre class="example" id="org801f4ea">
 sudo cryptsetup open &lt;device&gt; &lt;name&gt;
 </pre>
 <p>As I mentioned above, in this case my <code>device</code> is <code>/dev/sdb1</code>. The name can be an arbitrary one (although there are limitiations on special characters so let's say it can be any alpha-numeric name) and I'll use <code>wddata</code> as the name. Then my command to decrypt the drive is:</p>
-<pre class="example">
+<pre class="example" id="orga996c2e">
 sudo cryptsetup open /dev/sdb1 wddata
 </pre>
 <p>This will prompt you for your password and then the encryption passphrase. Once the command succeeds, it adds a link in <code>/dev/mapper</code> using the name you passed in so you can mount the device (assuming the directory you want to mount it in exists) like this:</p>
-<pre class="example">
+<pre class="example" id="org8b96815">
 sudo mount /dev/mapper/wddata /media/data
 </pre>
 <p>Where <code>wddata</code> is the name I told <code>cryptsetup</code> to use and <code>/media/data</code> is a directory that I had previously created.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9952836">
-<h2 id="org9952836">Source</h2>
-<div class="outline-text-2" id="text-org9952836">
+<div class="outline-2" id="outline-container-orgc17e0c0">
+<h2 id="orgc17e0c0">Source</h2>
+<div class="outline-text-2" id="text-orgc17e0c0">
 <p>Besides the man-page for <code>cryptsetup</code> on my server, I was pointed to use <code>cryptsetup</code> from this StackOverflow post:</p>
 <ul class="org-ul">
 <li><a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line">https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line</a></li>

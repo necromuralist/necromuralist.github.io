@@ -5,23 +5,23 @@
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"&gt;
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"&gt;&lt;/a&gt;
 &lt;/div&gt;
-</copyright><lastBuildDate>Wed, 01 May 2024 04:52:39 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>TCPDump On an External Hard Drive</title><link>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org22c71f4" class="outline-2"&gt;
-&lt;h2 id="org22c71f4"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org22c71f4"&gt;
+</copyright><lastBuildDate>Tue, 28 May 2024 00:09:13 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>TCPDump On an External Hard Drive</title><link>https://necromuralist.github.io/posts/tcpdump-on-an-external-hard-drive/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-orgf051215" class="outline-2"&gt;
+&lt;h2 id="orgf051215"&gt;Introduction&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgf051215"&gt;
 &lt;p&gt;
 I'm using &lt;a href="http://www.tcpdump.org/"&gt;tcpdump&lt;/a&gt; to store packets and thought that it might be a good idea to put it on an external drive. It turned out to be a little more complicated than I thought it would be so here are my notes.
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org0cc7236" class="outline-2"&gt;
-&lt;h2 id="org0cc7236"&gt;Setting Up The Drive&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org0cc7236"&gt;
+&lt;div id="outline-container-org316754b" class="outline-2"&gt;
+&lt;h2 id="org316754b"&gt;Setting Up The Drive&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org316754b"&gt;
 &lt;p&gt;
 The first thing I wanted to do was format the drive. First I needed to get the name.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgb45ae4a"&gt;
 sudo lshw -C disk
 &lt;/pre&gt;
 
@@ -29,7 +29,7 @@ sudo lshw -C disk
 Gave me this
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org33fdccb"&gt;
 *-disk
       description: SCSI Disk
       product: Elements 25A1
@@ -48,11 +48,11 @@ Gave me this
 So it's named &lt;code&gt;/dev/sda&lt;/code&gt;. Now let's see if it's mounted.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org57da9c7"&gt;
 lsblk -f
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org8e612e5"&gt;
 NAME        FSTYPE LABEL    UUID                                 MOUNTPOINT
 sda
 └─sda1      ntfs   Elements A4F2DF7DF2DF5262
@@ -65,11 +65,11 @@ mmcblk0
 So you can see that there is a partition named &lt;code&gt;sda1&lt;/code&gt; and it's formatted using &lt;code&gt;ntfs&lt;/code&gt; and it isn't mounted. Since I'm running it with linux I'll reformant the drive using &lt;code&gt;ext4&lt;/code&gt;. I'm also going to give it the label &lt;code&gt;westerndigital&lt;/code&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org7600e6c"&gt;
 sudo mkfs -t ext4 -L westerndigital /dev/sda1
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orge5d4395"&gt;
 mke2fs 1.42.13 (17-May-2015)
 /dev/sda1 contains a ntfs file system labelled 'Elements'
 Proceed anyway? (y,n) y
@@ -79,7 +79,7 @@ Proceed anyway? (y,n) y
 Apparently Western Digital named the partition &lt;code&gt;Elements&lt;/code&gt;. I entered &lt;code&gt;y&lt;/code&gt; and continued.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgabe1ee5"&gt;
 Creating filesystem with 976745728 4k blocks and 244187136 inodes
 Filesystem UUID: 00fb2543-edc3-4f84-874b-fc36c485f362
 Superblock backups stored on blocks:
@@ -92,11 +92,11 @@ Superblock backups stored on blocks:
 So checking it again.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org9fef2d2"&gt;
 lsblk -f
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org97727f0"&gt;
 NAME        FSTYPE LABEL          UUID                                 MOUNTPOINT
 sda
 └─sda1      ext4   westerndigital cd10dc9f-7420-4b85-87ff-b8dfbf57f031
@@ -112,14 +112,14 @@ Shows that it's now &lt;code&gt;ext4&lt;/code&gt; and it has the label &lt;code&
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div id="outline-container-org8d1fe07" class="outline-2"&gt;
-&lt;h2 id="org8d1fe07"&gt;Mounting It&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org8d1fe07"&gt;
+&lt;div id="outline-container-org5eb7679" class="outline-2"&gt;
+&lt;h2 id="org5eb7679"&gt;Mounting It&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org5eb7679"&gt;
 &lt;p&gt;
 First make a directory for it.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgc7dd3e2"&gt;
 sudo mkdir /media/westerndigital
 &lt;/pre&gt;
 
@@ -127,7 +127,7 @@ sudo mkdir /media/westerndigital
 Then mount it.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgc2621d1"&gt;
 sudo mount /dev/sda1 /media/westerndigital/
 &lt;/pre&gt;
 
@@ -135,11 +135,11 @@ sudo mount /dev/sda1 /media/westerndigital/
 Now we can check on it.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org67c04fa"&gt;
 lsblk
 &lt;/pre&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org0250303"&gt;
 NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
 sda           8:0    0  3.7T  0 disk
 └─sda1        8:1    0  3.7T  0 part /media/westerndigital
@@ -153,14 +153,14 @@ So we can see that it's mounted at &lt;code&gt;/media/westerndigital/&lt;/code&g
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;div id="outline-container-orgf05e96d" class="outline-2"&gt;
-&lt;h2 id="orgf05e96d"&gt;Running TCP Dump with Rotating files&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf05e96d"&gt;
+&lt;div id="outline-container-orgac897f3" class="outline-2"&gt;
+&lt;h2 id="orgac897f3"&gt;Running TCP Dump with Rotating files&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-orgac897f3"&gt;
 &lt;p&gt;
 First I needed to put the wireless interface into monitor mode.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org90d8198"&gt;
 iwconfig wlx00c0ca967afb mode monitor
 &lt;/pre&gt;
 
@@ -168,7 +168,7 @@ iwconfig wlx00c0ca967afb mode monitor
 Then I ran tcpdump.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org86350b8"&gt;
 sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapshot-length 0 --interface wlx00c0ca967afb -z gzip --relinquish-privileges erysichthon
 &lt;/pre&gt;
 
@@ -176,7 +176,7 @@ sudo tcpdump -n -w /media/westerndigital//channel_6.pcap -C 1000 -W 10 --snapsho
 Which gave me this.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="orgff134b3"&gt;
 tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
 &lt;/pre&gt;
 
@@ -184,7 +184,7 @@ tcpdump: /media/westerndigital//channel_6.pcap0: Permission denied
 On my desktop the solution was in the comments of this &lt;a href="https://stackoverflow.com/questions/18050659/tcpdump-w-1-pcap-works-but-tcpdump-c-100-w-1-pcap-permission-denied"&gt;StackOverflow post&lt;/a&gt;.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org7d6e7ba"&gt;
 sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
 &lt;/pre&gt;
 
@@ -192,7 +192,7 @@ sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.tcpdump
 But on my raspberry pi this raised an error.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org4f8393e"&gt;
 Cache read/write disabled: interface file missing. (Kernel needs AppArmor 2.4 compatibility patch.)
 Warning: unable to find a suitable fs in /proc/mounts, is it mounted?
 Use --subdomainfs to override.
@@ -202,7 +202,7 @@ Use --subdomainfs to override.
 The solution was in the same post. I just made the permissions wide open.
 &lt;/p&gt;
 
-&lt;pre class="example"&gt;
+&lt;pre class="example" id="org72cddd3"&gt;
 sudo chmod 777 /media/westerndigital
 &lt;/pre&gt;
 
