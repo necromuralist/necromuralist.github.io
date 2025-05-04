@@ -17,7 +17,7 @@
 <link href="favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
 <link href="favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
 <link href="site.webmanifest" rel="manifest">
-<link href="posts/protonpass-finding-the-suggested-password/" rel="prefetch" type="text/html">
+<link href="posts/gnome-settings-with-nvidia-and-wayland/" rel="prefetch" type="text/html">
 </head>
 <body>
 <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a> <!-- Menubar -->
@@ -54,6 +54,102 @@
 <div class="postindex">
 <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
 <header>
+<h1 class="p-name entry-title"><a class="u-url" href="posts/gnome-settings-with-nvidia-and-wayland/">Fixing NVidia With Wayland on Ubuntu 24.04 (Noble Numbat)</a></h1>
+<div class="metadata">
+<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
+<p class="dateline"><a href="posts/gnome-settings-with-nvidia-and-wayland/" rel="bookmark"><time class="published dt-published" datetime="2025-05-03T09:48:54-07:00" itemprop="datePublished" title="2025-05-03 09:48">2025-05-03 09:48</time></a></p>
+</div>
+</header>
+<div class="p-summary entry-summary">
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="posts/gnome-settings-with-nvidia-and-wayland/#org747e9b8">The Problem</a></li>
+<li><a href="posts/gnome-settings-with-nvidia-and-wayland/#org9692e33">The Problems</a>
+<ul>
+<li><a href="posts/gnome-settings-with-nvidia-and-wayland/#org7be6c11">WayDroid and X11</a></li>
+<li><a href="posts/gnome-settings-with-nvidia-and-wayland/#orgfe68e5b">The Next Problem - Sleep and Logging out</a></li>
+<li><a href="posts/gnome-settings-with-nvidia-and-wayland/#orgc51ada6">No Settings</a></li>
+</ul>
+</li>
+<li><a href="posts/gnome-settings-with-nvidia-and-wayland/#org727203c">Conclusion</a></li>
+<li><a href="posts/gnome-settings-with-nvidia-and-wayland/#org0ee347f">Links</a></li>
+</ul>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org747e9b8">
+<h2 id="org747e9b8">The Problem</h2>
+<div class="outline-text-2" id="text-org747e9b8">
+<p>Switching from X11 to Wayland (on <b>Ubuntu 24.04 (Noble Numbat)</b>) initially prevented launching the Settings so I went on a hunt to fix it (and here are my notes).</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org9692e33">
+<h2 id="org9692e33">The Problems</h2>
+<div class="outline-text-2" id="text-org9692e33"></div>
+<div class="outline-3" id="outline-container-org7be6c11">
+<h3 id="org7be6c11">WayDroid and X11</h3>
+<div class="outline-text-3" id="text-org7be6c11">
+<p>I was poking around and saw that there was a project to run Android on PCs (among other things) called <a href="https://waydro.id/">Waydroid</a> so I installed it, but whenever I tried to enter the Waydroid shell</p>
+<div class="highlight">
+<pre><span></span>sudo waydroid shell
+</pre></div>
+<p>I got an error saying that the <i>waydroid session is stopped</i>. This isn't a post about waydroid so I'll skip the troubleshooting I did, but ultimately I found an <i>AskUbuntu</i> post from someone who ran into the same problem and found from one of <a href="https://askubuntu.com/questions/1475593/how-do-i-resolve-the-waydroid-session-is-stopped-problem/#comment2597386_1478124">the comments</a> that:</p>
+<blockquote>
+<p>it turns out that waydroid is not compatible with X11.</p>
+</blockquote>
+<p>Maybe it's called <i>Waydroid</i> because it needs <i>Wayland</i>? Anyway I checked if I was using <i>Wayland</i>:</p>
+<div class="highlight">
+<pre><span></span><span class="k">echo</span> <span class="nv">$XDG_SESSION_TYPE</span>
+</pre></div>
+<p>Which didn't show that I was (I can't remember if it showed X11 or was just empty, but it wasn't anything like "Wayland" anyway). It turned out I had chosen "Ubuntu" at the login screen, not "Ubuntu Wayland" so I logged out, switched to Wayland and then logged in. This seemed to fix the initial WayDroid problem (I got the GUI running but I still haven't finished the installation) but then another problem came up.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgfe68e5b">
+<h3 id="orgfe68e5b">The Next Problem - Sleep and Logging out</h3>
+<div class="outline-text-3" id="text-orgfe68e5b">
+<p>Having switched to Wayland I decided I needed a break. While I was away my computer went to the lock screen, as it usually does, but when I opened it back up I found that instead of just locking the screen it had actually logged me out, killing all the applications I left open and closing an encrypted mount point I had open. More searching ensued.</p>
+<p>Once again, someone posted a question on <a href="https://askubuntu.com/questions/1482786/ubuntu-23-04-logs-me-out-arbitrarily-while-going-to-sleep-mode"><i>AskUbuntu</i></a> that seemed to be about the same problem, the suggested answer being to disable the Screen Lock, which didn't really seem to be a good answer, but it was <i>an</i> answer, which was one more than I started with so I decided to give it a try. But then the next problem appeared.</p>
+</div>
+</div>
+<div class="outline-3" id="outline-container-orgc51ada6">
+<h3 id="orgc51ada6">No Settings</h3>
+<div class="outline-text-3" id="text-orgc51ada6">
+<p>When I tried to launch the settings an icon came up in the launcher like normal but the settings wouldn't come up. Okay. I'm skipping some of the intermediate searches but eventually I tried running the settings in the terminal to look for the errors.</p>
+<div class="highlight">
+<pre><span></span>gnome-control-center 
+</pre></div>
+<p>This gave an error which included "failed to create dri2 screen" so I went on a search again and found <a href="https://askubuntu.com/questions/1514352/ubuntu-24-04-with-nvidia-driver-libegl-warning-egl-failed-to-create-dri2-scre">another AskUbuntu post</a> with <a href="https://askubuntu.com/a/1516567">a suggested answer</a> - install a package:</p>
+<div class="highlight">
+<pre><span></span>sudo apt install libnvidia-egl-wayland1
+</pre></div>
+<p>After logging out and logging back in the settings worked <i>and</i> the lock screen no longer logged me out so this seems to have been the fix (for these problems, there's still some weird things going on but nothing I can't live with yet.)</p>
+</div>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org727203c">
+<h2 id="org727203c">Conclusion</h2>
+<div class="outline-text-2" id="text-org727203c">
+<p>There's an <a href="https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2063827">open bug on Launchpad</a> (<i>Gnome apps segfault in Nvidia (535) Wayland sessions on Noble, but 550 works</i>) which looks like it might be related to the problem I ran into. It says that upgrading the NVidia driver to 550 fixes the Gnome Settings problem but the upgrade then introduces some other errors so installing <code>libnvidia-egl-wayland1</code> looks like the right fix. The bug was opened on April 26, 2024 so I would imagine it would effect more people, making this a high priority. Perhaps Wayland isn't widely used, at least not among nvidia users. I'm typing this in emacs and portions of the buffer are messed up, making it dangerous to use (insofar as I can't tell if the text actually exists in the document in the same place where it appears on the screen) so I'll probably go back to X11 until they get this stuff worked out, but at least it's working a little better than it was this morning.</p>
+</div>
+</div>
+<div class="outline-2" id="outline-container-org0ee347f">
+<h2 id="org0ee347f">Links</h2>
+<div class="outline-text-2" id="text-org0ee347f">
+<ul class="org-ul">
+<li><a href="https://waydro.id/">Waydroid</a> : The start of the problem</li>
+<li><a href="https://askubuntu.com/questions/1475593/how-do-i-resolve-the-waydroid-session-is-stopped-problem/">Ask Ubuntu - how do I resolve the "waydroid session is stopped" problem?</a>: The First Problem</li>
+<li><a href="https://askubuntu.com/questions/1482786/ubuntu-23-04-logs-me-out-arbitrarily-while-going-to-sleep-mode">Ask Ubuntu - "Ubuntu 23.04 logs me out arbitrarily while going to sleep mode"</a>: The second problem.</li>
+<li><a href="https://askubuntu.com/questions/1514352/ubuntu-24-04-with-nvidia-driver-libegl-warning-egl-failed-to-create-dri2-scre">Ask Ubuntu- Ubuntu 24.04 with Nvidia driver "libEGL warning: egl: failed to create dri2 screen"</a>: The solution post.</li>
+<li><a href="https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2063827">Launchpad - Gnome apps segfault in Nvidia (535) Wayland sessions on Noble, but 550 works</a> : Possibly related bug.</li>
+<li><a href="https://gist.github.com/1999AZZAR/5c881fdaeb841fc4476259bfcc69b98c">GitHub Gist - waydroid on x11.md</a> : Possible way around Wayland for Waydroid. Also has other useful notes for Waydroid.</li>
+</ul>
+</div>
+</div>
+</div>
+</article>
+<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
+<header>
 <h1 class="p-name entry-title"><a class="u-url" href="posts/protonpass-finding-the-suggested-password/">ProtonPass: Finding the Suggested Password</a></h1>
 <div class="metadata">
 <p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
@@ -65,72 +161,73 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="posts/protonpass-finding-the-suggested-password/#orgfe14b7d">What This Is About</a></li>
-<li><a href="posts/protonpass-finding-the-suggested-password/#org1e3ceb4">The Start Of the Trouble</a></li>
-<li><a href="posts/protonpass-finding-the-suggested-password/#org00bbee1">Getting It Out Of Proton Pass</a>
+<li><a href="posts/protonpass-finding-the-suggested-password/#org638fb13">What This Is About</a></li>
+<li><a href="posts/protonpass-finding-the-suggested-password/#orgd1be104">The Start Of the Trouble</a></li>
+<li><a href="posts/protonpass-finding-the-suggested-password/#orgdc6f91c">Getting It Out Of Proton Pass</a>
 <ul>
-<li><a href="posts/protonpass-finding-the-suggested-password/#orgdaf22be">The Firefox Extension</a></li>
-<li><a href="posts/protonpass-finding-the-suggested-password/#org1979e96">Add New Item</a></li>
-<li><a href="posts/protonpass-finding-the-suggested-password/#org5caef1b">Password Generator</a></li>
-<li><a href="posts/protonpass-finding-the-suggested-password/#org98b331a">Password History</a></li>
+<li><a href="posts/protonpass-finding-the-suggested-password/#orgc5b764c">The Firefox Extension</a></li>
+<li><a href="posts/protonpass-finding-the-suggested-password/#orgd780fbc">Add New Item</a></li>
+<li><a href="posts/protonpass-finding-the-suggested-password/#org0a6c86a">Password Generator</a></li>
+<li><a href="posts/protonpass-finding-the-suggested-password/#org7bf3660">Password History</a></li>
 </ul>
 </li>
-<li><a href="posts/protonpass-finding-the-suggested-password/#orged769ca">Conclusion</a></li>
+<li><a href="posts/protonpass-finding-the-suggested-password/#orgd9a1580">Conclusion</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfe14b7d">
-<h2 id="orgfe14b7d">What This Is About</h2>
-<div class="outline-text-2" id="text-orgfe14b7d">
+<div class="outline-2" id="outline-container-org638fb13">
+<h2 id="org638fb13">What This Is About</h2>
+<div class="outline-text-2" id="text-org638fb13">
 <p>I'm using <a href="https://proton.me/pass">Proton Pass</a> as one of my password managers and noticed today that it thought my <a href="https://www.hoopladigital.com/">Hoopla</a> password was weak so I decided to change it. While I was changing my password ProtonPass stepped in and gave me a suggested password to use so I figured I'd try it out. Unfortunately their implementation is unintuitive to me and I spent a little while thinking I had just locked myself out of my account and was going to have to go through a password reset. Hoopla's password reset process isn't particularly hard, but it seemed like a good idea to figure out what was going on before I locked myself out of a more critical site, so here's my notes for getting the password from ProtonPass.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org1e3ceb4">
-<h2 id="org1e3ceb4">The Start Of the Trouble</h2>
-<div class="outline-text-2" id="text-org1e3ceb4">
+<div class="outline-2" id="outline-container-orgd1be104">
+<h2 id="orgd1be104">The Start Of the Trouble</h2>
+<div class="outline-text-2" id="text-orgd1be104">
 <p>When I went to change my password on Hoopla ProtonPass popped up a prompt giving me a new random password like in the screenshot below.</p>
 <p><img alt="nil" loading="lazy" src="posts/protonpass-finding-the-suggested-password/hoopla-change-password.avif"></p>
 <p>I usually ignore it but for some reason I tried it out this time, clicking on the box to enter the password and then saving it (I took this screenshot later so that isn't my password, in case you're wondering). I confirmed that my old password no longer worked, but when I tried to use Proton Pass to fill in the new password it turned out that it hadn't updated its record with the new one it gave me so it appeared that I had changed my password and then thrown the new one away.</p>
 <p>This seemed like an illogical thing to do so I did a little search on the web and found <a href="https://www.reddit.com/r/ProtonPass/comments/158arja/comment/jtcrvvx/?utm_source=share&amp;utm_medium=web3x&amp;utm_name=web3xcss&amp;utm_term=1&amp;utm_content=share_button">this response</a> to a <a href="https://www.reddit.com/r/ProtonPass/comments/158arja/suggest_but_not_save_password/">Reddit post</a> confirming that this is, in fact, the way Proton Pass works, but that you can get the new password after the fact from the Firefox extension.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org00bbee1">
-<h2 id="org00bbee1">Getting It Out Of Proton Pass</h2>
-<div class="outline-text-2" id="text-org00bbee1"></div>
-<div class="outline-3" id="outline-container-orgdaf22be">
-<h3 id="orgdaf22be">The Firefox Extension</h3>
-<div class="outline-text-3" id="text-orgdaf22be">
+<div class="outline-2" id="outline-container-orgdc6f91c">
+<h2 id="orgdc6f91c">Getting It Out Of Proton Pass</h2>
+<div class="outline-text-2" id="text-orgdc6f91c"></div>
+<div class="outline-3" id="outline-container-orgc5b764c">
+<h3 id="orgc5b764c">The Firefox Extension</h3>
+<div class="outline-text-3" id="text-orgc5b764c">
 <p>I'm using Firefox (on Ubuntu) and the ProtonPass extension, so I clicked on the little purple diamond to bring it up.</p>
 <p><img alt="nil" loading="lazy" src="posts/protonpass-finding-the-suggested-password/proton-pass-00-firefox-toolbar.avif"></p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org1979e96">
-<h3 id="org1979e96">Add New Item</h3>
-<div class="outline-text-3" id="text-org1979e96">
+<div class="outline-3" id="outline-container-orgd780fbc">
+<h3 id="orgd780fbc">Add New Item</h3>
+<div class="outline-text-3" id="text-orgd780fbc">
 <p>This is what the extension showed (with some of my information blocked out). To get to the password you have to (rather unintuitively) click on the purple "+" symbol next to the search box which is the "Add New Item" button.</p>
 <p><img alt="nil" loading="lazy" src="posts/protonpass-finding-the-suggested-password/proton-pass-01.avif"></p>
 <p>This brings up a menu, the last item of which is the "Password" option that we want.</p>
 <p><img alt="nil" loading="lazy" src="posts/protonpass-finding-the-suggested-password/proton-pass-02-menu.avif"></p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org5caef1b">
-<h3 id="org5caef1b">Password Generator</h3>
-<div class="outline-text-3" id="text-org5caef1b">
-<p>Clicking on "Password" brings up a dialog that generates new passwords for you (here giving us a supposedly memorable one). The bottom of that screen, underneath the "Advanced Options" button, is the "Password history" button that we want.</p>
+<div class="outline-3" id="outline-container-org0a6c86a">
+<h3 id="org0a6c86a">Password Generator</h3>
+<div class="outline-text-3" id="text-org0a6c86a">
+<p>Clicking on "Password" brings up a dialog that generates new passwords for you (here it's offering us <i>Joylessly9-Disjoin8-Dynasty4-Delegator0-Mobilize5</i> - a supposedly memorable one for us to use). At the bottom of that screen, underneath the "Advanced Options" button, is the "Password history" button that we want.</p>
 <p><img alt="nil" loading="lazy" src="posts/protonpass-finding-the-suggested-password/proton-pass-03-password-dialog.avif"></p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-org98b331a">
-<h3 id="org98b331a">Password History</h3>
-<div class="outline-text-3" id="text-org98b331a">
-<p>This shows us the passwords we've generated in the last two weeks. Clicking on the icon for "hoopladigital.com" copied the password I generated for that site to the clipboard which I then used to update the Proton Pass entry for Hoopla so that I could get back into the site.</p>
+<div class="outline-3" id="outline-container-org7bf3660">
+<h3 id="org7bf3660">Password History</h3>
+<div class="outline-text-3" id="text-org7bf3660">
+<p>This shows us the passwords we've generated in the last two weeks (I never generated one before this case so there's only the one entry). Oddly, <a href="https://www.reddit.com/r/ProtonPass/comments/14ywai9/comment/jsaq15y/?utm_source=share&amp;utm_medium=web3x&amp;utm_name=web3xcss&amp;utm_term=1&amp;utm_content=share_button">the post on Reddit</a> from the "ProtonSupportTeam" says that they are deleted after 1 day, not two weeks. It also says that they are working on "improving the auto-save behavior," but the post is two years old (as of this writing) so I guess they decided that shortening the time to deletion was the improvement we needed.</p>
+<p>Clicking on the icon for "hoopladigital.com" copied the password I generated for that site to the clipboard which I then used to update the Proton Pass entry for Hoopla so that I could get back into the site.</p>
 <p><img alt="nil" loading="lazy" src="posts/protonpass-finding-the-suggested-password/proton-pass-04-password-history.avif"></p>
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orged769ca">
-<h2 id="orged769ca">Conclusion</h2>
-<div class="outline-text-2" id="text-orged769ca">
+<div class="outline-2" id="outline-container-orgd9a1580">
+<h2 id="orgd9a1580">Conclusion</h2>
+<div class="outline-text-2" id="text-orgd9a1580">
 <p>Updating the password isn't fantastically difficult, once you know what you have to do, but I don't imagine I'd have figured it out for myself. Hopefully even if I forget how to do it next time I'll at least remember that I wrote down what to do.</p>
 </div>
 </div>
@@ -1151,121 +1248,6 @@ False
 True
 </pre>
 <p>Okay, that's better, I guess. It feels a little inelegant to have to do this, but at least it seems to work.</p>
-</div>
-</div>
-</div>
-</article>
-<article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article">
-<header>
-<h1 class="p-name entry-title"><a class="u-url" href="posts/tangling-multiple-org-files/">Tangling Multiple Org Files</a></h1>
-<div class="metadata">
-<p class="byline author vcard"><span class="byline-name fn" itemprop="author"><a href="authors/cloistered-monkey/">Cloistered Monkey</a></span></p>
-<p class="dateline"><a href="posts/tangling-multiple-org-files/" rel="bookmark"><time class="published dt-published" datetime="2022-03-21T17:30:14-07:00" itemprop="datePublished" title="2022-03-21 17:30">2022-03-21 17:30</time></a></p>
-</div>
-</header>
-<div class="p-summary entry-summary">
-<div id="table-of-contents" role="doc-toc">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
-<ul>
-<li><a href="posts/tangling-multiple-org-files/#org0daa291">The Steps</a>
-<ul>
-<li><a href="posts/tangling-multiple-org-files/#org8c02c45">Create one.org</a></li>
-<li><a href="posts/tangling-multiple-org-files/#org69d3160">Create two.org</a></li>
-<li><a href="posts/tangling-multiple-org-files/#org6790a3f">Export one.org</a></li>
-<li><a href="posts/tangling-multiple-org-files/#org7c1432c">Tangle one.org.org</a></li>
-</ul>
-</li>
-<li><a href="posts/tangling-multiple-org-files/#orge84d9dc">Sources</a></li>
-</ul>
-</div>
-</div>
-<p>I've been looking off and on for ways to combine separate code-blocks in org-mode into a single tangled file. I wanted to use it because I tangle code that I want to re-use out of posts but then if I want to break the posts up I need to create a separate file (tangle) for each post. I'm hopeful that this method will allow me to break up a tangle across multiple posts. I've only tried it on toy files but I want to get some initial documentation for it in place.</p>
-<div class="outline-2" id="outline-container-org0daa291">
-<h2 id="org0daa291">The Steps</h2>
-<div class="outline-text-2" id="text-org0daa291">
-<p>Let's say that there are two source org-files:</p>
-<ul class="org-ul">
-<li><code>one.org</code>: contains the tangle block and a source block</li>
-<li><code>two.org</code>: contains another block that we want to tangle with the one in <code>one.org</code></li>
-</ul>
-<p>The steps are:</p>
-<ol class="org-ol">
-<li>Put an <code>#+INCLUDE</code> directive to include <code>two.org</code> into <code>one.org</code></li>
-<li>Export <code>one.org</code> to an <code>org</code> file</li>
-<li>Open the exported org file (<code>one.org.org</code>)</li>
-<li>Tangle it.</li>
-</ol>
-</div>
-<div class="outline-3" id="outline-container-org8c02c45">
-<h3 id="org8c02c45">Create one.org</h3>
-<div class="outline-text-3" id="text-org8c02c45">
-<p>The file <code>one.org</code> is going to have the tangle and the first source-block:</p>
-<div class="highlight">
-<pre><span></span>#+begin_src python :tangle ~/test.py :exports none
-&lt;&lt;block-one&gt;&gt;
-
-&lt;&lt;block-two&gt;&gt;
-#+end_src
-</pre></div>
-<div class="highlight">
-<pre><span></span>#+begin_src python :noweb-ref block-one
-def one():
-    print("One")
-#+end_src
-</pre></div>
-<p>We also need to include what's in the second file (<code>two.org</code>). The code we want to include is in a section called <code>Two</code> so we can include just that section by adding a search term at the end.</p>
-<div class="highlight">
-<pre><span></span>#+INCLUDE: "./two.org::*Two"
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org69d3160">
-<h3 id="org69d3160">Create two.org</h3>
-<div class="outline-text-3" id="text-org69d3160">
-<p>In the other file add the section header to match the <code>INCLUDE</code> search term (<code>*Two</code>) and put a code block with a reference named <code>block-two</code> to match what's in the tangle block above.</p>
-<div class="highlight">
-<pre><span></span>* Two
-#+begin_src python :noweb-ref block-two
-def two():
-print("Two")
-#+end_src
-</pre></div>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org6790a3f">
-<h3 id="org6790a3f">Export one.org</h3>
-<div class="outline-text-3" id="text-org6790a3f">
-<p>Tangling unfortunately ignores the <code>INCLUDE</code> directive so we have to export it first to another org-file in order to get the text from <code>org.two</code> into our source file. By default, exporting to <code>org</code> is disabled so you need to enable it (e.g. starting with <code>M-x customize</code> <code>org-export-backends</code>).</p>
-<p>Once it's enabled you can export <code>one.org</code> to an org-mode file using <code>C-c C-e O v</code> (the default name will be <code>one.org.org</code>).</p>
-</div>
-</div>
-<div class="outline-3" id="outline-container-org7c1432c">
-<h3 id="org7c1432c">Tangle one.org.org</h3>
-<div class="outline-text-3" id="text-org7c1432c">
-<p>The last choice when we exported the file in the previous step (<code>v</code>) will save it to a file and open it up in an emacs buffer. When the buffer is open you can then tangle it (<code>C-c C-v C-t</code>) and the output (<code>/test.py</code> from our tangle block) should contain both of our functions.</p>
-</div>
-</div>
-</div>
-<div class="outline-2" id="outline-container-orge84d9dc">
-<h2 id="orge84d9dc">Sources</h2>
-<div class="outline-text-2" id="text-orge84d9dc">
-<p>This is where I got the information on breaking up the files. It includes some emacs-lisp to run the steps automatically (although I didn't try it):</p>
-<ul class="org-ul">
-<li>Multi-File Org-Babel Tangles with Include Directives [Internet]. DEV Community. [cited 2022 Mar 21]. Available from: <a href="https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522">https://dev.to/jfhbrook/multi-file-org-babel-tangles-with-include-directives-5522</a></li>
-</ul>
-<p>This is the post that mentions that exporting org-files to org-format needs to be enabled (and how to do it):</p>
-<ul class="org-ul">
-<li>exporting - Org mode export subtree to new org file - option missing? [Internet]. Emacs Stack Exchange. [cited 2022 Mar 21]. Available from: <a href="https://emacs.stackexchange.com/a/70453">https://emacs.stackexchange.com/a/70453</a></li>
-</ul>
-<p>This is the manual page explaining the search syntax (which is what the <code>#+INCLUDE</code> format uses).</p>
-<ul class="org-ul">
-<li>Search Options (The Org Manual) [Internet]. [cited 2022 Mar 21]. Available from: <a href="https://orgmode.org/manual/Search-Options.html">https://orgmode.org/manual/Search-Options.html</a></li>
-</ul>
-<p>This explains the <code>#+INCLUDE</code> directive options:</p>
-<ul class="org-ul">
-<li>Include Files (The Org Manual) [Internet]. [cited 2022 Mar 21]. Available from: <a href="https://orgmode.org/manual/Include-Files.html">https://orgmode.org/manual/Include-Files.html</a></li>
-</ul>
 </div>
 </div>
 </div>

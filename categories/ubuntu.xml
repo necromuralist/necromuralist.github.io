@@ -5,7 +5,129 @@
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"&gt;
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"&gt;&lt;/a&gt;
 &lt;/div&gt;
-</copyright><lastBuildDate>Sat, 19 Apr 2025 22:55:47 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Noble Numbat and the Broken Virtual Environments</title><link>https://necromuralist.github.io/posts/noble-numbat-and-the-broken-virtual-environments/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+</copyright><lastBuildDate>Sun, 04 May 2025 02:39:04 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Fixing NVidia With Wayland on Ubuntu 24.04 (Noble Numbat)</title><link>https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents" role="doc-toc"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/#org747e9b8"&gt;The Problem&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/#org9692e33"&gt;The Problems&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/#org7be6c11"&gt;WayDroid and X11&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/#orgfe68e5b"&gt;The Next Problem - Sleep and Logging out&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/#orgc51ada6"&gt;No Settings&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/#org727203c"&gt;Conclusion&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/#org0ee347f"&gt;Links&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org747e9b8" class="outline-2"&gt;
+&lt;h2 id="org747e9b8"&gt;The Problem&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org747e9b8"&gt;
+&lt;p&gt;
+Switching from X11 to Wayland (on &lt;b&gt;&lt;b&gt;Ubuntu 24.04 (Noble Numbat)&lt;/b&gt;&lt;/b&gt;) initially prevented launching the Settings so I went on a hunt to fix it (and here are my notes).
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org9692e33" class="outline-2"&gt;
+&lt;h2 id="org9692e33"&gt;The Problems&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org9692e33"&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org7be6c11" class="outline-3"&gt;
+&lt;h3 id="org7be6c11"&gt;WayDroid and X11&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-org7be6c11"&gt;
+&lt;p&gt;
+I was poking around and saw that there was a project to run Android on PCs (among other things) called &lt;a href="https://waydro.id/"&gt;Waydroid&lt;/a&gt; so I installed it, but whenever I tried to enter the Waydroid shell
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo waydroid shell
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+I got an error saying  that the &lt;i&gt;waydroid session is stopped&lt;/i&gt;. This isn't a post about waydroid so I'll skip the troubleshooting I did, but ultimately I found an &lt;i&gt;AskUbuntu&lt;/i&gt; post from someone who ran into the same problem and found from one of &lt;a href="https://askubuntu.com/questions/1475593/how-do-i-resolve-the-waydroid-session-is-stopped-problem/#comment2597386_1478124"&gt;the comments&lt;/a&gt; that:
+&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;
+it turns out that waydroid is not compatible with X11.
+&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;
+Maybe it's called &lt;i&gt;Waydroid&lt;/i&gt; because it needs &lt;i&gt;Wayland&lt;/i&gt;? Anyway I checked if I was using &lt;i&gt;Wayland&lt;/i&gt;:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$XDG_SESSION_TYPE&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+Which didn't show that I was (I can't remember if it showed X11 or was just empty, but it wasn't anything like "Wayland" anyway). It turned out I had chosen "Ubuntu" at the login screen, not "Ubuntu Wayland" so I logged out, switched to Wayland and then logged in. This seemed to fix the initial WayDroid problem (I got the GUI running but I still haven't finished the installation) but then another problem came up.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgfe68e5b" class="outline-3"&gt;
+&lt;h3 id="orgfe68e5b"&gt;The Next Problem - Sleep and Logging out&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgfe68e5b"&gt;
+&lt;p&gt;
+Having switched to Wayland I decided I needed a break. While I was away my computer went to the lock screen, as it usually does, but when I opened it back up I found that instead of just locking the screen it had actually logged me out, killing all the applications I left open and closing an encrypted mount point I had open. More searching ensued.
+&lt;/p&gt;
+
+&lt;p&gt;
+Once again, someone posted a question on &lt;a href="https://askubuntu.com/questions/1482786/ubuntu-23-04-logs-me-out-arbitrarily-while-going-to-sleep-mode"&gt;&lt;i&gt;AskUbuntu&lt;/i&gt;&lt;/a&gt; that seemed to be about the same problem, the suggested answer being to disable the Screen Lock, which didn't really seem to be a good answer, but it was &lt;i&gt;an&lt;/i&gt; answer, which was one more than I started with so I decided to give it a try. But then the next problem appeared.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-orgc51ada6" class="outline-3"&gt;
+&lt;h3 id="orgc51ada6"&gt;No Settings&lt;/h3&gt;
+&lt;div class="outline-text-3" id="text-orgc51ada6"&gt;
+&lt;p&gt;
+When I tried to launch the settings an icon came up in the launcher like normal but the settings wouldn't come up. Okay. I'm skipping some of the intermediate searches but eventually I tried running the settings in the terminal to look for the errors.
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;gnome-control-center 
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+This gave an error which included "failed to create dri2 screen" so I went on a search again and found &lt;a href="https://askubuntu.com/questions/1514352/ubuntu-24-04-with-nvidia-driver-libegl-warning-egl-failed-to-create-dri2-scre"&gt;another AskUbuntu post&lt;/a&gt; with &lt;a href="https://askubuntu.com/a/1516567"&gt;a suggested answer&lt;/a&gt; - install a package:
+&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt install libnvidia-egl-wayland1
+&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;
+After logging out and logging back in the settings worked &lt;i&gt;and&lt;/i&gt; the lock screen no longer logged me out so this seems to have been the fix (for these problems, there's still some weird things going on but nothing I can't live with yet.)
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org727203c" class="outline-2"&gt;
+&lt;h2 id="org727203c"&gt;Conclusion&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org727203c"&gt;
+&lt;p&gt;
+There's an &lt;a href="https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2063827"&gt;open bug on Launchpad&lt;/a&gt; (&lt;i&gt;Gnome apps segfault in Nvidia (535) Wayland sessions on Noble, but 550 works&lt;/i&gt;) which looks like it might be related to the problem I ran into. It says that upgrading the NVidia driver to 550 fixes the Gnome Settings problem but the upgrade then introduces some other errors so installing &lt;code&gt;libnvidia-egl-wayland1&lt;/code&gt; looks like the right fix. The bug was opened on April 26, 2024 so I would imagine it would effect more people, making this a high priority. Perhaps Wayland isn't widely used, at least not among nvidia users. I'm typing this in emacs and portions of the buffer are messed up, making it dangerous to use (insofar as I can't tell if the text actually exists in the document in the same place where it appears on the screen) so I'll probably go back to X11 until they get this stuff worked out, but at least it's working a little better than it was this morning.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="outline-container-org0ee347f" class="outline-2"&gt;
+&lt;h2 id="org0ee347f"&gt;Links&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org0ee347f"&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://waydro.id/"&gt;Waydroid&lt;/a&gt; : The start of the problem&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://askubuntu.com/questions/1475593/how-do-i-resolve-the-waydroid-session-is-stopped-problem/"&gt;Ask Ubuntu - how do I resolve the "waydroid session is stopped" problem?&lt;/a&gt;: The First Problem&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://askubuntu.com/questions/1482786/ubuntu-23-04-logs-me-out-arbitrarily-while-going-to-sleep-mode"&gt;Ask Ubuntu - "Ubuntu 23.04 logs me out arbitrarily while going to sleep mode"&lt;/a&gt;: The second problem.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://askubuntu.com/questions/1514352/ubuntu-24-04-with-nvidia-driver-libegl-warning-egl-failed-to-create-dri2-scre"&gt;Ask Ubuntu- Ubuntu 24.04 with Nvidia driver "libEGL warning: egl: failed to create dri2 screen"&lt;/a&gt;: The solution post.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2063827"&gt;Launchpad - Gnome apps segfault in Nvidia (535) Wayland sessions on Noble, but 550 works &lt;/a&gt; : Possibly related bug.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://gist.github.com/1999AZZAR/5c881fdaeb841fc4476259bfcc69b98c"&gt;GitHub Gist - waydroid on x11.md&lt;/a&gt; : Possible way around Wayland for Waydroid. Also has other useful notes for Waydroid.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>nvidia</category><category>ubuntu</category><category>wayland</category><guid>https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/</guid><pubDate>Sat, 03 May 2025 16:48:54 GMT</pubDate></item><item><title>Noble Numbat and the Broken Virtual Environments</title><link>https://necromuralist.github.io/posts/noble-numbat-and-the-broken-virtual-environments/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
@@ -1953,92 +2075,4 @@ Part of the motivation for writing this is that it took me more time searching f
 As a final note I should mention that the accepted answer to this post &lt;a href="https://askubuntu.com/questions/197613/monday-as-first-day-in-gnome-shell-instead-of-sunday"&gt;on Stack Overflow&lt;/a&gt; pretty much tells you what to do, it's only missing telling you how to double-check which file to edit, but I didn't find it until after I'd made the changes. Also this page on &lt;a href="https://linuxconfig.org/how-to-restart-gui-on-ubuntu-20-04-focal-fossa"&gt;Linux Config&lt;/a&gt; has things to try to restart the GUI without logging out, but trying Method 3 (restarting the gnome-shell) is what gave me the error, but if for some reason you really can't log out and you need the week to start on Monday right now, maybe it's something to try.
 &lt;/p&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>ubuntu</category><guid>https://necromuralist.github.io/posts/changing-the-first-day-of-the-week-in-ubuntu-2004/</guid><pubDate>Thu, 13 Aug 2020 02:00:04 GMT</pubDate></item><item><title>Encrypt Dropbox Folders on Ubuntu With CryFS</title><link>https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
-&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div id="text-table-of-contents" role="doc-toc"&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/#org4845bbc"&gt;Introduction&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/#orgf464dd8"&gt;Encrypt the Folders&lt;/a&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/#org51e7fb9"&gt;Install It&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/#org6b4314a"&gt;Create the Target and Source Folders&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/#org24eaca8"&gt;Unmount It&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/#org1421c74"&gt;References&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org4845bbc" class="outline-2"&gt;
-&lt;h2 id="org4845bbc"&gt;Introduction&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org4845bbc"&gt;
-&lt;p&gt;
-This is one way to encrypt the contents for cloud-synchronized folders using &lt;a href="https://www.cryfs.org/"&gt;CryFS&lt;/a&gt;. I'm going to illustrate it using the &lt;code&gt;Dropbox&lt;/code&gt; folder that the &lt;a href="https://www.dropbox.com/"&gt;dropbox client&lt;/a&gt; creates.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgf464dd8" class="outline-2"&gt;
-&lt;h2 id="orgf464dd8"&gt;Encrypt the Folders&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgf464dd8"&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org51e7fb9" class="outline-3"&gt;
-&lt;h3 id="org51e7fb9"&gt;Install It&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org51e7fb9"&gt;
-&lt;p&gt;
-Ubuntu currently (November 10, 2018) has &lt;code&gt;CryFS&lt;/code&gt; as part of its packages so you can install it with apt.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo apt install cryfs
-&lt;/pre&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org6b4314a" class="outline-3"&gt;
-&lt;h3 id="org6b4314a"&gt;Create the Target and Source Folders&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org6b4314a"&gt;
-&lt;p&gt;
-The &lt;code&gt;cryfs&lt;/code&gt; command will create the two folders and set them up for you. The syntax is &lt;code&gt;cryfs &amp;lt;target&amp;gt; &amp;lt;source&amp;gt;&lt;/code&gt;. The &lt;code&gt;target&lt;/code&gt; will contain the encrypted folders so it will go in the Dropbox folder, while the &lt;code&gt;source&lt;/code&gt; will hold the unencrypted files.
-&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cryfs Dropbox/encrypted dropbox_source
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-This is the same command you would use on another computer to set-up the existing encrypted folder on your new computer. The &lt;code&gt;source&lt;/code&gt; folder can be named differently, but the &lt;code&gt;target&lt;/code&gt; folder and the password need to be the same one you used when you created it. The files in the &lt;code&gt;source&lt;/code&gt; go away when you unmount it (see &lt;a href="https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/#org24eaca8"&gt;below&lt;/a&gt;) so you will have to re-mount it whenever you unmount it or log out or restart your computer.
-&lt;/p&gt;
-
-&lt;p&gt;
-&lt;b&gt;&lt;b&gt;Note:&lt;/b&gt;&lt;/b&gt; The &lt;a href="https://www.cryfs.org/tutorial"&gt;cryfs tutorial&lt;/a&gt; has a warning that if two different computers access the mounted folder at the same time it can corrupt the files so you have to make sure to unmount it on one computer before mounting it on another. This seems like a really bad thing, but I guess you should/oughta make backups of the unencrypted stuff just in case.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org24eaca8" class="outline-3"&gt;
-&lt;h3 id="org24eaca8"&gt;Unmount It&lt;/h3&gt;
-&lt;div class="outline-text-3" id="text-org24eaca8"&gt;
-&lt;p&gt;
-The old way to unmount it was using &lt;a href="http://manpages.ubuntu.com/manpages/cosmic/man1/fusermount.1.html"&gt;fusermount&lt;/a&gt; but they've added a &lt;code&gt;cryfs-unmount&lt;/code&gt; command which you can/should use instead.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;cryfs-unmount dropbox_source
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-This was the old way.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;fusermount -u dropbox_source
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Since you are doing all this within your home directory you don't need root privileges (except to install &lt;code&gt;cryfs&lt;/code&gt; with apt).
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-org1421c74" class="outline-2"&gt;
-&lt;h2 id="org1421c74"&gt;References&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org1421c74"&gt;
-&lt;ul class="org-ul"&gt;
-&lt;li&gt;I got this from &lt;a href="https://www.linuxbabe.com/ubuntu/encrypt-dropbox-ubuntu-16-04-17-10-desktop-server"&gt;Linux Babe&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;But the &lt;a href="https://www.cryfs.org/tutorial"&gt;CryFS Tutorial&lt;/a&gt; is pretty straight-forward, it just skips the part about installing cryfs.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>dropbox</category><category>encryption</category><category>linux</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/encrypt-dropbox-folders-on-ubuntu/</guid><pubDate>Mon, 10 Dec 2018 20:41:05 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>ubuntu</category><guid>https://necromuralist.github.io/posts/changing-the-first-day-of-the-week-in-ubuntu-2004/</guid><pubDate>Thu, 13 Aug 2020 02:00:04 GMT</pubDate></item></channel></rss>
