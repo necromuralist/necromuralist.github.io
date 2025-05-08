@@ -1,0 +1,173 @@
+#+BEGIN_COMMENT
+.. title: Emacs and Wayland
+.. slug: emacs-and-wayland
+.. date: 2025-05-04 20:33:39 UTC-07:00
+.. tags: emacs,ubuntu,wayland
+.. category: Emacs
+.. link: 
+.. description: Getting Emacs Working in Wayland.
+.. type: text
+.. status: 
+.. updated: 
+
+#+END_COMMENT
+#+OPTIONS: ^:{}
+#+TOC: headlines 2
+
+* The Problem
+
+As I noted at the end of my {{% lancelot title="post on fixing Nvidia with Wayland" %}}gnome-settings-with-nvidia-and-wayland{{% /lancelot %}} although it mostly works, running emacs under Wayland would produce weird artifacts where some lines from one part of the buffer would show up in other parts - but they were just display artifacts, rendering the document showed that the stray lines weren't actually in the text.
+
+** Pure GTK
+
+#+begin_src fish
+sudo apt remove emacs-gtk
+#+end_src
+
+** Caps Lock to Control (and Escape)
+
+Suggestion on [[https://www.sinisterstuf.org/blog/1882/getting-xcape-functionality-in-wayland][sinisterstuf blog]] - something called ~caps2esc~.
+
+* caps2esc
+
+- [[https://gitlab.com/interception/linux/plugins/caps2esc][caps2esc on gitlab]]
+
+#+begin_src fish
+sudo apt install interception-caps2esc
+#+end_src
+
+#+begin_src fish
+(necromuralist.github.io) hades@erebus ~/p/necromuralist.github.io (main|clean)> systemctl status udevmon
+× udevmon.service - Monitor input devices for launching tasks
+     Loaded: loaded (/usr/lib/systemd/system/udevmon.service; enabled; preset: enabled)
+     Active: failed (Result: exit-code) since Sun 2025-05-04 23:29:16 AST; 7min ago
+   Duration: 6ms
+       Docs: man:udev(7)
+    Process: 2749011 ExecStart=/usr/bin/udevmon -c /etc/interception/udevmon.yaml (code=exited, status=1/FAILURE)
+   Main PID: 2749011 (code=exited, status=1/FAILURE)
+        CPU: 5ms
+
+May 04 23:29:16 erebus systemd[1]: udevmon.service: Scheduled restart job, restart counter is at 5.
+May 04 23:29:16 erebus systemd[1]: udevmon.service: Start request repeated too quickly.
+May 04 23:29:16 erebus systemd[1]: udevmon.service: Failed with result 'exit-code'.
+May 04 23:29:16 erebus systemd[1]: Failed to start udevmon.service - Monitor input devices for launching tasks.
+#+end_src
+
+From ~journalctl -r~.
+
+#+begin_src fish
+ignoring /etc/interception/udevmon.yaml, reason: bad file: /etc/interception/udevmon.yaml
+couldn't read any configuration: No such file or directory
+#+end_src
+
+#+begin_src fish
+ls /etc/interception/
+#+end_src
+
+#+begin_src fish
+udevmon.d/
+#+end_src
+
+There's a bug report [[https://gitlab.com/interception/linux/tools/-/issues/51]["confusing error message: ignoring /etc/interception/udevmon.yaml, reason: bad file: /etc/interception/udevmon.yaml"]] that makes it sound like this is a bad error message, not an error, although it is an error... what?
+
+Well, there's another bug [[https://gitlab.com/interception/linux/tools/-/merge_requests/19]["#51 load legacy /etc/interception/udevmon.yaml quietly"]] that suggests that the ~udevmon.yaml~ file only gets loaded if there's no configuration in ~udevmon.d/~ (I checked and there's nothing in that folder).
+
+#+begin_src fish
+cat /usr/lib/systemd/system/udevmon.service
+#+end_src
+
+#+begin_src ini
+[Unit]
+Description=Monitor input devices for launching tasks
+Wants=systemd-udev-settle.service
+After=systemd-udev-settle.service
+Documentation=man:udev(7)
+
+[Service]
+ExecStart=/usr/bin/udevmon -c /etc/interception/udevmon.yaml
+Nice=-20
+Restart=on-failure
+OOMScoreAdjust=-1000
+
+[Install]
+WantedBy=multi-user.target
+#+end_src
+
+So when it starts it /is/ looking for that file, although if I understand that gitlab bug this should be ignored if there's no file there, but we still need to add that file and put it somewhere.
+
+The [[https://gitlab.com/interception/linux/plugins/caps2esc][caps2esc]] readme gives this as an example configuration:
+
+#+begin_src yml
+- JOB: intercept -g $DEVNODE | caps2esc | uinput -d $DEVNODE
+  DEVICE:
+    EVENTS:
+      EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
+#+end_src
+
+*/But/* - as noted in [[https://askubuntu.com/a/1516050][this answer on StackExchange]], Ubuntu changes the name of the executable from 'intercept' to 'interception,' as shown in the output of ~apt show interception-tools~:
+
+#+begin_src fish
+Package: interception-tools-compat
+Version: 0.6.8-3build1
+Priority: optional
+Section: universe/admin
+Source: interception-tools
+Origin: Ubuntu
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Original-Maintainer: Osamu Aoki <osamu@debian.org>
+Bugs: https://bugs.launchpad.net/ubuntu/+filebug
+Installed-Size: 13.3 kB
+Depends: interception-tools
+Conflicts: bear
+Homepage: https://gitlab.com/interception/linux/tools
+Download-Size: 1,432 B
+APT-Sources: http://mirrors.xmission.com/ubuntu noble/universe amd64 Packages
+Description: minimal composable infrastructure on top of libudev and libevdev
+ The Interception Tools is a small set of utilities for operating on
+ input events of evdev devices.
+ .
+  * intercept - redirect device input events to stdout
+ .
+ This compatibility package to offer the upstream command name 'intercept'
+ as the alias of the 'interception' command.
+
+
+#+end_src
+
+So we need to change the configuation a little.
+
+#+begin_src yaml
+- JOB: intercept -g $DEVNODE | caps2esc | uinput -d $DEVNODE
+  DEVICE:
+    EVENTS:
+      EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
+
+#+end_src
+
+#+begin_src yaml
+- JOB: interception -g $DEVNODE | caps2esc | uinput -d $DEVNODE
+  DEVICE:
+    EVENTS:
+      EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
+
+
+#+end_src
+
+
+I put this file in ~/etc/interception/udevmon.d/udevmon.yml~ and entered ~sudo systemctl start udevmon~ and now my caps lock is an Escape key when I tap it and a Control key when I hold it down (I also undid my Ubuntu Tweaks rule for the Caps Lock).
+
+I just noticed that Step 5. of the caps2esc Quick Start says:
+
+#+begin_src quote
+Check for problems: ~journalctl -u udevmon~. No news is good news. You can safely disregard any ~ignoring /etc/interception/udevmon.yaml, reason: bad file: /etc/interception/udevmon.yaml~ messages.
+#+end_src
+
+* A Temporary New Problem
+
+I was typing and all of a sudden all the text came out like I was holding the shift key down (which I wasn't). The light under the Caps Lock was on but since ~caps2esc~ disables it I couldn't figure out how to set it back so I ended up stopping the ~udevmon~ service, hitting Caps Lock, then restarting the service. This was actually kind of hard since I had to do it as root and needed to enter my password but had to press the shift key at exactly the opposite places.
+
+It turns out that the default behavior for ~caps2esc~ is to swap the Caps Lock and the Esc key, so the Esc key is now a Caps Lock. I probably hit it because the way I had ~xcape~ set up was to have two Esc keys (the original and the Caps Lock) and I just dumped the Caps Lock. You can replicate this behavior by passing a ~1~ argument to ~caps2esc~ but I guess I'll leave it alone for now and just learn to live with one Escape key...
+
+* Links
+- [[https://en.wikipedia.org/wiki/Esc_key?useskin=vector][Wikipedia on the Escape Key]]
+- [[https://en.wikipedia.org/wiki/Baudot_code?useskin=vector][Wikipedia on the Baudot Code]]
