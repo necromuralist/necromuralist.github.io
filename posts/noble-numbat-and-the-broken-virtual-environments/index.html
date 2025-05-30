@@ -78,26 +78,26 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orge191ef7">What is this about?</a></li>
-<li><a href="#org0c7176f">What Happened</a></li>
-<li><a href="#orgad64f4b">Short Version</a></li>
-<li><a href="#orga5f4cd8">The First Hint (pipx)</a></li>
-<li><a href="#orgafa04e1">The Broken Virtual Environments</a></li>
-<li><a href="#org62c9b7c">Then a Nikola Error</a></li>
-<li><a href="#org934eba2">An Ape-Iron Problem (no distutils)</a></li>
-<li><a href="#orgfeb54ce">Links</a></li>
+<li><a href="#org40429aa">What is this about?</a></li>
+<li><a href="#org052aae9">What Happened</a></li>
+<li><a href="#org63adcfe">Short Version</a></li>
+<li><a href="#org46a1c07">The First Hint (pipx)</a></li>
+<li><a href="#org16f65f6">The Broken Virtual Environments</a></li>
+<li><a href="#org6dab3cd">Then a Nikola Error</a></li>
+<li><a href="#orgf9d15a8">An Ape-Iron Problem (no distutils)</a></li>
+<li><a href="#org5b4d613">Links</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orge191ef7">
-<h2 id="orge191ef7">What is this about?</h2>
-<div class="outline-text-2" id="text-orge191ef7">
-<p>These are notes I made when I was fixing some errors that occurred after updating Ubuntu to 24.04. It's been over a year so I don't really remember writing this, but, here it is.</p>
+<div class="outline-2" id="outline-container-org40429aa">
+<h2 id="org40429aa">What is this about?</h2>
+<div class="outline-text-2" id="text-org40429aa">
+<p>These are notes I made when I was fixing some errors that occurred after updating Ubuntu to 24.04. It's been over a year so I don't really remember writing this, but, here it is. The fixes are specific to <a href="https://github.com/justinmayer/virtualfish">virtualfish</a>, <a href="https://github.com/pypa/pipx">pipx</a>, and <a href="https://getnikola.com/">nikola</a>.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0c7176f">
-<h2 id="org0c7176f">What Happened</h2>
-<div class="outline-text-2" id="text-org0c7176f">
+<div class="outline-2" id="outline-container-org052aae9">
+<h2 id="org052aae9">What Happened</h2>
+<div class="outline-text-2" id="text-org052aae9">
 <ul class="org-ul">
 <li>I updated Ubuntu</li>
 <li>Something raised an obscure error when I changed into one of my git repositories</li>
@@ -106,22 +106,23 @@
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgad64f4b">
-<h2 id="orgad64f4b">Short Version</h2>
-<div class="outline-text-2" id="text-orgad64f4b">
+<div class="outline-2" id="outline-container-org63adcfe">
+<h2 id="org63adcfe">Short Version</h2>
+<div class="outline-text-2" id="text-org63adcfe">
 <ul class="org-ul">
 <li>Upgrading to Ubuntu 24.04 made python changes that broke all my virtual enviroments</li>
 <li>Reinstalled <code>pipx</code> using apt</li>
 <li><code>vf ls --details</code> shows the python versions for all (virtualfish created) virtual environments (and which are broken)</li>
 <li><code>vf upgrade --rebuild</code> will upgrade the currently active virtual environment (may take more than one run to get past errors)</li>
 <li><code>pipx reinstall-all</code> fixed the missing <code>nikola</code> and <code>pygmentize</code> errors (and probably others)</li>
-<li><code>pip install setuptools --upgrade</code> in the environment re-setup <code>distutils</code> which was removed from pthyon 3.12 (which Ubuntu Installed)</li>
+<li>fixing <code>pygments</code> doesn't fix the errors in posts that were alread built so do a <code>nikola clean</code> and <code>nikola build</code></li>
+<li><code>pip install setuptools --upgrade</code> in the environment re-setup <code>distutils</code> which was removed from python 3.12 (which Ubuntu Installed)</li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orga5f4cd8">
-<h2 id="orga5f4cd8">The First Hint (pipx)</h2>
-<div class="outline-text-2" id="text-orga5f4cd8">
+<div class="outline-2" id="outline-container-org46a1c07">
+<h2 id="org46a1c07">The First Hint (pipx)</h2>
+<div class="outline-text-2" id="text-org46a1c07">
 <p>I don't remember exactly what cued me in to what was going wrong, but somewhere in trying to figure out what was wrong I found that running <a href="https://github.com/frostming/legit">legit</a> after updating to Ubuntu 24.04 returned an error saying that <code>legit</code> wasn't found. It took a while to figure out where <code>legit</code> was supposed to be coming from, but it turned out I had installed it with <a href="https://pipx.pypa.io/latest/installation/">pipx</a> and had to re-install it to get it working.</p>
 <p>I don't remember exactly what I did anymore, but based on the command history it looks like:</p>
 <ol class="org-ol">
@@ -131,9 +132,9 @@
 <p>So, was <code>pipx</code> the problem? Well, partly.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgafa04e1">
-<h2 id="orgafa04e1">The Broken Virtual Environments</h2>
-<div class="outline-text-2" id="text-orgafa04e1">
+<div class="outline-2" id="outline-container-org16f65f6">
+<h2 id="org16f65f6">The Broken Virtual Environments</h2>
+<div class="outline-text-2" id="text-org16f65f6">
 <p>The next problem came when I tried to build the HTML for this site.</p>
 <div class="highlight">
 <pre><span></span>nikola build
@@ -141,7 +142,7 @@
 <div class="highlight">
 <pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
   <span class="n">File</span> <span class="s2">"/home/hades/.virtualenvs/necromuralist.github.io/bin/nikola"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">5</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-    <span class="kn">from</span> <span class="nn">nikola.__main__</span> <span class="kn">import</span> <span class="n">main</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">nikola.__main__</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
 <span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">'nikola'</span>
 </pre></div>
 <p>For some reason the <code>nikola</code> executable was missing. Since I was in a virtual environment I tried to re-install nikola but using <code>pip</code> gave another error.</p>
@@ -151,7 +152,7 @@
 <div class="highlight">
 <pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
   <span class="n">File</span> <span class="s2">"/home/hades/.virtualenvs/necromuralist.github.io/bin/pip"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">5</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-    <span class="kn">from</span> <span class="nn">pip._internal.cli.main</span> <span class="kn">import</span> <span class="n">main</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pip._internal.cli.main</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
 <span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">'pip'</span>
 </pre></div>
 <p>So, not only was <code>nikola</code> missing but so was <code>pip</code>, which I thought was a part of the python installation… I looked at what was in the virtualenvironment -</p>
@@ -255,9 +256,9 @@
 <p>Which looked like I was in trouble, but it turned out that re-running the upgrade fixed it. One of those magic fixes that would be scary if this was a critical site, I suppose, but which is instead, just another bit of python mystery.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org62c9b7c">
-<h2 id="org62c9b7c">Then a Nikola Error</h2>
-<div class="outline-text-2" id="text-org62c9b7c">
+<div class="outline-2" id="outline-container-org6dab3cd">
+<h2 id="org6dab3cd">Then a Nikola Error</h2>
+<div class="outline-text-2" id="text-org6dab3cd">
 <p>So, with the virtual environment updated to the current python, I waded back into building the site.</p>
 <div class="highlight">
 <pre><span></span>nikola build
@@ -283,7 +284,7 @@ using HTML Tidy to generate a tidied up version.
 <div class="highlight">
 <pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
   <span class="n">File</span> <span class="s2">"/home/hades/.local/bin/pygmentize"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">5</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-    <span class="kn">from</span> <span class="nn">pygments.cmdline</span> <span class="kn">import</span> <span class="n">main</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pygments.cmdline</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
 <span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">'pygments'</span>
 </pre></div>
 <p>The cause for this one was a little more mysterious, but it turned out that I had installed <code>pygmentize</code> using <code>pipx</code> so it needed to be updated separately. I decided to use <code>pipx reinstall-all</code> to get everything updated.</p>
@@ -293,11 +294,14 @@ using HTML Tidy to generate a tidied up version.
 nikola build
 </pre></div>
 <p>And since there weren't anymore errors I decided to cross my fingers and move on.</p>
+<div class="notecard" id="org9ea6956">
+<p><b>Note to future self:</b> This happened again with the update to Ubuntu 25.04 (Plucky Puffin) and the error messages from not cleaning the old build were confusing/misleading enough to cause me to waste time troubleshooting them. A clean build is a <i>really</i> good idea.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org934eba2">
-<h2 id="org934eba2">An Ape-Iron Problem (no distutils)</h2>
-<div class="outline-text-2" id="text-org934eba2">
+</div>
+<div class="outline-2" id="outline-container-orgf9d15a8">
+<h2 id="orgf9d15a8">An Ape-Iron Problem (no distutils)</h2>
+<div class="outline-text-2" id="text-orgf9d15a8">
 <p>The <code>vf ls --details</code> command I used to check on the virtual environment for this site also showed that all my other virtual environments were broken so I decided to try and fix the <code>Ape-Iron</code> repository while it was fresh on my mind. First I rebuilt the environment.</p>
 <div class="highlight">
 <pre><span></span>vf upgrade --rebuild Ape-Iron
@@ -319,7 +323,7 @@ Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
 ModuleNotFoundError: No module named <span class="s1">'distutils'</span>
 </pre></div>
 <p>According to <a href="https://stackoverflow.com/a/77233866">this answer</a> to a question on <i>StackOverflow</i> <code>distutils</code> was removed from python 3.12, which is the default with <i>noble-numbat</i>. The answer suggests installing <a href="https://github.com/pypa/setuptools"><code>setuptools</code></a>.</p>
-<p>So, I tride that.</p>
+<p>So, I tried that.</p>
 <div class="highlight">
 <pre><span></span>pip install setuptools --upgrade
 </pre></div>
@@ -330,9 +334,9 @@ ModuleNotFoundError: No module named <span class="s1">'distutils'</span>
 <p>At this point I think I just called it a day.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-orgfeb54ce">
-<h2 id="orgfeb54ce">Links</h2>
-<div class="outline-text-2" id="text-orgfeb54ce">
+<div class="outline-2" id="outline-container-org5b4d613">
+<h2 id="org5b4d613">Links</h2>
+<div class="outline-text-2" id="text-org5b4d613">
 <ul class="org-ul">
 <li><a href="https://virtualfish.readthedocs.io/en/latest/usage.html#upgrading-virtual-environments">Upgrading Virtual Environments</a>: Virtualfish Documentation</li>
 <li><a href="https://github.com/yaml/pyyaml/issues/601">AttributeError: cython_sources</a>: A PyYAML bug report that looks related to the error.</li>

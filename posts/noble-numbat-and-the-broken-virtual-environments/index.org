@@ -15,7 +15,7 @@
 #+TOC: headlines 3
 
 * What is this about?
-These are notes I made when I was fixing some errors that occurred after updating Ubuntu to 24.04. It's been over a year so I don't really remember writing this, but, here it is.
+These are notes I made when I was fixing some errors that occurred after updating Ubuntu to 24.04. It's been over a year so I don't really remember writing this, but, here it is. The fixes are specific to [[https://github.com/justinmayer/virtualfish][virtualfish]], [[https://github.com/pypa/pipx][pipx]], and [[https://getnikola.com/][nikola]].
 
 * What Happened
 - I updated Ubuntu
@@ -29,8 +29,9 @@ These are notes I made when I was fixing some errors that occurred after updatin
 - =vf ls --details= shows the python versions for all (virtualfish created) virtual environments (and which are broken)
 - =vf upgrade --rebuild= will upgrade the currently active virtual environment (may take more than one run to get past errors)
 - =pipx reinstall-all= fixed the missing =nikola= and =pygmentize= errors (and probably others)
-- =pip install setuptools --upgrade= in the environment re-setup =distutils= which was removed from pthyon 3.12 (which Ubuntu Installed)
-  
+- fixing =pygments= doesn't fix the errors in posts that were alread built so do a =nikola clean= and =nikola build=
+- =pip install setuptools --upgrade= in the environment re-setup =distutils= which was removed from python 3.12 (which Ubuntu Installed)
+
 * The First Hint (pipx)
 I don't remember exactly what cued me in to what was going wrong, but somewhere in trying to figure out what was wrong I found that running [[https://github.com/frostming/legit][legit]] after updating to Ubuntu 24.04 returned an error saying that ~legit~ wasn't found. It took a while to figure out where =legit= was supposed to be coming from, but it turned out I had installed it with [[https://pipx.pypa.io/latest/installation/][pipx]] and had to re-install it to get it working.
 
@@ -236,6 +237,10 @@ nikola build
 
 And since there weren't anymore errors I decided to cross my fingers and move on.
 
+#+begin_notecard
+**Note to future self:** This happened again with the update to Ubuntu 25.04 (Plucky Puffin) and the error messages from not cleaning the old build were confusing/misleading enough to cause me to waste time troubleshooting them. A clean build is a /really/ good idea.
+#+end_notecard
+
 * An Ape-Iron Problem (no distutils)
 
 The =vf ls --details= command I used to check on the virtual environment for this site also showed that all my other virtual environments were broken so I decided to try and fix the =Ape-Iron= repository while it was fresh on my mind. First I rebuilt the environment.
@@ -265,7 +270,7 @@ ModuleNotFoundError: No module named 'distutils'
 
 According to [[https://stackoverflow.com/a/77233866][this answer]] to a question on /StackOverflow/ ~distutils~ was removed from python 3.12, which is the default with /noble-numbat/. The answer suggests installing [[https://github.com/pypa/setuptools][~setuptools~]].
 
-So, I tride that.
+So, I tried that.
 
 #+begin_src fish
 pip install setuptools --upgrade

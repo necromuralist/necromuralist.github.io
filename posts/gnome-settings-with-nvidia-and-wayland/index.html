@@ -76,31 +76,31 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org747e9b8">The Problem</a></li>
-<li><a href="#org9692e33">The Problems</a>
+<li><a href="#org99559d1">The Problem</a></li>
+<li><a href="#orgbce7d85">The Problems</a>
 <ul>
-<li><a href="#org7be6c11">WayDroid and X11</a></li>
-<li><a href="#orgfe68e5b">The Next Problem - Sleep and Logging out</a></li>
-<li><a href="#orgc51ada6">No Settings</a></li>
+<li><a href="#org4cbaae8">WayDroid and X11</a></li>
+<li><a href="#org99d1384">The Next Problem - Sleep and Logging out</a></li>
+<li><a href="#org5e2c9d7">No Settings</a></li>
 </ul>
 </li>
-<li><a href="#org727203c">Conclusion</a></li>
-<li><a href="#org0ee347f">Links</a></li>
+<li><a href="#orgf624236">Conclusion</a></li>
+<li><a href="#org1ca5bfb">Links</a></li>
 </ul>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org747e9b8">
-<h2 id="org747e9b8">The Problem</h2>
-<div class="outline-text-2" id="text-org747e9b8">
+<div class="outline-2" id="outline-container-org99559d1">
+<h2 id="org99559d1">The Problem</h2>
+<div class="outline-text-2" id="text-org99559d1">
 <p>Switching from X11 to Wayland (on <b>Ubuntu 24.04 (Noble Numbat)</b>) initially prevented launching the Settings so I went on a hunt to fix it (and here are my notes).</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org9692e33">
-<h2 id="org9692e33">The Problems</h2>
-<div class="outline-text-2" id="text-org9692e33"></div>
-<div class="outline-3" id="outline-container-org7be6c11">
-<h3 id="org7be6c11">WayDroid and X11</h3>
-<div class="outline-text-3" id="text-org7be6c11">
+<div class="outline-2" id="outline-container-orgbce7d85">
+<h2 id="orgbce7d85">The Problems</h2>
+<div class="outline-text-2" id="text-orgbce7d85"></div>
+<div class="outline-3" id="outline-container-org4cbaae8">
+<h3 id="org4cbaae8">WayDroid and X11</h3>
+<div class="outline-text-3" id="text-org4cbaae8">
 <p>I was poking around and saw that there was a project to run Android on PCs (among other things) called <a href="https://waydro.id/">Waydroid</a> so I installed it, but whenever I tried to enter the Waydroid shell</p>
 <div class="highlight">
 <pre><span></span>sudo waydroid shell
@@ -116,16 +116,16 @@
 <p>Which didn't show that I was (I can't remember if it showed X11 or was just empty, but it wasn't anything like "Wayland" anyway). It turned out I had chosen "Ubuntu" at the login screen, not "Ubuntu Wayland" so I logged out, switched to Wayland and then logged in. This seemed to fix the initial WayDroid problem (I got the GUI running but I still haven't finished the installation) but then another problem came up.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgfe68e5b">
-<h3 id="orgfe68e5b">The Next Problem - Sleep and Logging out</h3>
-<div class="outline-text-3" id="text-orgfe68e5b">
+<div class="outline-3" id="outline-container-org99d1384">
+<h3 id="org99d1384">The Next Problem - Sleep and Logging out</h3>
+<div class="outline-text-3" id="text-org99d1384">
 <p>Having switched to Wayland I decided I needed a break. While I was away my computer went to the lock screen, as it usually does, but when I opened it back up I found that instead of just locking the screen it had actually logged me out, killing all the applications I left open and closing an encrypted mount point I had open. More searching ensued.</p>
 <p>Once again, someone posted a question on <a href="https://askubuntu.com/questions/1482786/ubuntu-23-04-logs-me-out-arbitrarily-while-going-to-sleep-mode"><i>AskUbuntu</i></a> that seemed to be about the same problem, the suggested answer being to disable the Screen Lock, which didn't really seem to be a good answer, but it was <i>an</i> answer, which was one more than I started with so I decided to give it a try. But then the next problem appeared.</p>
 </div>
 </div>
-<div class="outline-3" id="outline-container-orgc51ada6">
-<h3 id="orgc51ada6">No Settings</h3>
-<div class="outline-text-3" id="text-orgc51ada6">
+<div class="outline-3" id="outline-container-org5e2c9d7">
+<h3 id="org5e2c9d7">No Settings</h3>
+<div class="outline-text-3" id="text-org5e2c9d7">
 <p>When I tried to launch the settings an icon came up in the launcher like normal but the settings wouldn't come up. Okay. I'm skipping some of the intermediate searches but eventually I tried running the settings in the terminal to look for the errors.</p>
 <div class="highlight">
 <pre><span></span>gnome-control-center 
@@ -138,15 +138,15 @@
 </div>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org727203c">
-<h2 id="org727203c">Conclusion</h2>
-<div class="outline-text-2" id="text-org727203c">
+<div class="outline-2" id="outline-container-orgf624236">
+<h2 id="orgf624236">Conclusion</h2>
+<div class="outline-text-2" id="text-orgf624236">
 <p>There's an <a href="https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-535/+bug/2063827">open bug on Launchpad</a> (<i>Gnome apps segfault in Nvidia (535) Wayland sessions on Noble, but 550 works</i>) which looks like it might be related to the problem I ran into. It says that upgrading the NVidia driver to 550 fixes the Gnome Settings problem but the upgrade then introduces some other errors so installing <code>libnvidia-egl-wayland1</code> looks like the right fix. The bug was opened on April 26, 2024 so I would imagine it would effect more people, making this a high priority. Perhaps Wayland isn't widely used, at least not among nvidia users. I'm typing this in emacs and portions of the buffer are messed up, making it dangerous to use (insofar as I can't tell if the text actually exists in the document in the same place where it appears on the screen) so I'll probably go back to X11 until they get this stuff worked out, but at least it's working a little better than it was this morning.</p>
 </div>
 </div>
-<div class="outline-2" id="outline-container-org0ee347f">
-<h2 id="org0ee347f">Links</h2>
-<div class="outline-text-2" id="text-org0ee347f">
+<div class="outline-2" id="outline-container-org1ca5bfb">
+<h2 id="org1ca5bfb">Links</h2>
+<div class="outline-text-2" id="text-org1ca5bfb">
 <ul class="org-ul">
 <li><a href="https://waydro.id/">Waydroid</a> : The start of the problem</li>
 <li><a href="https://askubuntu.com/questions/1475593/how-do-i-resolve-the-waydroid-session-is-stopped-problem/">Ask Ubuntu - how do I resolve the "waydroid session is stopped" problem?</a>: The First Problem</li>
