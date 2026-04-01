@@ -5,7 +5,7 @@
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"&gt;
 &lt;img src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"&gt;&lt;/a&gt;
 &lt;/div&gt;
-</copyright><lastBuildDate>Fri, 30 May 2025 20:35:45 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Fixing NVidia With Wayland on Ubuntu 24.04 (Noble Numbat)</title><link>https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+</copyright><lastBuildDate>Tue, 09 Dec 2025 20:08:38 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Fixing NVidia With Wayland on Ubuntu 24.04 (Noble Numbat)</title><link>https://necromuralist.github.io/posts/gnome-settings-with-nvidia-and-wayland/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
@@ -1460,7 +1460,71 @@ Well, insofar as it's working now, yes. But since I change more than one thing I
 &lt;li&gt;The Arch wiki has a page on &lt;a href="https://wiki.archlinux.org/index.php/Wake-on-LAN"&gt;Wake-On-LAN&lt;/a&gt; that tells you many different ways to set it up – I copied the systemd file almost exactly. It has quite a bit of useful information (too much maybe), but not all the commands will work out of the box on Ubuntu (because it's Arch).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>how-to</category><category>networking</category><category>systemd</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</guid><pubDate>Sun, 06 Dec 2020 23:10:53 GMT</pubDate></item><item><title>Enabling Wake-On-LAN (In Ubuntu 20.10)</title><link>https://necromuralist.github.io/posts/enabling-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+&lt;/div&gt;</description><category>how-to</category><category>networking</category><category>systemd</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/using-systemd-to-enable-wake-on-lan/</guid><pubDate>Sun, 06 Dec 2020 23:10:53 GMT</pubDate></item><item><title>Mount An Encrypted Drive Using cryptsetup</title><link>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
+&lt;h2&gt;Table of Contents&lt;/h2&gt;
+&lt;div id="text-table-of-contents" role="doc-toc"&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org598321a"&gt;What Is This About?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org6f37762"&gt;So, How Do You Do It?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/#org23190bb"&gt;Source&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org598321a" class="outline-2"&gt;
+&lt;h2 id="org598321a"&gt;What Is This About?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org598321a"&gt;
+&lt;p&gt;
+This is how to mount a LUKS encrypted drive with &lt;a href="https://manpages.ubuntu.com/manpages/xenial/man8/cryptsetup.8.html"&gt;cryptsetup&lt;/a&gt; in Ubuntu 20.10 (Groovy Gorilla). My use-case is I have a headless server that has an external USB drive that's encrypted with &lt;a href="https://en.wikipedia.org/wiki/Linux_Unified_Key_Setup"&gt;LUKS&lt;/a&gt; that I need to mount from the command line. I like the flexibility it gives a little more than the what the Gnome GUI does so I'll probably use it on my desktop as well. I previously documented how to do it with &lt;a href="http://storaged.org/doc/udisks2-api/latest/udisksctl.1.html"&gt;udiskctl&lt;/a&gt; in &lt;a href="https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/"&gt;this post&lt;/a&gt; but I like &lt;code&gt;cryptsetup&lt;/code&gt; a little better. This assumes that you know the partition/device (in my case it's &lt;code&gt;/dev/sdb1&lt;/code&gt;). That previous post shows how I found it so I'll just do the decrypting and mounting here.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org6f37762" class="outline-2"&gt;
+&lt;h2 id="org6f37762"&gt;So, How Do You Do It?&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org6f37762"&gt;
+&lt;p&gt;
+The syntax to decrypt the device is:
+&lt;/p&gt;
+
+&lt;pre class="example" id="org049a52d"&gt;
+sudo cryptsetup open &amp;lt;device&amp;gt; &amp;lt;name&amp;gt;
+&lt;/pre&gt;
+
+&lt;p&gt;
+As I mentioned above, in this case my &lt;code&gt;device&lt;/code&gt; is &lt;code&gt;/dev/sdb1&lt;/code&gt;. The name can be an arbitrary one (although there are limitiations on special characters so let's say it can be any alpha-numeric name) and I'll use &lt;code&gt;wddata&lt;/code&gt; as the name. Then my command to decrypt the drive is:
+&lt;/p&gt;
+
+&lt;pre class="example" id="orgde57f45"&gt;
+sudo cryptsetup open /dev/sdb1 wddata
+&lt;/pre&gt;
+
+&lt;p&gt;
+This will prompt you for your password and then the encryption passphrase. Once the command succeeds, it adds a link in &lt;code&gt;/dev/mapper&lt;/code&gt; using the name you passed in so you can mount the device (assuming the directory you want to mount it in exists) like this:
+&lt;/p&gt;
+
+&lt;pre class="example" id="org436be5c"&gt;
+sudo mount /dev/mapper/wddata /media/data
+&lt;/pre&gt;
+
+&lt;p&gt;
+Where &lt;code&gt;wddata&lt;/code&gt; is the name I told &lt;code&gt;cryptsetup&lt;/code&gt; to use and &lt;code&gt;/media/data&lt;/code&gt; is a directory that I had previously created.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id="outline-container-org23190bb" class="outline-2"&gt;
+&lt;h2 id="org23190bb"&gt;Source&lt;/h2&gt;
+&lt;div class="outline-text-2" id="text-org23190bb"&gt;
+&lt;p&gt;
+Besides the man-page for &lt;code&gt;cryptsetup&lt;/code&gt; on my server, I was pointed to use &lt;code&gt;cryptsetup&lt;/code&gt; from this StackOverflow post:
+&lt;/p&gt;
+&lt;ul class="org-ul"&gt;
+&lt;li&gt;&lt;a href="https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line"&gt;https://askubuntu.com/questions/63594/mount-encrypted-volumes-from-command-line&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;
+The accepted answer uses &lt;code&gt;udiskctl&lt;/code&gt; but further down is an answer by George Schölly using &lt;code&gt;cryptsetup&lt;/code&gt;. The syntax in the answer is the older &lt;code&gt;cryptsetup&lt;/code&gt; syntax (which should still work) so it doesn't look exactly like what I used.
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description><category>how-to</category><category>luks</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/mount-an-encrypted-drive-using-cryptsetup/</guid><pubDate>Sun, 06 Dec 2020 00:20:32 GMT</pubDate></item><item><title>Enabling Wake-On-LAN (In Ubuntu 20.10)</title><link>https://necromuralist.github.io/posts/enabling-wake-on-lan/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="table-of-contents" role="doc-toc"&gt;
 &lt;h2&gt;Table of Contents&lt;/h2&gt;
 &lt;div id="text-table-of-contents" role="doc-toc"&gt;
 &lt;ul&gt;
@@ -1970,103 +2034,4 @@ udisksctl mount -b /dev/mapper/luks-3eea956c-e684-4bcb-a640-97d0c8c5a700
 &lt;/ul&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</description><category>how-to</category><category>luks</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</guid><pubDate>Fri, 25 Sep 2020 01:26:30 GMT</pubDate></item><item><title>Changing the First Day of the Week in Ubuntu 20.04</title><link>https://necromuralist.github.io/posts/changing-the-first-day-of-the-week-in-ubuntu-2004/</link><dc:creator>Cloistered Monkey</dc:creator><description>&lt;div id="outline-container-org2c9c49c" class="outline-2"&gt;
-&lt;h2 id="org2c9c49c"&gt;Beginning&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org2c9c49c"&gt;
-&lt;p&gt;
-I like to have my calendars set up with Monday as the first day of the week, but being that I live in the United States most calendars default to starting the week on Sunday - including the Gnome calendar applet - and while searching pulls up quite a number of pages about how to do it, no one of them quite worked for me so I'm documenting what did work. 
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-
-&lt;div id="outline-container-org74bb130" class="outline-2"&gt;
-&lt;h2 id="org74bb130"&gt;Making the Changes&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-org74bb130"&gt;
-&lt;p&gt;
-First, over at &lt;a href="http://www.beginninglinux.com/home/gnome/change-first-day-of-week-to-monday-on-ubuntu-gnome-calendar"&gt;Beginning Linux&lt;/a&gt; they mentioned that you can find out which file to edit using the &lt;a href="https://man7.org/linux/man-pages/man1/locale.1.html"&gt;locale&lt;/a&gt; command.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# run this in the shell&lt;/span&gt;
-locale&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;grep&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;LANG&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;pre class="example"&gt;
-LANG=en_US.UTF-8
-&lt;/pre&gt;
-
-
-&lt;p&gt;
-The second line above (&lt;code&gt;LANG=en_US.UTF-8&lt;/code&gt;) is the output of the command and what we need to note here is that &lt;code&gt;en_US.UTF-8&lt;/code&gt; means that there's a file in &lt;code&gt;/usr/share/i18n/locales/&lt;/code&gt; named &lt;code&gt;en_US&lt;/code&gt; that's being used for my configuration so I made a copy of that file (in case I messed something up) and the opened it up in emacs (any changes you make in this directory have to be done as root). 
-&lt;/p&gt;
-
-&lt;p&gt;
-Now, what that Beginning Linux post and most other posts say to do is to change the line &lt;code&gt;first_weekday 1&lt;/code&gt; (meaning start on Sunday) to &lt;code&gt;first_weekday 2&lt;/code&gt; (start on Monday). The problem with this is that the &lt;code&gt;en_US&lt;/code&gt; file no longer has that line in it, so you have to add it. Not a big deal, I thought, so I added it as the last line in the file and re-generated the configuration using the &lt;a href="http://manpages.ubuntu.com/manpages/focal/man8/locale-gen.8.html"&gt;locale-gen&lt;/a&gt; command.
-&lt;/p&gt;
-
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo&lt;span class="w"&gt; &lt;/span&gt;locale-gen
-&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;
-Which gave me errors like this:
-&lt;/p&gt;
-
-&lt;pre class="example" id="orgee925e0"&gt;
-Generating locales (this might take a while)...
-  en_AG.UTF-8...failed to set locale!
-en_US:180: syntax error: not inside a locale definition section
- done
-&lt;/pre&gt;
-
-&lt;p&gt;
-It turns out that the file is actually broken into sections and you can't just stick the line any old place, you have to stick it in the right block. If you look in one of the other files that has the line (pick one by grepping &lt;code&gt;first_weekday&lt;/code&gt;) you'll see that the block we want starts with  &lt;code&gt;LC_TIME&lt;/code&gt; and ends with &lt;code&gt;END LC_TIME&lt;/code&gt; so I put the line in at the end of the block like so:
-&lt;/p&gt;
-
-&lt;pre class="example" id="orge623e75"&gt;
-% Define the first day of the week to be displayed in a calendar.
-% This weekday is relative to the date defined in the &amp;lt;week&amp;gt; keyword.
-
-first_weekday 2
-END LC_TIME
-&lt;/pre&gt;
-
-&lt;p&gt;
-I copied the comments from one of the Ukranian settings files. I picked Ukranian because I thought UK stood for United Kingdom, but it turns out they use GB to indicate Great Britain instead - anyway, it works. The comment suggests that you might also be able to change the &lt;code&gt;week&lt;/code&gt; definition instead of adding this line, but here's what that line looks like.
-&lt;/p&gt;
-
-&lt;pre class="example" id="org74a0b49"&gt;
-week 7;19971130;1
-&lt;/pre&gt;
-
-&lt;p&gt;
-It seems safer to stick with the &lt;code&gt;first_weekday&lt;/code&gt;.
-&lt;/p&gt;
-
-&lt;p&gt;
-Next I re-ran the locale-gen command.
-&lt;/p&gt;
-
-&lt;pre class="example" id="org1070348"&gt;
-sudo locale-gen
-&lt;/pre&gt;
-
-&lt;p&gt;
-And this time it ran without errors. 
-&lt;/p&gt;
-
-&lt;p&gt;
-So, all fixed, then, right? Well, not quite, because this doesn't update the GUI. There are, once again, many pages telling you how to reload the GUI without logging out, but some, like the Beginning Linux page use names of processes or commands that don't seem to exist any more, or, in one case caused the GUI to raise an error message so I decided it wasn't really worth it to mess with the GUI like that when all you have to do is log out and back in - or not care about it until the next time you log in. 
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id="outline-container-orgc04e7db" class="outline-2"&gt;
-&lt;h2 id="orgc04e7db"&gt;The End&lt;/h2&gt;
-&lt;div class="outline-text-2" id="text-orgc04e7db"&gt;
-&lt;p&gt;
-Part of the motivation for writing this is that it took me more time searching for what worked than it did to make the actual change so maybe next time I'll remember that I wrote this down if I ever have to do this again, which I'm sure I will.
-&lt;/p&gt;
-
-&lt;p&gt;
-As a final note I should mention that the accepted answer to this post &lt;a href="https://askubuntu.com/questions/197613/monday-as-first-day-in-gnome-shell-instead-of-sunday"&gt;on Stack Overflow&lt;/a&gt; pretty much tells you what to do, it's only missing telling you how to double-check which file to edit, but I didn't find it until after I'd made the changes. Also this page on &lt;a href="https://linuxconfig.org/how-to-restart-gui-on-ubuntu-20-04-focal-fossa"&gt;Linux Config&lt;/a&gt; has things to try to restart the GUI without logging out, but trying Method 3 (restarting the gnome-shell) is what gave me the error, but if for some reason you really can't log out and you need the week to start on Monday right now, maybe it's something to try.
-&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;</description><category>ubuntu</category><guid>https://necromuralist.github.io/posts/changing-the-first-day-of-the-week-in-ubuntu-2004/</guid><pubDate>Thu, 13 Aug 2020 02:00:04 GMT</pubDate></item></channel></rss>
+&lt;/div&gt;</description><category>how-to</category><category>luks</category><category>ubuntu</category><guid>https://necromuralist.github.io/posts/mounting-an-encrypted-usb-drive/</guid><pubDate>Fri, 25 Sep 2020 01:26:30 GMT</pubDate></item></channel></rss>
